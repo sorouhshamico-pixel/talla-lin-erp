@@ -243,6 +243,14 @@
                 <a href="{{ route('warehouses.index') }}" class="{{ request()->routeIs('warehouses.*') ? 'active' : '' }}">
                     المستودعات
                 </a>
+
+                <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                    التصنيفات
+                </a>
+
+                <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">
+                    المنتجات
+                </a>
             </nav>
         </aside>
 

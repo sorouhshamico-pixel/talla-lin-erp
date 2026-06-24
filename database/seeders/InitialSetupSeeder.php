@@ -3,7 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
+use App\Models\Category;
 use App\Models\Company;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
@@ -97,5 +100,63 @@ class InitialSetupSeeder extends Seeder
                 'can_access' => true,
             ],
         ]);
+
+        $category = Category::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'abayas',
+            ],
+            [
+                'name' => 'عبايات',
+                'description' => 'تصنيف مخصص لمنتجات العبايات.',
+                'is_active' => true,
+            ]
+        );
+
+        $product = Product::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'sku' => 'TL-ABAYA-001',
+            ],
+            [
+                'category_id' => $category->id,
+                'name' => 'عباية لين كلاسيك',
+                'description' => 'منتج تجريبي أولي لبناء نظام المنتجات.',
+                'type' => 'variable',
+                'sale_price' => 250.00,
+                'cost_price' => 120.00,
+                'tax_rate' => 15.00,
+                'track_inventory' => true,
+                'is_active' => true,
+            ]
+        );
+
+        ProductVariant::query()->firstOrCreate(
+            [
+                'sku' => 'TL-ABAYA-001-BLK-M',
+            ],
+            [
+                'product_id' => $product->id,
+                'color' => 'أسود',
+                'size' => 'M',
+                'sale_price' => 250.00,
+                'cost_price' => 120.00,
+                'is_active' => true,
+            ]
+        );
+
+        ProductVariant::query()->firstOrCreate(
+            [
+                'sku' => 'TL-ABAYA-001-BLK-L',
+            ],
+            [
+                'product_id' => $product->id,
+                'color' => 'أسود',
+                'size' => 'L',
+                'sale_price' => 250.00,
+                'cost_price' => 120.00,
+                'is_active' => true,
+            ]
+        );
     }
 }

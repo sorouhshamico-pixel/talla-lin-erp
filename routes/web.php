@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/branches', [BranchController::class, 'index'])->name('branches.index');
     Route::get('/warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
