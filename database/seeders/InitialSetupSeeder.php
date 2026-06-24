@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -39,7 +40,7 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
-        Branch::query()->firstOrCreate(
+        $onlineBranch = Branch::query()->firstOrCreate(
             [
                 'company_id' => $company->id,
                 'code' => 'ONLINE',
@@ -67,5 +68,34 @@ class InitialSetupSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $owner = User::query()->updateOrCreate(
+            [
+                'email' => 'admin@tallalin.local',
+            ],
+            [
+                'name' => 'مدير النظام',
+                'password' => 'password',
+                'role' => 'owner',
+                'current_branch_id' => $mainBranch->id,
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $owner->branches()->sync([
+            $mainBranch->id => [
+                'company_id' => $company->id,
+                'role' => 'owner',
+                'is_primary' => true,
+                'can_access' => true,
+            ],
+            $onlineBranch->id => [
+                'company_id' => $company->id,
+                'role' => 'owner',
+                'is_primary' => false,
+                'can_access' => true,
+            ],
+        ]);
     }
 }
