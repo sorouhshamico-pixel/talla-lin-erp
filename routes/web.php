@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/movements/create', [InventoryController::class, 'createMovement'])->name('inventory.movements.create');
+    Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

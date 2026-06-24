@@ -11,7 +11,20 @@
                 عرض أرصدة المنتجات حسب المستودع والفرع.
             </div>
         </div>
+
+        <div>
+            <a href="{{ route('inventory.movements.create') }}"
+               style="display:inline-block;background:#8b5e3c;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;">
+                حركة مخزون جديدة
+            </a>
+        </div>
     </div>
+
+    @if (session('success'))
+        <div class="card" style="margin-bottom: 20px; border-color: #cbe7d5; color: #157347;">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <div class="card">
         <h2 style="margin-top: 0;">أرصدة المخزون</h2>
