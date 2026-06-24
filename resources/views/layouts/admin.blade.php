@@ -251,6 +251,10 @@
                 <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">
                     المنتجات
                 </a>
+
+                <a href="{{ route('inventory.index') }}" class="{{ request()->routeIs('inventory.*') ? 'active' : '' }}">
+                    المخزون
+                </a>
             </nav>
         </aside>
 

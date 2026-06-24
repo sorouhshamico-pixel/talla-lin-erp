@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\InventoryBalance;
+use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -57,7 +59,7 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
-        Warehouse::query()->firstOrCreate(
+        $mainWarehouse = Warehouse::query()->firstOrCreate(
             [
                 'company_id' => $company->id,
                 'code' => 'MAIN-WH',
@@ -131,7 +133,7 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
-        ProductVariant::query()->firstOrCreate(
+        $mediumVariant = ProductVariant::query()->firstOrCreate(
             [
                 'sku' => 'TL-ABAYA-001-BLK-M',
             ],
@@ -145,7 +147,7 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
-        ProductVariant::query()->firstOrCreate(
+        $largeVariant = ProductVariant::query()->firstOrCreate(
             [
                 'sku' => 'TL-ABAYA-001-BLK-L',
             ],
@@ -156,6 +158,80 @@ class InitialSetupSeeder extends Seeder
                 'sale_price' => 250.00,
                 'cost_price' => 120.00,
                 'is_active' => true,
+            ]
+        );
+
+        $this->createOpeningInventory(
+            company: $company,
+            branch: $mainBranch,
+            warehouse: $mainWarehouse,
+            product: $product,
+            variant: $mediumVariant,
+            quantity: 12,
+            reserved: 2,
+            reorderLevel: 3,
+            unitCost: 120,
+            referenceNumber: 'OPENING-MAIN-WH-M'
+        );
+
+        $this->createOpeningInventory(
+            company: $company,
+            branch: $mainBranch,
+            warehouse: $mainWarehouse,
+            product: $product,
+            variant: $largeVariant,
+            quantity: 8,
+            reserved: 1,
+            reorderLevel: 3,
+            unitCost: 120,
+            referenceNumber: 'OPENING-MAIN-WH-L'
+        );
+    }
+
+    private function createOpeningInventory(
+        Company $company,
+        Branch $branch,
+        Warehouse $warehouse,
+        Product $product,
+        ProductVariant $variant,
+        int $quantity,
+        int $reserved,
+        int $reorderLevel,
+        float $unitCost,
+        string $referenceNumber
+    ): void {
+        InventoryBalance::query()->updateOrCreate(
+            [
+                'warehouse_id' => $warehouse->id,
+                'product_variant_id' => $variant->id,
+            ],
+            [
+                'company_id' => $company->id,
+                'branch_id' => $branch->id,
+                'product_id' => $product->id,
+                'quantity_on_hand' => $quantity,
+                'quantity_reserved' => $reserved,
+                'reorder_level' => $reorderLevel,
+            ]
+        );
+
+        InventoryMovement::query()->firstOrCreate(
+            [
+                'warehouse_id' => $warehouse->id,
+                'product_variant_id' => $variant->id,
+                'type' => 'opening_balance',
+                'reference_number' => $referenceNumber,
+            ],
+            [
+                'company_id' => $company->id,
+                'branch_id' => $branch->id,
+                'product_id' => $product->id,
+                'direction' => 'in',
+                'quantity' => $quantity,
+                'unit_cost' => $unitCost,
+                'reference_type' => 'system',
+                'notes' => 'رصيد افتتاحي تجريبي للمخزون.',
+                'occurred_at' => now(),
             ]
         );
     }
