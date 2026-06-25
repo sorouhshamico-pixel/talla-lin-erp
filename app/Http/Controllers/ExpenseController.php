@@ -45,9 +45,17 @@ class ExpenseController extends Controller
             'unpaid_amount' => round((float) (clone $expensesQuery)->where('is_paid', false)->sum('amount'), 2),
         ];
 
+        $filters['large_amount'] = $request->query('large_amount');
+
+        $largeAmountAlert = $this->largeAmountAlert($filters);
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
         $missingAttachmentSummary = $this->missingAttachmentSummary($filters);
+        // 11Q large amount list filter
+        if (($filters['large_amount'] ?? null) === '1') {
+            $expensesQuery->where('amount', '>=', 1000);
+        }
+
 
         $expenses = $expensesQuery
             ->latest('expense_date')
@@ -63,6 +71,7 @@ class ExpenseController extends Controller
             'attachmentStatuses' => $attachmentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
+            'largeAmountAlert' => $largeAmountAlert,
             'unpaidAlert' => $unpaidAlert,
             'monthlySummary' => $monthlySummary,
             'missingAttachmentSummary' => $missingAttachmentSummary,
@@ -322,9 +331,41 @@ class ExpenseController extends Controller
 
         $this->applyNonDateExpenseFilters($expensesQuery, $filters);
 
+        if (($filters['large_amount'] ?? null) === '1') {
+            $expensesQuery->where('amount', '>=', 1000);
+        }
+
         return $expensesQuery;
     }
 
+    private function largeAmountAlert(array $filters): array
+    {
+        $threshold = 1000;
+
+        $largeAmountQuery = $this->filteredExpensesQuery($filters)
+            ->where('amount', '>=', $threshold);
+
+        $quickFilter = $filters;
+        unset($quickFilter['page']);
+        $quickFilter['large_amount'] = '1';
+
+        $quickFilter = array_filter(
+            $quickFilter,
+            fn ($value): bool => $value !== null && $value !== ''
+        );
+
+        return [
+            'threshold' => $threshold,
+            'count' => (clone $largeAmountQuery)->count(),
+            'total_amount' => round((float) (clone $largeAmountQuery)->sum('amount'), 2),
+            'highest' => (clone $largeAmountQuery)
+                ->orderByDesc('amount')
+                ->orderByDesc('expense_date')
+                ->orderByDesc('id')
+                ->first(),
+            'quick_filter_url' => route('expenses.index', $quickFilter),
+        ];
+    }
     private function unpaidExpenseAlert(array $filters): array
     {
         $unpaidQuery = $this->filteredExpensesQuery($filters)

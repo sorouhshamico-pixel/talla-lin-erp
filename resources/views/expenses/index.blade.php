@@ -118,6 +118,49 @@
         </form>
     </div>
 
+    <div class="card" data-testid="expense-large-amount-alert" style="margin-bottom:20px;border-color:#d39c35;background:#fffaf0;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">تنبيه المصاريف الكبيرة</h2>
+                <div class="muted" style="margin-bottom:16px;">
+                    يعرض هذا التنبيه المصاريف التي تبلغ
+                    {{ number_format($largeAmountAlert['threshold'], 2) }}
+                    ريال أو أكثر ضمن الفلاتر الحالية.
+                </div>
+            </div>
+
+            <a href="{{ $largeAmountAlert['quick_filter_url'] }}"
+               style="background:#b45309;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;">
+                عرض المصاريف الكبيرة
+            </a>
+        </div>
+
+        <div class="grid">
+            <div class="metric">
+                <div class="metric-label">عدد المصاريف الكبيرة</div>
+                <div class="metric-value">{{ $largeAmountAlert['count'] }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">إجمالي قيمتها</div>
+                <div class="metric-value">{{ number_format($largeAmountAlert['total_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">أعلى مصروف ضمن الفلاتر الحالية</div>
+                <div class="metric-value" style="font-size:18px;">
+                    @if ($largeAmountAlert['highest'])
+                        {{ $largeAmountAlert['highest']->description }}
+                        <div style="margin-top:6px;font-size:24px;">
+                            {{ number_format($largeAmountAlert['highest']->amount, 2) }} ريال
+                        </div>
+                    @else
+                        لا يوجد
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card" data-testid="expense-unpaid-alert" style="margin-bottom:20px;border-color:#f1b5b5;background:#fffafa;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
