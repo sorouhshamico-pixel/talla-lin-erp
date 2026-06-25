@@ -107,9 +107,18 @@
     </div>
 
     <div class="card" data-testid="expense-unpaid-alert" style="margin-bottom:20px;border-color:#f1b5b5;background:#fffafa;">
-        <h2 style="margin-top:0;">تنبيه المصاريف غير المدفوعة</h2>
-        <div class="muted" style="margin-bottom:16px;">
-            يعرض هذا التنبيه المصاريف غير المدفوعة ضمن الفلاتر الحالية.
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">تنبيه المصاريف غير المدفوعة</h2>
+                <div class="muted" style="margin-bottom:16px;">
+                    يعرض هذا التنبيه المصاريف غير المدفوعة ضمن الفلاتر الحالية.
+                </div>
+            </div>
+
+            <a href="{{ route('expenses.index', array_merge(request()->query(), ['payment_status' => 'unpaid'])) }}"
+               style="background:#b42318;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;">
+                عرض المصاريف غير المدفوعة
+            </a>
         </div>
 
         <div class="grid">
