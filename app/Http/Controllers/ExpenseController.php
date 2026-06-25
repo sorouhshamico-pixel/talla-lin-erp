@@ -47,6 +47,7 @@ class ExpenseController extends Controller
 
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
+        $missingAttachmentSummary = $this->missingAttachmentSummary($filters);
 
         $expenses = $expensesQuery
             ->latest('expense_date')
@@ -64,6 +65,7 @@ class ExpenseController extends Controller
             'expenseTotals' => $expenseTotals,
             'unpaidAlert' => $unpaidAlert,
             'monthlySummary' => $monthlySummary,
+            'missingAttachmentSummary' => $missingAttachmentSummary,
         ]);
     }
 
@@ -379,6 +381,18 @@ class ExpenseController extends Controller
         ];
     }
 
+    private function missingAttachmentSummary(array $filters): array
+    {
+        $missingAttachmentQuery = $this->filteredExpensesQuery($filters);
+
+        $this->applyAttachmentStatusFilter($missingAttachmentQuery, 'without_attachment');
+
+        return [
+            'count' => (clone $missingAttachmentQuery)->count(),
+            'total_amount' => round((float) (clone $missingAttachmentQuery)->sum('amount'), 2),
+        ];
+    }
+
     private function applyNonDateExpenseFilters(Builder $expensesQuery, array $filters): void
     {
         if (! empty($filters['branch_id'])) {
@@ -393,20 +407,25 @@ class ExpenseController extends Controller
             $expensesQuery->where('payment_method', $filters['payment_method']);
         }
 
-        if ($filters['payment_status'] === 'paid') {
+        if (($filters['payment_status'] ?? null) === 'paid') {
             $expensesQuery->where('is_paid', true);
         }
 
-        if ($filters['payment_status'] === 'unpaid') {
+        if (($filters['payment_status'] ?? null) === 'unpaid') {
             $expensesQuery->where('is_paid', false);
         }
 
-        if ($filters['attachment_status'] === 'with_attachment') {
+        $this->applyAttachmentStatusFilter($expensesQuery, $filters['attachment_status'] ?? null);
+    }
+
+    private function applyAttachmentStatusFilter(Builder $expensesQuery, ?string $attachmentStatus): void
+    {
+        if ($attachmentStatus === 'with_attachment') {
             $expensesQuery->whereNotNull('attachment_path')
                 ->where('attachment_path', '!=', '');
         }
 
-        if ($filters['attachment_status'] === 'without_attachment') {
+        if ($attachmentStatus === 'without_attachment') {
             $expensesQuery->where(function (Builder $query): void {
                 $query->whereNull('attachment_path')
                     ->orWhere('attachment_path', '');

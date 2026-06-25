@@ -248,7 +248,35 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-testid="expense-missing-attachment-summary" style="margin-bottom:20px;border-color:#ead7b7;background:#fffaf0;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">ملخص المصاريف بدون مرفق</h2>
+                <div class="muted" style="margin-bottom:16px;">
+                    يساعد هذا الملخص في متابعة المصاريف التي تحتاج إيصالًا أو مستندًا ضمن الفلاتر الحالية.
+                </div>
+            </div>
+
+            <a href="{{ route('expenses.index', array_merge(request()->query(), ['attachment_status' => 'without_attachment'])) }}"
+               style="background:#8b5e3c;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;">
+                عرض المصاريف بدون مرفق
+            </a>
+        </div>
+
+        <div class="grid">
+            <div class="metric">
+                <div class="metric-label">عدد المصاريف بدون مرفق</div>
+                <div class="metric-value">{{ $missingAttachmentSummary['count'] }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">إجمالي قيمة المصاريف بدون مرفق</div>
+                <div class="metric-value">{{ number_format($missingAttachmentSummary['total_amount'], 2) }} ريال</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" data-testid="expense-list">
         <h2 style="margin-top:0;">قائمة المصاريف</h2>
 
         <div class="table-wrap">
