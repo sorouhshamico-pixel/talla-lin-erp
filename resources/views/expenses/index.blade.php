@@ -149,6 +149,7 @@
                         <th>المبلغ</th>
                         <th>الضريبة</th>
                         <th>الحالة</th>
+                        <th>الإجراءات</th>
                     </tr>
                 </thead>
 
@@ -172,10 +173,28 @@
                                     <span class="badge gray">غير مدفوع</span>
                                 @endif
                             </td>
+                            <td>
+                                <div style="display:flex;gap:8px;align-items:center;">
+                                    <a href="{{ route('expenses.edit', $expense) }}"
+                                       style="background:#eee4dc;color:#5d3b25;padding:8px 12px;border-radius:10px;font-weight:700;">
+                                        تعديل
+                                    </a>
+
+                                    <form method="POST" action="{{ route('expenses.destroy', $expense) }}" onsubmit="return confirm('هل تريد حذف هذا المصروف؟');">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit"
+                                                style="background:#b42318;color:#fff;border:0;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer;">
+                                            حذف
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9">لا توجد مصاريف ضمن الفلاتر الحالية.</td>
+                            <td colspan="10">لا توجد مصاريف ضمن الفلاتر الحالية.</td>
                         </tr>
                     @endforelse
                 </tbody>
