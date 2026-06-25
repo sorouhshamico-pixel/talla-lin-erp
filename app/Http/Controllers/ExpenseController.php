@@ -20,6 +20,7 @@ class ExpenseController extends Controller
             'branch_id' => $request->input('branch_id'),
             'expense_category_id' => $request->input('expense_category_id'),
             'payment_method' => $request->input('payment_method'),
+            'payment_status' => $request->input('payment_status'),
         ];
 
         $branches = Branch::query()
@@ -33,6 +34,7 @@ class ExpenseController extends Controller
             ->get();
 
         $paymentMethods = $this->paymentMethods();
+        $paymentStatuses = $this->paymentStatuses();
 
         $expensesQuery = Expense::query()
             ->with(['branch', 'category', 'user']);
@@ -57,11 +59,20 @@ class ExpenseController extends Controller
             $expensesQuery->where('payment_method', $filters['payment_method']);
         }
 
+        if ($filters['payment_status'] === 'paid') {
+            $expensesQuery->where('is_paid', true);
+        }
+
+        if ($filters['payment_status'] === 'unpaid') {
+            $expensesQuery->where('is_paid', false);
+        }
+
         $expenseTotals = [
             'count' => (clone $expensesQuery)->count(),
             'amount' => round((float) (clone $expensesQuery)->sum('amount'), 2),
             'tax_amount' => round((float) (clone $expensesQuery)->sum('tax_amount'), 2),
             'paid_amount' => round((float) (clone $expensesQuery)->where('is_paid', true)->sum('amount'), 2),
+            'unpaid_amount' => round((float) (clone $expensesQuery)->where('is_paid', false)->sum('amount'), 2),
         ];
 
         $expenses = $expensesQuery
@@ -74,6 +85,7 @@ class ExpenseController extends Controller
             'branches' => $branches,
             'categories' => $categories,
             'paymentMethods' => $paymentMethods,
+            'paymentStatuses' => $paymentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
         ]);
@@ -95,6 +107,8 @@ class ExpenseController extends Controller
         return view('expenses.create', [
             'branches' => $branches,
             'categories' => $categories,
+            'paymentMethods' => $this->paymentMethods(),
+            'paymentStatuses' => $this->paymentStatuses(),
         ]);
     }
 
@@ -136,7 +150,7 @@ class ExpenseController extends Controller
             'expense_date' => $data['expense_date'],
             'reference_number' => $data['reference_number'] ?? null,
             'notes' => $data['notes'] ?? null,
-            'is_paid' => true,
+            'is_paid' => $this->paymentStatusValue($request),
         ]);
 
         return redirect()
@@ -165,6 +179,7 @@ class ExpenseController extends Controller
             'branches' => $branches,
             'categories' => $categories,
             'paymentMethods' => $this->paymentMethods(),
+            'paymentStatuses' => $this->paymentStatuses(),
         ]);
     }
 
@@ -200,7 +215,7 @@ class ExpenseController extends Controller
             'expense_date' => $data['expense_date'],
             'reference_number' => $data['reference_number'] ?? null,
             'notes' => $data['notes'] ?? null,
-            'is_paid' => true,
+            'is_paid' => $this->paymentStatusValue($request),
         ]);
 
         return redirect()
@@ -226,10 +241,20 @@ class ExpenseController extends Controller
             'amount' => ['required', 'numeric', 'min:0.01'],
             'tax_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:cash,card,bank_transfer,online,other'],
+            'is_paid' => ['nullable', 'boolean'],
             'expense_date' => ['required', 'date'],
             'reference_number' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
+    }
+
+    private function paymentStatusValue(Request $request): bool
+    {
+        if (! $request->has('is_paid')) {
+            return true;
+        }
+
+        return $request->boolean('is_paid');
     }
 
     private function validateCategoryAndBranchCompany(ExpenseCategory $category, Branch $branch): ?RedirectResponse
@@ -253,6 +278,14 @@ class ExpenseController extends Controller
             'bank_transfer' => 'تحويل بنكي',
             'online' => 'دفع إلكتروني',
             'other' => 'أخرى',
+        ];
+    }
+
+    private function paymentStatuses(): array
+    {
+        return [
+            'paid' => 'مدفوعة',
+            'unpaid' => 'غير مدفوعة',
         ];
     }
 }

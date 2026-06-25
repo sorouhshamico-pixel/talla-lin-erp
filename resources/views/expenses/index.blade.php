@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
             <div class="muted">
-                متابعة المصاريف التشغيلية مع الفلترة حسب الفترة والفرع والتصنيف وطريقة الدفع.
+                متابعة المصاريف التشغيلية مع الفلترة حسب الفترة والفرع والتصنيف وطريقة الدفع وحالة الدفع.
             </div>
         </div>
 
@@ -23,7 +23,7 @@
 
     <div class="card" style="margin-bottom:20px;">
         <form method="GET" action="{{ route('expenses.index') }}">
-            <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;align-items:end;">
+            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;align-items:end;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">من تاريخ</label>
                     <input
@@ -80,6 +80,18 @@
                     </select>
                 </div>
 
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">حالة الدفع</label>
+                    <select name="payment_status" style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="">كل الحالات</option>
+                        @foreach ($paymentStatuses as $value => $label)
+                            <option value="{{ $value }}" @selected($filters['payment_status'] === $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div style="display:flex;gap:10px;">
                     <button type="submit"
                             style="background:#8b5e3c;color:#fff;border:0;padding:12px 20px;border-radius:12px;font-weight:700;cursor:pointer;">
@@ -119,16 +131,14 @@
         </div>
 
         <div class="metric">
-            <div class="metric-label">الفترة المحددة</div>
-            <div class="metric-value" style="font-size:18px;">
-                {{ $filters['from_date'] ?: 'البداية' }} - {{ $filters['to_date'] ?: 'اليوم' }}
-            </div>
+            <div class="metric-label">إجمالي المصاريف غير المدفوعة</div>
+            <div class="metric-value">{{ number_format($expenseTotals['unpaid_amount'], 2) }} ريال</div>
         </div>
 
         <div class="metric">
-            <div class="metric-label">طريقة الدفع المحددة</div>
+            <div class="metric-label">حالة الدفع المحددة</div>
             <div class="metric-value" style="font-size:18px;">
-                {{ $filters['payment_method'] ? ($paymentMethods[$filters['payment_method']] ?? $filters['payment_method']) : 'كل الطرق' }}
+                {{ $filters['payment_status'] ? ($paymentStatuses[$filters['payment_status']] ?? $filters['payment_status']) : 'كل الحالات' }}
             </div>
         </div>
     </div>
@@ -148,7 +158,7 @@
                         <th>طريقة الدفع</th>
                         <th>المبلغ</th>
                         <th>الضريبة</th>
-                        <th>الحالة</th>
+                        <th>حالة الدفع</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>

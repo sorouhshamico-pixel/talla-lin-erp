@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">تعديل مصروف تشغيلي</h1>
             <div class="muted">
-                تحديث بيانات المصروف التشغيلي مع التحقق من الفرع والتصنيف وطريقة الدفع.
+                تحديث بيانات المصروف التشغيلي مع التحقق من الفرع والتصنيف وطريقة الدفع وحالة الدفع.
             </div>
         </div>
 
@@ -98,6 +98,14 @@
                                 {{ $label }}
                             </option>
                         @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">حالة الدفع</label>
+                    <select name="is_paid" required style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="1" @selected((string) old('is_paid', $expense->is_paid ? '1' : '0') === '1')>مدفوع</option>
+                        <option value="0" @selected((string) old('is_paid', $expense->is_paid ? '1' : '0') === '0')>غير مدفوع</option>
                     </select>
                 </div>
 
