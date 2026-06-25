@@ -1,65 +1,106 @@
-@extends('layouts.admin', [
-    'title' => 'تصنيفات المصاريف | طلة لين ERP',
-    'header' => 'تصنيفات المصاريف'
-])
+@extends('layouts.app')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">تصنيفات المصاريف</h1>
-            <div class="muted">
-                إدارة التصنيفات المستخدمة عند تسجيل المصاريف التشغيلية.
+    <div class="container py-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-1">تصنيفات المصاريف</h1>
+                <p class="text-muted mb-0">إدارة تصنيفات المصاريف التشغيلية وتفعيلها أو تعطيلها.</p>
             </div>
-        </div>
 
-        <div>
-            <a href="{{ route('expense-categories.create') }}"
-               style="display:inline-block;background:#8b5e3c;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;">
+            <a href="{{ route('expense-categories.create') }}" class="btn btn-primary">
                 تصنيف جديد
             </a>
         </div>
-    </div>
 
-    @if (session('success'))
-        <div class="card" style="margin-bottom: 20px; border-color: #cbe7d5; color: #157347;">
-            {{ session('success') }}
-        </div>
-    @endif
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
-    <div class="card">
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم التصنيف</th>
-                        <th>Slug</th>
-                        <th>الوصف</th>
-                        <th>عدد المصاريف</th>
-                        <th>الحالة</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($categories as $category)
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
                         <tr>
-                            <td>{{ $category->name }}</td>
-                            <td dir="ltr">{{ $category->slug }}</td>
-                            <td>{{ $category->description ?? '-' }}</td>
-                            <td>{{ $category->expenses_count }}</td>
-                            <td>
-                                @if ($category->is_active)
-                                    <span class="badge">نشط</span>
-                                @else
-                                    <span class="badge muted">غير نشط</span>
-                                @endif
-                            </td>
+                            <th>اسم التصنيف</th>
+                            <th>Slug</th>
+                            <th>الوصف</th>
+                            <th>الحالة</th>
+                            <th>عدد المصاريف</th>
+                            <th class="text-end">الإجراءات</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">لا توجد تصنيفات مصاريف.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($expenseCategories as $expenseCategory)
+                            <tr>
+                                <td class="fw-semibold">{{ $expenseCategory->name }}</td>
+
+                                <td>
+                                    <code>{{ $expenseCategory->slug }}</code>
+                                </td>
+
+                                <td>{{ $expenseCategory->description ?: '—' }}</td>
+
+                                <td>
+                                    @if ($expenseCategory->is_active)
+                                        <span class="badge bg-success">نشط</span>
+                                    @else
+                                        <span class="badge bg-secondary">غير نشط</span>
+                                    @endif
+                                </td>
+
+                                <td>{{ $expenseCategory->expenses_count }}</td>
+
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a href="{{ route('expense-categories.edit', $expenseCategory) }}" class="btn btn-sm btn-outline-primary">
+                                            تعديل
+                                        </a>
+
+                                        <form method="POST" action="{{ route('expense-categories.toggle-status', $expenseCategory) }}">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button type="submit" class="btn btn-sm {{ $expenseCategory->is_active ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                                                {{ $expenseCategory->is_active ? 'تعطيل' : 'تفعيل' }}
+                                            </button>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('expense-categories.destroy', $expenseCategory) }}" onsubmit="return confirm('هل تريد حذف هذا التصنيف؟');">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                حذف
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    لا توجد تصنيفات مصاريف حتى الآن.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($expenseCategories->hasPages())
+                <div class="card-footer">
+                    {{ $expenseCategories->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

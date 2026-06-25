@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use App\Models\Branch;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -47,7 +48,7 @@ class ExpenseController extends Controller
     {
         $data = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
-            'expense_category_id' => ['required', 'integer', 'exists:expense_categories,id'],
+            'expense_category_id' => ['required', 'integer', Rule::exists('expense_categories', 'id')->where('is_active', true)],
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'tax_amount' => ['nullable', 'numeric', 'min:0'],
@@ -64,6 +65,14 @@ class ExpenseController extends Controller
             return back()
                 ->withErrors([
                     'expense_category_id' => 'تصنيف المصروف لا يتبع نفس شركة الفرع.',
+                ])
+                ->withInput();
+        }
+
+        if (! $category->is_active) {
+            return back()
+                ->withErrors([
+                    'expense_category_id' => 'لا يمكن تسجيل مصروف على تصنيف غير نشط.',
                 ])
                 ->withInput();
         }

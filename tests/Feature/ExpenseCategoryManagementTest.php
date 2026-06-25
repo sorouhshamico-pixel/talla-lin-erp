@@ -32,6 +32,8 @@ class ExpenseCategoryManagementTest extends TestCase
         $response->assertSee('مصاريف تشغيلية');
         $response->assertSee('operational-expenses');
         $response->assertSee('تصنيف جديد');
+        $response->assertSee('تعديل');
+        $response->assertSee('تعطيل');
     }
 
     public function test_owner_can_view_expense_category_create_page(): void
@@ -88,6 +90,134 @@ class ExpenseCategoryManagementTest extends TestCase
 
         $response->assertRedirect('/expense-categories/create');
         $response->assertSessionHasErrors('slug');
+    }
+
+    public function test_owner_can_view_expense_category_edit_page(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $category = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+
+        $response = $this->actingAs($admin)->get('/expense-categories/' . $category->id . '/edit');
+
+        $response->assertOk();
+        $response->assertSee('تعديل تصنيف مصروف');
+        $response->assertSee('مصاريف تشغيلية');
+        $response->assertSee('operational-expenses');
+    }
+
+    public function test_owner_can_update_expense_category(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $category = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+
+        $response = $this->actingAs($admin)->patch('/expense-categories/' . $category->id, [
+            'name' => 'مصاريف تشغيلية محدثة',
+            'slug' => 'operational-expenses-updated',
+            'description' => 'وصف محدث للتصنيف.',
+        ]);
+
+        $response->assertRedirect('/expense-categories');
+
+        $this->assertDatabaseHas('expense_categories', [
+            'id' => $category->id,
+            'name' => 'مصاريف تشغيلية محدثة',
+            'slug' => 'operational-expenses-updated',
+            'description' => 'وصف محدث للتصنيف.',
+        ]);
+    }
+
+    public function test_expense_category_update_rejects_duplicate_slug(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+
+        $firstCategory = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+        $secondCategory = ExpenseCategory::query()->where('slug', 'rent')->firstOrFail();
+
+        $response = $this->actingAs($admin)
+            ->from('/expense-categories/' . $secondCategory->id . '/edit')
+            ->patch('/expense-categories/' . $secondCategory->id, [
+                'name' => 'محاولة تكرار',
+                'slug' => $firstCategory->slug,
+                'description' => 'slug مكرر.',
+            ]);
+
+        $response->assertRedirect('/expense-categories/' . $secondCategory->id . '/edit');
+        $response->assertSessionHasErrors('slug');
+    }
+
+    public function test_owner_can_disable_and_enable_expense_category(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $category = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+
+        $disableResponse = $this->actingAs($admin)->patch('/expense-categories/' . $category->id . '/toggle-status');
+        $disableResponse->assertRedirect('/expense-categories');
+
+        $category->refresh();
+        $this->assertFalse($category->is_active);
+
+        $enableResponse = $this->actingAs($admin)->patch('/expense-categories/' . $category->id . '/toggle-status');
+        $enableResponse->assertRedirect('/expense-categories');
+
+        $category->refresh();
+        $this->assertTrue($category->is_active);
+    }
+
+    public function test_disabled_expense_category_does_not_appear_in_expense_create_page(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $category = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+
+        $category->forceFill([
+            'is_active' => false,
+        ])->save();
+
+        $response = $this->actingAs($admin)->get('/expenses/create');
+
+        $response->assertOk();
+        $response->assertDontSee('مصاريف تشغيلية');
+    }
+
+    public function test_expense_cannot_be_created_with_disabled_category(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $branch = Branch::query()->where('code', 'MAIN')->firstOrFail();
+        $category = ExpenseCategory::query()->where('slug', 'operational-expenses')->firstOrFail();
+
+        $category->forceFill([
+            'is_active' => false,
+        ])->save();
+
+        $response = $this->actingAs($admin)
+            ->from('/expenses/create')
+            ->post('/expenses', [
+                'branch_id' => $branch->id,
+                'expense_category_id' => $category->id,
+                'description' => 'مصروف على تصنيف معطل',
+                'amount' => 99,
+                'tax_amount' => 0,
+                'payment_method' => 'cash',
+                'expense_date' => now()->toDateString(),
+            ]);
+
+        $response->assertRedirect('/expenses/create');
+        $response->assertSessionHasErrors('expense_category_id');
+
+        $this->assertDatabaseMissing('expenses', [
+            'description' => 'مصروف على تصنيف معطل',
+        ]);
     }
 
     public function test_new_expense_category_appears_in_expense_create_page(): void

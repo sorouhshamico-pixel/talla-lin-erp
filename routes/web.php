@@ -60,6 +60,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/expense-categories', [ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
     Route::get('/expense-categories/create', [ExpenseCategoryController::class, 'create'])->name('expense-categories.create');
     Route::post('/expense-categories', [ExpenseCategoryController::class, 'store'])->name('expense-categories.store');
+    Route::get('/expense-categories/{expenseCategory}/edit', [ExpenseCategoryController::class, 'edit'])->name('expense-categories.edit');
+    Route::patch('/expense-categories/{expenseCategory}', [ExpenseCategoryController::class, 'update'])->name('expense-categories.update');
+    Route::patch('/expense-categories/{expenseCategory}/toggle-status', [ExpenseCategoryController::class, 'toggleStatus'])->name('expense-categories.toggle-status');
 
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
@@ -69,3 +72,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
+
+// Expense category activation toggle - Stage 11C
+Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controllers\ExpenseCategoryController::class, 'toggle'])
+    ->name('expense-categories.toggle');
+
+
+// Expense category delete route - Stage 11C
+Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');

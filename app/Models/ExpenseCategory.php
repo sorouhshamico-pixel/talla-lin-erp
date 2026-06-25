@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpenseCategory extends Model
 {
@@ -23,13 +22,18 @@ class ExpenseCategory extends Model
         'is_active' => 'boolean',
     ];
 
-    public function company(): BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function expenses(): HasMany
+    public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
     }
 }
