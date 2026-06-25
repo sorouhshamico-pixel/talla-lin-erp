@@ -33,6 +33,7 @@ class ReportsPageTest extends TestCase
         $response->assertSee('التقارير المالية الأساسية');
         $response->assertSee('تقرير المبيعات');
         $response->assertSee('تقرير المشتريات');
+        $response->assertSee('تقرير المخزون');
         $response->assertSee('ربح أولي قبل الضريبة');
         $response->assertSee('تطبيق الفلتر');
         $response->assertSee('كل الفروع');
@@ -167,6 +168,48 @@ class ReportsPageTest extends TestCase
 
         $response->assertOk();
 
+        $response->assertSee('0.00');
+        $response->assertSee('0');
+    }
+
+    public function test_reports_show_inventory_valuation_totals(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+
+        $response = $this->actingAs($admin)->get('/reports');
+
+        $response->assertOk();
+
+        $response->assertSee('تقرير المخزون');
+        $response->assertSee('عدد المنتجات');
+        $response->assertSee('عدد المتغيرات');
+        $response->assertSee('الكمية الفعلية');
+        $response->assertSee('المتاح للبيع');
+        $response->assertSee('قيمة التكلفة');
+        $response->assertSee('قيمة البيع');
+        $response->assertSee('هامش محتمل');
+
+        $response->assertSee('2,400.00');
+        $response->assertSee('5,000.00');
+        $response->assertSee('2,600.00');
+    }
+
+    public function test_inventory_report_respects_branch_filter(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $onlineBranch = Branch::query()->where('code', 'ONLINE')->firstOrFail();
+
+        $response = $this->actingAs($admin)->get('/reports?' . http_build_query([
+            'branch_id' => $onlineBranch->id,
+        ]));
+
+        $response->assertOk();
+
+        $response->assertSee('تقرير المخزون');
         $response->assertSee('0.00');
         $response->assertSee('0');
     }

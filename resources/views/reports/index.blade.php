@@ -8,7 +8,7 @@
         <div>
             <h1 class="page-title">التقارير المالية الأساسية</h1>
             <div class="muted">
-                ملخص أولي للمبيعات والمشتريات والمدفوعات والمستحقات مع إمكانية التصفية حسب الفترة والفرع.
+                ملخص أولي للمبيعات والمشتريات والمدفوعات والمستحقات والمخزون مع إمكانية التصفية حسب الفترة والفرع.
             </div>
         </div>
     </div>
@@ -164,11 +164,50 @@
     </div>
 
     <div class="card" style="margin-top:20px;">
+        <h2 style="margin-top:0;">تقرير المخزون</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>عدد المنتجات</th>
+                        <th>عدد المتغيرات</th>
+                        <th>الكمية الفعلية</th>
+                        <th>المحجوز</th>
+                        <th>المتاح للبيع</th>
+                        <th>قيمة التكلفة</th>
+                        <th>قيمة البيع</th>
+                        <th>هامش محتمل</th>
+                        <th>تحت حد التنبيه</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $inventory['products_count'] }}</td>
+                        <td>{{ $inventory['variants_count'] }}</td>
+                        <td>{{ number_format((float) $inventory['quantity_on_hand'], 0) }}</td>
+                        <td>{{ number_format((float) $inventory['quantity_reserved'], 0) }}</td>
+                        <td>{{ number_format((float) $inventory['available_quantity'], 0) }}</td>
+                        <td>{{ number_format((float) $inventory['cost_value'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $inventory['sale_value'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $profit['inventory_potential_margin'], 2) }} ريال</td>
+                        <td>{{ $inventory['low_stock_count'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
         <h2 style="margin-top:0;">ملاحظات التقرير</h2>
 
         <p>
             الربح الأولي هنا محسوب كالتالي:
             <strong>إجمالي المبيعات قبل الضريبة - إجمالي المشتريات قبل الضريبة</strong>.
+        </p>
+
+        <p>
+            تقييم المخزون محسوب على أساس الكمية الفعلية الحالية مضروبة في تكلفة أو سعر بيع كل متغير.
         </p>
 
         <p style="margin-bottom:0;">

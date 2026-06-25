@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\InventoryBalance;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
@@ -30,9 +31,14 @@ class ReportController extends Controller
         $purchaseBaseQuery = PurchaseInvoice::query()
             ->where('status', 'received');
 
+        $inventoryBaseQuery = InventoryBalance::query()
+            ->join('product_variants', 'inventory_balances.product_variant_id', '=', 'product_variants.id')
+            ->join('products', 'inventory_balances.product_id', '=', 'products.id');
+
         if (! empty($filters['branch_id'])) {
             $salesBaseQuery->where('branch_id', $filters['branch_id']);
             $purchaseBaseQuery->where('branch_id', $filters['branch_id']);
+            $inventoryBaseQuery->where('inventory_balances.branch_id', $filters['branch_id']);
         }
 
         if (! empty($filters['from_date'])) {
@@ -65,14 +71,29 @@ class ReportController extends Controller
             'remaining_amount' => round((float) (clone $purchaseBaseQuery)->sum('remaining_amount'), 2),
         ];
 
+        $inventory = [
+            'products_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_id')->count('inventory_balances.product_id'),
+            'variants_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_variant_id')->count('inventory_balances.product_variant_id'),
+            'quantity_on_hand' => round((float) (clone $inventoryBaseQuery)->sum('inventory_balances.quantity_on_hand'), 3),
+            'quantity_reserved' => round((float) (clone $inventoryBaseQuery)->sum('inventory_balances.quantity_reserved'), 3),
+            'available_quantity' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved) as total')->value('total'), 3),
+            'cost_value' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand * product_variants.cost_price) as total')->value('total'), 2),
+            'sale_value' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand * product_variants.sale_price) as total')->value('total'), 2),
+            'low_stock_count' => (clone $inventoryBaseQuery)
+                ->whereRaw('(inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved) <= inventory_balances.reorder_level')
+                ->count(),
+        ];
+
         $profit = [
             'gross_profit_before_tax' => round($sales['subtotal'] - $purchases['subtotal'], 2),
             'net_cash_flow' => round($sales['paid_amount'] - $purchases['paid_amount'], 2),
+            'inventory_potential_margin' => round($inventory['sale_value'] - $inventory['cost_value'], 2),
         ];
 
         return view('reports.index', [
             'sales' => $sales,
             'purchases' => $purchases,
+            'inventory' => $inventory,
             'profit' => $profit,
             'branches' => $branches,
             'filters' => $filters,
