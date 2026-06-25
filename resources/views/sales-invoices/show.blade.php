@@ -21,6 +21,12 @@
         </div>
     </div>
 
+    @if (session('success'))
+        <div class="card" style="margin-bottom: 20px; border-color: #cbe7d5; color: #157347;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="grid" style="margin-bottom:20px;">
         <div class="metric">
             <div class="metric-label">العميل</div>

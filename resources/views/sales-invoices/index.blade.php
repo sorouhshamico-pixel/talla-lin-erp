@@ -11,6 +11,13 @@
                 عرض فواتير البيع وإجمالياتها وحالة السداد.
             </div>
         </div>
+
+        <div>
+            <a href="{{ route('sales-invoices.create') }}"
+               style="display:inline-block;background:#8b5e3c;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;">
+                فاتورة جديدة
+            </a>
+        </div>
     </div>
 
     <div class="card">

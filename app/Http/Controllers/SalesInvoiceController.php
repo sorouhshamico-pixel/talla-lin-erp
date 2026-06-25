@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
+use App\Models\Customer;
+use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
+use App\Services\SalesInvoiceService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class SalesInvoiceController extends Controller
 {
@@ -18,6 +25,80 @@ class SalesInvoiceController extends Controller
         return view('sales-invoices.index', [
             'invoices' => $invoices,
         ]);
+    }
+
+    public function create(): View
+    {
+        $customers = Customer::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $branches = Branch::query()
+            ->where('is_active', true)
+            ->orderByDesc('is_main')
+            ->orderBy('id')
+            ->get();
+
+        $variants = ProductVariant::query()
+            ->with('product')
+            ->where('is_active', true)
+            ->orderBy('sku')
+            ->get();
+
+        return view('sales-invoices.create', [
+            'customers' => $customers,
+            'branches' => $branches,
+            'variants' => $variants,
+        ]);
+    }
+
+    public function store(Request $request, SalesInvoiceService $invoiceService): RedirectResponse
+    {
+        $data = $request->validate([
+            'customer_id' => ['required', 'integer', 'exists:customers,id'],
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
+            'invoice_number' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+
+            'product_variant_id' => ['required', 'integer', 'exists:product_variants,id'],
+            'quantity' => ['required', 'numeric', 'min:0.001'],
+            'unit_price' => ['required', 'numeric', 'min:0'],
+            'discount_amount' => ['nullable', 'numeric', 'min:0'],
+            'tax_rate' => ['required', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        $customer = Customer::query()->findOrFail($data['customer_id']);
+        $branch = Branch::query()->findOrFail($data['branch_id']);
+
+        try {
+            $invoice = $invoiceService->createDraftInvoice(
+                customer: $customer,
+                branch: $branch,
+                user: $request->user(),
+                invoiceNumber: $data['invoice_number'] ?: null,
+                notes: $data['notes'] ?? null,
+                items: [
+                    [
+                        'product_variant_id' => $data['product_variant_id'],
+                        'quantity' => (float) $data['quantity'],
+                        'unit_price' => (float) $data['unit_price'],
+                        'discount_amount' => (float) ($data['discount_amount'] ?? 0),
+                        'tax_rate' => (float) $data['tax_rate'],
+                    ],
+                ]
+            );
+        } catch (InvalidArgumentException $exception) {
+            return back()
+                ->withErrors([
+                    'invoice' => $exception->getMessage(),
+                ])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('sales-invoices.show', $invoice)
+            ->with('success', 'تم إنشاء فاتورة البيع بنجاح.');
     }
 
     public function show(SalesInvoice $salesInvoice): View
