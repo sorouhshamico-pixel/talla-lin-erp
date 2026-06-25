@@ -1,0 +1,113 @@
+@extends('layouts.admin', [
+    'title' => 'تفاصيل فاتورة الشراء | طلة لين ERP',
+    'header' => 'تفاصيل فاتورة الشراء'
+])
+
+@section('content')
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">فاتورة شراء</h1>
+            <div class="muted">
+                رقم الفاتورة:
+                <span dir="ltr">{{ $invoice->invoice_number }}</span>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            @if ($invoice->status === 'draft')
+                <form method="POST" action="{{ route('purchase-invoices.receive', $invoice) }}">
+                    @csrf
+                    <button type="submit"
+                            style="background:#8b5e3c;color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer;">
+                        استلام الفاتورة
+                    </button>
+                </form>
+            @endif
+
+            <a href="{{ route('purchase-invoices.index') }}"
+               style="display:inline-block;background:#eee4dc;color:#5d3b25;padding:11px 16px;border-radius:12px;font-weight:700;">
+                رجوع للفواتير
+            </a>
+        </div>
+    </div>
+
+    @if (session('success'))
+        <div class="card" style="margin-bottom: 20px; border-color: #cbe7d5; color: #157347;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="card" style="margin-bottom: 20px; border-color: #ffd0c9; color: #b42318;">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
+    <div class="grid" style="margin-bottom:20px;">
+        <div class="metric">
+            <div class="metric-label">المورد</div>
+            <div class="metric-value" style="font-size:22px;">
+                {{ $invoice->supplier?->name }}
+            </div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-label">المستودع</div>
+            <div class="metric-value" style="font-size:22px;">
+                {{ $invoice->warehouse?->name }}
+            </div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-label">الحالة</div>
+            <div class="metric-value" style="font-size:22px;">
+                {{ $invoice->displayStatus() }}
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0;">عناصر فاتورة الشراء</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الوصف</th>
+                        <th>المتغير</th>
+                        <th>الكمية</th>
+                        <th>تكلفة الوحدة</th>
+                        <th>الخصم</th>
+                        <th>الضريبة</th>
+                        <th>الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($invoice->items as $item)
+                        <tr>
+                            <td>{{ $item->description }}</td>
+                            <td dir="ltr">{{ $item->variant?->sku }}</td>
+                            <td>{{ number_format((float) $item->quantity, 0) }}</td>
+                            <td>{{ number_format((float) $item->unit_cost, 2) }} ريال</td>
+                            <td>{{ number_format((float) $item->discount_amount, 2) }} ريال</td>
+                            <td>{{ number_format((float) $item->tax_amount, 2) }} ريال</td>
+                            <td>{{ number_format((float) $item->line_total, 2) }} ريال</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2 style="margin-top:0;">ملخص فاتورة الشراء</h2>
+
+        <p><strong>الإجمالي قبل الضريبة:</strong> {{ number_format((float) $invoice->subtotal, 2) }} ريال</p>
+        <p><strong>إجمالي الخصم:</strong> {{ number_format((float) $invoice->discount_total, 2) }} ريال</p>
+        <p><strong>إجمالي الضريبة:</strong> {{ number_format((float) $invoice->tax_total, 2) }} ريال</p>
+        <p><strong>الإجمالي النهائي:</strong> {{ number_format((float) $invoice->grand_total, 2) }} ريال</p>
+        <p><strong>حالة السداد:</strong> {{ $invoice->displayPaymentStatus() }}</p>
+        <p><strong>المدفوع:</strong> {{ number_format((float) $invoice->paid_amount, 2) }} ريال</p>
+        <p style="margin-bottom:0;"><strong>المتبقي:</strong> {{ number_format((float) $invoice->remaining_amount, 2) }} ريال</p>
+    </div>
+@endsection

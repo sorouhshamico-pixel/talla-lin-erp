@@ -8,6 +8,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SalesInvoiceController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +43,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales-invoices/{salesInvoice}/payments/create', [SalesInvoiceController::class, 'createPayment'])->name('sales-invoices.payments.create');
     Route::post('/sales-invoices/{salesInvoice}/payments', [SalesInvoiceController::class, 'storePayment'])->name('sales-invoices.payments.store');
     Route::get('/sales-invoices/{salesInvoice}', [SalesInvoiceController::class, 'show'])->name('sales-invoices.show');
+
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+
+    Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->name('purchase-invoices.index');
+    Route::post('/purchase-invoices/{purchaseInvoice}/receive', [PurchaseInvoiceController::class, 'receive'])->name('purchase-invoices.receive');
+    Route::get('/purchase-invoices/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('purchase-invoices.show');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

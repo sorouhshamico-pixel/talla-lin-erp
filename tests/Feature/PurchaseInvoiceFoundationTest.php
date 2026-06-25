@@ -81,8 +81,12 @@ class PurchaseInvoiceFoundationTest extends TestCase
             'grand_total' => 1092.50,
         ]);
 
-        $this->assertEquals(1, PurchaseInvoice::query()->count());
-        $this->assertEquals(2, PurchaseInvoiceItem::query()->count());
+        $this->assertDatabaseHas('purchase_invoices', [
+            'invoice_number' => 'PINV-TEST-001',
+            'grand_total' => 1092.50,
+        ]);
+
+        $this->assertEquals(2, $invoice->items()->count());
     }
 
     public function test_purchase_invoice_service_rejects_empty_items(): void

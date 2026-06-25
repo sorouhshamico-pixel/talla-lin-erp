@@ -10,10 +10,14 @@ use App\Models\InventoryBalance;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\PurchaseInvoice;
+use App\Models\SalesInvoice;
+use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Warehouse;
-use Illuminate\Database\Seeder;
+use App\Services\PurchaseInvoiceService;
 use App\Services\SalesInvoiceService;
+use Illuminate\Database\Seeder;
 
 class InitialSetupSeeder extends Seeder
 {
@@ -189,7 +193,6 @@ class InitialSetupSeeder extends Seeder
             referenceNumber: 'OPENING-MAIN-WH-L'
         );
 
-
         $customer = Customer::query()->firstOrCreate(
             [
                 'company_id' => $company->id,
@@ -204,7 +207,7 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
-        if (! \App\Models\SalesInvoice::query()->where('invoice_number', 'INV-DEMO-001')->exists()) {
+        if (! SalesInvoice::query()->where('invoice_number', 'INV-DEMO-001')->exists()) {
             app(SalesInvoiceService::class)->createDraftInvoice(
                 customer: $customer,
                 branch: $mainBranch,
@@ -224,6 +227,47 @@ class InitialSetupSeeder extends Seeder
                         'quantity' => 1,
                         'unit_price' => 250,
                         'discount_amount' => 10,
+                        'tax_rate' => 15,
+                    ],
+                ]
+            );
+        }
+
+        $supplier = Supplier::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'phone' => '0559000000',
+            ],
+            [
+                'name' => 'مورد تجربة',
+                'email' => 'supplier@example.local',
+                'city' => 'الرياض',
+                'address' => 'عنوان مورد تجريبي داخل الرياض',
+                'is_active' => true,
+            ]
+        );
+
+        if (! PurchaseInvoice::query()->where('invoice_number', 'PINV-DEMO-001')->exists()) {
+            app(PurchaseInvoiceService::class)->createDraftInvoice(
+                supplier: $supplier,
+                branch: $mainBranch,
+                warehouse: $mainWarehouse,
+                user: $owner,
+                invoiceNumber: 'PINV-DEMO-001',
+                notes: 'فاتورة شراء تجريبية أولية.',
+                items: [
+                    [
+                        'product_variant_id' => $mediumVariant->id,
+                        'quantity' => 2,
+                        'unit_cost' => 120,
+                        'discount_amount' => 0,
+                        'tax_rate' => 15,
+                    ],
+                    [
+                        'product_variant_id' => $largeVariant->id,
+                        'quantity' => 1,
+                        'unit_cost' => 120,
+                        'discount_amount' => 0,
                         'tax_rate' => 15,
                     ],
                 ]
