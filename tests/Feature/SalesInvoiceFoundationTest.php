@@ -27,7 +27,7 @@ class SalesInvoiceFoundationTest extends TestCase
         $customer = Customer::query()->create([
             'company_id' => $branch->company_id,
             'name' => 'عميلة تجربة',
-            'phone' => '0500000000',
+            'phone' => '0510000000',
             'city' => 'الرياض',
             'is_active' => true,
         ]);
@@ -81,8 +81,12 @@ class SalesInvoiceFoundationTest extends TestCase
             'grand_total' => 851.00,
         ]);
 
-        $this->assertEquals(1, SalesInvoice::query()->count());
-        $this->assertEquals(2, SalesInvoiceItem::query()->count());
+        $this->assertDatabaseHas('sales_invoices', [
+            'invoice_number' => 'INV-TEST-001',
+            'grand_total' => 851.00,
+        ]);
+
+        $this->assertEquals(2, $invoice->items()->count());
     }
 
     public function test_sales_invoice_service_rejects_empty_items(): void
@@ -95,7 +99,7 @@ class SalesInvoiceFoundationTest extends TestCase
         $customer = Customer::query()->create([
             'company_id' => $branch->company_id,
             'name' => 'عميلة بدون منتجات',
-            'phone' => '0500000001',
+            'phone' => '0510000001',
             'city' => 'الرياض',
             'is_active' => true,
         ]);
@@ -123,7 +127,7 @@ class SalesInvoiceFoundationTest extends TestCase
         $customer = Customer::query()->create([
             'company_id' => $branch->company_id,
             'name' => 'عميلة كمية صفر',
-            'phone' => '0500000002',
+            'phone' => '0510000002',
             'city' => 'الرياض',
             'is_active' => true,
         ]);

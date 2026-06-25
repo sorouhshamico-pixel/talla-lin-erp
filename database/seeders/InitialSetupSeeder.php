@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\Customer;
 use App\Models\InventoryBalance;
 use App\Models\InventoryMovement;
 use App\Models\Product;
@@ -12,6 +13,7 @@ use App\Models\ProductVariant;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
+use App\Services\SalesInvoiceService;
 
 class InitialSetupSeeder extends Seeder
 {
@@ -186,6 +188,47 @@ class InitialSetupSeeder extends Seeder
             unitCost: 120,
             referenceNumber: 'OPENING-MAIN-WH-L'
         );
+
+
+        $customer = Customer::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'phone' => '0500000000',
+            ],
+            [
+                'name' => 'عميلة تجربة',
+                'email' => 'customer@example.local',
+                'city' => 'الرياض',
+                'address' => 'عنوان تجريبي داخل الرياض',
+                'is_active' => true,
+            ]
+        );
+
+        if (! \App\Models\SalesInvoice::query()->where('invoice_number', 'INV-DEMO-001')->exists()) {
+            app(SalesInvoiceService::class)->createDraftInvoice(
+                customer: $customer,
+                branch: $mainBranch,
+                user: $owner,
+                invoiceNumber: 'INV-DEMO-001',
+                notes: 'فاتورة تجريبية أولية.',
+                items: [
+                    [
+                        'product_variant_id' => $mediumVariant->id,
+                        'quantity' => 2,
+                        'unit_price' => 250,
+                        'discount_amount' => 0,
+                        'tax_rate' => 15,
+                    ],
+                    [
+                        'product_variant_id' => $largeVariant->id,
+                        'quantity' => 1,
+                        'unit_price' => 250,
+                        'discount_amount' => 10,
+                        'tax_rate' => 15,
+                    ],
+                ]
+            );
+        }
     }
 
     private function createOpeningInventory(

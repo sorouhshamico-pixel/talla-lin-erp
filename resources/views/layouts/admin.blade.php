@@ -255,6 +255,14 @@
                 <a href="{{ route('inventory.index') }}" class="{{ request()->routeIs('inventory.*') ? 'active' : '' }}">
                     المخزون
                 </a>
+
+                <a href="{{ route('customers.index') }}" class="{{ request()->routeIs('customers.*') ? 'active' : '' }}">
+                    العملاء
+                </a>
+
+                <a href="{{ route('sales-invoices.index') }}" class="{{ request()->routeIs('sales-invoices.*') ? 'active' : '' }}">
+                    فواتير البيع
+                </a>
             </nav>
         </aside>
 
