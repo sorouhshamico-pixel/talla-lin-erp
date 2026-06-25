@@ -33,6 +33,7 @@ class ExpenseController extends Controller
 
         $paymentMethods = $this->paymentMethods();
         $paymentStatuses = $this->paymentStatuses();
+        $attachmentStatuses = $this->attachmentStatuses();
 
         $expensesQuery = $this->filteredExpensesQuery($filters);
 
@@ -58,6 +59,7 @@ class ExpenseController extends Controller
             'categories' => $categories,
             'paymentMethods' => $paymentMethods,
             'paymentStatuses' => $paymentStatuses,
+            'attachmentStatuses' => $attachmentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
             'unpaidAlert' => $unpaidAlert,
@@ -299,6 +301,7 @@ class ExpenseController extends Controller
             'expense_category_id' => $request->input('expense_category_id'),
             'payment_method' => $request->input('payment_method'),
             'payment_status' => $request->input('payment_status'),
+            'attachment_status' => $request->input('attachment_status'),
         ];
     }
 
@@ -396,6 +399,18 @@ class ExpenseController extends Controller
 
         if ($filters['payment_status'] === 'unpaid') {
             $expensesQuery->where('is_paid', false);
+        }
+
+        if ($filters['attachment_status'] === 'with_attachment') {
+            $expensesQuery->whereNotNull('attachment_path')
+                ->where('attachment_path', '!=', '');
+        }
+
+        if ($filters['attachment_status'] === 'without_attachment') {
+            $expensesQuery->where(function (Builder $query): void {
+                $query->whereNull('attachment_path')
+                    ->orWhere('attachment_path', '');
+            });
         }
     }
 
@@ -500,6 +515,14 @@ class ExpenseController extends Controller
         return [
             'paid' => 'مدفوعة',
             'unpaid' => 'غير مدفوعة',
+        ];
+    }
+
+    private function attachmentStatuses(): array
+    {
+        return [
+            'with_attachment' => 'بها مرفق',
+            'without_attachment' => 'بدون مرفق',
         ];
     }
 }

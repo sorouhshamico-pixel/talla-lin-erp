@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
             <div class="muted">
-                متابعة المصاريف التشغيلية مع الفلترة حسب الفترة والفرع والتصنيف وطريقة الدفع وحالة الدفع.
+                متابعة المصاريف التشغيلية مع الفلترة حسب الفترة والفرع والتصنيف وطريقة الدفع وحالة الدفع والمرفقات.
             </div>
         </div>
 
@@ -30,7 +30,7 @@
 
     <div class="card" style="margin-bottom:20px;">
         <form method="GET" action="{{ route('expenses.index') }}">
-            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;align-items:end;">
+            <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:16px;align-items:end;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">من تاريخ</label>
                     <input type="date" name="from_date" value="{{ $filters['from_date'] }}"
@@ -85,6 +85,18 @@
                         <option value="">كل الحالات</option>
                         @foreach ($paymentStatuses as $value => $label)
                             <option value="{{ $value }}" @selected($filters['payment_status'] === $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">المرفقات</label>
+                    <select name="attachment_status" style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="">كل المرفقات</option>
+                        @foreach ($attachmentStatuses as $value => $label)
+                            <option value="{{ $value }}" @selected($filters['attachment_status'] === $value)>
                                 {{ $label }}
                             </option>
                         @endforeach
