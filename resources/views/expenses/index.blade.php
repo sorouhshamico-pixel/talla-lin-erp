@@ -106,7 +106,52 @@
         </form>
     </div>
 
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card" data-testid="expense-unpaid-alert" style="margin-bottom:20px;border-color:#f1b5b5;background:#fffafa;">
+        <h2 style="margin-top:0;">تنبيه المصاريف غير المدفوعة</h2>
+        <div class="muted" style="margin-bottom:16px;">
+            يعرض هذا التنبيه المصاريف غير المدفوعة ضمن الفلاتر الحالية.
+        </div>
+
+        <div class="grid">
+            <div class="metric">
+                <div class="metric-label">عدد المصاريف غير المدفوعة</div>
+                <div class="metric-value">{{ $unpaidAlert['count'] }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">إجمالي قيمة المصاريف غير المدفوعة</div>
+                <div class="metric-value">{{ number_format($unpaidAlert['total_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">تاريخ أقدم مصروف غير مدفوع</div>
+                <div class="metric-value" style="font-size:22px;">
+                    {{ $unpaidAlert['oldest_date'] ?? 'لا يوجد' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top:18px;">
+            <div class="metric">
+                <div class="metric-label">أقدم مصروف غير مدفوع</div>
+                <div class="metric-value" style="font-size:18px;">
+                    @if ($unpaidAlert['oldest_expense'])
+                        {{ $unpaidAlert['oldest_expense']->description }}
+                        <div class="muted" style="font-size:13px;margin-top:8px;">
+                            {{ $unpaidAlert['oldest_expense']->category?->name ?? 'بدون تصنيف' }}
+                        </div>
+                        <div style="margin-top:6px;font-size:24px;">
+                            {{ number_format((float) $unpaidAlert['oldest_expense']->amount, 2) }} ريال
+                        </div>
+                    @else
+                        لا توجد مصاريف غير مدفوعة ضمن الفلاتر الحالية
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" data-testid="expense-monthly-summary" style="margin-bottom:20px;">
         <h2 style="margin-top:0;">ملخص مصاريف الشهر الحالي</h2>
         <div class="muted" style="margin-bottom:16px;">
             الشهر: {{ $monthlySummary['month_label'] }}

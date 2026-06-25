@@ -44,6 +44,7 @@ class ExpenseController extends Controller
             'unpaid_amount' => round((float) (clone $expensesQuery)->where('is_paid', false)->sum('amount'), 2),
         ];
 
+        $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
 
         $expenses = $expensesQuery
@@ -59,6 +60,7 @@ class ExpenseController extends Controller
             'paymentStatuses' => $paymentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
+            'unpaidAlert' => $unpaidAlert,
             'monthlySummary' => $monthlySummary,
         ]);
     }
@@ -316,6 +318,24 @@ class ExpenseController extends Controller
         $this->applyNonDateExpenseFilters($expensesQuery, $filters);
 
         return $expensesQuery;
+    }
+
+    private function unpaidExpenseAlert(array $filters): array
+    {
+        $unpaidQuery = $this->filteredExpensesQuery($filters)
+            ->where('is_paid', false);
+
+        $oldestExpense = (clone $unpaidQuery)
+            ->oldest('expense_date')
+            ->oldest('id')
+            ->first();
+
+        return [
+            'count' => (clone $unpaidQuery)->count(),
+            'total_amount' => round((float) (clone $unpaidQuery)->sum('amount'), 2),
+            'oldest_expense' => $oldestExpense,
+            'oldest_date' => $oldestExpense?->expense_date?->format('Y-m-d'),
+        ];
     }
 
     private function monthlyExpenseSummary(array $filters): array
