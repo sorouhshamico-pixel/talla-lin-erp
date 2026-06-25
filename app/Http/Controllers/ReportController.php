@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Expense;
 use App\Models\InventoryBalance;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
@@ -31,6 +32,8 @@ class ReportController extends Controller
         $purchaseBaseQuery = PurchaseInvoice::query()
             ->where('status', 'received');
 
+        $expenseBaseQuery = Expense::query();
+
         $inventoryBaseQuery = InventoryBalance::query()
             ->join('product_variants', 'inventory_balances.product_variant_id', '=', 'product_variants.id')
             ->join('products', 'inventory_balances.product_id', '=', 'products.id');
@@ -38,17 +41,20 @@ class ReportController extends Controller
         if (! empty($filters['branch_id'])) {
             $salesBaseQuery->where('branch_id', $filters['branch_id']);
             $purchaseBaseQuery->where('branch_id', $filters['branch_id']);
+            $expenseBaseQuery->where('branch_id', $filters['branch_id']);
             $inventoryBaseQuery->where('inventory_balances.branch_id', $filters['branch_id']);
         }
 
         if (! empty($filters['from_date'])) {
             $salesBaseQuery->whereDate('issued_at', '>=', $filters['from_date']);
             $purchaseBaseQuery->whereDate('invoice_date', '>=', $filters['from_date']);
+            $expenseBaseQuery->whereDate('expense_date', '>=', $filters['from_date']);
         }
 
         if (! empty($filters['to_date'])) {
             $salesBaseQuery->whereDate('issued_at', '<=', $filters['to_date']);
             $purchaseBaseQuery->whereDate('invoice_date', '<=', $filters['to_date']);
+            $expenseBaseQuery->whereDate('expense_date', '<=', $filters['to_date']);
         }
 
         $sales = [
@@ -71,6 +77,13 @@ class ReportController extends Controller
             'remaining_amount' => round((float) (clone $purchaseBaseQuery)->sum('remaining_amount'), 2),
         ];
 
+        $expenses = [
+            'count' => (clone $expenseBaseQuery)->count(),
+            'amount' => round((float) (clone $expenseBaseQuery)->sum('amount'), 2),
+            'tax_amount' => round((float) (clone $expenseBaseQuery)->sum('tax_amount'), 2),
+            'paid_amount' => round((float) (clone $expenseBaseQuery)->where('is_paid', true)->sum('amount'), 2),
+        ];
+
         $inventory = [
             'products_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_id')->count('inventory_balances.product_id'),
             'variants_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_variant_id')->count('inventory_balances.product_variant_id'),
@@ -86,13 +99,16 @@ class ReportController extends Controller
 
         $profit = [
             'gross_profit_before_tax' => round($sales['subtotal'] - $purchases['subtotal'], 2),
+            'net_profit_after_expenses' => round($sales['subtotal'] - $purchases['subtotal'] - $expenses['amount'], 2),
             'net_cash_flow' => round($sales['paid_amount'] - $purchases['paid_amount'], 2),
+            'net_cash_flow_after_expenses' => round($sales['paid_amount'] - $purchases['paid_amount'] - $expenses['paid_amount'], 2),
             'inventory_potential_margin' => round($inventory['sale_value'] - $inventory['cost_value'], 2),
         ];
 
         return view('reports.index', [
             'sales' => $sales,
             'purchases' => $purchases,
+            'expenses' => $expenses,
             'inventory' => $inventory,
             'profit' => $profit,
             'branches' => $branches,

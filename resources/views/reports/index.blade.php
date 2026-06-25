@@ -164,6 +164,35 @@
     </div>
 
     <div class="card" style="margin-top:20px;">
+        <h2 style="margin-top:0;">تقرير المصاريف التشغيلية</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>عدد المصاريف</th>
+                        <th>إجمالي المصاريف التشغيلية</th>
+                        <th>ضريبة المصاريف</th>
+                        <th>المصاريف المدفوعة</th>
+                        <th>الربح بعد المصاريف</th>
+                        <th>صافي التدفق بعد المصاريف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $expenses['count'] }}</td>
+                        <td>{{ number_format((float) $expenses['amount'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $expenses['tax_amount'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $expenses['paid_amount'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $profit['net_profit_after_expenses'], 2) }} ريال</td>
+                        <td>{{ number_format((float) $profit['net_cash_flow_after_expenses'], 2) }} ريال</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
         <h2 style="margin-top:0;">تقرير المخزون</h2>
 
         <div class="table-wrap">

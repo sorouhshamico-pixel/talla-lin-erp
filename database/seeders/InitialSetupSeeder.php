@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\ExpenseCategory;
 use App\Models\InventoryBalance;
 use App\Models\InventoryMovement;
 use App\Models\Product;
@@ -167,6 +168,43 @@ class InitialSetupSeeder extends Seeder
             ]
         );
 
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'operational-expenses',
+            ],
+            [
+                'name' => 'مصاريف تشغيلية',
+                'description' => 'مصاريف تشغيلية عامة للنظام.',
+                'is_active' => true,
+            ]
+        );
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'rent',
+            ],
+            [
+                'name' => 'إيجارات',
+                'description' => 'مصاريف الإيجارات والمواقع.',
+                'is_active' => true,
+            ]
+        );
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'delivery',
+            ],
+            [
+                'name' => 'شحن وتوصيل',
+                'description' => 'مصاريف الشحن والتوصيل والنقل.',
+                'is_active' => true,
+            ]
+        );
+
         $this->createOpeningInventory(
             company: $company,
             branch: $mainBranch,
@@ -178,6 +216,43 @@ class InitialSetupSeeder extends Seeder
             reorderLevel: 3,
             unitCost: 120,
             referenceNumber: 'OPENING-MAIN-WH-M'
+        );
+
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'operational-expenses',
+            ],
+            [
+                'name' => 'مصاريف تشغيلية',
+                'description' => 'مصاريف تشغيلية عامة للنظام.',
+                'is_active' => true,
+            ]
+        );
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'rent',
+            ],
+            [
+                'name' => 'إيجارات',
+                'description' => 'مصاريف الإيجارات والمواقع.',
+                'is_active' => true,
+            ]
+        );
+
+        ExpenseCategory::query()->firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'slug' => 'delivery',
+            ],
+            [
+                'name' => 'شحن وتوصيل',
+                'description' => 'مصاريف الشحن والتوصيل والنقل.',
+                'is_active' => true,
+            ]
         );
 
         $this->createOpeningInventory(

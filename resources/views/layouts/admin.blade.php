@@ -272,6 +272,10 @@
                     فواتير الشراء
                 </a>
 
+                <a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}">
+                    المصاريف
+                </a>
+
                 <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     التقارير
                 </a>
