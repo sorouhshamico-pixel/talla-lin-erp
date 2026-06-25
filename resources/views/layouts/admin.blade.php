@@ -271,6 +271,10 @@
                 <a href="{{ route('purchase-invoices.index') }}" class="{{ request()->routeIs('purchase-invoices.*') ? 'active' : '' }}">
                     فواتير الشراء
                 </a>
+
+                <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    التقارير
+                </a>
             </nav>
         </aside>
 
