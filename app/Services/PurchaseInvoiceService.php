@@ -129,6 +129,47 @@ class PurchaseInvoiceService
         });
     }
 
+    public function receiveInvoice(
+        PurchaseInvoice $invoice,
+        InventoryStockService $stockService
+    ): PurchaseInvoice {
+        if ($invoice->status !== 'draft') {
+            throw new InvalidArgumentException('لا يمكن اعتماد فاتورة شراء غير مسودة.');
+        }
+
+        $invoice->load([
+            'warehouse',
+            'items.variant.product',
+        ]);
+
+        if (! $invoice->warehouse) {
+            throw new InvalidArgumentException('فاتورة الشراء غير مرتبطة بمستودع.');
+        }
+
+        return DB::transaction(function () use ($invoice, $stockService) {
+            foreach ($invoice->items as $item) {
+                $stockService->applyMovement(
+                    warehouse: $invoice->warehouse,
+                    variant: $item->variant,
+                    type: 'purchase',
+                    direction: 'in',
+                    quantity: (float) $item->quantity,
+                    unitCost: (float) $item->unit_cost,
+                    referenceType: 'purchase_invoice',
+                    referenceNumber: $invoice->invoice_number,
+                    notes: 'إضافة مخزون بسبب اعتماد فاتورة شراء.'
+                );
+            }
+
+            $invoice->forceFill([
+                'status' => 'received',
+                'invoice_date' => now(),
+            ])->save();
+
+            return $invoice->refresh()->load(['supplier', 'branch', 'warehouse', 'items.variant']);
+        });
+    }
+
     private function generateInvoiceNumber(int $companyId): string
     {
         $nextNumber = PurchaseInvoice::query()
