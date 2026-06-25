@@ -276,6 +276,10 @@
                     المصاريف
                 </a>
 
+                <a href="{{ route('expense-categories.index') }}" class="{{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">
+                    تصنيفات المصاريف
+                </a>
+
                 <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     التقارير
                 </a>

@@ -5,6 +5,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase-invoices/{purchaseInvoice}/payments/create', [PurchaseInvoiceController::class, 'createPayment'])->name('purchase-invoices.payments.create');
     Route::post('/purchase-invoices/{purchaseInvoice}/payments', [PurchaseInvoiceController::class, 'storePayment'])->name('purchase-invoices.payments.store');
     Route::get('/purchase-invoices/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('purchase-invoices.show');
+
+    Route::get('/expense-categories', [ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
+    Route::get('/expense-categories/create', [ExpenseCategoryController::class, 'create'])->name('expense-categories.create');
+    Route::post('/expense-categories', [ExpenseCategoryController::class, 'store'])->name('expense-categories.store');
 
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
