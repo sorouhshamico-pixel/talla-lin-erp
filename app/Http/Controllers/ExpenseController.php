@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -137,6 +138,8 @@ class ExpenseController extends Controller
             ->where('company_id', $branch->company_id)
             ->count() + 1;
 
+        $attachmentData = $this->storeAttachment($request);
+
         Expense::query()->create([
             'company_id' => $branch->company_id,
             'branch_id' => $branch->id,
@@ -150,6 +153,8 @@ class ExpenseController extends Controller
             'expense_date' => $data['expense_date'],
             'reference_number' => $data['reference_number'] ?? null,
             'notes' => $data['notes'] ?? null,
+            'attachment_path' => $attachmentData['attachment_path'],
+            'attachment_original_name' => $attachmentData['attachment_original_name'],
             'is_paid' => $this->paymentStatusValue($request),
         ]);
 
@@ -204,6 +209,16 @@ class ExpenseController extends Controller
                 ->withInput();
         }
 
+        $attachmentData = [
+            'attachment_path' => $expense->attachment_path,
+            'attachment_original_name' => $expense->attachment_original_name,
+        ];
+
+        if ($request->hasFile('attachment')) {
+            $this->deleteAttachment($expense);
+            $attachmentData = $this->storeAttachment($request);
+        }
+
         $expense->update([
             'company_id' => $branch->company_id,
             'branch_id' => $branch->id,
@@ -215,6 +230,8 @@ class ExpenseController extends Controller
             'expense_date' => $data['expense_date'],
             'reference_number' => $data['reference_number'] ?? null,
             'notes' => $data['notes'] ?? null,
+            'attachment_path' => $attachmentData['attachment_path'],
+            'attachment_original_name' => $attachmentData['attachment_original_name'],
             'is_paid' => $this->paymentStatusValue($request),
         ]);
 
@@ -225,6 +242,8 @@ class ExpenseController extends Controller
 
     public function destroy(Expense $expense): RedirectResponse
     {
+        $this->deleteAttachment($expense);
+
         $expense->delete();
 
         return redirect()
@@ -245,7 +264,34 @@ class ExpenseController extends Controller
             'expense_date' => ['required', 'date'],
             'reference_number' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:4096'],
         ]);
+    }
+
+    private function storeAttachment(Request $request): array
+    {
+        if (! $request->hasFile('attachment')) {
+            return [
+                'attachment_path' => null,
+                'attachment_original_name' => null,
+            ];
+        }
+
+        $file = $request->file('attachment');
+
+        return [
+            'attachment_path' => $file->store('expense-attachments', 'public'),
+            'attachment_original_name' => $file->getClientOriginalName(),
+        ];
+    }
+
+    private function deleteAttachment(Expense $expense): void
+    {
+        if (! $expense->attachment_path) {
+            return;
+        }
+
+        Storage::disk('public')->delete($expense->attachment_path);
     }
 
     private function paymentStatusValue(Request $request): bool

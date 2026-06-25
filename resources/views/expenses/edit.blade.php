@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">تعديل مصروف تشغيلي</h1>
             <div class="muted">
-                تحديث بيانات المصروف التشغيلي مع التحقق من الفرع والتصنيف وطريقة الدفع وحالة الدفع.
+                تحديث بيانات المصروف التشغيلي مع إمكانية استبدال المرفق الحالي.
             </div>
         </div>
 
@@ -27,7 +27,7 @@
     @endif
 
     <div class="card">
-        <form method="POST" action="{{ route('expenses.update', $expense) }}">
+        <form method="POST" action="{{ route('expenses.update', $expense) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
 
@@ -56,38 +56,20 @@
 
                 <div style="grid-column:1 / -1;">
                     <label class="muted" style="display:block;margin-bottom:8px;">الوصف</label>
-                    <input
-                        type="text"
-                        name="description"
-                        value="{{ old('description', $expense->description) }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="text" name="description" value="{{ old('description', $expense->description) }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">المبلغ</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        name="amount"
-                        value="{{ old('amount', $expense->amount) }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount', $expense->amount) }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">الضريبة</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        name="tax_amount"
-                        value="{{ old('tax_amount', $expense->tax_amount) }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', $expense->tax_amount) }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
@@ -111,32 +93,46 @@
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">تاريخ المصروف</label>
-                    <input
-                        type="date"
-                        name="expense_date"
-                        value="{{ old('expense_date', $expense->expense_date?->format('Y-m-d')) }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="date" name="expense_date" value="{{ old('expense_date', $expense->expense_date?->format('Y-m-d')) }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">رقم المرجع</label>
-                    <input
-                        type="text"
-                        name="reference_number"
-                        value="{{ old('reference_number', $expense->reference_number) }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="text" name="reference_number" value="{{ old('reference_number', $expense->reference_number) }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                </div>
+
+                <div style="grid-column:1 / -1;">
+                    <label class="muted" style="display:block;margin-bottom:8px;">المرفق الحالي</label>
+
+                    @if ($expense->hasAttachment())
+                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <a href="{{ $expense->attachmentUrl() }}" target="_blank"
+                               style="background:#eee4dc;color:#5d3b25;padding:10px 14px;border-radius:10px;font-weight:700;">
+                                عرض المرفق الحالي
+                            </a>
+
+                            <span class="muted">{{ $expense->attachment_original_name }}</span>
+                        </div>
+                    @else
+                        <div class="muted">لا يوجد مرفق حالي.</div>
+                    @endif
+                </div>
+
+                <div style="grid-column:1 / -1;">
+                    <label class="muted" style="display:block;margin-bottom:8px;">استبدال المرفق</label>
+                    <input type="file" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.webp"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;background:#fff;">
+                    <div class="muted" style="font-size:12px;margin-top:6px;">
+                        اترك الحقل فارغًا للاحتفاظ بالمرفق الحالي. الملفات المسموحة: PDF, JPG, JPEG, PNG, WEBP — الحد الأقصى 4MB.
+                    </div>
                 </div>
 
                 <div style="grid-column:1 / -1;">
                     <label class="muted" style="display:block;margin-bottom:8px;">ملاحظات</label>
-                    <textarea
-                        name="notes"
-                        rows="4"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >{{ old('notes', $expense->notes) }}</textarea>
+                    <textarea name="notes" rows="4"
+                              style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">{{ old('notes', $expense->notes) }}</textarea>
                 </div>
             </div>
 

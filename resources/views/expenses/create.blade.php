@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">مصروف جديد</h1>
             <div class="muted">
-                تسجيل مصروف تشغيلي جديد مع تحديد الفرع والتصنيف وطريقة الدفع وحالة الدفع.
+                تسجيل مصروف تشغيلي جديد مع تحديد الفرع والتصنيف وطريقة الدفع وحالة الدفع وإرفاق الفاتورة أو الإيصال.
             </div>
         </div>
 
@@ -27,7 +27,7 @@
     @endif
 
     <div class="card">
-        <form method="POST" action="{{ route('expenses.store') }}">
+        <form method="POST" action="{{ route('expenses.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;">
@@ -57,38 +57,20 @@
 
                 <div style="grid-column:1 / -1;">
                     <label class="muted" style="display:block;margin-bottom:8px;">الوصف</label>
-                    <input
-                        type="text"
-                        name="description"
-                        value="{{ old('description') }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="text" name="description" value="{{ old('description') }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">المبلغ</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        name="amount"
-                        value="{{ old('amount') }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount') }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">الضريبة</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        name="tax_amount"
-                        value="{{ old('tax_amount', 0) }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', 0) }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
@@ -112,32 +94,29 @@
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">تاريخ المصروف</label>
-                    <input
-                        type="date"
-                        name="expense_date"
-                        value="{{ old('expense_date', now()->toDateString()) }}"
-                        required
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="date" name="expense_date" value="{{ old('expense_date', now()->toDateString()) }}" required
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">رقم المرجع</label>
-                    <input
-                        type="text"
-                        name="reference_number"
-                        value="{{ old('reference_number') }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="text" name="reference_number" value="{{ old('reference_number') }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                </div>
+
+                <div style="grid-column:1 / -1;">
+                    <label class="muted" style="display:block;margin-bottom:8px;">المرفق</label>
+                    <input type="file" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.webp"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;background:#fff;">
+                    <div class="muted" style="font-size:12px;margin-top:6px;">
+                        الملفات المسموحة: PDF, JPG, JPEG, PNG, WEBP — الحد الأقصى 4MB.
+                    </div>
                 </div>
 
                 <div style="grid-column:1 / -1;">
                     <label class="muted" style="display:block;margin-bottom:8px;">ملاحظات</label>
-                    <textarea
-                        name="notes"
-                        rows="4"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >{{ old('notes') }}</textarea>
+                    <textarea name="notes" rows="4"
+                              style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">{{ old('notes') }}</textarea>
                 </div>
             </div>
 

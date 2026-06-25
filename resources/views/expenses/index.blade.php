@@ -26,22 +26,14 @@
             <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;align-items:end;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">من تاريخ</label>
-                    <input
-                        type="date"
-                        name="from_date"
-                        value="{{ $filters['from_date'] }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="date" name="from_date" value="{{ $filters['from_date'] }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">إلى تاريخ</label>
-                    <input
-                        type="date"
-                        name="to_date"
-                        value="{{ $filters['to_date'] }}"
-                        style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;"
-                    >
+                    <input type="date" name="to_date" value="{{ $filters['to_date'] }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
                 </div>
 
                 <div>
@@ -159,6 +151,7 @@
                         <th>المبلغ</th>
                         <th>الضريبة</th>
                         <th>حالة الدفع</th>
+                        <th>المرفق</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
@@ -169,9 +162,7 @@
                             <td>{{ $expense->code }}</td>
                             <td>{{ $expense->expense_date?->format('Y-m-d') }}</td>
                             <td>{{ $expense->description }}</td>
-                            <td>
-                                {{ $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '—' }}
-                            </td>
+                            <td>{{ $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '—' }}</td>
                             <td>{{ $expense->category?->name ?? '—' }}</td>
                             <td>{{ $expense->displayPaymentMethod() }}</td>
                             <td>{{ number_format((float) $expense->amount, 2) }} ريال</td>
@@ -181,6 +172,19 @@
                                     <span class="badge green">مدفوع</span>
                                 @else
                                     <span class="badge gray">غير مدفوع</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($expense->hasAttachment())
+                                    <a href="{{ $expense->attachmentUrl() }}" target="_blank"
+                                       style="color:#5d3b25;font-weight:700;">
+                                        عرض المرفق
+                                    </a>
+                                    <div class="muted" style="font-size:12px;margin-top:4px;">
+                                        {{ $expense->attachment_original_name }}
+                                    </div>
+                                @else
+                                    <span class="muted">لا يوجد</span>
                                 @endif
                             </td>
                             <td>
@@ -204,7 +208,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10">لا توجد مصاريف ضمن الفلاتر الحالية.</td>
+                            <td colspan="11">لا توجد مصاريف ضمن الفلاتر الحالية.</td>
                         </tr>
                     @endforelse
                 </tbody>

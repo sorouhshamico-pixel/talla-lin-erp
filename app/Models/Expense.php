@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Expense extends Model
 {
@@ -23,6 +24,8 @@ class Expense extends Model
         'expense_date',
         'reference_number',
         'notes',
+        'attachment_path',
+        'attachment_original_name',
         'is_paid',
     ];
 
@@ -63,5 +66,19 @@ class Expense extends Model
             'other' => 'أخرى',
             default => $this->payment_method,
         };
+    }
+
+    public function hasAttachment(): bool
+    {
+        return ! empty($this->attachment_path);
+    }
+
+    public function attachmentUrl(): ?string
+    {
+        if (! $this->hasAttachment()) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->attachment_path);
     }
 }
