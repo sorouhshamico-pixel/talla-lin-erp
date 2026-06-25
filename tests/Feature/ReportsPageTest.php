@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\User;
@@ -33,6 +34,8 @@ class ReportsPageTest extends TestCase
         $response->assertSee('تقرير المبيعات');
         $response->assertSee('تقرير المشتريات');
         $response->assertSee('ربح أولي قبل الضريبة');
+        $response->assertSee('تطبيق الفلتر');
+        $response->assertSee('كل الفروع');
     }
 
     public function test_reports_show_sales_purchase_payment_and_profit_totals(): void
@@ -89,5 +92,82 @@ class ReportsPageTest extends TestCase
 
         $response->assertSee('390.00');
         $response->assertSee('200.00');
+    }
+
+    public function test_reports_can_be_filtered_by_current_date_and_branch(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $mainBranch = Branch::query()->where('code', 'MAIN')->firstOrFail();
+
+        $salesInvoice = SalesInvoice::query()
+            ->where('invoice_number', 'INV-DEMO-001')
+            ->firstOrFail();
+
+        $purchaseInvoice = PurchaseInvoice::query()
+            ->where('invoice_number', 'PINV-DEMO-001')
+            ->firstOrFail();
+
+        app(SalesInvoiceService::class)->issueInvoice(
+            invoice: $salesInvoice,
+            stockService: app(InventoryStockService::class)
+        );
+
+        app(SalesInvoiceService::class)->recordPayment(
+            invoice: $salesInvoice->refresh(),
+            user: $admin,
+            amount: 300,
+            method: 'cash',
+            referenceNumber: 'REPORT-FILTER-SALE-PAY'
+        );
+
+        app(PurchaseInvoiceService::class)->receiveInvoice(
+            invoice: $purchaseInvoice,
+            stockService: app(InventoryStockService::class)
+        );
+
+        app(PurchaseInvoiceService::class)->recordPayment(
+            invoice: $purchaseInvoice->refresh(),
+            user: $admin,
+            amount: 100,
+            method: 'cash',
+            referenceNumber: 'REPORT-FILTER-PURCHASE-PAY'
+        );
+
+        $today = now()->toDateString();
+
+        $response = $this->actingAs($admin)->get('/reports?' . http_build_query([
+            'from_date' => $today,
+            'to_date' => $today,
+            'branch_id' => $mainBranch->id,
+        ]));
+
+        $response->assertOk();
+
+        $response->assertSee('851.00');
+        $response->assertSee('414.00');
+        $response->assertSee('390.00');
+        $response->assertSee('200.00');
+    }
+
+    public function test_reports_return_zero_when_filtered_to_empty_future_period(): void
+    {
+        $this->seed();
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+
+        $futureFrom = now()->addYear()->toDateString();
+        $futureTo = now()->addYear()->addDay()->toDateString();
+
+        $response = $this->actingAs($admin)->get('/reports?' . http_build_query([
+            'from_date' => $futureFrom,
+            'to_date' => $futureTo,
+        ]));
+
+        $response->assertOk();
+
+        $response->assertSee('0.00');
+        $response->assertSee('0');
     }
 }

@@ -8,9 +8,51 @@
         <div>
             <h1 class="page-title">التقارير المالية الأساسية</h1>
             <div class="muted">
-                ملخص أولي للمبيعات والمشتريات والمدفوعات والمستحقات.
+                ملخص أولي للمبيعات والمشتريات والمدفوعات والمستحقات مع إمكانية التصفية حسب الفترة والفرع.
             </div>
         </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+        <form method="GET" action="{{ route('reports.index') }}">
+            <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:end;">
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">من تاريخ</label>
+                    <input type="date" name="from_date" value="{{ $filters['from_date'] }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                </div>
+
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">إلى تاريخ</label>
+                    <input type="date" name="to_date" value="{{ $filters['to_date'] }}"
+                           style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                </div>
+
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">الفرع</label>
+                    <select name="branch_id" style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="">كل الفروع</option>
+                        @foreach ($branches as $branch)
+                            <option value="{{ $branch->id }}" @selected((string) $filters['branch_id'] === (string) $branch->id)>
+                                {{ $branch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <button type="submit"
+                            style="background:#8b5e3c;color:#fff;border:0;padding:12px 20px;border-radius:12px;font-weight:700;cursor:pointer;">
+                        تطبيق الفلتر
+                    </button>
+
+                    <a href="{{ route('reports.index') }}"
+                       style="display:inline-block;background:#eee4dc;color:#5d3b25;padding:12px 20px;border-radius:12px;font-weight:700;">
+                        إعادة ضبط
+                    </a>
+                </div>
+            </div>
+        </form>
     </div>
 
     <div class="grid" style="margin-bottom:20px;">

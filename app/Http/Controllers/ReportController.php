@@ -2,19 +2,48 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $filters = [
+            'from_date' => $request->input('from_date'),
+            'to_date' => $request->input('to_date'),
+            'branch_id' => $request->input('branch_id'),
+        ];
+
+        $branches = Branch::query()
+            ->where('is_active', true)
+            ->orderByDesc('is_main')
+            ->orderBy('id')
+            ->get();
+
         $salesBaseQuery = SalesInvoice::query()
             ->whereIn('status', ['issued', 'paid']);
 
         $purchaseBaseQuery = PurchaseInvoice::query()
             ->where('status', 'received');
+
+        if (! empty($filters['branch_id'])) {
+            $salesBaseQuery->where('branch_id', $filters['branch_id']);
+            $purchaseBaseQuery->where('branch_id', $filters['branch_id']);
+        }
+
+        if (! empty($filters['from_date'])) {
+            $salesBaseQuery->whereDate('issued_at', '>=', $filters['from_date']);
+            $purchaseBaseQuery->whereDate('invoice_date', '>=', $filters['from_date']);
+        }
+
+        if (! empty($filters['to_date'])) {
+            $salesBaseQuery->whereDate('issued_at', '<=', $filters['to_date']);
+            $purchaseBaseQuery->whereDate('invoice_date', '<=', $filters['to_date']);
+        }
 
         $sales = [
             'count' => (clone $salesBaseQuery)->count(),
@@ -45,6 +74,8 @@ class ReportController extends Controller
             'sales' => $sales,
             'purchases' => $purchases,
             'profit' => $profit,
+            'branches' => $branches,
+            'filters' => $filters,
         ]);
     }
 }
