@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExpenseController extends Controller
 {
@@ -17,14 +19,7 @@ class ExpenseController extends Controller
 
     public function index(Request $request): View
     {
-        $filters = [
-            'from_date' => $request->input('from_date'),
-            'to_date' => $request->input('to_date'),
-            'branch_id' => $request->input('branch_id'),
-            'expense_category_id' => $request->input('expense_category_id'),
-            'payment_method' => $request->input('payment_method'),
-            'payment_status' => $request->input('payment_status'),
-        ];
+        $filters = $this->expenseFilters($request);
 
         $branches = Branch::query()
             ->where('is_active', true)
@@ -39,36 +34,7 @@ class ExpenseController extends Controller
         $paymentMethods = $this->paymentMethods();
         $paymentStatuses = $this->paymentStatuses();
 
-        $expensesQuery = Expense::query()
-            ->with(['branch', 'category', 'user']);
-
-        if (! empty($filters['from_date'])) {
-            $expensesQuery->whereDate('expense_date', '>=', $filters['from_date']);
-        }
-
-        if (! empty($filters['to_date'])) {
-            $expensesQuery->whereDate('expense_date', '<=', $filters['to_date']);
-        }
-
-        if (! empty($filters['branch_id'])) {
-            $expensesQuery->where('branch_id', $filters['branch_id']);
-        }
-
-        if (! empty($filters['expense_category_id'])) {
-            $expensesQuery->where('expense_category_id', $filters['expense_category_id']);
-        }
-
-        if (! empty($filters['payment_method'])) {
-            $expensesQuery->where('payment_method', $filters['payment_method']);
-        }
-
-        if ($filters['payment_status'] === 'paid') {
-            $expensesQuery->where('is_paid', true);
-        }
-
-        if ($filters['payment_status'] === 'unpaid') {
-            $expensesQuery->where('is_paid', false);
-        }
+        $expensesQuery = $this->filteredExpensesQuery($filters);
 
         $expenseTotals = [
             'count' => (clone $expensesQuery)->count(),
@@ -91,6 +57,62 @@ class ExpenseController extends Controller
             'paymentStatuses' => $paymentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
+        ]);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $this->expenseFilters($request);
+
+        $expenses = $this->filteredExpensesQuery($filters)
+            ->latest('expense_date')
+            ->latest('id')
+            ->get();
+
+        $fileName = 'expenses-report-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($expenses): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'الكود',
+                'التاريخ',
+                'الوصف',
+                'الفرع',
+                'التصنيف',
+                'طريقة الدفع',
+                'حالة الدفع',
+                'المبلغ',
+                'الضريبة',
+                'رقم المرجع',
+                'المرفق',
+            ]);
+
+            foreach ($expenses as $expense) {
+                fputcsv($handle, [
+                    $expense->code,
+                    $expense->expense_date?->format('Y-m-d'),
+                    $expense->description,
+                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->category?->name ?? '',
+                    $expense->displayPaymentMethod(),
+                    $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
+                    number_format((float) $expense->amount, 2, '.', ''),
+                    number_format((float) $expense->tax_amount, 2, '.', ''),
+                    $expense->reference_number,
+                    $expense->hasAttachment() ? ($expense->attachment_original_name ?: $expense->attachment_path) : '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 
@@ -261,6 +283,54 @@ class ExpenseController extends Controller
         return redirect()
             ->route('expenses.index')
             ->with('success', 'تم حذف المصروف بنجاح.');
+    }
+
+    private function expenseFilters(Request $request): array
+    {
+        return [
+            'from_date' => $request->input('from_date'),
+            'to_date' => $request->input('to_date'),
+            'branch_id' => $request->input('branch_id'),
+            'expense_category_id' => $request->input('expense_category_id'),
+            'payment_method' => $request->input('payment_method'),
+            'payment_status' => $request->input('payment_status'),
+        ];
+    }
+
+    private function filteredExpensesQuery(array $filters): Builder
+    {
+        $expensesQuery = Expense::query()
+            ->with(['branch', 'category', 'user']);
+
+        if (! empty($filters['from_date'])) {
+            $expensesQuery->whereDate('expense_date', '>=', $filters['from_date']);
+        }
+
+        if (! empty($filters['to_date'])) {
+            $expensesQuery->whereDate('expense_date', '<=', $filters['to_date']);
+        }
+
+        if (! empty($filters['branch_id'])) {
+            $expensesQuery->where('branch_id', $filters['branch_id']);
+        }
+
+        if (! empty($filters['expense_category_id'])) {
+            $expensesQuery->where('expense_category_id', $filters['expense_category_id']);
+        }
+
+        if (! empty($filters['payment_method'])) {
+            $expensesQuery->where('payment_method', $filters['payment_method']);
+        }
+
+        if ($filters['payment_status'] === 'paid') {
+            $expensesQuery->where('is_paid', true);
+        }
+
+        if ($filters['payment_status'] === 'unpaid') {
+            $expensesQuery->where('is_paid', false);
+        }
+
+        return $expensesQuery;
     }
 
     private function validatedExpenseData(Request $request): array

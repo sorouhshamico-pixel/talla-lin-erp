@@ -9,10 +9,17 @@
             </div>
         </div>
 
-        <a href="{{ route('expenses.create') }}"
-           style="background:#8b5e3c;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;">
-            مصروف جديد
-        </a>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <a href="{{ route('expenses.export', request()->query()) }}"
+               style="background:#eee4dc;color:#5d3b25;padding:12px 18px;border-radius:12px;font-weight:700;">
+                تصدير CSV
+            </a>
+
+            <a href="{{ route('expenses.create') }}"
+               style="background:#8b5e3c;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;">
+                مصروف جديد
+            </a>
+        </div>
     </div>
 
     @if (session('success'))
