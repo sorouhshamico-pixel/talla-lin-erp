@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -118,6 +119,49 @@ class SalesInvoiceService
             ])->save();
 
             return $invoice->load(['customer', 'branch', 'items.variant']);
+        });
+    }
+
+    public function issueInvoice(SalesInvoice $invoice, InventoryStockService $stockService): SalesInvoice
+    {
+        if ($invoice->status !== 'draft') {
+            throw new InvalidArgumentException('لا يمكن اعتماد فاتورة غير مسودة.');
+        }
+
+        $invoice->load(['branch', 'items.variant.product']);
+
+        $warehouse = Warehouse::query()
+            ->where('branch_id', $invoice->branch_id)
+            ->where('is_active', true)
+            ->orderByDesc('is_main')
+            ->orderBy('id')
+            ->first();
+
+        if (! $warehouse) {
+            throw new InvalidArgumentException('لا يوجد مستودع نشط مرتبط بفرع الفاتورة.');
+        }
+
+        return DB::transaction(function () use ($invoice, $warehouse, $stockService) {
+            foreach ($invoice->items as $item) {
+                $stockService->applyMovement(
+                    warehouse: $warehouse,
+                    variant: $item->variant,
+                    type: 'sale',
+                    direction: 'out',
+                    quantity: (float) $item->quantity,
+                    unitCost: (float) ($item->variant?->cost_price ?? 0),
+                    referenceType: 'sales_invoice',
+                    referenceNumber: $invoice->invoice_number,
+                    notes: 'خصم مخزون بسبب اعتماد فاتورة بيع.'
+                );
+            }
+
+            $invoice->forceFill([
+                'status' => 'issued',
+                'issued_at' => now(),
+            ])->save();
+
+            return $invoice->refresh()->load(['customer', 'branch', 'items.variant']);
         });
     }
 

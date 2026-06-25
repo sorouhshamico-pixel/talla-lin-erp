@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales-invoices', [SalesInvoiceController::class, 'index'])->name('sales-invoices.index');
     Route::get('/sales-invoices/create', [SalesInvoiceController::class, 'create'])->name('sales-invoices.create');
     Route::post('/sales-invoices', [SalesInvoiceController::class, 'store'])->name('sales-invoices.store');
+    Route::post('/sales-invoices/{salesInvoice}/issue', [SalesInvoiceController::class, 'issue'])->name('sales-invoices.issue');
     Route::get('/sales-invoices/{salesInvoice}', [SalesInvoiceController::class, 'show'])->name('sales-invoices.show');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
+use App\Services\InventoryStockService;
 use App\Services\SalesInvoiceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -115,5 +116,23 @@ class SalesInvoiceController extends Controller
         return view('sales-invoices.show', [
             'invoice' => $salesInvoice,
         ]);
+    }
+
+    public function issue(
+        SalesInvoice $salesInvoice,
+        SalesInvoiceService $invoiceService,
+        InventoryStockService $stockService
+    ): RedirectResponse {
+        try {
+            $invoiceService->issueInvoice($salesInvoice, $stockService);
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors([
+                'issue' => $exception->getMessage(),
+            ]);
+        }
+
+        return redirect()
+            ->route('sales-invoices.show', $salesInvoice)
+            ->with('success', 'تم اعتماد الفاتورة وخصم المخزون بنجاح.');
     }
 }
