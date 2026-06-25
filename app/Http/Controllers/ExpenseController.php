@@ -13,6 +13,8 @@ use Illuminate\View\View;
 
 class ExpenseController extends Controller
 {
+    private const EXPENSE_CODE_PREFIX = 'EXP-';
+
     public function index(Request $request): View
     {
         $filters = [
@@ -134,10 +136,6 @@ class ExpenseController extends Controller
                 ->withInput();
         }
 
-        $nextNumber = Expense::query()
-            ->where('company_id', $branch->company_id)
-            ->count() + 1;
-
         $attachmentData = $this->storeAttachment($request);
 
         Expense::query()->create([
@@ -145,7 +143,7 @@ class ExpenseController extends Controller
             'branch_id' => $branch->id,
             'expense_category_id' => $category->id,
             'user_id' => $request->user()?->id,
-            'code' => 'EXP-' . str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT),
+            'code' => $this->generateNextExpenseCode((int) $branch->company_id),
             'description' => $data['description'],
             'amount' => (float) $data['amount'],
             'tax_amount' => (float) ($data['tax_amount'] ?? 0),
@@ -280,6 +278,26 @@ class ExpenseController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
             'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:4096'],
         ]);
+    }
+
+    private function generateNextExpenseCode(int $companyId): string
+    {
+        $codes = Expense::query()
+            ->where('company_id', $companyId)
+            ->where('code', 'like', self::EXPENSE_CODE_PREFIX . '%')
+            ->pluck('code');
+
+        $lastNumber = 0;
+
+        foreach ($codes as $code) {
+            if (! preg_match('/^' . preg_quote(self::EXPENSE_CODE_PREFIX, '/') . '(\d+)$/', (string) $code, $matches)) {
+                continue;
+            }
+
+            $lastNumber = max($lastNumber, (int) $matches[1]);
+        }
+
+        return self::EXPENSE_CODE_PREFIX . str_pad((string) ($lastNumber + 1), 6, '0', STR_PAD_LEFT);
     }
 
     private function storeAttachment(Request $request): array
