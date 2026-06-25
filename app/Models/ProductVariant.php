@@ -47,4 +47,9 @@ class ProductVariant extends Model
     {
         return $this->hasMany(InventoryMovement::class, 'product_variant_id');
     }
+
+    public function salesInvoiceItems(): HasMany
+    {
+        return $this->hasMany(SalesInvoiceItem::class, 'product_variant_id');
+    }
 }
