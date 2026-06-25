@@ -52,4 +52,9 @@ class ProductVariant extends Model
     {
         return $this->hasMany(SalesInvoiceItem::class, 'product_variant_id');
     }
+
+    public function purchaseInvoiceItems(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoiceItem::class, 'product_variant_id');
+    }
 }
