@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
     Route::patch('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+    Route::delete('/expenses/{expense}/attachment', [ExpenseController::class, 'destroyAttachment'])->name('expenses.attachment.destroy');
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

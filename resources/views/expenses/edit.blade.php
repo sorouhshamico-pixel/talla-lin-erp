@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">تعديل مصروف تشغيلي</h1>
             <div class="muted">
-                تحديث بيانات المصروف التشغيلي مع إمكانية استبدال المرفق الحالي.
+                تحديث بيانات المصروف التشغيلي مع إمكانية استبدال أو حذف المرفق الحالي.
             </div>
         </div>
 
@@ -15,6 +15,12 @@
         </a>
     </div>
 
+    @if (session('success'))
+        <div class="card" style="margin-bottom:20px;border-color:#b7e4c7;background:#f0fff4;color:#157347;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     @if ($errors->any())
         <div class="card" style="margin-bottom:20px;border-color:#f1b5b5;background:#fff5f5;color:#b42318;">
             <strong>يرجى مراجعة الأخطاء التالية:</strong>
@@ -23,6 +29,31 @@
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
+        </div>
+    @endif
+
+    @if ($expense->hasAttachment())
+        <div class="card" style="margin-bottom:20px;">
+            <h2 style="margin-top:0;">المرفق الحالي</h2>
+
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <a href="{{ $expense->attachmentUrl() }}" target="_blank"
+                   style="background:#eee4dc;color:#5d3b25;padding:10px 14px;border-radius:10px;font-weight:700;">
+                    عرض المرفق الحالي
+                </a>
+
+                <span class="muted">{{ $expense->attachment_original_name }}</span>
+
+                <form method="POST" action="{{ route('expenses.attachment.destroy', $expense) }}" onsubmit="return confirm('هل تريد حذف مرفق هذا المصروف؟');">
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit"
+                            style="background:#b42318;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;">
+                        حذف المرفق
+                    </button>
+                </form>
+            </div>
         </div>
     @endif
 
@@ -101,23 +132,6 @@
                     <label class="muted" style="display:block;margin-bottom:8px;">رقم المرجع</label>
                     <input type="text" name="reference_number" value="{{ old('reference_number', $expense->reference_number) }}"
                            style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
-                </div>
-
-                <div style="grid-column:1 / -1;">
-                    <label class="muted" style="display:block;margin-bottom:8px;">المرفق الحالي</label>
-
-                    @if ($expense->hasAttachment())
-                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                            <a href="{{ $expense->attachmentUrl() }}" target="_blank"
-                               style="background:#eee4dc;color:#5d3b25;padding:10px 14px;border-radius:10px;font-weight:700;">
-                                عرض المرفق الحالي
-                            </a>
-
-                            <span class="muted">{{ $expense->attachment_original_name }}</span>
-                        </div>
-                    @else
-                        <div class="muted">لا يوجد مرفق حالي.</div>
-                    @endif
                 </div>
 
                 <div style="grid-column:1 / -1;">

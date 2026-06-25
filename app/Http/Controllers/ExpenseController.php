@@ -215,7 +215,7 @@ class ExpenseController extends Controller
         ];
 
         if ($request->hasFile('attachment')) {
-            $this->deleteAttachment($expense);
+            $this->deleteAttachmentFile($expense);
             $attachmentData = $this->storeAttachment($request);
         }
 
@@ -240,9 +240,23 @@ class ExpenseController extends Controller
             ->with('success', 'تم تحديث المصروف بنجاح.');
     }
 
+    public function destroyAttachment(Expense $expense): RedirectResponse
+    {
+        $this->deleteAttachmentFile($expense);
+
+        $expense->update([
+            'attachment_path' => null,
+            'attachment_original_name' => null,
+        ]);
+
+        return redirect()
+            ->route('expenses.edit', $expense)
+            ->with('success', 'تم حذف مرفق المصروف بنجاح.');
+    }
+
     public function destroy(Expense $expense): RedirectResponse
     {
-        $this->deleteAttachment($expense);
+        $this->deleteAttachmentFile($expense);
 
         $expense->delete();
 
@@ -285,7 +299,7 @@ class ExpenseController extends Controller
         ];
     }
 
-    private function deleteAttachment(Expense $expense): void
+    private function deleteAttachmentFile(Expense $expense): void
     {
         if (! $expense->attachment_path) {
             return;
