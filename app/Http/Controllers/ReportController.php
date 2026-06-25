@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\InventoryBalance;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -18,6 +21,8 @@ class ReportController extends Controller
             'from_date' => $request->input('from_date'),
             'to_date' => $request->input('to_date'),
             'branch_id' => $request->input('branch_id'),
+            'expense_category_id' => $request->input('expense_category_id'),
+            'payment_method' => $request->input('payment_method'),
         ];
 
         $branches = Branch::query()
@@ -25,6 +30,18 @@ class ReportController extends Controller
             ->orderByDesc('is_main')
             ->orderBy('id')
             ->get();
+
+        $expenseCategories = ExpenseCategory::query()
+            ->orderBy('name')
+            ->get();
+
+        $paymentMethods = [
+            'cash' => 'نقدًا',
+            'card' => 'بطاقة',
+            'bank_transfer' => 'تحويل بنكي',
+            'online' => 'دفع إلكتروني',
+            'other' => 'أخرى',
+        ];
 
         $salesBaseQuery = SalesInvoice::query()
             ->whereIn('status', ['issued', 'paid']);
@@ -57,6 +74,14 @@ class ReportController extends Controller
             $expenseBaseQuery->whereDate('expense_date', '<=', $filters['to_date']);
         }
 
+        if (! empty($filters['expense_category_id'])) {
+            $expenseBaseQuery->where('expense_category_id', $filters['expense_category_id']);
+        }
+
+        if (! empty($filters['payment_method'])) {
+            $expenseBaseQuery->where('payment_method', $filters['payment_method']);
+        }
+
         $sales = [
             'count' => (clone $salesBaseQuery)->count(),
             'subtotal' => round((float) (clone $salesBaseQuery)->sum('subtotal'), 2),
@@ -82,7 +107,11 @@ class ReportController extends Controller
             'amount' => round((float) (clone $expenseBaseQuery)->sum('amount'), 2),
             'tax_amount' => round((float) (clone $expenseBaseQuery)->sum('tax_amount'), 2),
             'paid_amount' => round((float) (clone $expenseBaseQuery)->where('is_paid', true)->sum('amount'), 2),
+            'unpaid_amount' => round((float) (clone $expenseBaseQuery)->where('is_paid', false)->sum('amount'), 2),
         ];
+
+        $expenseCategoryBreakdown = $this->expenseCategoryBreakdown(clone $expenseBaseQuery);
+        $expensePaymentBreakdown = $this->expensePaymentBreakdown(clone $expenseBaseQuery, $paymentMethods);
 
         $inventory = [
             'products_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_id')->count('inventory_balances.product_id'),
@@ -97,9 +126,13 @@ class ReportController extends Controller
                 ->count(),
         ];
 
+        $grossProfitBeforeTax = round($sales['subtotal'] - $purchases['subtotal'], 2);
+        $netProfitAfterExpenses = round($grossProfitBeforeTax - $expenses['amount'], 2);
+
         $profit = [
-            'gross_profit_before_tax' => round($sales['subtotal'] - $purchases['subtotal'], 2),
-            'net_profit_after_expenses' => round($sales['subtotal'] - $purchases['subtotal'] - $expenses['amount'], 2),
+            'gross_profit_before_tax' => $grossProfitBeforeTax,
+            'operating_expenses_total' => $expenses['amount'],
+            'net_profit_after_expenses' => $netProfitAfterExpenses,
             'net_cash_flow' => round($sales['paid_amount'] - $purchases['paid_amount'], 2),
             'net_cash_flow_after_expenses' => round($sales['paid_amount'] - $purchases['paid_amount'] - $expenses['paid_amount'], 2),
             'inventory_potential_margin' => round($inventory['sale_value'] - $inventory['cost_value'], 2),
@@ -109,10 +142,51 @@ class ReportController extends Controller
             'sales' => $sales,
             'purchases' => $purchases,
             'expenses' => $expenses,
+            'expenseCategoryBreakdown' => $expenseCategoryBreakdown,
+            'expensePaymentBreakdown' => $expensePaymentBreakdown,
             'inventory' => $inventory,
             'profit' => $profit,
             'branches' => $branches,
+            'expenseCategories' => $expenseCategories,
+            'paymentMethods' => $paymentMethods,
             'filters' => $filters,
         ]);
+    }
+
+    private function expenseCategoryBreakdown(Builder $query): Collection
+    {
+        return $query
+            ->join('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
+            ->selectRaw('expense_categories.id, expense_categories.name, expense_categories.slug, COUNT(expenses.id) as expenses_count, SUM(expenses.amount) as total_amount, SUM(expenses.tax_amount) as total_tax_amount')
+            ->groupBy('expense_categories.id', 'expense_categories.name', 'expense_categories.slug')
+            ->orderByDesc('total_amount')
+            ->get()
+            ->map(function ($row): array {
+                return [
+                    'id' => (int) $row->id,
+                    'name' => $row->name,
+                    'slug' => $row->slug,
+                    'expenses_count' => (int) $row->expenses_count,
+                    'total_amount' => round((float) $row->total_amount, 2),
+                    'total_tax_amount' => round((float) $row->total_tax_amount, 2),
+                ];
+            });
+    }
+
+    private function expensePaymentBreakdown(Builder $query, array $paymentMethods): Collection
+    {
+        return $query
+            ->selectRaw('payment_method, COUNT(expenses.id) as expenses_count, SUM(amount) as total_amount')
+            ->groupBy('payment_method')
+            ->orderByDesc('total_amount')
+            ->get()
+            ->map(function ($row) use ($paymentMethods): array {
+                return [
+                    'payment_method' => $row->payment_method,
+                    'label' => $paymentMethods[$row->payment_method] ?? $row->payment_method,
+                    'expenses_count' => (int) $row->expenses_count,
+                    'total_amount' => round((float) $row->total_amount, 2),
+                ];
+            });
     }
 }
