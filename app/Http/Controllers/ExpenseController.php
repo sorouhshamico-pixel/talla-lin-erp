@@ -44,6 +44,8 @@ class ExpenseController extends Controller
             'unpaid_amount' => round((float) (clone $expensesQuery)->where('is_paid', false)->sum('amount'), 2),
         ];
 
+        $monthlySummary = $this->monthlyExpenseSummary($filters);
+
         $expenses = $expensesQuery
             ->latest('expense_date')
             ->latest('id')
@@ -57,6 +59,7 @@ class ExpenseController extends Controller
             'paymentStatuses' => $paymentStatuses,
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
+            'monthlySummary' => $monthlySummary,
         ]);
     }
 
@@ -310,6 +313,51 @@ class ExpenseController extends Controller
             $expensesQuery->whereDate('expense_date', '<=', $filters['to_date']);
         }
 
+        $this->applyNonDateExpenseFilters($expensesQuery, $filters);
+
+        return $expensesQuery;
+    }
+
+    private function monthlyExpenseSummary(array $filters): array
+    {
+        $monthStart = now()->startOfMonth()->toDateString();
+        $monthEnd = now()->endOfMonth()->toDateString();
+
+        $monthlyQuery = Expense::query()
+            ->with(['category'])
+            ->whereDate('expense_date', '>=', $monthStart)
+            ->whereDate('expense_date', '<=', $monthEnd);
+
+        $this->applyNonDateExpenseFilters($monthlyQuery, $filters);
+
+        $topCategoryRow = (clone $monthlyQuery)
+            ->selectRaw('expense_category_id, SUM(amount) as total_amount')
+            ->groupBy('expense_category_id')
+            ->orderByDesc('total_amount')
+            ->first();
+
+        $topCategory = null;
+
+        if ($topCategoryRow) {
+            $category = ExpenseCategory::query()->find($topCategoryRow->expense_category_id);
+
+            $topCategory = [
+                'name' => $category?->name ?? 'غير محدد',
+                'amount' => round((float) $topCategoryRow->total_amount, 2),
+            ];
+        }
+
+        return [
+            'month_label' => now()->format('Y-m'),
+            'total_amount' => round((float) (clone $monthlyQuery)->sum('amount'), 2),
+            'paid_amount' => round((float) (clone $monthlyQuery)->where('is_paid', true)->sum('amount'), 2),
+            'unpaid_amount' => round((float) (clone $monthlyQuery)->where('is_paid', false)->sum('amount'), 2),
+            'top_category' => $topCategory,
+        ];
+    }
+
+    private function applyNonDateExpenseFilters(Builder $expensesQuery, array $filters): void
+    {
         if (! empty($filters['branch_id'])) {
             $expensesQuery->where('branch_id', $filters['branch_id']);
         }
@@ -329,8 +377,6 @@ class ExpenseController extends Controller
         if ($filters['payment_status'] === 'unpaid') {
             $expensesQuery->where('is_paid', false);
         }
-
-        return $expensesQuery;
     }
 
     private function validatedExpenseData(Request $request): array

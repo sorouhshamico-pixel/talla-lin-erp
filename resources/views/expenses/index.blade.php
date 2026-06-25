@@ -106,6 +106,46 @@
         </form>
     </div>
 
+    <div class="card" style="margin-bottom:20px;">
+        <h2 style="margin-top:0;">ملخص مصاريف الشهر الحالي</h2>
+        <div class="muted" style="margin-bottom:16px;">
+            الشهر: {{ $monthlySummary['month_label'] }}
+        </div>
+
+        <div class="grid">
+            <div class="metric">
+                <div class="metric-label">إجمالي مصاريف الشهر الحالي</div>
+                <div class="metric-value">{{ number_format($monthlySummary['total_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">إجمالي المدفوع خلال الشهر</div>
+                <div class="metric-value">{{ number_format($monthlySummary['paid_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">إجمالي غير المدفوع خلال الشهر</div>
+                <div class="metric-value">{{ number_format($monthlySummary['unpaid_amount'], 2) }} ريال</div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top:18px;">
+            <div class="metric">
+                <div class="metric-label">أعلى تصنيف مصروف خلال الشهر</div>
+                <div class="metric-value" style="font-size:18px;">
+                    @if ($monthlySummary['top_category'])
+                        {{ $monthlySummary['top_category']['name'] }}
+                        <div style="margin-top:6px;font-size:24px;">
+                            {{ number_format($monthlySummary['top_category']['amount'], 2) }} ريال
+                        </div>
+                    @else
+                        لا توجد مصاريف هذا الشهر
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="grid" style="margin-bottom:20px;">
         <div class="metric">
             <div class="metric-label">إجمالي نتائج الفلتر</div>
