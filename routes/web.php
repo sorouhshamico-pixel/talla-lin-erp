@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase-invoices/create', [PurchaseInvoiceController::class, 'create'])->name('purchase-invoices.create');
     Route::post('/purchase-invoices', [PurchaseInvoiceController::class, 'store'])->name('purchase-invoices.store');
     Route::post('/purchase-invoices/{purchaseInvoice}/receive', [PurchaseInvoiceController::class, 'receive'])->name('purchase-invoices.receive');
+    Route::get('/purchase-invoices/{purchaseInvoice}/payments/create', [PurchaseInvoiceController::class, 'createPayment'])->name('purchase-invoices.payments.create');
+    Route::post('/purchase-invoices/{purchaseInvoice}/payments', [PurchaseInvoiceController::class, 'storePayment'])->name('purchase-invoices.payments.store');
     Route::get('/purchase-invoices/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('purchase-invoices.show');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

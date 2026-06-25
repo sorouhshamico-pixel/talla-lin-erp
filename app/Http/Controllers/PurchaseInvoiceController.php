@@ -124,6 +124,7 @@ class PurchaseInvoiceController extends Controller
             'user',
             'items.product',
             'items.variant',
+            'payments.user',
         ]);
 
         return view('purchase-invoices.show', [
@@ -147,5 +148,48 @@ class PurchaseInvoiceController extends Controller
         return redirect()
             ->route('purchase-invoices.show', $purchaseInvoice)
             ->with('success', 'تم استلام فاتورة الشراء وزيادة المخزون بنجاح.');
+    }
+
+    public function createPayment(PurchaseInvoice $purchaseInvoice): View
+    {
+        $purchaseInvoice->load(['supplier', 'branch', 'warehouse']);
+
+        return view('purchase-invoices.create-payment', [
+            'invoice' => $purchaseInvoice,
+        ]);
+    }
+
+    public function storePayment(
+        Request $request,
+        PurchaseInvoice $purchaseInvoice,
+        PurchaseInvoiceService $purchaseInvoiceService
+    ): RedirectResponse {
+        $data = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'method' => ['required', 'string', 'in:cash,card,bank_transfer,online,other'],
+            'reference_number' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        try {
+            $purchaseInvoiceService->recordPayment(
+                invoice: $purchaseInvoice,
+                user: $request->user(),
+                amount: (float) $data['amount'],
+                method: $data['method'],
+                referenceNumber: $data['reference_number'] ?? null,
+                notes: $data['notes'] ?? null
+            );
+        } catch (InvalidArgumentException $exception) {
+            return back()
+                ->withErrors([
+                    'payment' => $exception->getMessage(),
+                ])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('purchase-invoices.show', $purchaseInvoice)
+            ->with('success', 'تم تسجيل دفعة المورد بنجاح.');
     }
 }

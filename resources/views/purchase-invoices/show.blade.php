@@ -24,6 +24,13 @@
                 </form>
             @endif
 
+            @if ($invoice->status === 'received' && (float) $invoice->remaining_amount > 0)
+                <a href="{{ route('purchase-invoices.payments.create', $invoice) }}"
+                   style="display:inline-block;background:#157347;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;">
+                    تسجيل دفعة
+                </a>
+            @endif
+
             <a href="{{ route('purchase-invoices.index') }}"
                style="display:inline-block;background:#eee4dc;color:#5d3b25;padding:11px 16px;border-radius:12px;font-weight:700;">
                 رجوع للفواتير
@@ -109,5 +116,38 @@
         <p><strong>حالة السداد:</strong> {{ $invoice->displayPaymentStatus() }}</p>
         <p><strong>المدفوع:</strong> {{ number_format((float) $invoice->paid_amount, 2) }} ريال</p>
         <p style="margin-bottom:0;"><strong>المتبقي:</strong> {{ number_format((float) $invoice->remaining_amount, 2) }} ريال</p>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2 style="margin-top:0;">سجل دفعات المورد</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>المبلغ</th>
+                        <th>طريقة الدفع</th>
+                        <th>المرجع</th>
+                        <th>الموظف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($invoice->payments as $payment)
+                        <tr>
+                            <td>{{ $payment->paid_at?->format('Y-m-d H:i') }}</td>
+                            <td>{{ number_format((float) $payment->amount, 2) }} ريال</td>
+                            <td>{{ $payment->displayMethod() }}</td>
+                            <td dir="ltr">{{ $payment->reference_number ?? '-' }}</td>
+                            <td>{{ $payment->user?->name ?? '-' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5">لا توجد دفعات مسجلة.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

@@ -73,6 +73,11 @@ class PurchaseInvoice extends Model
         return $this->hasMany(PurchaseInvoiceItem::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoicePayment::class);
+    }
+
     public function displayStatus(): string
     {
         return match ($this->status) {
