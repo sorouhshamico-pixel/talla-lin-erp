@@ -67,6 +67,11 @@ class SalesInvoice extends Model
         return $this->hasMany(SalesInvoiceItem::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(SalesInvoicePayment::class);
+    }
+
     public function displayStatus(): string
     {
         return match ($this->status) {
@@ -75,6 +80,16 @@ class SalesInvoice extends Model
             'paid' => 'مدفوعة',
             'cancelled' => 'ملغاة',
             default => $this->status,
+        };
+    }
+
+    public function displayPaymentStatus(): string
+    {
+        return match ($this->payment_status) {
+            'unpaid' => 'غير مدفوعة',
+            'partial' => 'مدفوعة جزئيًا',
+            'paid' => 'مدفوعة بالكامل',
+            default => $this->payment_status,
         };
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
+use App\Models\SalesInvoicePayment;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\DB;
@@ -162,6 +163,61 @@ class SalesInvoiceService
             ])->save();
 
             return $invoice->refresh()->load(['customer', 'branch', 'items.variant']);
+        });
+    }
+
+
+    public function recordPayment(
+        SalesInvoice $invoice,
+        User $user,
+        float $amount,
+        string $method = 'cash',
+        ?string $referenceNumber = null,
+        ?string $notes = null
+    ): SalesInvoicePayment {
+        if ($invoice->status !== 'issued') {
+            throw new InvalidArgumentException('لا يمكن تسجيل دفعة على فاتورة غير معتمدة.');
+        }
+
+        if ($amount <= 0) {
+            throw new InvalidArgumentException('مبلغ الدفعة يجب أن يكون أكبر من صفر.');
+        }
+
+        $invoice->refresh();
+
+        $remainingAmount = (float) $invoice->remaining_amount;
+
+        if ($amount > $remainingAmount) {
+            throw new InvalidArgumentException('مبلغ الدفعة أكبر من المبلغ المتبقي.');
+        }
+
+        return DB::transaction(function () use ($invoice, $user, $amount, $method, $referenceNumber, $notes) {
+            $payment = SalesInvoicePayment::query()->create([
+                'sales_invoice_id' => $invoice->id,
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'method' => $method,
+                'reference_number' => $referenceNumber,
+                'notes' => $notes,
+                'paid_at' => now(),
+            ]);
+
+            $newPaidAmount = round((float) $invoice->paid_amount + $amount, 2);
+            $newRemainingAmount = round((float) $invoice->grand_total - $newPaidAmount, 2);
+
+            $paymentStatus = match (true) {
+                $newRemainingAmount <= 0.0 => 'paid',
+                $newPaidAmount > 0.0 => 'partial',
+                default => 'unpaid',
+            };
+
+            $invoice->forceFill([
+                'paid_amount' => $newPaidAmount,
+                'remaining_amount' => max($newRemainingAmount, 0),
+                'payment_status' => $paymentStatus,
+            ])->save();
+
+            return $payment;
         });
     }
 

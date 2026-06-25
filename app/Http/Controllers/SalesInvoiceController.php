@@ -111,6 +111,7 @@ class SalesInvoiceController extends Controller
             'user',
             'items.product',
             'items.variant',
+            'payments.user',
         ]);
 
         return view('sales-invoices.show', [
@@ -134,5 +135,48 @@ class SalesInvoiceController extends Controller
         return redirect()
             ->route('sales-invoices.show', $salesInvoice)
             ->with('success', 'تم اعتماد الفاتورة وخصم المخزون بنجاح.');
+    }
+
+    public function createPayment(SalesInvoice $salesInvoice): View
+    {
+        $salesInvoice->load(['customer', 'branch']);
+
+        return view('sales-invoices.create-payment', [
+            'invoice' => $salesInvoice,
+        ]);
+    }
+
+    public function storePayment(
+        Request $request,
+        SalesInvoice $salesInvoice,
+        SalesInvoiceService $invoiceService
+    ): RedirectResponse {
+        $data = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'method' => ['required', 'string', 'in:cash,card,bank_transfer,online,other'],
+            'reference_number' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        try {
+            $invoiceService->recordPayment(
+                invoice: $salesInvoice,
+                user: $request->user(),
+                amount: (float) $data['amount'],
+                method: $data['method'],
+                referenceNumber: $data['reference_number'] ?? null,
+                notes: $data['notes'] ?? null
+            );
+        } catch (InvalidArgumentException $exception) {
+            return back()
+                ->withErrors([
+                    'payment' => $exception->getMessage(),
+                ])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('sales-invoices.show', $salesInvoice)
+            ->with('success', 'تم تسجيل الدفعة بنجاح.');
     }
 }
