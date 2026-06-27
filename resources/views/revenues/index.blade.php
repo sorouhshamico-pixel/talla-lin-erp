@@ -102,6 +102,158 @@
         </div>
     </div>
                 
+    {{-- 12Q_REVENUE_ACTIVE_FILTER_COUNT_CARD --}}
+    @php
+        $revenueActiveFilters = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $revenueActiveFilterCount = $revenueActiveFilters->count();
+    @endphp
+
+        {{-- 12R_REVENUE_ACTIVE_FILTER_LABELS_CARD --}}
+    @php
+        $revenueFilterLabels12R = [
+            'branch_id' => 'الفرع',
+            'revenue_category_id' => 'التصنيف',
+            'collection_method' => 'طريقة التحصيل',
+            'collection_status' => 'حالة التحصيل',
+            'archive_status' => 'حالة الأرشفة',
+            'archived' => 'حالة الأرشفة',
+            'date_from' => 'من تاريخ',
+            'date_to' => 'إلى تاريخ',
+            'from' => 'من تاريخ',
+            'to' => 'إلى تاريخ',
+            'search' => 'بحث',
+            'q' => 'بحث',
+            'keyword' => 'بحث',
+            'is_collected' => 'حالة التحصيل',
+            'uncollected' => 'غير محصل فقط',
+        ];
+
+        $revenueFilterValueLabels12R = [
+            'cash' => 'نقدًا',
+            'bank_transfer' => 'تحويل بنكي',
+            'mada' => 'مدى',
+            'visa' => 'بطاقة',
+            'cheque' => 'شيك',
+            'collected' => 'محصل',
+            'uncollected' => 'غير محصل',
+            'active' => 'نشط',
+            'archived' => 'مؤرشف',
+            '1' => 'نعم',
+            '0' => 'لا',
+            'true' => 'نعم',
+            'false' => 'لا',
+        ];
+
+        $revenueActiveFilterBadges12R = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            })
+            ->map(function ($value, $key) use ($revenueFilterLabels12R, $revenueFilterValueLabels12R) {
+                $displayValue = is_array($value)
+                    ? collect($value)->filter(fn ($item) => filled($item))->implode(', ')
+                    : (string) $value;
+
+                return [
+                    'key' => $key,
+                    'label' => $revenueFilterLabels12R[$key] ?? $key,
+                    'value' => $revenueFilterValueLabels12R[$displayValue] ?? $displayValue,
+                ];
+            })
+            ->values();
+    @endphp
+
+        {{-- 12S_REVENUE_CLEAR_ALL_FILTERS_CARD --}}
+    
+<div
+        class="card"
+        data-testid="revenue-active-filter-count-card"
+        data-active-filter-count="{{ $revenueActiveFilterCount }}"
+        style="margin-bottom:20px;border-color:#dbeafe;background:#eff6ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">عدد الفلاتر النشطة</h2>
+                <div class="muted">
+                    يعرض هذا العدّاد عدد فلاتر الإيرادات المطبقة حاليًا باستثناء ترقيم الصفحات.
+                </div>
+            </div>
+
+            <div style="min-width:120px;text-align:center;padding:12px 16px;border:1px solid #bfdbfe;border-radius:10px;background:#fff;">
+                <div class="muted">الفلاتر</div>
+                <strong data-testid="revenue-active-filter-count">{{ $revenueActiveFilterCount }}</strong>
+            </div>
+        </div>
+    </div>
+
+<div
+        class="card"
+        data-testid="revenue-active-filter-labels-card"
+        style="margin-bottom:20px;border-color:#e0e7ff;background:#eef2ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">الفلاتر النشطة الحالية</h2>
+                <div class="muted">
+                    يعرض هذا القسم أسماء الفلاتر المطبقة حاليًا وقيمها، مع تجاهل ترقيم الصفحات.
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" data-testid="revenue-active-filter-labels-list">
+            @forelse ($revenueActiveFilterBadges12R as $filter)
+                <span
+                    data-testid="revenue-active-filter-label"
+                    data-filter-key="{{ $filter['key'] }}"
+                    style="display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border:1px solid #c7d2fe;border-radius:999px;background:#fff;color:#3730a3;font-size:13px;"
+                >
+                    <strong>{{ $filter['label'] }}:</strong>
+                    <span>{{ $filter['value'] }}</span>
+                </span>
+            @empty
+                <span class="muted" data-testid="revenue-no-active-filter-labels">لا توجد فلاتر نشطة حاليًا</span>
+            @endforelse
+        </div>
+    </div>
+
+<div
+        class="card"
+        data-testid="revenue-clear-all-filters-card"
+        style="margin-bottom:20px;border-color:#fee2e2;background:#fff7f7;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مسح كل فلاتر الإيرادات</h2>
+                <div class="muted">
+                    استخدم هذا الزر لإزالة جميع الفلاتر الحالية والرجوع إلى قائمة الإيرادات الأساسية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index') }}"
+                    class="btn secondary"
+                    data-testid="revenue-clear-all-filters"
+                >
+                    مسح كل الفلاتر
+                </a>
+            </div>
+        </div>
+    </div>
+
 <div class="card" data-testid="revenue-uncollected-quick-filter-card" style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;" data-quick-filter-card="revenue" data-quick-filter-style="unified">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
@@ -192,157 +344,6 @@
         </div>
     </div>
 
-
-    {{-- 12Q_REVENUE_ACTIVE_FILTER_COUNT_CARD --}}
-    @php
-        $revenueActiveFilters = collect(request()->query())
-            ->except(['page'])
-            ->filter(function ($value) {
-                if (is_array($value)) {
-                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
-                }
-
-                return filled($value);
-            });
-
-        $revenueActiveFilterCount = $revenueActiveFilters->count();
-    @endphp
-
-    <div
-        class="card"
-        data-testid="revenue-active-filter-count-card"
-        data-active-filter-count="{{ $revenueActiveFilterCount }}"
-        style="margin-bottom:20px;border-color:#dbeafe;background:#eff6ff;"
-    >
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin-top:0;">عدد الفلاتر النشطة</h2>
-                <div class="muted">
-                    يعرض هذا العدّاد عدد فلاتر الإيرادات المطبقة حاليًا باستثناء ترقيم الصفحات.
-                </div>
-            </div>
-
-            <div style="min-width:120px;text-align:center;padding:12px 16px;border:1px solid #bfdbfe;border-radius:10px;background:#fff;">
-                <div class="muted">الفلاتر</div>
-                <strong data-testid="revenue-active-filter-count">{{ $revenueActiveFilterCount }}</strong>
-            </div>
-        </div>
-    </div>
-
-    {{-- 12R_REVENUE_ACTIVE_FILTER_LABELS_CARD --}}
-    @php
-        $revenueFilterLabels12R = [
-            'branch_id' => 'الفرع',
-            'revenue_category_id' => 'التصنيف',
-            'collection_method' => 'طريقة التحصيل',
-            'collection_status' => 'حالة التحصيل',
-            'archive_status' => 'حالة الأرشفة',
-            'archived' => 'حالة الأرشفة',
-            'date_from' => 'من تاريخ',
-            'date_to' => 'إلى تاريخ',
-            'from' => 'من تاريخ',
-            'to' => 'إلى تاريخ',
-            'search' => 'بحث',
-            'q' => 'بحث',
-            'keyword' => 'بحث',
-            'is_collected' => 'حالة التحصيل',
-            'uncollected' => 'غير محصل فقط',
-        ];
-
-        $revenueFilterValueLabels12R = [
-            'cash' => 'نقدًا',
-            'bank_transfer' => 'تحويل بنكي',
-            'mada' => 'مدى',
-            'visa' => 'بطاقة',
-            'cheque' => 'شيك',
-            'collected' => 'محصل',
-            'uncollected' => 'غير محصل',
-            'active' => 'نشط',
-            'archived' => 'مؤرشف',
-            '1' => 'نعم',
-            '0' => 'لا',
-            'true' => 'نعم',
-            'false' => 'لا',
-        ];
-
-        $revenueActiveFilterBadges12R = collect(request()->query())
-            ->except(['page'])
-            ->filter(function ($value) {
-                if (is_array($value)) {
-                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
-                }
-
-                return filled($value);
-            })
-            ->map(function ($value, $key) use ($revenueFilterLabels12R, $revenueFilterValueLabels12R) {
-                $displayValue = is_array($value)
-                    ? collect($value)->filter(fn ($item) => filled($item))->implode(', ')
-                    : (string) $value;
-
-                return [
-                    'key' => $key,
-                    'label' => $revenueFilterLabels12R[$key] ?? $key,
-                    'value' => $revenueFilterValueLabels12R[$displayValue] ?? $displayValue,
-                ];
-            })
-            ->values();
-    @endphp
-
-    <div
-        class="card"
-        data-testid="revenue-active-filter-labels-card"
-        style="margin-bottom:20px;border-color:#e0e7ff;background:#eef2ff;"
-    >
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin-top:0;">الفلاتر النشطة الحالية</h2>
-                <div class="muted">
-                    يعرض هذا القسم أسماء الفلاتر المطبقة حاليًا وقيمها، مع تجاهل ترقيم الصفحات.
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" data-testid="revenue-active-filter-labels-list">
-            @forelse ($revenueActiveFilterBadges12R as $filter)
-                <span
-                    data-testid="revenue-active-filter-label"
-                    data-filter-key="{{ $filter['key'] }}"
-                    style="display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border:1px solid #c7d2fe;border-radius:999px;background:#fff;color:#3730a3;font-size:13px;"
-                >
-                    <strong>{{ $filter['label'] }}:</strong>
-                    <span>{{ $filter['value'] }}</span>
-                </span>
-            @empty
-                <span class="muted" data-testid="revenue-no-active-filter-labels">لا توجد فلاتر نشطة حاليًا</span>
-            @endforelse
-        </div>
-    </div>
-
-    {{-- 12S_REVENUE_CLEAR_ALL_FILTERS_CARD --}}
-    <div
-        class="card"
-        data-testid="revenue-clear-all-filters-card"
-        style="margin-bottom:20px;border-color:#fee2e2;background:#fff7f7;"
-    >
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin-top:0;">مسح كل فلاتر الإيرادات</h2>
-                <div class="muted">
-                    استخدم هذا الزر لإزالة جميع الفلاتر الحالية والرجوع إلى قائمة الإيرادات الأساسية.
-                </div>
-            </div>
-
-            <div>
-                <a
-                    href="{{ route('revenues.index') }}"
-                    class="btn secondary"
-                    data-testid="revenue-clear-all-filters"
-                >
-                    مسح كل الفلاتر
-                </a>
-            </div>
-        </div>
-    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
