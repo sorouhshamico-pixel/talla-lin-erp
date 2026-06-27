@@ -35,6 +35,7 @@
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <a href="{{ route('revenue-categories.index') }}" class="btn secondary" data-testid="revenue-categories-link">تصنيفات الإيرادات</a>
+                <a href="{{ route('revenues.export', request()->query()) }}" class="btn secondary" data-testid="revenue-export-link">تصدير CSV</a>
                 <a href="{{ route('revenues.create') }}" class="btn" data-testid="revenue-create-link">إضافة إيراد</a>
             </div>
         </div>

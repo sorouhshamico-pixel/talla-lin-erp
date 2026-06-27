@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RevenueController extends Controller
 {
@@ -57,6 +58,64 @@ class RevenueController extends Controller
             'archiveStatuses' => $archiveStatuses,
             'filters' => $filters,
             'revenueTotals' => $revenueTotals,
+        ]);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $this->revenueFilters($request);
+
+        $revenues = $this->filteredRevenuesQuery($filters)
+            ->latest('revenue_date')
+            ->latest('id')
+            ->get();
+
+        $fileName = 'revenues-report-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($revenues): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'الكود',
+                'التاريخ',
+                'الوصف',
+                'الفرع',
+                'التصنيف',
+                'طريقة التحصيل',
+                'حالة التحصيل',
+                'المبلغ',
+                'الضريبة',
+                'رقم المرجع',
+                'ملاحظات',
+                'حالة الأرشفة',
+            ]);
+
+            foreach ($revenues as $revenue) {
+                fputcsv($handle, [
+                    $revenue->code,
+                    $revenue->revenue_date?->format('Y-m-d'),
+                    $revenue->description,
+                    $revenue->branch?->name_ar ?? $revenue->branch?->name ?? $revenue->branch?->name_en ?? '',
+                    $revenue->category?->name ?? '',
+                    $revenue->displayCollectionMethod(),
+                    $revenue->is_collected ? 'محصل' : 'غير محصل',
+                    number_format((float) $revenue->amount, 2, '.', ''),
+                    number_format((float) $revenue->tax_amount, 2, '.', ''),
+                    $revenue->reference_number,
+                    $revenue->notes,
+                    $revenue->archived_at ? 'مؤرشف' : 'نشط',
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 

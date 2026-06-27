@@ -93,6 +93,7 @@ Route::get('/revenue-categories/{revenueCategory}/edit', [RevenueCategoryControl
 Route::put('/revenue-categories/{revenueCategory}', [RevenueCategoryController::class, 'update'])->name('revenue-categories.update');
 Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryController::class, 'toggle'])->name('revenue-categories.toggle');
 Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
+Route::get('/revenues/export', [RevenueController::class, 'export'])->name('revenues.export');
 Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
 Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
 Route::get('/revenues/{revenue}/edit', [RevenueController::class, 'edit'])->name('revenues.edit');
