@@ -31,6 +31,7 @@ class RevenueController extends Controller
 
         $collectionMethods = $this->collectionMethods();
         $collectionStatuses = $this->collectionStatuses();
+        $archiveStatuses = $this->archiveStatuses();
 
         $revenuesQuery = $this->filteredRevenuesQuery($filters);
 
@@ -53,6 +54,7 @@ class RevenueController extends Controller
             'categories' => $categories,
             'collectionMethods' => $collectionMethods,
             'collectionStatuses' => $collectionStatuses,
+            'archiveStatuses' => $archiveStatuses,
             'filters' => $filters,
             'revenueTotals' => $revenueTotals,
         ]);
@@ -196,11 +198,27 @@ class RevenueController extends Controller
             ->with('success', 'تمت أرشفة الإيراد بنجاح.');
     }
 
+    public function restore(Revenue $revenue): RedirectResponse
+    {
+        $revenue->update([
+            'archived_at' => null,
+        ]);
+
+        return redirect()
+            ->route('revenues.index', ['archive_status' => 'archived'])
+            ->with('success', 'تمت استعادة الإيراد بنجاح.');
+    }
+
     private function filteredRevenuesQuery(array $filters): Builder
     {
         $query = Revenue::query()
-            ->with(['branch', 'category'])
-            ->whereNull('archived_at');
+            ->with(['branch', 'category']);
+
+        if (($filters['archive_status'] ?? 'active') === 'archived') {
+            $query->whereNotNull('archived_at');
+        } else {
+            $query->whereNull('archived_at');
+        }
 
         if (! empty($filters['branch_id'])) {
             $query->where('branch_id', $filters['branch_id']);
@@ -242,6 +260,7 @@ class RevenueController extends Controller
             'collection_status' => $request->query('collection_status'),
             'date_from' => $request->query('date_from'),
             'date_to' => $request->query('date_to'),
+            'archive_status' => $request->query('archive_status', 'active'),
         ];
     }
 
@@ -253,6 +272,15 @@ class RevenueController extends Controller
             'mada' => 'مدى',
             'visa' => 'بطاقة',
             'cheque' => 'شيك',
+        ];
+    }
+
+
+    private function archiveStatuses(): array
+    {
+        return [
+            'active' => 'الإيرادات النشطة',
+            'archived' => 'الإيرادات المؤرشفة',
         ];
     }
 

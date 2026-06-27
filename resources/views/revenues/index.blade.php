@@ -125,6 +125,14 @@
                 </div>
 
                 <div>
+                    <label for="archive_status">حالة الأرشفة</label>
+                    <select name="archive_status" id="archive_status" data-testid="revenue-archive-status-filter">
+                        @foreach ($archiveStatuses as $key => $label)
+                            <option value="{{ $key }}" @selected(($filters['archive_status'] ?? 'active') === $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label for="date_from">من تاريخ</label>
                     <input type="date" name="date_from" id="date_from" value="{{ $filters['date_from'] ?? '' }}">
                 </div>
@@ -144,6 +152,12 @@
 
     <div class="card" data-testid="revenues-table">
         <h2 style="margin-top:0;">قائمة الإيرادات</h2>
+
+        @if (($filters['archive_status'] ?? 'active') === 'archived')
+            <div data-testid="revenue-archived-list-notice" style="margin-bottom:12px;padding:10px 12px;border-radius:10px;background:#fef3c7;color:#92400e;">
+                يتم الآن عرض الإيرادات المؤرشفة فقط.
+            </div>
+        @endif
 
         @if ($revenues->isEmpty())
             <div class="muted">لا توجد إيرادات مسجلة.</div>
@@ -205,18 +219,33 @@
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('revenues.archive', $revenue) }}" onsubmit="return confirm('هل تريد أرشفة هذا الإيراد؟');">
-                                        @csrf
-                                        @method('PATCH')
+                                    @if ($revenue->archived_at)
+                                        <form method="POST" action="{{ route('revenues.restore', $revenue) }}">
+                                            @csrf
+                                            @method('PATCH')
 
-                                        <button
-                                            type="submit"
-                                            class="btn secondary"
-                                            data-testid="revenue-archive-button-{{ $revenue->id }}"
-                                        >
-                                            أرشفة
-                                        </button>
-                                    </form>
+                                            <button
+                                                type="submit"
+                                                class="btn secondary"
+                                                data-testid="revenue-restore-button-{{ $revenue->id }}"
+                                            >
+                                                استعادة
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('revenues.archive', $revenue) }}" onsubmit="return confirm('هل تريد أرشفة هذا الإيراد؟');">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                type="submit"
+                                                class="btn secondary"
+                                                data-testid="revenue-archive-button-{{ $revenue->id }}"
+                                            >
+                                                أرشفة
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
