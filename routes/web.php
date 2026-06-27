@@ -87,13 +87,13 @@ Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controll
 
 // Expense category delete route - Stage 11C
 Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
-Route::get('/revenue-categories', [RevenueCategoryController::class, 'index'])->name('revenue-categories.index');
+
+Route::get('/revenue-categories', [RevenueCategoryController::class, 'index'])->name('revenue-categories.index');
 Route::post('/revenue-categories', [RevenueCategoryController::class, 'store'])->name('revenue-categories.store');
 Route::get('/revenue-categories/{revenueCategory}/edit', [RevenueCategoryController::class, 'edit'])->name('revenue-categories.edit');
 Route::put('/revenue-categories/{revenueCategory}', [RevenueCategoryController::class, 'update'])->name('revenue-categories.update');
 Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryController::class, 'toggle'])->name('revenue-categories.toggle');
 Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
-Route::get('/revenues/export', [RevenueController::class, 'export'])->name('revenues.export');
 Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
 Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
 Route::get('/revenues/{revenue}/edit', [RevenueController::class, 'edit'])->name('revenues.edit');
@@ -104,6 +104,9 @@ Route::patch('/revenues/{revenue}/restore', [RevenueController::class, 'restore'
 
 Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
 Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');
+Route::get('/revenues/export', [\App\Http\Controllers\RevenueController::class, 'exportCsv'])
+    ->middleware(['auth'])
+    ->name('revenues.export');
 Route::get('/revenues/uncollected/export', [\App\Http\Controllers\RevenueController::class, 'exportUncollectedCsv'])
     ->middleware(['auth'])
     ->name('revenues.uncollected.export');
