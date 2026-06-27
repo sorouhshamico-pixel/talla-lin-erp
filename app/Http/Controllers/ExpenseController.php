@@ -83,6 +83,8 @@ class ExpenseController extends Controller
         $filters = $this->expenseFilters($request);
 
         $expenses = $this->filteredExpensesQuery($filters)
+            // 11S CSV large amount filter
+            ->when($request->query('large_amount') === '1', fn ($query) => $query->where('amount', '>=', 1000))
             ->latest('expense_date')
             ->latest('id')
             ->get();
