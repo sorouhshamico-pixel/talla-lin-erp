@@ -169,6 +169,27 @@
             </div>
         </div>
     </div>
+
+    <div class="card" data-testid="revenue-clear-archive-filter-card" style="margin-bottom:20px;border-color:#e5e7eb;background:#ffffff;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">إلغاء فلتر الأرشفة</h2>
+                <div class="muted" style="margin-bottom:12px;">
+                    استخدم هذا الزر لإزالة فلتر الأرشفة فقط مع الحفاظ على باقي فلاتر الإيرادات الحالية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index', collect(request()->query())->except(['archive_status', 'archived'])->all()) }}"
+                    class="btn secondary"
+                    data-testid="revenue-clear-archive-filter"
+                >
+                    عرض كل حالات الأرشفة
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
