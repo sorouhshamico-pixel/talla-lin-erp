@@ -122,6 +122,49 @@
             </div>
         </div>
     </div>
+
+    {{-- 12V_REVENUE_ACTIVE_FILTER_ALERT --}}
+    @php
+        $revenueActiveFiltersAlert12V = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $revenueActiveFiltersAlertCount12V = $revenueActiveFiltersAlert12V->count();
+    @endphp
+
+    @if ($revenueActiveFiltersAlertCount12V > 0)
+        <div
+            class="card"
+            data-testid="revenue-active-filter-alert"
+            data-active-filter-alert-count="{{ $revenueActiveFiltersAlertCount12V }}"
+            style="margin-bottom:20px;border-color:#fde68a;background:#fffbeb;"
+        >
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin-top:0;">تنبيه: توجد فلاتر نشطة</h2>
+                    <div class="muted">
+                        النتائج المعروضة الآن لا تمثل كل الإيرادات، بل تعتمد على الفلاتر المطبقة حاليًا.
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <span
+                        data-testid="revenue-active-filter-alert-count"
+                        style="display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border:1px solid #fcd34d;border-radius:999px;background:#fff;color:#92400e;"
+                    >
+                        <strong>الفلاتر النشطة:</strong>
+                        <span>{{ $revenueActiveFiltersAlertCount12V }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="card" data-testid="revenue-uncollected-summary" style="border-color:#f2c0a2;background:#fffaf7;">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
             <div>
