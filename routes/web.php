@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\RevenueController;
+use App\Http\Controllers\RevenueCategoryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseInvoiceController;
@@ -86,7 +87,12 @@ Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controll
 
 // Expense category delete route - Stage 11C
 Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
-Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
+Route::get('/revenue-categories', [RevenueCategoryController::class, 'index'])->name('revenue-categories.index');
+Route::post('/revenue-categories', [RevenueCategoryController::class, 'store'])->name('revenue-categories.store');
+Route::get('/revenue-categories/{revenueCategory}/edit', [RevenueCategoryController::class, 'edit'])->name('revenue-categories.edit');
+Route::put('/revenue-categories/{revenueCategory}', [RevenueCategoryController::class, 'update'])->name('revenue-categories.update');
+Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryController::class, 'toggle'])->name('revenue-categories.toggle');
+Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
 Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
 Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
 
