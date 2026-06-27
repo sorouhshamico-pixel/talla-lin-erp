@@ -148,6 +148,27 @@
             </div>
         </div>
     </div>
+
+    <div class="card" data-testid="revenue-active-quick-filter-card" style="margin-bottom:20px;border-color:#bbf7d0;background:#f0fdf4;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">فلتر الإيرادات النشطة</h2>
+                <div class="muted" style="margin-bottom:12px;">
+                    استخدم هذا الفلتر السريع لعرض الإيرادات النشطة فقط مع الحفاظ على الفلاتر الحالية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index', array_merge(request()->query(), ['archive_status' => 'active'])) }}"
+                    class="btn secondary"
+                    data-testid="revenue-active-quick-filter"
+                >
+                    عرض الإيرادات النشطة
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
