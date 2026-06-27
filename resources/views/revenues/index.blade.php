@@ -317,6 +317,32 @@
             @endforelse
         </div>
     </div>
+
+    {{-- 12S_REVENUE_CLEAR_ALL_FILTERS_CARD --}}
+    <div
+        class="card"
+        data-testid="revenue-clear-all-filters-card"
+        style="margin-bottom:20px;border-color:#fee2e2;background:#fff7f7;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مسح كل فلاتر الإيرادات</h2>
+                <div class="muted">
+                    استخدم هذا الزر لإزالة جميع الفلاتر الحالية والرجوع إلى قائمة الإيرادات الأساسية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index') }}"
+                    class="btn secondary"
+                    data-testid="revenue-clear-all-filters"
+                >
+                    مسح كل الفلاتر
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
