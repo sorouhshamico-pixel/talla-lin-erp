@@ -188,6 +188,58 @@
             </div>
         </div>
     </div>
+    <div class="card" data-testid="expense-large-amount-top-list" style="margin-bottom:20px;border-color:#d9a441;background:#fffdf7;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">أعلى 5 مصاريف كبيرة</h2>
+                <div class="muted" style="margin-bottom:16px;">
+                    يعرض هذا الملخص أعلى المصاريف التي تبلغ 1,000.00 ريال أو أكثر ضمن الفلاتر الحالية.
+                </div>
+            </div>
+        </div>
+
+        @if ($largeAmountTopExpenses->isEmpty())
+            <div class="muted">
+                لا توجد مصاريف كبيرة ضمن الفلاتر الحالية.
+            </div>
+        @else
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>الوصف</th>
+                            <th>الفرع</th>
+                            <th>التصنيف</th>
+                            <th>طريقة الدفع</th>
+                            <th>حالة الدفع</th>
+                            <th>المبلغ</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach ($largeAmountTopExpenses as $topExpense)
+                            <tr>
+                                <td>{{ $topExpense->expense_date?->format('Y-m-d') }}</td>
+                                <td>{{ $topExpense->description }}</td>
+                                <td>{{ $topExpense->branch?->name_ar ?? $topExpense->branch?->name ?? $topExpense->branch?->name_en ?? '' }}</td>
+                                <td>{{ $topExpense->category?->name ?? '' }}</td>
+                                <td>{{ $topExpense->displayPaymentMethod() }}</td>
+                                <td>
+                                    @if ($topExpense->is_paid)
+                                        <span class="badge green">مدفوع</span>
+                                    @else
+                                        <span class="badge red">غير مدفوع</span>
+                                    @endif
+                                </td>
+                                <td>{{ number_format((float) $topExpense->amount, 2) }} ريال</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
     <div class="card" data-testid="expense-unpaid-alert" style="margin-bottom:20px;border-color:#f1b5b5;background:#fffafa;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>

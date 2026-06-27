@@ -48,6 +48,7 @@ class ExpenseController extends Controller
         $filters['large_amount'] = $request->query('large_amount');
 
         $largeAmountAlert = $this->largeAmountAlert($filters);
+        $largeAmountTopExpenses = $this->largeAmountTopExpenses($filters);
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
         $missingAttachmentSummary = $this->missingAttachmentSummary($filters);
@@ -72,6 +73,7 @@ class ExpenseController extends Controller
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
             'largeAmountAlert' => $largeAmountAlert,
+            'largeAmountTopExpenses' => $largeAmountTopExpenses,
             'unpaidAlert' => $unpaidAlert,
             'monthlySummary' => $monthlySummary,
             'missingAttachmentSummary' => $missingAttachmentSummary,
@@ -340,6 +342,16 @@ class ExpenseController extends Controller
         return $expensesQuery;
     }
 
+    private function largeAmountTopExpenses(array $filters)
+    {
+        return $this->filteredExpensesQuery($filters)
+            ->where('amount', '>=', 1000)
+            ->orderByDesc('amount')
+            ->orderByDesc('expense_date')
+            ->orderByDesc('id')
+            ->limit(5)
+            ->get();
+    }
     private function largeAmountAlert(array $filters): array
     {
         $threshold = 1000;
