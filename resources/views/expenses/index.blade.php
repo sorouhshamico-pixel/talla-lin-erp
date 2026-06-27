@@ -214,6 +214,28 @@
             </div>
         </div>
     </div>
+    <div class="card" data-testid="expense-large-unpaid-summary" style="margin-bottom:20px;border-color:#efb7a4;background:#fffaf7;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">ملخص المصاريف الكبيرة غير المدفوعة</h2>
+                <div class="muted">
+                    يعرض هذا الملخص عدد وإجمالي المصاريف التي تبلغ 1,000.00 ريال أو أكثر ولم يتم سدادها، ضمن الفلاتر الحالية.
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <div style="min-width:160px;padding:12px 14px;border:1px solid #efc1b3;border-radius:10px;background:#fff;">
+                    <div class="muted">العدد</div>
+                    <strong data-testid="expense-large-unpaid-summary-count">{{ $largeUnpaidSummary['count'] }}</strong>
+                </div>
+
+                <div style="min-width:190px;padding:12px 14px;border:1px solid #efc1b3;border-radius:10px;background:#fff;">
+                    <div class="muted">الإجمالي</div>
+                    <strong data-testid="expense-large-unpaid-summary-total">{{ number_format((float) $largeUnpaidSummary['amount'], 2) }} ريال</strong>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card" data-testid="expense-large-amount-top-list" style="margin-bottom:20px;border-color:#d9a441;background:#fffdf7;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>

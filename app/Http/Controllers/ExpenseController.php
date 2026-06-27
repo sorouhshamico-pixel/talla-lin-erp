@@ -48,6 +48,7 @@ class ExpenseController extends Controller
         $filters['large_amount'] = $request->query('large_amount');
 
         $largeAmountAlert = $this->largeAmountAlert($filters);
+        $largeUnpaidSummary = $this->largeUnpaidSummary($filters);
         $largeAmountTopExpenses = $this->largeAmountTopExpenses($filters);
         $largeAmountTopExpensesTotal = round((float) $largeAmountTopExpenses->sum('amount'), 2);
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
@@ -74,6 +75,7 @@ class ExpenseController extends Controller
             'filters' => $filters,
             'expenseTotals' => $expenseTotals,
             'largeAmountAlert' => $largeAmountAlert,
+            'largeUnpaidSummary' => $largeUnpaidSummary,
             'largeAmountTopExpenses' => $largeAmountTopExpenses,
             'largeAmountTopExpensesTotal' => $largeAmountTopExpensesTotal,
             'unpaidAlert' => $unpaidAlert,
@@ -403,6 +405,17 @@ class ExpenseController extends Controller
         return $expensesQuery;
     }
 
+    private function largeUnpaidSummary(array $filters): array
+    {
+        $query = $this->filteredExpensesQuery($filters)
+            ->where('amount', '>=', 1000)
+            ->where('is_paid', false);
+
+        return [
+            'count' => (clone $query)->count(),
+            'amount' => round((float) (clone $query)->sum('amount'), 2),
+        ];
+    }
     private function largeAmountTopExpenses(array $filters)
     {
         return $this->filteredExpensesQuery($filters)
