@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\RevenueController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseInvoiceController;
@@ -85,6 +86,9 @@ Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controll
 
 // Expense category delete route - Stage 11C
 Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
+Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
+Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
+Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
 
 Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
 Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');
