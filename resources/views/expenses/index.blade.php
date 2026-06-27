@@ -221,6 +221,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>الترتيب</th>
                             <th>التاريخ</th>
                             <th>الوصف</th>
                             <th>الفرع</th>
@@ -233,7 +234,16 @@
 
                     <tbody>
                         @foreach ($largeAmountTopExpenses as $topExpense)
-                            <tr>
+                            <tr
+                                data-testid="expense-large-amount-top-expense-row-{{ $loop->iteration }}"
+                                @if ($loop->first) style="background:#fff8e6;" @endif
+                            >
+                                <td>
+                                    <strong>#{{ $loop->iteration }}</strong>
+                                    @if ($loop->first)
+                                        <span class="badge green" style="margin-inline-start:6px;">الأعلى</span>
+                                    @endif
+                                </td>
                                 <td>{{ $topExpense->expense_date?->format('Y-m-d') }}</td>
                                 <td>{{ $topExpense->description }}</td>
                                 <td>{{ $topExpense->branch?->name_ar ?? $topExpense->branch?->name ?? $topExpense->branch?->name_en ?? '' }}</td>
