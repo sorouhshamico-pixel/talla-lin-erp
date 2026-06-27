@@ -185,10 +185,22 @@ class RevenueController extends Controller
             ->with('success', $revenue->is_collected ? 'تم تعليم الإيراد كمحصل.' : 'تم تعليم الإيراد كغير محصل.');
     }
 
+    public function archive(Revenue $revenue): RedirectResponse
+    {
+        $revenue->update([
+            'archived_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('revenues.index')
+            ->with('success', 'تمت أرشفة الإيراد بنجاح.');
+    }
+
     private function filteredRevenuesQuery(array $filters): Builder
     {
         $query = Revenue::query()
-            ->with(['branch', 'category']);
+            ->with(['branch', 'category'])
+            ->whereNull('archived_at');
 
         if (! empty($filters['branch_id'])) {
             $query->where('branch_id', $filters['branch_id']);

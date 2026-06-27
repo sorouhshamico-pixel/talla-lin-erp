@@ -204,6 +204,19 @@
                                             {{ $revenue->is_collected ? 'تعليم كغير محصل' : 'تعليم كمحصل' }}
                                         </button>
                                     </form>
+
+                                    <form method="POST" action="{{ route('revenues.archive', $revenue) }}" onsubmit="return confirm('هل تريد أرشفة هذا الإيراد؟');">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button
+                                            type="submit"
+                                            class="btn secondary"
+                                            data-testid="revenue-archive-button-{{ $revenue->id }}"
+                                        >
+                                            أرشفة
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

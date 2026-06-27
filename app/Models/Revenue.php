@@ -23,6 +23,7 @@ class Revenue extends Model
         'is_collected',
         'reference_number',
         'notes',
+        'archived_at',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class Revenue extends Model
         'amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'is_collected' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     public function company(): BelongsTo
