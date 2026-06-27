@@ -118,6 +118,33 @@
         </form>
     </div>
 
+
+    @if (request('large_amount') === '1')
+        @php
+            $largeAmountResetFilters = request()->except(['large_amount', 'page']);
+
+            $largeAmountResetFilters = array_filter(
+                $largeAmountResetFilters,
+                fn ($value): bool => $value !== null && $value !== ''
+            );
+        @endphp
+
+        <div class="card" data-testid="expense-large-amount-active-filter" style="margin-bottom:20px;border-color:#d39c35;background:#fff7ed;">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin-top:0;">فلتر المصاريف الكبيرة مفعّل</h2>
+                    <div class="muted">
+                        تعرض القائمة الحالية المصاريف التي تبلغ 1,000.00 ريال أو أكثر مع الحفاظ على الفلاتر الأخرى.
+                    </div>
+                </div>
+
+                <a href="{{ route('expenses.index', $largeAmountResetFilters) }}"
+                   style="background:#eee4dc;color:#5d3b25;padding:12px 18px;border-radius:12px;font-weight:700;">
+                    إلغاء فلتر المصاريف الكبيرة
+                </a>
+            </div>
+        </div>
+    @endif
     <div class="card" data-testid="expense-large-amount-alert" style="margin-bottom:20px;border-color:#d39c35;background:#fffaf0;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
