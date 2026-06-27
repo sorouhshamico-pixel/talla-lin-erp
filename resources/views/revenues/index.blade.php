@@ -37,6 +37,9 @@
                 <a href="{{ route('revenue-categories.index') }}" class="btn secondary" data-testid="revenue-categories-link">تصنيفات الإيرادات</a>
                 <a href="{{ route('revenues.export', request()->query()) }}" class="btn secondary" data-testid="revenue-export-link">تصدير CSV</a>
                 <a href="{{ route('revenues.create') }}" class="btn" data-testid="revenue-create-link">إضافة إيراد</a>
+        <a href="{{ route('revenues.uncollected.export') }}" class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700">
+            تصدير الإيرادات غير المحصلة CSV
+        </a>
             </div>
         </div>
     </div>

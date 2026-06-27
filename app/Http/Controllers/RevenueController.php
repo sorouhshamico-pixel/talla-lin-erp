@@ -370,4 +370,143 @@ class RevenueController extends Controller
 
         return 'REV-' . Str::padLeft((string) $nextId, 5, '0');
     }
+
+    public function exportUncollectedCsv()
+    {
+        $revenue = new \App\Models\Revenue();
+        $table = $revenue->getTable();
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing($table);
+
+        $orderColumn = 'id';
+
+        foreach (['revenue_date', 'date', 'created_at', 'id'] as $candidateColumn) {
+            if (in_array($candidateColumn, $columns, true)) {
+                $orderColumn = $candidateColumn;
+                break;
+            }
+        }
+
+        $fileName = 'uncollected-revenues-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($columns, $orderColumn) {
+            $output = fopen('php://output', 'w');
+
+            fwrite($output, "\xEF\xBB\xBF");
+            fputcsv($output, $columns);
+
+            $query = \App\Models\Revenue::query();
+
+            if (in_array('is_collected', $columns, true)) {
+                $query->where('is_collected', false);
+            } elseif (in_array('collected_at', $columns, true)) {
+                $query->whereNull('collected_at');
+            } else {
+                $remainingColumn = null;
+
+                foreach (['remaining_amount', 'balance', 'due_amount', 'uncollected_amount'] as $candidateColumn) {
+                    if (in_array($candidateColumn, $columns, true)) {
+                        $remainingColumn = $candidateColumn;
+                        break;
+                    }
+                }
+
+                if ($remainingColumn !== null) {
+                    $query->where($remainingColumn, '>', 0);
+                } else {
+                    $amountPairs = [
+                        ['amount', 'collected_amount'],
+                        ['amount', 'paid_amount'],
+                        ['amount', 'received_amount'],
+                        ['total_amount', 'collected_amount'],
+                        ['total_amount', 'paid_amount'],
+                        ['total_amount', 'received_amount'],
+                        ['invoice_amount', 'collected_amount'],
+                        ['invoice_amount', 'paid_amount'],
+                        ['invoice_amount', 'received_amount'],
+                    ];
+
+                    $amountFilterApplied = false;
+
+                    foreach ($amountPairs as [$amountColumn, $collectedColumn]) {
+                        if (
+                            in_array($amountColumn, $columns, true)
+                            && in_array($collectedColumn, $columns, true)
+                        ) {
+                            $query->where(function ($subQuery) use ($amountColumn, $collectedColumn) {
+                                $subQuery
+                                    ->whereNull($collectedColumn)
+                                    ->orWhereColumn($collectedColumn, '<', $amountColumn);
+                            });
+
+                            $amountFilterApplied = true;
+                            break;
+                        }
+                    }
+
+                    if (! $amountFilterApplied) {
+                        $statusColumn = null;
+
+                        foreach (['collection_status', 'payment_status', 'status'] as $candidateColumn) {
+                            if (in_array($candidateColumn, $columns, true)) {
+                                $statusColumn = $candidateColumn;
+                                break;
+                            }
+                        }
+
+                        if ($statusColumn !== null) {
+                            $query->whereIn($statusColumn, [
+                                'uncollected',
+                                'unpaid',
+                                'pending',
+                                'partial',
+                                'partially_paid',
+                                'overdue',
+                                'due',
+                                'not_collected',
+                                'not_paid',
+                                'غير محصل',
+                                'غير محصلة',
+                                'غير مدفوع',
+                                'جزئي',
+                            ]);
+                        } else {
+                            $query->whereRaw('1 = 0');
+                        }
+                    }
+                }
+            }
+
+            $query
+                ->orderBy($orderColumn, 'desc')
+                ->chunk(200, function ($revenues) use ($output, $columns) {
+                    foreach ($revenues as $revenue) {
+                        $row = [];
+
+                        foreach ($columns as $column) {
+                            $value = $revenue->{$column};
+
+                            if ($value instanceof \Carbon\CarbonInterface) {
+                                $value = $value->format('Y-m-d H:i:s');
+                            }
+
+                            if (is_bool($value)) {
+                                $value = $value ? '1' : '0';
+                            }
+
+                            if (is_array($value) || is_object($value)) {
+                                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                            }
+
+                            $row[] = $value;
+                        }
+
+                        fputcsv($output, $row);
+                    }
+                });
+
+            fclose($output);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
 }
