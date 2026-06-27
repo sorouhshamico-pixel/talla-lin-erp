@@ -192,6 +192,42 @@
         </div>
     </div>
 
+
+    {{-- 12Q_REVENUE_ACTIVE_FILTER_COUNT_CARD --}}
+    @php
+        $revenueActiveFilters = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $revenueActiveFilterCount = $revenueActiveFilters->count();
+    @endphp
+
+    <div
+        class="card"
+        data-testid="revenue-active-filter-count-card"
+        data-active-filter-count="{{ $revenueActiveFilterCount }}"
+        style="margin-bottom:20px;border-color:#dbeafe;background:#eff6ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">عدد الفلاتر النشطة</h2>
+                <div class="muted">
+                    يعرض هذا العدّاد عدد فلاتر الإيرادات المطبقة حاليًا باستثناء ترقيم الصفحات.
+                </div>
+            </div>
+
+            <div style="min-width:120px;text-align:center;padding:12px 16px;border:1px solid #bfdbfe;border-radius:10px;background:#fff;">
+                <div class="muted">الفلاتر</div>
+                <strong data-testid="revenue-active-filter-count">{{ $revenueActiveFilterCount }}</strong>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
