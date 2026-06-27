@@ -98,6 +98,32 @@
             </div>
         </div>
     </div>
+    <div class="card" data-testid="revenue-uncollected-quick-filter-card" style="margin-bottom:20px;border-color:#f2c0a2;background:#fffaf7;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">فلتر الإيرادات غير المحصلة</h2>
+                <div class="muted" style="margin-bottom:12px;">
+                    استخدم هذا الفلتر السريع لعرض الإيرادات التي لم يتم تحصيلها بعد ضمن الفلاتر الحالية.
+                </div>
+
+                @if (($filters['collection_status'] ?? null) === 'uncollected')
+                    <div data-testid="revenue-uncollected-quick-filter-active" style="display:inline-block;padding:7px 10px;border-radius:999px;background:#fff1ec;border:1px solid #f0b8a6;">
+                        فلتر الإيرادات غير المحصلة مفعّل
+                    </div>
+                @endif
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index', array_merge(request()->except('page'), ['collection_status' => 'uncollected'])) }}"
+                    class="btn"
+                    data-testid="revenue-uncollected-quick-filter"
+                >
+                    عرض الإيرادات غير المحصلة
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
