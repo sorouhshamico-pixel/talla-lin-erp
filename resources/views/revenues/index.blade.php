@@ -228,6 +228,95 @@
             </div>
         </div>
     </div>
+
+    {{-- 12R_REVENUE_ACTIVE_FILTER_LABELS_CARD --}}
+    @php
+        $revenueFilterLabels12R = [
+            'branch_id' => 'الفرع',
+            'revenue_category_id' => 'التصنيف',
+            'collection_method' => 'طريقة التحصيل',
+            'collection_status' => 'حالة التحصيل',
+            'archive_status' => 'حالة الأرشفة',
+            'archived' => 'حالة الأرشفة',
+            'date_from' => 'من تاريخ',
+            'date_to' => 'إلى تاريخ',
+            'from' => 'من تاريخ',
+            'to' => 'إلى تاريخ',
+            'search' => 'بحث',
+            'q' => 'بحث',
+            'keyword' => 'بحث',
+            'is_collected' => 'حالة التحصيل',
+            'uncollected' => 'غير محصل فقط',
+        ];
+
+        $revenueFilterValueLabels12R = [
+            'cash' => 'نقدًا',
+            'bank_transfer' => 'تحويل بنكي',
+            'mada' => 'مدى',
+            'visa' => 'بطاقة',
+            'cheque' => 'شيك',
+            'collected' => 'محصل',
+            'uncollected' => 'غير محصل',
+            'active' => 'نشط',
+            'archived' => 'مؤرشف',
+            '1' => 'نعم',
+            '0' => 'لا',
+            'true' => 'نعم',
+            'false' => 'لا',
+        ];
+
+        $revenueActiveFilterBadges12R = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            })
+            ->map(function ($value, $key) use ($revenueFilterLabels12R, $revenueFilterValueLabels12R) {
+                $displayValue = is_array($value)
+                    ? collect($value)->filter(fn ($item) => filled($item))->implode(', ')
+                    : (string) $value;
+
+                return [
+                    'key' => $key,
+                    'label' => $revenueFilterLabels12R[$key] ?? $key,
+                    'value' => $revenueFilterValueLabels12R[$displayValue] ?? $displayValue,
+                ];
+            })
+            ->values();
+    @endphp
+
+    <div
+        class="card"
+        data-testid="revenue-active-filter-labels-card"
+        style="margin-bottom:20px;border-color:#e0e7ff;background:#eef2ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">الفلاتر النشطة الحالية</h2>
+                <div class="muted">
+                    يعرض هذا القسم أسماء الفلاتر المطبقة حاليًا وقيمها، مع تجاهل ترقيم الصفحات.
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" data-testid="revenue-active-filter-labels-list">
+            @forelse ($revenueActiveFilterBadges12R as $filter)
+                <span
+                    data-testid="revenue-active-filter-label"
+                    data-filter-key="{{ $filter['key'] }}"
+                    style="display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border:1px solid #c7d2fe;border-radius:999px;background:#fff;color:#3730a3;font-size:13px;"
+                >
+                    <strong>{{ $filter['label'] }}:</strong>
+                    <span>{{ $filter['value'] }}</span>
+                </span>
+            @empty
+                <span class="muted" data-testid="revenue-no-active-filter-labels">لا توجد فلاتر نشطة حاليًا</span>
+            @endforelse
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
