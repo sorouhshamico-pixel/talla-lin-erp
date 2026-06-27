@@ -76,6 +76,28 @@
         </div>
     </div>
 
+    <div class="card" data-testid="revenue-uncollected-summary" style="border-color:#f2c0a2;background:#fffaf7;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">ملخص الإيرادات غير المحصلة</h2>
+                <div class="muted">
+                    يعرض هذا الملخص عدد وإجمالي الإيرادات غير المحصلة ضمن الفلاتر الحالية.
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <div style="min-width:160px;padding:12px 14px;border:1px solid #f2c0a2;border-radius:10px;background:#fff;">
+                    <div class="muted">العدد</div>
+                    <strong data-testid="revenue-uncollected-summary-count">{{ $uncollectedRevenueSummary['count'] }}</strong>
+                </div>
+
+                <div style="min-width:190px;padding:12px 14px;border:1px solid #f2c0a2;border-radius:10px;background:#fff;">
+                    <div class="muted">الإجمالي</div>
+                    <strong data-testid="revenue-uncollected-summary-total">{{ number_format((float) $uncollectedRevenueSummary['amount'], 2) }} ريال</strong>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 

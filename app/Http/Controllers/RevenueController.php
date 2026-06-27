@@ -44,6 +44,8 @@ class RevenueController extends Controller
             'uncollected_amount' => round((float) (clone $revenuesQuery)->where('is_collected', false)->sum('amount'), 2),
         ];
 
+        $uncollectedRevenueSummary = $this->uncollectedRevenueSummary($filters);
+
         $revenues = $revenuesQuery
             ->latest('revenue_date')
             ->latest('id')
@@ -58,6 +60,7 @@ class RevenueController extends Controller
             'archiveStatuses' => $archiveStatuses,
             'filters' => $filters,
             'revenueTotals' => $revenueTotals,
+            'uncollectedRevenueSummary' => $uncollectedRevenueSummary,
         ]);
     }
 
@@ -268,6 +271,16 @@ class RevenueController extends Controller
             ->with('success', 'تمت استعادة الإيراد بنجاح.');
     }
 
+    private function uncollectedRevenueSummary(array $filters): array
+    {
+        $query = $this->filteredRevenuesQuery($filters)
+            ->where('is_collected', false);
+
+        return [
+            'count' => (clone $query)->count(),
+            'amount' => round((float) (clone $query)->sum('amount'), 2),
+        ];
+    }
     private function filteredRevenuesQuery(array $filters): Builder
     {
         $query = Revenue::query()
