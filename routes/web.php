@@ -95,6 +95,9 @@ Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryCon
 Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
 Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
 Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
+Route::get('/revenues/{revenue}/edit', [RevenueController::class, 'edit'])->name('revenues.edit');
+Route::put('/revenues/{revenue}', [RevenueController::class, 'update'])->name('revenues.update');
+Route::patch('/revenues/{revenue}/toggle-collection', [RevenueController::class, 'toggleCollection'])->name('revenues.toggle-collection');
 
 Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
 Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');

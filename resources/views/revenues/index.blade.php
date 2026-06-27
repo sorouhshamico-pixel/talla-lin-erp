@@ -160,6 +160,7 @@
                         <th>حالة التحصيل</th>
                         <th>المبلغ</th>
                         <th>الضريبة</th>
+                        <th>إجراءات</th>
                     </tr>
                 </thead>
 
@@ -181,6 +182,30 @@
                             </td>
                             <td>{{ number_format((float) $revenue->amount, 2) }} ريال</td>
                             <td>{{ number_format((float) $revenue->tax_amount, 2) }} ريال</td>
+                            <td>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                    <a
+                                        href="{{ route('revenues.edit', $revenue) }}"
+                                        class="btn secondary"
+                                        data-testid="revenue-edit-link-{{ $revenue->id }}"
+                                    >
+                                        تعديل
+                                    </a>
+
+                                    <form method="POST" action="{{ route('revenues.toggle-collection', $revenue) }}">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button
+                                            type="submit"
+                                            class="btn secondary"
+                                            data-testid="revenue-toggle-collection-button-{{ $revenue->id }}"
+                                        >
+                                            {{ $revenue->is_collected ? 'تعليم كغير محصل' : 'تعليم كمحصل' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

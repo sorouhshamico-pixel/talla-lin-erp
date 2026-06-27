@@ -116,6 +116,75 @@ class RevenueController extends Controller
             ->with('success', 'تم إضافة الإيراد بنجاح.');
     }
 
+    public function edit(Revenue $revenue): View
+    {
+        $branches = Branch::query()
+            ->where('is_active', true)
+            ->orderByDesc('is_main')
+            ->orderBy('id')
+            ->get();
+
+        $categories = RevenueCategory::query()
+            ->where(function ($query) use ($revenue): void {
+                $query->where('is_active', true)
+                    ->orWhere('id', $revenue->revenue_category_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('revenues.edit', [
+            'revenue' => $revenue,
+            'branches' => $branches,
+            'categories' => $categories,
+            'collectionMethods' => $this->collectionMethods(),
+            'collectionStatuses' => $this->collectionStatuses(),
+        ]);
+    }
+
+    public function update(Request $request, Revenue $revenue): RedirectResponse
+    {
+        $validated = $request->validate([
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
+            'revenue_category_id' => ['required', 'integer', 'exists:revenue_categories,id'],
+            'revenue_date' => ['required', 'date'],
+            'description' => ['required', 'string', 'max:255'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'tax_amount' => ['nullable', 'numeric', 'min:0'],
+            'collection_method' => ['required', 'string', 'in:' . implode(',', array_keys($this->collectionMethods()))],
+            'collection_status' => ['required', 'string', 'in:collected,uncollected'],
+            'reference_number' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $revenue->update([
+            'branch_id' => $validated['branch_id'],
+            'revenue_category_id' => $validated['revenue_category_id'],
+            'revenue_date' => $validated['revenue_date'],
+            'description' => $validated['description'],
+            'amount' => $validated['amount'],
+            'tax_amount' => $validated['tax_amount'] ?? 0,
+            'collection_method' => $validated['collection_method'],
+            'is_collected' => $validated['collection_status'] === 'collected',
+            'reference_number' => $validated['reference_number'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('revenues.index')
+            ->with('success', 'تم تحديث الإيراد بنجاح.');
+    }
+
+    public function toggleCollection(Revenue $revenue): RedirectResponse
+    {
+        $revenue->update([
+            'is_collected' => ! $revenue->is_collected,
+        ]);
+
+        return redirect()
+            ->route('revenues.index')
+            ->with('success', $revenue->is_collected ? 'تم تعليم الإيراد كمحصل.' : 'تم تعليم الإيراد كغير محصل.');
+    }
+
     private function filteredRevenuesQuery(array $filters): Builder
     {
         $query = Revenue::query()
