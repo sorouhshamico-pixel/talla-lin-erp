@@ -101,7 +101,8 @@
             </div>
         </div>
     </div>
-    <div class="card" data-testid="revenue-uncollected-quick-filter-card" style="margin-bottom:20px;border-color:#f2c0a2;background:#fffaf7;">
+                
+<div class="card" data-testid="revenue-uncollected-quick-filter-card" style="margin-bottom:20px;border-color:#f2c0a2;background:#fffaf7;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
                 <h2 style="margin-top:0;">فلتر الإيرادات غير المحصلة</h2>
@@ -128,28 +129,7 @@
         </div>
     </div>
 
-    <div class="card" data-testid="revenue-archived-quick-filter-card" style="margin-bottom:20px;border-color:#d1d5db;background:#f9fafb;">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin-top:0;">فلتر الإيرادات المؤرشفة</h2>
-                <div class="muted" style="margin-bottom:12px;">
-                    استخدم هذا الفلتر السريع لعرض الإيرادات المؤرشفة مع الحفاظ على الفلاتر الحالية.
-                </div>
-            </div>
-
-            <div>
-                <a
-                    href="{{ route('revenues.index', array_merge(request()->query(), ['archive_status' => 'archived'])) }}"
-                    class="btn secondary"
-                    data-testid="revenue-archived-quick-filter"
-                >
-                    عرض الإيرادات المؤرشفة
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="card" data-testid="revenue-active-quick-filter-card" style="margin-bottom:20px;border-color:#bbf7d0;background:#f0fdf4;">
+<div class="card" data-testid="revenue-active-quick-filter-card" style="margin-bottom:20px;border-color:#bbf7d0;background:#f0fdf4;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
                 <h2 style="margin-top:0;">فلتر الإيرادات النشطة</h2>
@@ -170,7 +150,28 @@
         </div>
     </div>
 
-    <div class="card" data-testid="revenue-clear-archive-filter-card" style="margin-bottom:20px;border-color:#e5e7eb;background:#ffffff;">
+<div class="card" data-testid="revenue-archived-quick-filter-card" style="margin-bottom:20px;border-color:#d1d5db;background:#f9fafb;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">فلتر الإيرادات المؤرشفة</h2>
+                <div class="muted" style="margin-bottom:12px;">
+                    استخدم هذا الفلتر السريع لعرض الإيرادات المؤرشفة مع الحفاظ على الفلاتر الحالية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('revenues.index', array_merge(request()->query(), ['archive_status' => 'archived'])) }}"
+                    class="btn secondary"
+                    data-testid="revenue-archived-quick-filter"
+                >
+                    عرض الإيرادات المؤرشفة
+                </a>
+            </div>
+        </div>
+    </div>
+
+<div class="card" data-testid="revenue-clear-archive-filter-card" style="margin-bottom:20px;border-color:#e5e7eb;background:#ffffff;">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
                 <h2 style="margin-top:0;">إلغاء فلتر الأرشفة</h2>
@@ -190,6 +191,7 @@
             </div>
         </div>
     </div>
+
     <div class="card">
         <h2 style="margin-top:0;">فلترة الإيرادات</h2>
 
