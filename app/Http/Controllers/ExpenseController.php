@@ -140,6 +140,65 @@ class ExpenseController extends Controller
         ]);
     }
 
+    public function exportTopLarge(Request $request): StreamedResponse
+    {
+        $filters = $this->expenseFilters($request);
+
+        $expenses = $this->filteredExpensesQuery($filters)
+            ->where('amount', '>=', 1000)
+            ->orderByDesc('amount')
+            ->orderByDesc('expense_date')
+            ->orderByDesc('id')
+            ->limit(5)
+            ->get();
+
+        $fileName = 'top-large-expenses-report-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($expenses): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'الكود',
+                'التاريخ',
+                'الوصف',
+                'الفرع',
+                'التصنيف',
+                'طريقة الدفع',
+                'حالة الدفع',
+                'المبلغ',
+                'الضريبة',
+                'رقم المرجع',
+                'المرفق',
+            ]);
+
+            foreach ($expenses as $expense) {
+                fputcsv($handle, [
+                    $expense->code,
+                    $expense->expense_date?->format('Y-m-d'),
+                    $expense->description,
+                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->category?->name ?? '',
+                    $expense->displayPaymentMethod(),
+                    $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
+                    number_format((float) $expense->amount, 2, '.', ''),
+                    number_format((float) $expense->tax_amount, 2, '.', ''),
+                    $expense->reference_number,
+                    $expense->hasAttachment() ? ($expense->attachment_original_name ?: $expense->attachment_path) : '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     public function create(): View
     {
         $branches = Branch::query()

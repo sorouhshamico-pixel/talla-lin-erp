@@ -85,3 +85,5 @@ Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controll
 
 // Expense category delete route - Stage 11C
 Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
+
+Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');

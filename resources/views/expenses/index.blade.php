@@ -196,6 +196,16 @@
                     يعرض هذا الملخص أعلى المصاريف التي تبلغ 1,000.00 ريال أو أكثر ضمن الفلاتر الحالية.
                 </div>
             </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.export-top-large', request()->query()) }}"
+                    class="btn"
+                    data-testid="expense-large-amount-top-list-export"
+                >
+                    تصدير أعلى 5 CSV
+                </a>
+            </div>
         </div>
 
         <div data-testid="expense-large-amount-top-list-total" style="margin:0 0 16px;padding:12px 14px;border:1px solid #ead7a5;border-radius:10px;background:#fff8e6;">
