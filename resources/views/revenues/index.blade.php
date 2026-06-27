@@ -79,6 +79,49 @@
         </div>
     </div>
 
+
+    {{-- 12U_REVENUE_PAGE_STATUS_BAR --}}
+    @php
+        $revenuePageActiveFilters12U = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $revenuePageActiveFilterCount12U = $revenuePageActiveFilters12U->count();
+        $revenuePageHasActiveFilters12U = $revenuePageActiveFilterCount12U > 0;
+    @endphp
+
+    <div
+        class="card"
+        data-testid="revenue-page-status-bar"
+        data-page-active-filter-count="{{ $revenuePageActiveFilterCount12U }}"
+        data-page-has-active-filters="{{ $revenuePageHasActiveFilters12U ? 'yes' : 'no' }}"
+        style="margin-bottom:20px;border-color:#d1fae5;background:#ecfdf5;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">حالة صفحة الإيرادات</h2>
+                <div class="muted">
+                    {{ $revenuePageHasActiveFilters12U ? 'فلترة نشطة' : 'بدون فلاتر نشطة' }}
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <span
+                    data-testid="revenue-page-status-filter-count"
+                    style="display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border:1px solid #a7f3d0;border-radius:999px;background:#fff;color:#065f46;"
+                >
+                    <strong>عدد الفلاتر:</strong>
+                    <span>{{ $revenuePageActiveFilterCount12U }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
     <div class="card" data-testid="revenue-uncollected-summary" style="border-color:#f2c0a2;background:#fffaf7;">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
             <div>
