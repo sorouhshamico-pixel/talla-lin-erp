@@ -198,6 +198,10 @@
             </div>
         </div>
 
+        <div data-testid="expense-large-amount-top-list-total" style="margin:0 0 16px;padding:12px 14px;border:1px solid #ead7a5;border-radius:10px;background:#fff8e6;">
+            <strong>إجمالي أعلى 5 مصاريف كبيرة:</strong>
+            <span>{{ number_format((float) $largeAmountTopExpensesTotal, 2) }} ريال</span>
+        </div>
         @if ($largeAmountTopExpenses->isEmpty())
             <div class="muted">
                 لا توجد مصاريف كبيرة ضمن الفلاتر الحالية.

@@ -49,6 +49,7 @@ class ExpenseController extends Controller
 
         $largeAmountAlert = $this->largeAmountAlert($filters);
         $largeAmountTopExpenses = $this->largeAmountTopExpenses($filters);
+        $largeAmountTopExpensesTotal = round((float) $largeAmountTopExpenses->sum('amount'), 2);
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
         $missingAttachmentSummary = $this->missingAttachmentSummary($filters);
@@ -74,6 +75,7 @@ class ExpenseController extends Controller
             'expenseTotals' => $expenseTotals,
             'largeAmountAlert' => $largeAmountAlert,
             'largeAmountTopExpenses' => $largeAmountTopExpenses,
+            'largeAmountTopExpensesTotal' => $largeAmountTopExpensesTotal,
             'unpaidAlert' => $unpaidAlert,
             'monthlySummary' => $monthlySummary,
             'missingAttachmentSummary' => $missingAttachmentSummary,
