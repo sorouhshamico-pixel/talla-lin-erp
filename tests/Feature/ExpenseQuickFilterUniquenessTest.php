@@ -35,6 +35,7 @@ class ExpenseQuickFilterUniquenessTest extends TestCase
         $expectedCardTestIds = [
             'expense-missing-attachment-quick-filter-card',
             'expense-with-attachment-quick-filter-card',
+            'expense-missing-unpaid-quick-filter-card',
             'expense-paid-quick-filter-card',
             'expense-unpaid-quick-filter-card',
             'expense-large-amount-quick-filter-card',
@@ -66,6 +67,7 @@ class ExpenseQuickFilterUniquenessTest extends TestCase
         $expectedLinkTestIds = [
             'expense-missing-attachment-quick-filter',
             'expense-with-attachment-quick-filter',
+            'expense-missing-unpaid-quick-filter',
             'expense-paid-quick-filter',
             'expense-unpaid-quick-filter',
             'expense-large-amount-quick-filter',
@@ -97,6 +99,7 @@ class ExpenseQuickFilterUniquenessTest extends TestCase
         $cardTestIds = [
             'expense-missing-attachment-quick-filter-card',
             'expense-with-attachment-quick-filter-card',
+            'expense-missing-unpaid-quick-filter-card',
             'expense-paid-quick-filter-card',
             'expense-unpaid-quick-filter-card',
             'expense-large-amount-quick-filter-card',
