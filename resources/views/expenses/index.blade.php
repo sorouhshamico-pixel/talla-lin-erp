@@ -44,6 +44,49 @@
             </div>
         </div>
     </div>
+
+    {{-- 13B_EXPENSE_ACTIVE_FILTER_ALERT --}}
+    @php
+        $expenseActiveFiltersAlert13B = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $expenseActiveFiltersAlertCount13B = $expenseActiveFiltersAlert13B->count();
+    @endphp
+
+    @if ($expenseActiveFiltersAlertCount13B > 0)
+        <div
+            class="card"
+            data-testid="expense-active-filter-alert"
+            data-active-filter-alert-count="{{ $expenseActiveFiltersAlertCount13B }}"
+            style="margin-bottom:20px;border-color:#fde68a;background:#fffbeb;"
+        >
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin-top:0;">تنبيه: توجد فلاتر نشطة</h2>
+                    <div class="muted">
+                        النتائج المعروضة الآن لا تمثل كل المصروفات، بل تعتمد على الفلاتر المطبقة حاليًا.
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <span
+                        data-testid="expense-active-filter-alert-count"
+                        style="display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border:1px solid #fcd34d;border-radius:999px;background:#fff;color:#92400e;"
+                    >
+                        <strong>الفلاتر النشطة:</strong>
+                        <span>{{ $expenseActiveFiltersAlertCount13B }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
