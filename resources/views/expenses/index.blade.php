@@ -382,6 +382,40 @@
         </div>
     </div>
 
+    @php
+        $expenseWithAttachmentUnpaidQuickFilterQuery = array_merge(request()->query(), [
+            'has_attachment' => '1',
+            'payment_status' => 'unpaid',
+        ]);
+    @endphp
+
+    <div
+        class="card"
+        data-testid="expense-with-attachment-unpaid-quick-filter-card"
+        data-quick-filter-card="expense"
+        data-quick-filter-style="unified"
+        style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مصروفات بها مرفق وغير مدفوعة</h2>
+                <div class="muted">
+                    استخدم هذا الفلتر السريع لعرض المصروفات التي تحتوي على مرفق ولم يتم سدادها بعد.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index', $expenseWithAttachmentUnpaidQuickFilterQuery) }}"
+                    class="btn secondary"
+                    data-testid="expense-with-attachment-unpaid-quick-filter"
+                >
+                    عرض المصروفات بها مرفق وغير المدفوعة
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- 13J_EXPENSE_PAID_QUICK_FILTER_CARD --}}
     <div
         class="card"
