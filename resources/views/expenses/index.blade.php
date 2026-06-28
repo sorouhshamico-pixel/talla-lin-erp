@@ -308,6 +308,34 @@
             </div>
         </div>
     </div>
+
+    {{-- 13K_EXPENSE_UNPAID_QUICK_FILTER_CARD --}}
+    <div
+        class="card"
+        data-testid="expense-unpaid-quick-filter-card"
+        data-quick-filter-card="expense"
+        data-quick-filter-style="unified"
+        style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مصروفات غير مدفوعة</h2>
+                <div class="muted">
+                    استخدم هذا الفلتر السريع لعرض المصروفات التي لم يتم تسجيلها كمدفوعة بعد.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index', array_merge(request()->query(), ['payment_status' => 'unpaid'])) }}"
+                    class="btn secondary"
+                    data-testid="expense-unpaid-quick-filter"
+                >
+                    عرض المصروفات غير المدفوعة
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
