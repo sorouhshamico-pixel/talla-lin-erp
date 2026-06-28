@@ -87,6 +87,42 @@
             </div>
         </div>
     @endif
+
+    {{-- 13C_EXPENSE_ACTIVE_FILTER_COUNT_CARD --}}
+    @php
+        $expenseActiveFilters13C = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $expenseActiveFilterCount13C = $expenseActiveFilters13C->count();
+    @endphp
+
+    <div
+        class="card"
+        data-testid="expense-active-filter-count-card"
+        data-active-filter-count="{{ $expenseActiveFilterCount13C }}"
+        style="margin-bottom:20px;border-color:#dbeafe;background:#eff6ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">عدد فلاتر المصروفات النشطة</h2>
+                <div class="muted">
+                    يعرض هذا العدّاد عدد فلاتر المصروفات المطبقة حاليًا باستثناء ترقيم الصفحات والقيم الفارغة.
+                </div>
+            </div>
+
+            <div style="min-width:120px;text-align:center;padding:12px 16px;border:1px solid #bfdbfe;border-radius:10px;background:#fff;">
+                <div class="muted">الفلاتر</div>
+                <strong data-testid="expense-active-filter-count">{{ $expenseActiveFilterCount13C }}</strong>
+            </div>
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
