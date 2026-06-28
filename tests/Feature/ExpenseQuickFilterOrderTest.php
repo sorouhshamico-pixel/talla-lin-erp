@@ -75,8 +75,8 @@ class ExpenseQuickFilterOrderTest extends TestCase
 
         $content = $response->getContent();
 
-        $this->assertSame(8, substr_count($content, 'data-quick-filter-card="expense"'));
-        $this->assertSame(8, substr_count($content, 'data-quick-filter-style="unified"'));
+        $this->assertSame(9, substr_count($content, 'data-quick-filter-card="expense"'));
+        $this->assertSame(9, substr_count($content, 'data-quick-filter-style="unified"'));
 
         $this->assertStringContainsString('data-testid="expense-missing-attachment-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-paid-quick-filter"', $content);
@@ -86,6 +86,7 @@ class ExpenseQuickFilterOrderTest extends TestCase
         $this->assertStringContainsString('data-testid="expense-small-amount-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-small-unpaid-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-small-paid-quick-filter"', $content);
+        $this->assertStringContainsString('data-testid="expense-large-paid-quick-filter"', $content);
 
         $this->assertStringContainsString('has_attachment=0', $content);
         $this->assertStringContainsString('payment_status=paid', $content);
