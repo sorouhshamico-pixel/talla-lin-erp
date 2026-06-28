@@ -30,6 +30,7 @@ class ExpenseQuickFilterOrderTest extends TestCase
         $unpaidQuickFilterPosition = strpos($content, 'data-testid="expense-unpaid-quick-filter-card"');
         $largeAmountQuickFilterPosition = strpos($content, 'data-testid="expense-large-amount-quick-filter-card"');
         $largeUnpaidQuickFilterPosition = strpos($content, 'data-testid="expense-large-unpaid-quick-filter-card"');
+        $smallAmountQuickFilterPosition = strpos($content, 'data-testid="expense-small-amount-quick-filter-card"');
         $pageHeaderPosition = strpos($content, 'class="page-header"');
 
         foreach ([
@@ -39,6 +40,7 @@ class ExpenseQuickFilterOrderTest extends TestCase
             $unpaidQuickFilterPosition,
             $largeAmountQuickFilterPosition,
             $largeUnpaidQuickFilterPosition,
+            $smallAmountQuickFilterPosition,
             $pageHeaderPosition,
         ] as $position) {
             $this->assertNotFalse($position);
@@ -49,7 +51,8 @@ class ExpenseQuickFilterOrderTest extends TestCase
         $this->assertLessThan($unpaidQuickFilterPosition, $paidQuickFilterPosition);
         $this->assertLessThan($largeAmountQuickFilterPosition, $unpaidQuickFilterPosition);
         $this->assertLessThan($largeUnpaidQuickFilterPosition, $largeAmountQuickFilterPosition);
-        $this->assertLessThan($pageHeaderPosition, $largeUnpaidQuickFilterPosition);
+        $this->assertLessThan($smallAmountQuickFilterPosition, $largeUnpaidQuickFilterPosition);
+        $this->assertLessThan($pageHeaderPosition, $smallAmountQuickFilterPosition);
     }
 
     public function test_expense_quick_filter_cards_keep_unified_style_and_expected_links(): void
@@ -66,19 +69,21 @@ class ExpenseQuickFilterOrderTest extends TestCase
 
         $content = $response->getContent();
 
-        $this->assertSame(5, substr_count($content, 'data-quick-filter-card="expense"'));
-        $this->assertSame(5, substr_count($content, 'data-quick-filter-style="unified"'));
+        $this->assertSame(6, substr_count($content, 'data-quick-filter-card="expense"'));
+        $this->assertSame(6, substr_count($content, 'data-quick-filter-style="unified"'));
 
         $this->assertStringContainsString('data-testid="expense-missing-attachment-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-paid-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-unpaid-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-large-amount-quick-filter"', $content);
         $this->assertStringContainsString('data-testid="expense-large-unpaid-quick-filter"', $content);
+        $this->assertStringContainsString('data-testid="expense-small-amount-quick-filter"', $content);
 
         $this->assertStringContainsString('has_attachment=0', $content);
         $this->assertStringContainsString('payment_status=paid', $content);
         $this->assertStringContainsString('payment_status=unpaid', $content);
         $this->assertStringContainsString('large_amount=1', $content);
+        $this->assertStringContainsString('large_amount=0', $content);
 
         $this->assertStringContainsString('payment_method=cash', $content);
         $this->assertStringContainsString('date_to=2026-01-31', $content);
