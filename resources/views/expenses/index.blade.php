@@ -226,6 +226,32 @@
             @endforelse
         </div>
     </div>
+
+    {{-- 13E_EXPENSE_CLEAR_ALL_FILTERS_CARD --}}
+    <div
+        class="card"
+        data-testid="expense-clear-all-filters-card"
+        style="margin-bottom:20px;border-color:#fee2e2;background:#fff7f7;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مسح كل فلاتر المصروفات</h2>
+                <div class="muted">
+                    استخدم هذا الزر لإزالة جميع فلاتر المصروفات الحالية والرجوع إلى قائمة المصروفات الأساسية.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index') }}"
+                    class="btn secondary"
+                    data-testid="expense-clear-all-filters"
+                >
+                    مسح كل الفلاتر
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
