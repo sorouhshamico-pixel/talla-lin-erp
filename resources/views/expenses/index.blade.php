@@ -348,6 +348,40 @@
         </div>
     </div>
 
+    @php
+        $expenseMissingPaidQuickFilterQuery = array_merge(request()->query(), [
+            'has_attachment' => '0',
+            'payment_status' => 'paid',
+        ]);
+    @endphp
+
+    <div
+        class="card"
+        data-testid="expense-missing-paid-quick-filter-card"
+        data-quick-filter-card="expense"
+        data-quick-filter-style="unified"
+        style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مصروفات بدون مرفق ومدفوعة</h2>
+                <div class="muted">
+                    استخدم هذا الفلتر السريع لعرض المصروفات التي لا تحتوي على مرفق وتم سدادها.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index', $expenseMissingPaidQuickFilterQuery) }}"
+                    class="btn secondary"
+                    data-testid="expense-missing-paid-quick-filter"
+                >
+                    عرض المصروفات بدون مرفق والمدفوعة
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- 13J_EXPENSE_PAID_QUICK_FILTER_CARD --}}
     <div
         class="card"
