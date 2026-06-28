@@ -1,6 +1,49 @@
 @extends('layouts.app')
 
 @section('content')
+
+    {{-- 13A_EXPENSE_PAGE_STATUS_BAR --}}
+    @php
+        $expensePageActiveFilters13A = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            });
+
+        $expensePageActiveFilterCount13A = $expensePageActiveFilters13A->count();
+        $expensePageHasActiveFilters13A = $expensePageActiveFilterCount13A > 0;
+    @endphp
+
+    <div
+        class="card"
+        data-testid="expense-page-status-bar"
+        data-page-active-filter-count="{{ $expensePageActiveFilterCount13A }}"
+        data-page-has-active-filters="{{ $expensePageHasActiveFilters13A ? 'yes' : 'no' }}"
+        style="margin-bottom:20px;border-color:#d1fae5;background:#ecfdf5;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">حالة صفحة المصروفات</h2>
+                <div class="muted">
+                    {{ $expensePageHasActiveFilters13A ? 'فلترة نشطة' : 'بدون فلاتر نشطة' }}
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <span
+                    data-testid="expense-page-status-filter-count"
+                    style="display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border:1px solid #a7f3d0;border-radius:999px;background:#fff;color:#065f46;"
+                >
+                    <strong>عدد الفلاتر:</strong>
+                    <span>{{ $expensePageActiveFilterCount13A }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
