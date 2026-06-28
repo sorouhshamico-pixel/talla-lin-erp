@@ -448,7 +448,37 @@
             </div>
         </div>
     </div>
-    <div class="page-header">
+
+    {{-- 13Q_EXPENSE_SMALL_PAID_QUICK_FILTER_CARD --}}
+    <div
+        class="card"
+        data-testid="expense-small-paid-quick-filter-card"
+        data-quick-filter-card="expense"
+        data-quick-filter-style="unified"
+        style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">مصروفات صغيرة مدفوعة</h2>
+                <div class="muted">
+                    استخدم هذا الفلتر السريع لعرض المصروفات الصغيرة التي تم سدادها.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index', array_merge(request()->query(), ['large_amount' => '0', 'payment_status' => 'paid'])) }}"
+                    class="btn secondary"
+                    data-testid="expense-small-paid-quick-filter"
+                >
+                    عرض المصروفات الصغيرة المدفوعة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- 13Q_EXPENSE_SMALL_PAID_QUICK_FILTER_CARD --}}
+        <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
             <div class="muted">
