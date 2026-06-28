@@ -123,6 +123,109 @@
             </div>
         </div>
     </div>
+
+    {{-- 13D_EXPENSE_ACTIVE_FILTER_LABELS_CARD --}}
+    @php
+        $expenseFilterLabels13D = [
+            'branch_id' => 'الفرع',
+            'expense_category_id' => 'تصنيف المصروف',
+            'category_id' => 'تصنيف المصروف',
+            'payment_method' => 'طريقة الدفع',
+            'status' => 'حالة المصروف',
+            'payment_status' => 'حالة الدفع',
+            'date_from' => 'من تاريخ',
+            'date_to' => 'إلى تاريخ',
+            'from' => 'من تاريخ',
+            'to' => 'إلى تاريخ',
+            'search' => 'بحث',
+            'q' => 'بحث',
+            'keyword' => 'بحث',
+            'has_attachment' => 'حالة المرفق',
+            'missing_attachment' => 'بدون مرفق',
+            'archive_status' => 'حالة الأرشفة',
+            'archived' => 'حالة الأرشفة',
+        ];
+
+        $expenseFilterValueLabels13D = [
+            'cash' => 'نقدًا',
+            'bank_transfer' => 'تحويل بنكي',
+            'mada' => 'مدى',
+            'visa' => 'بطاقة',
+            'cheque' => 'شيك',
+            'paid' => 'مدفوع',
+            'unpaid' => 'غير مدفوع',
+            'pending' => 'قيد الانتظار',
+            'approved' => 'معتمد',
+            'rejected' => 'مرفوض',
+            'active' => 'نشط',
+            'archived' => 'مؤرشف',
+            'with_attachment' => 'بمرفق',
+            'without_attachment' => 'بدون مرفق',
+            '1' => 'نعم',
+            '0' => 'لا',
+            'true' => 'نعم',
+            'false' => 'لا',
+        ];
+
+        $expenseActiveFilterBadges13D = collect(request()->query())
+            ->except(['page'])
+            ->filter(function ($value) {
+                if (is_array($value)) {
+                    return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                }
+
+                return filled($value);
+            })
+            ->map(function ($value, $key) use ($expenseFilterLabels13D, $expenseFilterValueLabels13D) {
+                $displayValue = is_array($value)
+                    ? collect($value)
+                        ->filter(fn ($item) => filled($item))
+                        ->map(fn ($item) => $expenseFilterValueLabels13D[(string) $item] ?? (string) $item)
+                        ->implode(', ')
+                    : (string) $value;
+
+                if (! is_array($value)) {
+                    $displayValue = $expenseFilterValueLabels13D[$displayValue] ?? $displayValue;
+                }
+
+                return [
+                    'key' => $key,
+                    'label' => $expenseFilterLabels13D[$key] ?? $key,
+                    'value' => $displayValue,
+                ];
+            })
+            ->values();
+    @endphp
+
+    <div
+        class="card"
+        data-testid="expense-active-filter-labels-card"
+        style="margin-bottom:20px;border-color:#e0e7ff;background:#eef2ff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">فلاتر المصروفات النشطة الحالية</h2>
+                <div class="muted">
+                    يعرض هذا القسم أسماء فلاتر المصروفات المطبقة حاليًا وقيمها، مع تجاهل ترقيم الصفحات والقيم الفارغة.
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" data-testid="expense-active-filter-labels-list">
+            @forelse ($expenseActiveFilterBadges13D as $filter)
+                <span
+                    data-testid="expense-active-filter-label"
+                    data-filter-key="{{ $filter['key'] }}"
+                    style="display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border:1px solid #c7d2fe;border-radius:999px;background:#fff;color:#3730a3;font-size:13px;"
+                >
+                    <strong>{{ $filter['label'] }}:</strong>
+                    <span>{{ $filter['value'] }}</span>
+                </span>
+            @empty
+                <span class="muted" data-testid="expense-no-active-filter-labels">لا توجد فلاتر مصروفات نشطة حاليًا</span>
+            @endforelse
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
