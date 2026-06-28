@@ -364,6 +364,34 @@
             </div>
         </div>
     </div>
+
+    {{-- 13N_EXPENSE_LARGE_UNPAID_QUICK_FILTER_CARD --}}
+    <div
+        class="card"
+        data-testid="expense-large-unpaid-quick-filter-card"
+        data-quick-filter-card="expense"
+        data-quick-filter-style="unified"
+        style="margin-bottom:20px;border-color:#d1d5db;background:#ffffff;"
+    >
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin-top:0;">المصاريف الكبيرة غير المدفوعة</h2>
+                <div class="muted">
+                    استخدم هذا الفلتر السريع لعرض المصاريف التي تبلغ 1,000.00 ريال أو أكثر ولم يتم سدادها بعد.
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ route('expenses.index', array_merge(request()->query(), ['large_amount' => '1', 'payment_status' => 'unpaid'])) }}"
+                    class="btn secondary"
+                    data-testid="expense-large-unpaid-quick-filter"
+                >
+                    عرض المصروفات الكبيرة غير المدفوعة
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="page-header">
         <div>
             <h1 class="page-title">المصاريف التشغيلية</h1>
@@ -551,33 +579,7 @@
             </div>
         </div>
     </div>
-    <div class="card" data-testid="expense-large-unpaid-quick-filter-card" style="margin-bottom:20px;border-color:#e8b4a2;background:#fffaf7;">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin-top:0;">المصاريف الكبيرة غير المدفوعة</h2>
-                <div class="muted" style="margin-bottom:12px;">
-                    استخدم هذا الفلتر السريع لعرض المصاريف التي تبلغ 1,000.00 ريال أو أكثر ولم يتم سدادها بعد.
-                </div>
-
-                @if (($filters['large_amount'] ?? null) === '1' && ($filters['payment_status'] ?? null) === 'unpaid')
-                    <div data-testid="expense-large-unpaid-quick-filter-active" style="display:inline-block;padding:7px 10px;border-radius:999px;background:#fff1ec;border:1px solid #f0b8a6;">
-                        فلتر المصاريف الكبيرة غير المدفوعة مفعّل
-                    </div>
-                @endif
-            </div>
-
-            <div>
-                <a
-                    href="{{ route('expenses.index', array_merge(request()->except('page'), ['large_amount' => '1', 'payment_status' => 'unpaid'])) }}"
-                    class="btn"
-                    data-testid="expense-large-unpaid-quick-filter"
-                >
-                    عرض المصاريف الكبيرة غير المدفوعة
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="card" data-testid="expense-large-unpaid-summary" style="margin-bottom:20px;border-color:#efb7a4;background:#fffaf7;">
+        <div class="card" data-testid="expense-large-unpaid-summary" style="margin-bottom:20px;border-color:#efb7a4;background:#fffaf7;">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
             <div>
                 <h2 style="margin-top:0;">ملخص المصاريف الكبيرة غير المدفوعة</h2>

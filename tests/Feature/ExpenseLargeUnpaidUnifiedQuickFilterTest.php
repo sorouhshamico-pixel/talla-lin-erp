@@ -6,11 +6,11 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ExpenseLargeUnpaidQuickFilterTest extends TestCase
+class ExpenseLargeUnpaidUnifiedQuickFilterTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_large_unpaid_expense_quick_filter_card_is_visible(): void
+    public function test_expenses_index_shows_large_unpaid_unified_quick_filter_card(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -19,16 +19,16 @@ class ExpenseLargeUnpaidQuickFilterTest extends TestCase
         $response->assertOk();
 
         $response->assertSee('data-testid="expense-large-unpaid-quick-filter-card"', false);
-        $response->assertSee('data-testid="expense-large-unpaid-quick-filter"', false);
         $response->assertSee('data-quick-filter-card="expense"', false);
         $response->assertSee('data-quick-filter-style="unified"', false);
         $response->assertSee('المصاريف الكبيرة غير المدفوعة');
         $response->assertSee('عرض المصروفات الكبيرة غير المدفوعة');
+        $response->assertSee('data-testid="expense-large-unpaid-quick-filter"', false);
         $response->assertSee('large_amount=1', false);
         $response->assertSee('payment_status=unpaid', false);
     }
 
-    public function test_large_unpaid_expense_quick_filter_preserves_current_filters(): void
+    public function test_large_unpaid_unified_quick_filter_preserves_current_filters_and_overrides_values(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -63,7 +63,7 @@ class ExpenseLargeUnpaidQuickFilterTest extends TestCase
         $this->assertStringNotContainsString('payment_status=paid', $href);
     }
 
-    public function test_large_unpaid_expense_quick_filter_is_after_large_amount_filter(): void
+    public function test_large_unpaid_unified_quick_filter_appears_after_large_amount_quick_filter_before_page_header(): void
     {
         $this->actingAs(User::factory()->create());
 
