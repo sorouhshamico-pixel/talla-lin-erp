@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,4 +82,40 @@ class SupplierController extends Controller
             ->route('suppliers.index')
             ->with('status', 'تم إضافة المورد بنجاح.');
     }
+    public function edit(Supplier $supplier)
+    {
+        return view('suppliers.edit', compact('supplier'));
+    }
+
+    public function update(Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_person' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'vat_number' => ['nullable', 'string', 'max:50'],
+            'tax_number' => ['nullable', 'string', 'max:50'],
+            'commercial_registration' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:1000'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('suppliers');
+        $data = array_intersect_key($validated, array_flip($columns));
+
+        if (in_array('is_active', $columns, true)) {
+            $data['is_active'] = $request->boolean('is_active');
+        }
+
+        $supplier->update($data);
+
+        return redirect()
+            ->route('suppliers.index')
+            ->with('success', 'تم تحديث بيانات المورد بنجاح.');
+    }
+
 }
