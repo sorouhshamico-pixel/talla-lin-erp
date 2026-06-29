@@ -53,15 +53,7 @@ class CustomerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'city' => ['nullable', 'string', 'max:120'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'tax_number' => ['nullable', 'string', 'max:100'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        $validated = $this->validatedCustomerData($request);
 
         DB::table('customers')->insert([
             'company_id' => DB::table('companies')->value('id'),
@@ -79,5 +71,58 @@ class CustomerController extends Controller
         return redirect()
             ->route('customers.index')
             ->with('status', 'تم إضافة العميل بنجاح.');
+    }
+
+    public function edit(int $customer): View
+    {
+        $customerRecord = DB::table('customers')->where('id', $customer)->first();
+
+        abort_if($customerRecord === null, 404);
+
+        return view('customers.edit', [
+            'customer' => $customerRecord,
+        ]);
+    }
+
+    public function update(Request $request, int $customer): RedirectResponse
+    {
+        $customerExists = DB::table('customers')->where('id', $customer)->exists();
+
+        abort_if(! $customerExists, 404);
+
+        $validated = $this->validatedCustomerData($request);
+
+        DB::table('customers')
+            ->where('id', $customer)
+            ->update([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null,
+                'email' => $validated['email'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'tax_number' => $validated['tax_number'] ?? null,
+                'is_active' => (bool) ($validated['is_active'] ?? true),
+                'updated_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('customers.index')
+            ->with('status', 'تم تحديث العميل بنجاح.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validatedCustomerData(Request $request): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'city' => ['nullable', 'string', 'max:120'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'tax_number' => ['nullable', 'string', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
     }
 }

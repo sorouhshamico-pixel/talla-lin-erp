@@ -18,9 +18,10 @@
         input, select { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; box-sizing: border-box; }
         .btn { border: 0; border-radius: 10px; padding: 11px 16px; background: #111827; color: #fff; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; white-space: nowrap; }
         .btn.secondary { background: #374151; }
+        .btn.small { padding: 7px 10px; font-size: 13px; }
         .status { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 18px; }
         .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 920px; }
+        table { width: 100%; border-collapse: collapse; min-width: 980px; }
         th, td { border-bottom: 1px solid #e5e7eb; padding: 12px; text-align: right; vertical-align: top; }
         th { background: #f9fafb; color: #374151; font-size: 14px; }
         .badge { display: inline-block; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
@@ -90,6 +91,7 @@
                     <th>المدينة</th>
                     <th>الرقم الضريبي</th>
                     <th>الحالة</th>
+                    <th>الإجراءات</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -107,10 +109,19 @@
                                 <span class="badge inactive">غير نشط</span>
                             @endif
                         </td>
+                        <td>
+                            <a
+                                href="{{ route('customers.edit', $customer->id) }}"
+                                class="btn small secondary"
+                                data-testid="customers-edit-link-{{ $customer->id }}"
+                            >
+                                تعديل
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="muted">لا توجد بيانات عملاء مطابقة.</td>
+                        <td colspan="7" class="muted">لا توجد بيانات عملاء مطابقة.</td>
                     </tr>
                 @endforelse
                 </tbody>
