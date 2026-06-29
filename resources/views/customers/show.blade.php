@@ -30,7 +30,13 @@
             .container { max-width: none; }
             .card { box-shadow: none; border-color: #d1d5db; }
         }
-    </style>
+    
+        textarea { width: 100%; min-height: 90px; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; box-sizing: border-box; resize: vertical; }
+        .note-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
+        .note-meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
+        .note-text { white-space: pre-wrap; font-weight: 700; }
+
+</style>
 </head>
 <body>
 <div class="container" data-testid="customers-show">
@@ -138,5 +144,51 @@
         </div>
     </div>
 </div>
+
+    <div class="card" data-testid="customers-notes-card">
+        <h2>ملاحظات العميل</h2>
+        <div class="muted">أضف ملاحظات داخلية مرتبطة بهذا السجل.</div>
+
+        <form method="POST" action="{{ route('customers.notes.store', $customer) }}" data-testid="customers-note-form" style="margin-top: 16px;">
+            @csrf
+
+            <label for="customers_note">الملاحظة</label>
+            <textarea id="customers_note" name="note" required placeholder="اكتب الملاحظة هنا...">{{ old('note') }}</textarea>
+
+            @error('note')
+                <div class="muted">{{ $message }}</div>
+            @enderror
+
+            <div class="actions">
+                <button type="submit" class="btn" data-testid="customers-note-submit">إضافة ملاحظة</button>
+            </div>
+        </form>
+
+        @php
+            $notes = \App\Models\PartyNote::query()
+                ->where('customer_id', $customer->id)
+                ->latest()
+                ->limit(10)
+                ->get();
+        @endphp
+
+        <div style="margin-top: 18px;" data-testid="customers-notes-list">
+            @forelse($notes as $note)
+                <div class="note-item" data-testid="customers-note-{{ $note->id }}">
+                    <div class="note-meta">{{ $note->created_at?->format('Y-m-d H:i') }}</div>
+                    <div class="note-text">{{ $note->note }}</div>
+
+                    <form method="POST" action="{{ route('customers.notes.destroy', [$customer, $note]) }}" style="margin-top: 10px;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn small secondary" data-testid="customers-note-delete-{{ $note->id }}">حذف الملاحظة</button>
+                    </form>
+                </div>
+            @empty
+                <div class="muted" data-testid="customers-notes-empty">لا توجد ملاحظات بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
 </body>
 </html>

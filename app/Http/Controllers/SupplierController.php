@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyNote;
+
 
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
@@ -463,4 +465,35 @@ class SupplierController extends Controller
             ->with('success', "تم تحديث حالة {$updated} مورد.");
     }
 
+
+    public function storeNote(\Illuminate\Http\Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'note' => ['required', 'string', 'max:2000'],
+        ]);
+
+        PartyNote::unguarded(function () use ($request, $supplier, $validated) {
+            PartyNote::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'supplier_id' => $supplier->id,
+                'note' => $validated['note'],
+            ]);
+        });
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تمت إضافة ملاحظة المورد بنجاح.');
+    }
+
+    public function destroyNote(Supplier $supplier, PartyNote $note)
+    {
+        abort_unless((int) $note->supplier_id === (int) $supplier->id, 404);
+
+        $note->delete();
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تم حذف ملاحظة المورد بنجاح.');
+    }
 }

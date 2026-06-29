@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyNote;
+
 
 use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
@@ -460,4 +462,35 @@ class CustomerController extends Controller
             ->with('success', "تم تحديث حالة {$updated} عميل.");
     }
 
+
+    public function storeNote(\Illuminate\Http\Request $request, Customer $customer)
+    {
+        $validated = $request->validate([
+            'note' => ['required', 'string', 'max:2000'],
+        ]);
+
+        PartyNote::unguarded(function () use ($request, $customer, $validated) {
+            PartyNote::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'customer_id' => $customer->id,
+                'note' => $validated['note'],
+            ]);
+        });
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تمت إضافة ملاحظة العميل بنجاح.');
+    }
+
+    public function destroyNote(Customer $customer, PartyNote $note)
+    {
+        abort_unless((int) $note->customer_id === (int) $customer->id, 404);
+
+        $note->delete();
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تم حذف ملاحظة العميل بنجاح.');
+    }
 }
