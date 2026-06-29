@@ -20,6 +20,12 @@
         .active { background: #dcfce7; color: #166534; }
         .inactive { background: #fee2e2; color: #991b1b; }
         @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .no-print, .actions { display: none !important; }
+            .container { max-width: none; }
+            .card { box-shadow: none; border-color: #d1d5db; }
+        }
     </style>
 </head>
 <body>
@@ -39,7 +45,9 @@
                     {{ $supplier->is_active ? 'تعطيل المورد' : 'تفعيل المورد' }}
                 </button>
             </form>
-        </div>
+        
+            <button type="button" class="btn secondary no-print" onclick="window.print()" data-testid="suppliers-print-button">طباعة بيانات المورد</button>
+</div>
     </div>
 
     <div class="card">
