@@ -10,6 +10,10 @@
         h1 { margin: 0 0 8px; font-size: 28px; }
         .muted { color: #6b7280; font-size: 14px; }
         .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .detail-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+        .summary-item { border: 1px solid #e5e7eb; border-radius: 12px; background: #fafafa; padding: 12px; }
+        .summary-label { color: #6b7280; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+        .summary-value { color: #111827; font-size: 15px; font-weight: 800; word-break: break-word; }
         .btn { border: 0; border-radius: 10px; padding: 11px 16px; background: #111827; color: #fff; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; white-space: nowrap; }
         .btn.secondary { background: #374151; }
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -19,7 +23,7 @@
         .badge { display: inline-block; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
         .active { background: #dcfce7; color: #166534; }
         .inactive { background: #fee2e2; color: #991b1b; }
-        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) { .grid, .detail-summary { grid-template-columns: 1fr; } }
         @media print {
             body { background: #fff; padding: 0; }
             .no-print, .actions { display: none !important; }
@@ -33,6 +37,35 @@
     <div class="card">
         <h1>تفاصيل المورد</h1>
         <div class="muted">عرض بيانات المورد الأساسية وحالة النشاط.</div>
+
+
+        <div class="detail-summary" data-testid="suppliers-detail-summary">
+            <div class="summary-item">
+                <div class="summary-label">اسم المورد</div>
+                <div class="summary-value">{{ $supplier->name }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">الهاتف</div>
+                <div class="summary-value">{{ $supplier->phone ?: '-' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">المدينة</div>
+                <div class="summary-value">{{ $supplier->city ?: '-' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">الحالة</div>
+                <div class="summary-value">
+                    @if($supplier->is_active)
+                        نشط
+                    @else
+                        غير نشط
+                    @endif
+                </div>
+            </div>
+        </div>
 
         <div class="actions">
             <a href="{{ route('suppliers.index') }}" class="btn secondary" data-testid="suppliers-back-link">رجوع للموردين</a>
