@@ -124,3 +124,7 @@ Route::get('/reports/profit-loss/export', [\App\Http\Controllers\ProfitLossRepor
 Route::get('/reports/financial-dashboard', \App\Http\Controllers\FinancialDashboardController::class)
     ->middleware('auth')
     ->name('reports.financial-dashboard');
+
+Route::get('/reports/center', \App\Http\Controllers\ReportsCenterController::class)
+    ->middleware('auth')
+    ->name('reports.center');
