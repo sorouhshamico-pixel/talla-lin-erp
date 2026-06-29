@@ -134,4 +134,84 @@ class SupplierController extends Controller
             ->with('success', 'تم تحديث حالة المورد بنجاح.');
     }
 
+    public function exportCsv()
+    {
+        $availableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('suppliers');
+        $preferredColumns = array (
+  0 => 'id',
+  1 => 'name',
+  2 => 'contact_name',
+  3 => 'contact_person',
+  4 => 'phone',
+  5 => 'email',
+  6 => 'city',
+  7 => 'tax_number',
+  8 => 'vat_number',
+  9 => 'commercial_registration',
+  10 => 'address',
+  11 => 'notes',
+  12 => 'is_active',
+  13 => 'created_at',
+);
+        $headers = array (
+  'id' => 'ID',
+  'name' => 'اسم المورد',
+  'contact_name' => 'مسؤول التواصل',
+  'contact_person' => 'مسؤول التواصل',
+  'phone' => 'الهاتف',
+  'email' => 'البريد الإلكتروني',
+  'city' => 'المدينة',
+  'tax_number' => 'الرقم الضريبي',
+  'vat_number' => 'الرقم الضريبي',
+  'commercial_registration' => 'السجل التجاري',
+  'address' => 'العنوان',
+  'notes' => 'ملاحظات',
+  'is_active' => 'الحالة',
+  'created_at' => 'تاريخ الإضافة',
+);
+
+        $columns = array_values(array_filter($preferredColumns, fn ($column) => in_array($column, $availableColumns, true)));
+
+        $handle = fopen('php://temp', 'r+');
+
+        if ($handle === false) {
+            abort(500, 'Unable to create CSV export.');
+        }
+
+        fwrite($handle, "\xEF\xBB\xBF");
+
+        fputcsv($handle, array_values(array_intersect_key($headers, array_flip($columns))));
+
+        Supplier::query()
+            ->orderBy('id')
+            ->chunk(200, function ($records) use ($handle, $columns) {
+                foreach ($records as $record) {
+                    $row = [];
+
+                    foreach ($columns as $column) {
+                        $value = $record->{$column};
+
+                        if (is_bool($value)) {
+                            $value = $value ? '1' : '0';
+                        }
+
+                        $row[] = $value;
+                    }
+
+                    fputcsv($handle, $row);
+                }
+            });
+
+        rewind($handle);
+
+        $csv = stream_get_contents($handle);
+
+        fclose($handle);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="suppliers-' . now()->format('Y-m-d-His') . '.csv"',
+        ]);
+    }
+
 }

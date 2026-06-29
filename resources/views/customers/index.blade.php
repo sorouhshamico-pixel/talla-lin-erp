@@ -75,6 +75,7 @@
             <div><button type="submit" class="btn">تطبيق الفلاتر</button></div>
 
             <div>
+                <a href="{{ route('customers.export') }}" class="btn secondary" data-testid="customers-export-link">تصدير العملاء CSV</a>
                 <a href="{{ route('customers.create') }}" class="btn secondary" data-testid="customers-create-link">إضافة عميل</a>
             </div>
         </form>
