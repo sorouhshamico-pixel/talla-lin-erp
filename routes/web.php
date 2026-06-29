@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/exports/customers/template', [CustomerController::class, 'exportTemplateCsv'])->name('customers.export-template');
     Route::post('/imports/customers', [CustomerController::class, 'importCsv'])->name('customers.import');
+    Route::patch('/bulk/customers/status', [CustomerController::class, 'bulkUpdateStatus'])->name('customers.bulk-status');
     Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
@@ -65,6 +66,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
 
     Route::get('/exports/suppliers/template', [SupplierController::class, 'exportTemplateCsv'])->name('suppliers.export-template');
     Route::post('/imports/suppliers', [SupplierController::class, 'importCsv'])->name('suppliers.import');
+    Route::patch('/bulk/suppliers/status', [SupplierController::class, 'bulkUpdateStatus'])->name('suppliers.bulk-status');
     Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 

@@ -93,10 +93,20 @@
     </div>
 
     <div class="card">
+        <form method="POST" action="{{ route('suppliers.bulk-status') }}" data-testid="suppliers-bulk-status-form">
+            @csrf
+            @method('PATCH')
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+                <button type="submit" name="is_active" value="1" class="btn small" data-testid="suppliers-bulk-activate">تفعيل الموردين المحددين</button>
+                <button type="submit" name="is_active" value="0" class="btn small secondary" data-testid="suppliers-bulk-deactivate">تعطيل الموردين المحددين</button>
+            </div>
+
         <div class="table-wrapper">
             <table data-testid="suppliers-table">
                 <thead>
                 <tr>
+                    <th>تحديد</th>
                     <th>الاسم</th>
                     <th>الهاتف</th>
                     <th>البريد الإلكتروني</th>
@@ -109,6 +119,15 @@
                 <tbody>
                 @forelse ($suppliers as $supplier)
                     <tr>
+                        <td>
+                            <input
+                                type="checkbox"
+                                name="ids[]"
+                                value="{{ $supplier->id }}"
+                                aria-label="تحديد مورد"
+                                data-testid="suppliers-bulk-checkbox-{{ $supplier->id }}"
+                            >
+                        </td>
                         <td>{{ $supplier->name }}</td>
                         <td>{{ $supplier->phone ?: '-' }}</td>
                         <td>{{ $supplier->email ?: '-' }}</td>
@@ -139,6 +158,7 @@
                 </tbody>
             </table>
         </div>
+        </form>
     </div>
 </div>
 </body>

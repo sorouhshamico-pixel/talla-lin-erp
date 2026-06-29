@@ -433,4 +433,31 @@ class CustomerController extends Controller
             ->with('success', "تم استيراد العملاء. جديد: {$imported}، محدث: {$updated}، متخطى: {$skipped}.");
     }
 
+    public function bulkUpdateStatus(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $query = Customer::query()
+            ->whereIn('id', $validated['ids']);
+
+        if (
+            \Illuminate\Support\Facades\Schema::hasColumn('customers', 'company_id')
+            && $request->user()?->company_id
+        ) {
+            $query->where('company_id', $request->user()->company_id);
+        }
+
+        $updated = $query->update([
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return redirect()
+            ->route('customers.index')
+            ->with('success', "تم تحديث حالة {$updated} عميل.");
+    }
+
 }
