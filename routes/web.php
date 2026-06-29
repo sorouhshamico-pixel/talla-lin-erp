@@ -112,3 +112,7 @@ Route::get('/revenues/uncollected/export', [\App\Http\Controllers\RevenueControl
     ->middleware(['auth'])
     ->name('revenues.uncollected.export');
 
+
+Route::get('/reports/profit-loss', \App\Http\Controllers\ProfitLossReportController::class)
+    ->middleware('auth')
+    ->name('reports.profit-loss');
