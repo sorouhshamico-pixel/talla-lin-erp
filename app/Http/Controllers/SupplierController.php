@@ -134,43 +134,83 @@ class SupplierController extends Controller
             ->with('success', 'تم تحديث حالة المورد بنجاح.');
     }
 
-    public function exportCsv()
+    public function exportCsv(\Illuminate\Http\Request $request)
     {
         $availableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('suppliers');
-        $preferredColumns = array (
-  0 => 'id',
-  1 => 'name',
-  2 => 'contact_name',
-  3 => 'contact_person',
-  4 => 'phone',
-  5 => 'email',
-  6 => 'city',
-  7 => 'tax_number',
-  8 => 'vat_number',
-  9 => 'commercial_registration',
-  10 => 'address',
-  11 => 'notes',
-  12 => 'is_active',
-  13 => 'created_at',
-);
-        $headers = array (
-  'id' => 'ID',
-  'name' => 'اسم المورد',
-  'contact_name' => 'مسؤول التواصل',
-  'contact_person' => 'مسؤول التواصل',
-  'phone' => 'الهاتف',
-  'email' => 'البريد الإلكتروني',
-  'city' => 'المدينة',
-  'tax_number' => 'الرقم الضريبي',
-  'vat_number' => 'الرقم الضريبي',
-  'commercial_registration' => 'السجل التجاري',
-  'address' => 'العنوان',
-  'notes' => 'ملاحظات',
-  'is_active' => 'الحالة',
-  'created_at' => 'تاريخ الإضافة',
-);
 
-        $columns = array_values(array_filter($preferredColumns, fn ($column) => in_array($column, $availableColumns, true)));
+        $preferredColumns = [
+            'id',
+            'name',
+            'contact_name',
+            'contact_person',
+            'phone',
+            'email',
+            'city',
+            'tax_number',
+            'vat_number',
+            'commercial_registration',
+            'address',
+            'notes',
+            'is_active',
+            'created_at',
+        ];
+
+        $headers = [
+            'id' => 'ID',
+            'name' => 'اسم المورد',
+            'contact_name' => 'مسؤول التواصل',
+            'contact_person' => 'مسؤول التواصل',
+            'phone' => 'الهاتف',
+            'email' => 'البريد الإلكتروني',
+            'city' => 'المدينة',
+            'tax_number' => 'الرقم الضريبي',
+            'vat_number' => 'الرقم الضريبي',
+            'commercial_registration' => 'السجل التجاري',
+            'address' => 'العنوان',
+            'notes' => 'ملاحظات',
+            'is_active' => 'الحالة',
+            'created_at' => 'تاريخ الإضافة',
+        ];
+
+        $columns = array_values(array_filter(
+            $preferredColumns,
+            fn ($column) => in_array($column, $availableColumns, true)
+        ));
+
+        $query = Supplier::query();
+
+        $search = trim((string) $request->query('q', ''));
+
+        if ($search !== '') {
+            $searchableColumns = array_values(array_filter([
+                'name',
+                'contact_name',
+                'contact_person',
+                'phone',
+                'email',
+                'city',
+                'tax_number',
+                'vat_number',
+                'commercial_registration',
+                'address',
+                'notes',
+            ], fn ($column) => in_array($column, $availableColumns, true)));
+
+            if ($searchableColumns !== []) {
+                $query->where(function ($innerQuery) use ($search, $searchableColumns) {
+                    foreach ($searchableColumns as $index => $column) {
+                        $method = $index === 0 ? 'where' : 'orWhere';
+                        $innerQuery->{$method}($column, 'like', "%{$search}%");
+                    }
+                });
+            }
+        }
+
+        $activeFilter = $request->query('is_active');
+
+        if (in_array('is_active', $availableColumns, true) && in_array((string) $activeFilter, ['0', '1'], true)) {
+            $query->where('is_active', (bool) (int) $activeFilter);
+        }
 
         $handle = fopen('php://temp', 'r+');
 
@@ -182,7 +222,7 @@ class SupplierController extends Controller
 
         fputcsv($handle, array_values(array_intersect_key($headers, array_flip($columns))));
 
-        Supplier::query()
+        $query
             ->orderBy('id')
             ->chunk(200, function ($records) use ($handle, $columns) {
                 foreach ($records as $record) {

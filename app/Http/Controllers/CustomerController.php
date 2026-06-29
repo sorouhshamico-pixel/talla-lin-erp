@@ -143,39 +143,77 @@ class CustomerController extends Controller
             ->with('success', 'تم تحديث حالة العميل بنجاح.');
     }
 
-    public function exportCsv()
+    public function exportCsv(\Illuminate\Http\Request $request)
     {
         $availableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('customers');
-        $preferredColumns = array (
-  0 => 'id',
-  1 => 'name',
-  2 => 'phone',
-  3 => 'email',
-  4 => 'city',
-  5 => 'tax_number',
-  6 => 'vat_number',
-  7 => 'commercial_registration',
-  8 => 'address',
-  9 => 'notes',
-  10 => 'is_active',
-  11 => 'created_at',
-);
-        $headers = array (
-  'id' => 'ID',
-  'name' => 'اسم العميل',
-  'phone' => 'الهاتف',
-  'email' => 'البريد الإلكتروني',
-  'city' => 'المدينة',
-  'tax_number' => 'الرقم الضريبي',
-  'vat_number' => 'الرقم الضريبي',
-  'commercial_registration' => 'السجل التجاري',
-  'address' => 'العنوان',
-  'notes' => 'ملاحظات',
-  'is_active' => 'الحالة',
-  'created_at' => 'تاريخ الإضافة',
-);
 
-        $columns = array_values(array_filter($preferredColumns, fn ($column) => in_array($column, $availableColumns, true)));
+        $preferredColumns = [
+            'id',
+            'name',
+            'phone',
+            'email',
+            'city',
+            'tax_number',
+            'vat_number',
+            'commercial_registration',
+            'address',
+            'notes',
+            'is_active',
+            'created_at',
+        ];
+
+        $headers = [
+            'id' => 'ID',
+            'name' => 'اسم العميل',
+            'phone' => 'الهاتف',
+            'email' => 'البريد الإلكتروني',
+            'city' => 'المدينة',
+            'tax_number' => 'الرقم الضريبي',
+            'vat_number' => 'الرقم الضريبي',
+            'commercial_registration' => 'السجل التجاري',
+            'address' => 'العنوان',
+            'notes' => 'ملاحظات',
+            'is_active' => 'الحالة',
+            'created_at' => 'تاريخ الإضافة',
+        ];
+
+        $columns = array_values(array_filter(
+            $preferredColumns,
+            fn ($column) => in_array($column, $availableColumns, true)
+        ));
+
+        $query = Customer::query();
+
+        $search = trim((string) $request->query('q', ''));
+
+        if ($search !== '') {
+            $searchableColumns = array_values(array_filter([
+                'name',
+                'phone',
+                'email',
+                'city',
+                'tax_number',
+                'vat_number',
+                'commercial_registration',
+                'address',
+                'notes',
+            ], fn ($column) => in_array($column, $availableColumns, true)));
+
+            if ($searchableColumns !== []) {
+                $query->where(function ($innerQuery) use ($search, $searchableColumns) {
+                    foreach ($searchableColumns as $index => $column) {
+                        $method = $index === 0 ? 'where' : 'orWhere';
+                        $innerQuery->{$method}($column, 'like', "%{$search}%");
+                    }
+                });
+            }
+        }
+
+        $activeFilter = $request->query('is_active');
+
+        if (in_array('is_active', $availableColumns, true) && in_array((string) $activeFilter, ['0', '1'], true)) {
+            $query->where('is_active', (bool) (int) $activeFilter);
+        }
 
         $handle = fopen('php://temp', 'r+');
 
@@ -187,7 +225,7 @@ class CustomerController extends Controller
 
         fputcsv($handle, array_values(array_intersect_key($headers, array_flip($columns))));
 
-        Customer::query()
+        $query
             ->orderBy('id')
             ->chunk(200, function ($records) use ($handle, $columns) {
                 foreach ($records as $record) {
