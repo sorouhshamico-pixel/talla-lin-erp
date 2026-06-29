@@ -31,6 +31,14 @@
         <div class="actions">
             <a href="{{ route('suppliers.index') }}" class="btn secondary" data-testid="suppliers-back-link">رجوع للموردين</a>
             <a href="{{ route('suppliers.edit', $supplier) }}" class="btn" data-testid="suppliers-edit-link">تعديل المورد</a>
+        
+            <form method="POST" action="{{ route('suppliers.toggle-active', $supplier) }}" style="display:inline-block;" data-testid="suppliers-toggle-active-form">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn secondary" data-testid="suppliers-toggle-active-button">
+                    {{ $supplier->is_active ? 'تعطيل المورد' : 'تفعيل المورد' }}
+                </button>
+            </form>
         </div>
     </div>
 

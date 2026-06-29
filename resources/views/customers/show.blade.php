@@ -31,6 +31,14 @@
         <div class="actions">
             <a href="{{ route('customers.index') }}" class="btn secondary" data-testid="customers-back-link">رجوع للعملاء</a>
             <a href="{{ route('customers.edit', $customer) }}" class="btn" data-testid="customers-edit-link">تعديل العميل</a>
+        
+            <form method="POST" action="{{ route('customers.toggle-active', $customer) }}" style="display:inline-block;" data-testid="customers-toggle-active-form">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn secondary" data-testid="customers-toggle-active-button">
+                    {{ $customer->is_active ? 'تعطيل العميل' : 'تفعيل العميل' }}
+                </button>
+            </form>
         </div>
     </div>
 

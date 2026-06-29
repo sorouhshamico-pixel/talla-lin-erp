@@ -132,4 +132,15 @@ class CustomerController extends Controller
         return view('customers.show', compact('customer'));
     }
 
+    public function toggleActive(Customer $customer)
+    {
+        $customer->update([
+            'is_active' => ! (bool) $customer->is_active,
+        ]);
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تم تحديث حالة العميل بنجاح.');
+    }
+
 }

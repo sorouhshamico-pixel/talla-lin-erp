@@ -123,4 +123,15 @@ class SupplierController extends Controller
         return view('suppliers.show', compact('supplier'));
     }
 
+    public function toggleActive(Supplier $supplier)
+    {
+        $supplier->update([
+            'is_active' => ! (bool) $supplier->is_active,
+        ]);
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تم تحديث حالة المورد بنجاح.');
+    }
+
 }
