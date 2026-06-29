@@ -36,6 +36,11 @@
         .note-meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
         .note-text { white-space: pre-wrap; font-weight: 700; }
 
+
+        input[type="file"] { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; box-sizing: border-box; background: #fff; }
+        .attachment-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
+        .attachment-meta { color: #6b7280; font-size: 12px; margin-top: 6px; }
+
 </style>
 </head>
 <body>
@@ -186,6 +191,59 @@
                 </div>
             @empty
                 <div class="muted" data-testid="customers-notes-empty">لا توجد ملاحظات بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
+
+    <div class="card" data-testid="customers-attachments-card">
+        <h2>مرفقات العميل</h2>
+        <div class="muted">ارفع ملفات داخلية مرتبطة بهذا السجل.</div>
+
+        <form method="POST" action="{{ route('customers.attachments.store', $customer) }}" enctype="multipart/form-data" data-testid="customers-attachment-form" style="margin-top: 16px;">
+            @csrf
+
+            <label for="customers_attachment">المرفق</label>
+            <input id="customers_attachment" type="file" name="attachment" required>
+
+            @error('attachment')
+                <div class="muted">{{ $message }}</div>
+            @enderror
+
+            <div class="actions">
+                <button type="submit" class="btn" data-testid="customers-attachment-submit">رفع مرفق</button>
+            </div>
+        </form>
+
+        @php
+            $attachments = \App\Models\PartyAttachment::query()
+                ->where('customer_id', $customer->id)
+                ->latest()
+                ->limit(10)
+                ->get();
+        @endphp
+
+        <div style="margin-top: 18px;" data-testid="customers-attachments-list">
+            @forelse($attachments as $attachment)
+                <div class="attachment-item" data-testid="customers-attachment-{{ $attachment->id }}">
+                    <strong>{{ $attachment->original_name }}</strong>
+                    <div class="attachment-meta">
+                        الحجم: {{ number_format(($attachment->size ?? 0) / 1024, 2) }} KB
+                        — النوع: {{ $attachment->mime_type ?: '-' }}
+                    </div>
+
+                    <div class="actions">
+                        <a class="btn small" href="{{ route('customers.attachments.download', [$customer, $attachment]) }}" data-testid="customers-attachment-download-{{ $attachment->id }}">تحميل</a>
+
+                        <form method="POST" action="{{ route('customers.attachments.destroy', [$customer, $attachment]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn small secondary" data-testid="customers-attachment-delete-{{ $attachment->id }}">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <div class="muted" data-testid="customers-attachments-empty">لا توجد مرفقات بعد.</div>
             @endforelse
         </div>
     </div>

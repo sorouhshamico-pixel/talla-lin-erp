@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::post('/customers/{customer}/attachments', [CustomerController::class, 'storeAttachment'])->name('customers.attachments.store');
+    Route::get('/customers/{customer}/attachments/{attachment}/download', [CustomerController::class, 'downloadAttachment'])->name('customers.attachments.download');
+    Route::delete('/customers/{customer}/attachments/{attachment}', [CustomerController::class, 'destroyAttachment'])->name('customers.attachments.destroy');
     Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote'])->name('customers.notes.store');
     Route::delete('/customers/{customer}/notes/{note}', [CustomerController::class, 'destroyNote'])->name('customers.notes.destroy');
 Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
@@ -73,6 +76,9 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 
     Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
+    Route::post('/suppliers/{supplier}/attachments', [SupplierController::class, 'storeAttachment'])->name('suppliers.attachments.store');
+    Route::get('/suppliers/{supplier}/attachments/{attachment}/download', [SupplierController::class, 'downloadAttachment'])->name('suppliers.attachments.download');
+    Route::delete('/suppliers/{supplier}/attachments/{attachment}', [SupplierController::class, 'destroyAttachment'])->name('suppliers.attachments.destroy');
     Route::post('/suppliers/{supplier}/notes', [SupplierController::class, 'storeNote'])->name('suppliers.notes.store');
     Route::delete('/suppliers/{supplier}/notes/{note}', [SupplierController::class, 'destroyNote'])->name('suppliers.notes.destroy');
 Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');

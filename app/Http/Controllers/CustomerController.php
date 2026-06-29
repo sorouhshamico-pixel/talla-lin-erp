@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyAttachment;
+
 use App\Models\PartyNote;
 
 
@@ -492,5 +494,54 @@ class CustomerController extends Controller
         return redirect()
             ->route('customers.show', $customer)
             ->with('success', 'تم حذف ملاحظة العميل بنجاح.');
+    }
+
+    public function storeAttachment(\Illuminate\Http\Request $request, Customer $customer)
+    {
+        $validated = $request->validate([
+            'attachment' => ['required', 'file', 'max:4096'],
+        ]);
+
+        $file = $validated['attachment'];
+        $path = $file->store('party-attachments/customers');
+
+        PartyAttachment::unguarded(function () use ($request, $customer, $file, $path) {
+            PartyAttachment::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'customer_id' => $customer->id,
+                'original_name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize() ?: 0,
+            ]);
+        });
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تم رفع مرفق العميل بنجاح.');
+    }
+
+    public function downloadAttachment(Customer $customer, PartyAttachment $attachment)
+    {
+        abort_unless((int) $attachment->customer_id === (int) $customer->id, 404);
+        abort_unless(\Illuminate\Support\Facades\Storage::exists($attachment->path), 404);
+
+        return \Illuminate\Support\Facades\Storage::download($attachment->path, $attachment->original_name);
+    }
+
+    public function destroyAttachment(Customer $customer, PartyAttachment $attachment)
+    {
+        abort_unless((int) $attachment->customer_id === (int) $customer->id, 404);
+
+        if (\Illuminate\Support\Facades\Storage::exists($attachment->path)) {
+            \Illuminate\Support\Facades\Storage::delete($attachment->path);
+        }
+
+        $attachment->delete();
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تم حذف مرفق العميل بنجاح.');
     }
 }

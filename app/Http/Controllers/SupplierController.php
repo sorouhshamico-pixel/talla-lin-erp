@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyAttachment;
+
 use App\Models\PartyNote;
 
 
@@ -495,5 +497,54 @@ class SupplierController extends Controller
         return redirect()
             ->route('suppliers.show', $supplier)
             ->with('success', 'تم حذف ملاحظة المورد بنجاح.');
+    }
+
+    public function storeAttachment(\Illuminate\Http\Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'attachment' => ['required', 'file', 'max:4096'],
+        ]);
+
+        $file = $validated['attachment'];
+        $path = $file->store('party-attachments/suppliers');
+
+        PartyAttachment::unguarded(function () use ($request, $supplier, $file, $path) {
+            PartyAttachment::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'supplier_id' => $supplier->id,
+                'original_name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize() ?: 0,
+            ]);
+        });
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تم رفع مرفق المورد بنجاح.');
+    }
+
+    public function downloadAttachment(Supplier $supplier, PartyAttachment $attachment)
+    {
+        abort_unless((int) $attachment->supplier_id === (int) $supplier->id, 404);
+        abort_unless(\Illuminate\Support\Facades\Storage::exists($attachment->path), 404);
+
+        return \Illuminate\Support\Facades\Storage::download($attachment->path, $attachment->original_name);
+    }
+
+    public function destroyAttachment(Supplier $supplier, PartyAttachment $attachment)
+    {
+        abort_unless((int) $attachment->supplier_id === (int) $supplier->id, 404);
+
+        if (\Illuminate\Support\Facades\Storage::exists($attachment->path)) {
+            \Illuminate\Support\Facades\Storage::delete($attachment->path);
+        }
+
+        $attachment->delete();
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تم حذف مرفق المورد بنجاح.');
     }
 }
