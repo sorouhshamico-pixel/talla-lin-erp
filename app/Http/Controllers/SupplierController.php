@@ -118,4 +118,9 @@ class SupplierController extends Controller
             ->with('success', 'تم تحديث بيانات المورد بنجاح.');
     }
 
+    public function show(Supplier $supplier)
+    {
+        return view('suppliers.show', compact('supplier'));
+    }
+
 }

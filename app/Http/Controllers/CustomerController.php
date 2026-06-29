@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -125,4 +127,9 @@ class CustomerController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
     }
+    public function show(Customer $customer)
+    {
+        return view('customers.show', compact('customer'));
+    }
+
 }
