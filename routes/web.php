@@ -104,9 +104,11 @@ Route::patch('/revenues/{revenue}/restore', [RevenueController::class, 'restore'
 
 Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
 Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');
+Route::get('/expenses/export/large-paid', [ExpenseController::class, 'exportLargePaid'])->name('expenses.export-large-paid');
 Route::get('/revenues/export', [\App\Http\Controllers\RevenueController::class, 'exportCsv'])
     ->middleware(['auth'])
     ->name('revenues.export');
 Route::get('/revenues/uncollected/export', [\App\Http\Controllers\RevenueController::class, 'exportUncollectedCsv'])
     ->middleware(['auth'])
     ->name('revenues.uncollected.export');
+

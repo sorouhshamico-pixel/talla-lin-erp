@@ -907,6 +907,16 @@
                 <div class="muted">
                     يعرض هذا الملخص عدد وإجمالي المصاريف التي تبلغ 1,000.00 ريال أو أكثر وتم سدادها، ضمن الفلاتر الحالية.
                 </div>
+
+                <div style="margin-top:12px;">
+                    <a
+                        href="{{ route('expenses.export-large-paid', array_merge(request()->except('page'), ['large_amount' => '1', 'payment_status' => 'paid'])) }}"
+                        class="btn"
+                        data-testid="expense-large-paid-summary-export"
+                    >
+                        تصدير CSV للمصاريف الكبيرة المدفوعة
+                    </a>
+                </div>
             </div>
 
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
