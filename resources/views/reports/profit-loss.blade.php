@@ -148,6 +148,16 @@
                 <button type="submit" class="btn">تطبيق الفلاتر</button>
             </div>
         </form>
+
+        <div style="margin-top: 14px;">
+            <a
+                href="{{ route('reports.profit-loss.export', request()->query()) }}"
+                class="btn"
+                data-testid="profit-loss-export"
+            >
+                تصدير CSV
+            </a>
+        </div>
     </div>
 
     <div class="metrics">

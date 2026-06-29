@@ -8,16 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProfitLossReportController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $filters = [
-            'from_date' => $request->query('from_date'),
-            'to_date' => $request->query('to_date'),
-            'branch_id' => $request->query('branch_id'),
-        ];
+        $filters = $this->filters($request);
+        $summary = $this->summary($filters);
 
         $branches = Branch::query()
             ->where('is_active', true)
@@ -25,6 +23,64 @@ class ProfitLossReportController extends Controller
             ->orderBy('id')
             ->get();
 
+        return view('reports.profit-loss', array_merge($summary, [
+            'filters' => $filters,
+            'branches' => $branches,
+        ]));
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $this->filters($request);
+        $summary = $this->summary($filters);
+
+        $fileName = 'profit-loss-report-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($summary, $filters): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['البند', 'القيمة']);
+
+            fputcsv($handle, ['من تاريخ', $filters['from_date'] ?: 'كل الفترات']);
+            fputcsv($handle, ['إلى تاريخ', $filters['to_date'] ?: 'كل الفترات']);
+            fputcsv($handle, ['رقم الفرع', $filters['branch_id'] ?: 'كل الفروع']);
+            fputcsv($handle, ['إجمالي الإيرادات', number_format((float) $summary['totalRevenues'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المصروفات', number_format((float) $summary['totalExpenses'], 2, '.', '')]);
+            fputcsv($handle, ['صافي الربح / الخسارة', number_format((float) $summary['netProfit'], 2, '.', '')]);
+            fputcsv($handle, ['ضريبة الإيرادات', number_format((float) $summary['totalRevenueTax'], 2, '.', '')]);
+            fputcsv($handle, ['ضريبة المصروفات', number_format((float) $summary['totalExpenseTax'], 2, '.', '')]);
+            fputcsv($handle, ['فرق الضريبة', number_format((float) $summary['taxDifference'], 2, '.', '')]);
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * @return array{from_date: mixed, to_date: mixed, branch_id: mixed}
+     */
+    private function filters(Request $request): array
+    {
+        return [
+            'from_date' => $request->query('from_date'),
+            'to_date' => $request->query('to_date'),
+            'branch_id' => $request->query('branch_id'),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     * @return array<string, float>
+     */
+    private function summary(array $filters): array
+    {
         $revenueQuery = DB::table('revenues');
         $this->applyFilters($revenueQuery, 'revenues', $filters, 'revenue_date');
 
@@ -40,16 +96,14 @@ class ProfitLossReportController extends Controller
         $netProfit = round($totalRevenues - $totalExpenses, 2);
         $taxDifference = round($totalRevenueTax - $totalExpenseTax, 2);
 
-        return view('reports.profit-loss', [
-            'filters' => $filters,
-            'branches' => $branches,
+        return [
             'totalRevenues' => $totalRevenues,
             'totalRevenueTax' => $totalRevenueTax,
             'totalExpenses' => $totalExpenses,
             'totalExpenseTax' => $totalExpenseTax,
             'netProfit' => $netProfit,
             'taxDifference' => $taxDifference,
-        ]);
+        ];
     }
 
     /**
