@@ -75,6 +75,7 @@
             <div><button type="submit" class="btn">تطبيق الفلاتر</button></div>
 
             <div>
+                <a href="{{ route('suppliers.export-template') }}" class="btn secondary" data-testid="suppliers-export-template-link">تحميل قالب الموردين CSV</a>
                 <a href="{{ route('suppliers.export', request()->only(['q', 'is_active'])) }}" class="btn secondary" data-testid="suppliers-export-link">تصدير الموردين CSV</a>
                 <a href="{{ route('suppliers.create') }}" class="btn secondary" data-testid="suppliers-create-link">إضافة مورد</a>
             </div>

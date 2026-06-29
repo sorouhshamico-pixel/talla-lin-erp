@@ -254,4 +254,40 @@ class SupplierController extends Controller
         ]);
     }
 
+    public function exportTemplateCsv()
+    {
+        $headers = [
+            'اسم المورد',
+            'مسؤول التواصل',
+            'الهاتف',
+            'البريد الإلكتروني',
+            'المدينة',
+            'الرقم الضريبي',
+            'السجل التجاري',
+            'العنوان',
+            'ملاحظات',
+            'الحالة',
+        ];
+
+        $handle = fopen('php://temp', 'r+');
+
+        if ($handle === false) {
+            abort(500, 'Unable to create CSV template.');
+        }
+
+        fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, $headers);
+
+        rewind($handle);
+
+        $csv = stream_get_contents($handle);
+
+        fclose($handle);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="suppliers-template.csv"',
+        ]);
+    }
+
 }

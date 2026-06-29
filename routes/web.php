@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/exports/customers', [CustomerController::class, 'exportCsv'])->name('customers.export');
 
+    Route::get('/exports/customers/template', [CustomerController::class, 'exportTemplateCsv'])->name('customers.export-template');
     Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
@@ -61,6 +62,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     Route::get('/exports/suppliers', [SupplierController::class, 'exportCsv'])->name('suppliers.export');
 
+    Route::get('/exports/suppliers/template', [SupplierController::class, 'exportTemplateCsv'])->name('suppliers.export-template');
     Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 

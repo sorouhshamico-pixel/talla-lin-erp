@@ -75,6 +75,7 @@
             <div><button type="submit" class="btn">تطبيق الفلاتر</button></div>
 
             <div>
+                <a href="{{ route('customers.export-template') }}" class="btn secondary" data-testid="customers-export-template-link">تحميل قالب العملاء CSV</a>
                 <a href="{{ route('customers.export', request()->only(['q', 'is_active'])) }}" class="btn secondary" data-testid="customers-export-link">تصدير العملاء CSV</a>
                 <a href="{{ route('customers.create') }}" class="btn secondary" data-testid="customers-create-link">إضافة عميل</a>
             </div>
