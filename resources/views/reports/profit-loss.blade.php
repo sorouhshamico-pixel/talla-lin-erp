@@ -103,6 +103,29 @@
             color: #b91c1c;
         }
 
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: right;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #374151;
+            font-size: 14px;
+        }
+
         @media (max-width: 900px) {
             .filters,
             .metrics {
@@ -200,6 +223,39 @@
                 <div class="metric-value">{{ number_format((float) $totalExpenseTax, 2) }} ريال</div>
             </div>
         </div>
+    </div>
+
+    <div class="card" data-testid="profit-loss-monthly-summary">
+        <h2 style="margin-top:0;">الملخص الشهري</h2>
+
+        @if (count($monthlySummary) > 0)
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>الشهر</th>
+                        <th>إجمالي الإيرادات</th>
+                        <th>إجمالي المصروفات</th>
+                        <th>صافي الربح / الخسارة</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($monthlySummary as $month)
+                        <tr>
+                            <td>{{ $month['month'] }}</td>
+                            <td>{{ number_format((float) $month['revenues'], 2) }} ريال</td>
+                            <td>{{ number_format((float) $month['expenses'], 2) }} ريال</td>
+                            <td class="{{ $month['net_profit'] >= 0 ? 'green' : 'red' }}">
+                                {{ number_format((float) $month['net_profit'], 2) }} ريال
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <p class="muted">لا توجد بيانات شهرية ضمن الفلاتر الحالية.</p>
+        @endif
     </div>
 </div>
 </body>

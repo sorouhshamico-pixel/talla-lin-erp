@@ -77,7 +77,7 @@ class ProfitLossReportController extends Controller
 
     /**
      * @param array<string, mixed> $filters
-     * @return array<string, float>
+     * @return array<string, mixed>
      */
     private function summary(array $filters): array
     {
@@ -103,7 +103,65 @@ class ProfitLossReportController extends Controller
             'totalExpenseTax' => $totalExpenseTax,
             'netProfit' => $netProfit,
             'taxDifference' => $taxDifference,
+            'monthlySummary' => $this->monthlySummary($filters),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     * @return array<int, array{month: string, revenues: float, expenses: float, net_profit: float}>
+     */
+    private function monthlySummary(array $filters): array
+    {
+        $revenues = $this->monthlyTotals('revenues', 'revenue_date', $filters);
+        $expenses = $this->monthlyTotals('expenses', 'expense_date', $filters);
+
+        $months = collect(array_unique(array_merge(
+            array_keys($revenues),
+            array_keys($expenses)
+        )))
+            ->sort()
+            ->values();
+
+        return $months
+            ->map(function (string $month) use ($revenues, $expenses): array {
+                $monthRevenues = round((float) ($revenues[$month] ?? 0), 2);
+                $monthExpenses = round((float) ($expenses[$month] ?? 0), 2);
+
+                return [
+                    'month' => $month,
+                    'revenues' => $monthRevenues,
+                    'expenses' => $monthExpenses,
+                    'net_profit' => round($monthRevenues - $monthExpenses, 2),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     * @return array<string, float>
+     */
+    private function monthlyTotals(string $table, string $preferredDateColumn, array $filters): array
+    {
+        $dateColumn = $this->dateColumn($table, $preferredDateColumn);
+
+        if ($dateColumn === null) {
+            return [];
+        }
+
+        $query = DB::table($table)
+            ->selectRaw("substr({$dateColumn}, 1, 7) as report_month")
+            ->selectRaw('SUM(amount) as total_amount')
+            ->whereNotNull($dateColumn)
+            ->groupBy('report_month');
+
+        $this->applyFilters($query, $table, $filters, $preferredDateColumn);
+
+        return $query
+            ->pluck('total_amount', 'report_month')
+            ->map(fn ($amount): float => round((float) $amount, 2))
+            ->all();
     }
 
     /**
