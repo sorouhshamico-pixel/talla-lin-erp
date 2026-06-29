@@ -290,4 +290,150 @@ class SupplierController extends Controller
         ]);
     }
 
+    public function importCsv(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $availableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('suppliers');
+
+        $filePath = $request->file('csv_file')->getRealPath();
+        $handle = fopen($filePath, 'r');
+
+        if ($handle === false) {
+            abort(500, 'Unable to read CSV file.');
+        }
+
+        $headers = fgetcsv($handle);
+
+        if ($headers === false) {
+            fclose($handle);
+
+            return redirect()
+                ->route('suppliers.index')
+                ->with('success', 'لم يتم استيراد أي موردين. الملف فارغ.');
+        }
+
+        $headers = array_map(function ($header) {
+            $header = trim((string) $header);
+            $header = preg_replace('/^\xEF\xBB\xBF/', '', $header);
+
+            return $header;
+        }, $headers);
+
+        $contactColumn = in_array('contact_name', $availableColumns, true) ? 'contact_name' : 'contact_person';
+
+        $map = [
+            'اسم المورد' => 'name',
+            'name' => 'name',
+            'مسؤول التواصل' => $contactColumn,
+            'contact_name' => 'contact_name',
+            'contact_person' => 'contact_person',
+            'الهاتف' => 'phone',
+            'phone' => 'phone',
+            'البريد الإلكتروني' => 'email',
+            'email' => 'email',
+            'المدينة' => 'city',
+            'city' => 'city',
+            'الرقم الضريبي' => in_array('tax_number', $availableColumns, true) ? 'tax_number' : 'vat_number',
+            'tax_number' => 'tax_number',
+            'vat_number' => 'vat_number',
+            'السجل التجاري' => 'commercial_registration',
+            'commercial_registration' => 'commercial_registration',
+            'العنوان' => 'address',
+            'address' => 'address',
+            'ملاحظات' => 'notes',
+            'notes' => 'notes',
+            'الحالة' => 'is_active',
+            'is_active' => 'is_active',
+        ];
+
+        $imported = 0;
+        $updated = 0;
+        $skipped = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count(array_filter($row, fn ($value) => trim((string) $value) !== '')) === 0) {
+                continue;
+            }
+
+            $data = [];
+
+            foreach ($headers as $index => $header) {
+                if (! isset($map[$header])) {
+                    continue;
+                }
+
+                $column = $map[$header];
+
+                if (! in_array($column, $availableColumns, true)) {
+                    continue;
+                }
+
+                $data[$column] = isset($row[$index]) ? trim((string) $row[$index]) : null;
+            }
+
+            if (empty($data['name'])) {
+                $skipped++;
+                continue;
+            }
+
+            if (in_array('is_active', $availableColumns, true)) {
+                $value = $data['is_active'] ?? '1';
+                $data['is_active'] = in_array(mb_strtolower((string) $value), ['1', 'true', 'yes', 'active', 'نشط', 'فعال'], true);
+            }
+
+            if (in_array('company_id', $availableColumns, true)) {
+                $companyId = $request->user()?->company_id
+                    ?? \Illuminate\Support\Facades\DB::table('companies')->value('id');
+
+                if ($companyId) {
+                    $data['company_id'] = $companyId;
+                }
+            }
+
+            if (in_array('branch_id', $availableColumns, true)) {
+                $branchId = $request->user()?->branch_id;
+
+                if (! $branchId && \Illuminate\Support\Facades\Schema::hasTable('branches')) {
+                    $branchQuery = \Illuminate\Support\Facades\DB::table('branches');
+
+                    if (isset($data['company_id']) && in_array('company_id', \Illuminate\Support\Facades\Schema::getColumnListing('branches'), true)) {
+                        $branchQuery->where('company_id', $data['company_id']);
+                    }
+
+                    $branchId = $branchQuery->value('id');
+                }
+
+                if ($branchId) {
+                    $data['branch_id'] = $branchId;
+                }
+            }
+
+            $lookup = null;
+
+            if (! empty($data['phone'])) {
+                $lookup = Supplier::query()
+                    ->when(isset($data['company_id']), fn ($query) => $query->where('company_id', $data['company_id']))
+                    ->where('phone', $data['phone'])
+                    ->first();
+            }
+
+            if ($lookup) {
+                $lookup->forceFill($data)->save();
+                $updated++;
+            } else {
+                Supplier::unguarded(fn () => Supplier::query()->create($data));
+                $imported++;
+            }
+        }
+
+        fclose($handle);
+
+        return redirect()
+            ->route('suppliers.index')
+            ->with('success', "تم استيراد الموردين. جديد: {$imported}، محدث: {$updated}، متخطى: {$skipped}.");
+    }
+
 }

@@ -79,7 +79,17 @@
                 <a href="{{ route('customers.export', request()->only(['q', 'is_active'])) }}" class="btn secondary" data-testid="customers-export-link">تصدير العملاء CSV</a>
                 <a href="{{ route('customers.create') }}" class="btn secondary" data-testid="customers-create-link">إضافة عميل</a>
             </div>
-        </form>
+        
+            <div>
+                <form method="POST" action="{{ route('customers.import') }}" enctype="multipart/form-data" data-testid="customers-import-form">
+                    @csrf
+                    <label for="customers_csv_file">استيراد عملاء من CSV</label>
+                    <input id="customers_csv_file" type="file" name="csv_file" accept=".csv,text/csv" required>
+                    <button type="submit" class="btn secondary" data-testid="customers-import-submit">استيراد CSV</button>
+                    <div class="muted">استخدم قالب العملاء CSV ثم ارفع الملف هنا.</div>
+                </form>
+            </div>
+</form>
     </div>
 
     <div class="card">

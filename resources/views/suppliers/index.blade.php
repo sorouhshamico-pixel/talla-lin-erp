@@ -79,7 +79,17 @@
                 <a href="{{ route('suppliers.export', request()->only(['q', 'is_active'])) }}" class="btn secondary" data-testid="suppliers-export-link">تصدير الموردين CSV</a>
                 <a href="{{ route('suppliers.create') }}" class="btn secondary" data-testid="suppliers-create-link">إضافة مورد</a>
             </div>
-        </form>
+        
+            <div>
+                <form method="POST" action="{{ route('suppliers.import') }}" enctype="multipart/form-data" data-testid="suppliers-import-form">
+                    @csrf
+                    <label for="suppliers_csv_file">استيراد موردين من CSV</label>
+                    <input id="suppliers_csv_file" type="file" name="csv_file" accept=".csv,text/csv" required>
+                    <button type="submit" class="btn secondary" data-testid="suppliers-import-submit">استيراد CSV</button>
+                    <div class="muted">استخدم قالب الموردين CSV ثم ارفع الملف هنا.</div>
+                </form>
+            </div>
+</form>
     </div>
 
     <div class="card">
