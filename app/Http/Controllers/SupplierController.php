@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyContactLog;
+
 use App\Models\PartyAttachment;
 
 use App\Models\PartyNote;
@@ -546,5 +548,42 @@ class SupplierController extends Controller
         return redirect()
             ->route('suppliers.show', $supplier)
             ->with('success', 'تم حذف مرفق المورد بنجاح.');
+    }
+
+    public function storeContactLog(\Illuminate\Http\Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'contact_type' => ['required', 'string', 'in:call,whatsapp,email,meeting,other'],
+            'summary' => ['required', 'string', 'max:2000'],
+            'contacted_at' => ['nullable', 'date'],
+            'follow_up_at' => ['nullable', 'date'],
+        ]);
+
+        PartyContactLog::unguarded(function () use ($request, $supplier, $validated) {
+            PartyContactLog::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'supplier_id' => $supplier->id,
+                'contact_type' => $validated['contact_type'],
+                'summary' => $validated['summary'],
+                'contacted_at' => $validated['contacted_at'] ?? now()->toDateString(),
+                'follow_up_at' => $validated['follow_up_at'] ?? null,
+            ]);
+        });
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تمت إضافة سجل تواصل المورد بنجاح.');
+    }
+
+    public function destroyContactLog(Supplier $supplier, PartyContactLog $contactLog)
+    {
+        abort_unless((int) $contactLog->supplier_id === (int) $supplier->id, 404);
+
+        $contactLog->delete();
+
+        return redirect()
+            ->route('suppliers.show', $supplier)
+            ->with('success', 'تم حذف سجل تواصل المورد بنجاح.');
     }
 }

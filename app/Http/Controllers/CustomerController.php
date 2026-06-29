@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartyContactLog;
+
 use App\Models\PartyAttachment;
 
 use App\Models\PartyNote;
@@ -543,5 +545,42 @@ class CustomerController extends Controller
         return redirect()
             ->route('customers.show', $customer)
             ->with('success', 'تم حذف مرفق العميل بنجاح.');
+    }
+
+    public function storeContactLog(\Illuminate\Http\Request $request, Customer $customer)
+    {
+        $validated = $request->validate([
+            'contact_type' => ['required', 'string', 'in:call,whatsapp,email,meeting,other'],
+            'summary' => ['required', 'string', 'max:2000'],
+            'contacted_at' => ['nullable', 'date'],
+            'follow_up_at' => ['nullable', 'date'],
+        ]);
+
+        PartyContactLog::unguarded(function () use ($request, $customer, $validated) {
+            PartyContactLog::query()->create([
+                'company_id' => $request->user()?->company_id,
+                'user_id' => $request->user()?->id,
+                'customer_id' => $customer->id,
+                'contact_type' => $validated['contact_type'],
+                'summary' => $validated['summary'],
+                'contacted_at' => $validated['contacted_at'] ?? now()->toDateString(),
+                'follow_up_at' => $validated['follow_up_at'] ?? null,
+            ]);
+        });
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تمت إضافة سجل تواصل العميل بنجاح.');
+    }
+
+    public function destroyContactLog(Customer $customer, PartyContactLog $contactLog)
+    {
+        abort_unless((int) $contactLog->customer_id === (int) $customer->id, 404);
+
+        $contactLog->delete();
+
+        return redirect()
+            ->route('customers.show', $customer)
+            ->with('success', 'تم حذف سجل تواصل العميل بنجاح.');
     }
 }

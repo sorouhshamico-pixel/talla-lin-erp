@@ -41,6 +41,12 @@
         .attachment-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
         .attachment-meta { color: #6b7280; font-size: 12px; margin-top: 6px; }
 
+
+        select, input[type="date"] { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; box-sizing: border-box; background: #fff; }
+        .contact-log-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
+        .contact-log-meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
+        .contact-log-summary { white-space: pre-wrap; font-weight: 700; }
+
 </style>
 </head>
 <body>
@@ -244,6 +250,89 @@
                 </div>
             @empty
                 <div class="muted" data-testid="suppliers-attachments-empty">لا توجد مرفقات بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
+
+    <div class="card" data-testid="suppliers-contact-logs-card">
+        <h2>سجل تواصل المورد</h2>
+        <div class="muted">سجّل آخر تواصل وما يلزم متابعته لاحقًا.</div>
+
+        <form method="POST" action="{{ route('suppliers.contact-logs.store', $supplier) }}" data-testid="suppliers-contact-log-form" style="margin-top: 16px;">
+            @csrf
+
+            <div class="grid">
+                <div class="field">
+                    <label for="suppliers_contact_type">نوع التواصل</label>
+                    <select id="suppliers_contact_type" name="contact_type" required>
+                        <option value="call">اتصال</option>
+                        <option value="whatsapp">واتساب</option>
+                        <option value="email">إيميل</option>
+                        <option value="meeting">اجتماع</option>
+                        <option value="other">أخرى</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="suppliers_contacted_at">تاريخ التواصل</label>
+                    <input id="suppliers_contacted_at" type="date" name="contacted_at" value="{{ old('contacted_at', now()->toDateString()) }}">
+                </div>
+
+                <div class="field">
+                    <label for="suppliers_follow_up_at">تاريخ المتابعة</label>
+                    <input id="suppliers_follow_up_at" type="date" name="follow_up_at" value="{{ old('follow_up_at') }}">
+                </div>
+            </div>
+
+            <label for="suppliers_contact_summary" style="margin-top: 14px;">ملخص التواصل</label>
+            <textarea id="suppliers_contact_summary" name="summary" required placeholder="اكتب ملخص التواصل هنا...">{{ old('summary') }}</textarea>
+
+            @error('summary')
+                <div class="muted">{{ $message }}</div>
+            @enderror
+
+            <div class="actions">
+                <button type="submit" class="btn" data-testid="suppliers-contact-log-submit">إضافة سجل تواصل</button>
+            </div>
+        </form>
+
+        @php
+            $contactLogs = \App\Models\PartyContactLog::query()
+                ->where('supplier_id', $supplier->id)
+                ->latest('contacted_at')
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            $contactTypeLabels = [
+                'call' => 'اتصال',
+                'whatsapp' => 'واتساب',
+                'email' => 'إيميل',
+                'meeting' => 'اجتماع',
+                'other' => 'أخرى',
+            ];
+        @endphp
+
+        <div style="margin-top: 18px;" data-testid="suppliers-contact-logs-list">
+            @forelse($contactLogs as $contactLog)
+                <div class="contact-log-item" data-testid="suppliers-contact-log-{{ $contactLog->id }}">
+                    <div class="contact-log-meta">
+                        النوع: {{ $contactTypeLabels[$contactLog->contact_type] ?? $contactLog->contact_type }}
+                        — تاريخ التواصل: {{ $contactLog->contacted_at?->format('Y-m-d') ?: '-' }}
+                        — المتابعة: {{ $contactLog->follow_up_at?->format('Y-m-d') ?: '-' }}
+                    </div>
+
+                    <div class="contact-log-summary">{{ $contactLog->summary }}</div>
+
+                    <form method="POST" action="{{ route('suppliers.contact-logs.destroy', [$supplier, $contactLog]) }}" style="margin-top: 10px;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn small secondary" data-testid="suppliers-contact-log-delete-{{ $contactLog->id }}">حذف سجل التواصل</button>
+                    </form>
+                </div>
+            @empty
+                <div class="muted" data-testid="suppliers-contact-logs-empty">لا توجد سجلات تواصل بعد.</div>
             @endforelse
         </div>
     </div>
