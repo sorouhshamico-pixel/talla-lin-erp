@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PartyContactLog;
+use Illuminate\Http\Request;
+
+class PartyFollowUpController extends Controller
+{
+    public function index(Request $request)
+    {
+        $status = $request->query('status', 'due');
+        $search = trim((string) $request->query('q', ''));
+
+        if (! in_array($status, ['due', 'upcoming', 'all'], true)) {
+            $status = 'due';
+        }
+
+        $query = PartyContactLog::query()
+            ->with(['customer', 'supplier'])
+            ->whereNotNull('follow_up_at');
+
+        if ($status === 'due') {
+            $query->whereDate('follow_up_at', '<=', now()->toDateString());
+        }
+
+        if ($status === 'upcoming') {
+            $query->whereDate('follow_up_at', '>', now()->toDateString());
+        }
+
+        if ($search !== '') {
+            $query->where(function ($inner) use ($search) {
+                $inner
+                    ->where('summary', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                        $customerQuery->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('supplier', function ($supplierQuery) use ($search) {
+                        $supplierQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $followUps = $query
+            ->orderBy('follow_up_at')
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        $dueCount = PartyContactLog::query()
+            ->whereNotNull('follow_up_at')
+            ->whereDate('follow_up_at', '<=', now()->toDateString())
+            ->count();
+
+        $upcomingCount = PartyContactLog::query()
+            ->whereNotNull('follow_up_at')
+            ->whereDate('follow_up_at', '>', now()->toDateString())
+            ->count();
+
+        $allCount = PartyContactLog::query()
+            ->whereNotNull('follow_up_at')
+            ->count();
+
+        return view('party-follow-ups.index', [
+            'followUps' => $followUps,
+            'status' => $status,
+            'search' => $search,
+            'dueCount' => $dueCount,
+            'upcomingCount' => $upcomingCount,
+            'allCount' => $allCount,
+        ]);
+    }
+}

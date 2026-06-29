@@ -15,6 +15,7 @@ use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PartyFollowUpController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/movements/create', [InventoryController::class, 'createMovement'])->name('inventory.movements.create');
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
+    Route::get('/party-follow-ups', [PartyFollowUpController::class, 'index'])->name('party-follow-ups.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/exports/customers', [CustomerController::class, 'exportCsv'])->name('customers.export');
 

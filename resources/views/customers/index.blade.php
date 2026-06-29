@@ -76,6 +76,7 @@
 
             <div>
                 <a href="{{ route('customers.export-template') }}" class="btn secondary" data-testid="customers-export-template-link">تحميل قالب العملاء CSV</a>
+                <a href="{{ route('party-follow-ups.index') }}" class="btn secondary" data-testid="party-follow-ups-link">مركز المتابعات</a>
                 <a href="{{ route('customers.export', request()->only(['q', 'is_active'])) }}" class="btn secondary" data-testid="customers-export-link">تصدير العملاء CSV</a>
                 <a href="{{ route('customers.create') }}" class="btn secondary" data-testid="customers-create-link">إضافة عميل</a>
             </div>
