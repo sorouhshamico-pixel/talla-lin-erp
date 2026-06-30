@@ -180,5 +180,14 @@
         </div>
     </div>
 
+
+    <div class="card" data-testid="customers-dashboard-card">
+        <h2>لوحة العملاء والموردين</h2>
+        <div class="muted">استعرض مؤشرات العملاء والموردين والمتابعات والتصنيفات والتكرارات من لوحة واحدة.</div>
+        <div class="actions">
+            <a href="{{ route('party-dashboard.index') }}" class="btn secondary" data-testid="customers-dashboard-link">فتح لوحة العملاء والموردين</a>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -24,6 +24,7 @@ use App\Http\Controllers\PartyTagController;
 use App\Http\Controllers\PartyClassificationController;
 use App\Http\Controllers\PartyDuplicateController;
 use App\Http\Controllers\PartyPermissionController;
+use App\Http\Controllers\PartyDashboardController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/movements/create', [InventoryController::class, 'createMovement'])->name('inventory.movements.create');
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
+
+    Route::get('/party-dashboard', [PartyDashboardController::class, 'index'])->name('party-dashboard.index')->middleware(EnsurePartyPermission::class . ':view_parties');
 
     Route::get('/party-permissions', [PartyPermissionController::class, 'index'])->name('party-permissions.index')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
