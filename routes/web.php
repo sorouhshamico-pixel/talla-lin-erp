@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
     Route::get('/party-follow-ups', [PartyFollowUpController::class, 'index'])->name('party-follow-ups.index');
+    Route::post('/party-follow-ups/{contactLog}/complete', [PartyFollowUpController::class, 'complete'])->name('party-follow-ups.complete');
+    Route::post('/party-follow-ups/{contactLog}/reschedule', [PartyFollowUpController::class, 'reschedule'])->name('party-follow-ups.reschedule');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/exports/customers', [CustomerController::class, 'exportCsv'])->name('customers.export');
 

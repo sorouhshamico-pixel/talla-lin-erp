@@ -16,11 +16,14 @@ class PartyContactLog extends Model
         'summary',
         'contacted_at',
         'follow_up_at',
+        'follow_up_completed_at',
+        'follow_up_result',
     ];
 
     protected $casts = [
         'contacted_at' => 'date',
         'follow_up_at' => 'date',
+        'follow_up_completed_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo
