@@ -12,6 +12,7 @@ class Supplier extends Model
     use HasFactory;
 
     protected $fillable = [
+        'party_tag_id',
         'company_id',
         'name',
         'phone',
@@ -35,4 +36,10 @@ class Supplier extends Model
     {
         return $this->hasMany(PurchaseInvoice::class);
     }
+
+    public function partyTag()
+    {
+        return $this->belongsTo(PartyTag::class);
+    }
+
 }

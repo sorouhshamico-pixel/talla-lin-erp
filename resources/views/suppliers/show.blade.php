@@ -395,5 +395,39 @@
         </div>
     </div>
 
+
+    @php
+        $supplierPartyTags = \App\Models\PartyTag::query()
+            ->active()
+            ->forSuppliers()
+            ->orderBy('name')
+            ->get();
+    @endphp
+
+    <div class="card" data-testid="suppliers-classification-card">
+        <h2>تصنيف المورد</h2>
+        <div class="muted">التصنيف الحالي:
+            <strong data-testid="suppliers-current-classification">
+                {{ $supplier->partyTag?->name ?: 'بدون تصنيف' }}
+            </strong>
+        </div>
+
+        <form method="POST" action="{{ route('suppliers.classification.update', $supplier) }}" class="actions" data-testid="suppliers-classification-form">
+            @csrf
+
+            <select name="party_tag_id" data-testid="suppliers-classification-select">
+                <option value="">بدون تصنيف</option>
+                @foreach($supplierPartyTags as $partyTag)
+                    <option value="{{ $partyTag->id }}" @selected($supplier->party_tag_id === $partyTag->id)>
+                        {{ $partyTag->name }}
+                    </option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="btn" data-testid="suppliers-classification-submit">تحديث التصنيف</button>
+            <a href="{{ route('party-tags.index') }}" class="btn secondary" data-testid="suppliers-party-tags-link">إدارة التصنيفات</a>
+        </form>
+    </div>
+
 </body>
 </html>

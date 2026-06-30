@@ -18,6 +18,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PartyFollowUpController;
 use App\Http\Controllers\PartyTimelineController;
 use App\Http\Controllers\PartyStatementController;
+use App\Http\Controllers\PartyTagController;
+use App\Http\Controllers\PartyClassificationController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +43,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/movements/create', [InventoryController::class, 'createMovement'])->name('inventory.movements.create');
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
+
+
+    Route::get('/party-tags', [PartyTagController::class, 'index'])->name('party-tags.index');
+    Route::post('/party-tags', [PartyTagController::class, 'store'])->name('party-tags.store');
+    Route::get('/party-tags/{partyTag}', [PartyTagController::class, 'show'])->name('party-tags.show');
+    Route::post('/party-tags/{partyTag}/toggle-active', [PartyTagController::class, 'toggleActive'])->name('party-tags.toggle-active');
+    Route::delete('/party-tags/{partyTag}', [PartyTagController::class, 'destroy'])->name('party-tags.destroy');
+
+    Route::post('/customers/{customer}/classification', [PartyClassificationController::class, 'customer'])->name('customers.classification.update');
+    Route::post('/suppliers/{supplier}/classification', [PartyClassificationController::class, 'supplier'])->name('suppliers.classification.update');
 
     Route::get('/party-follow-ups', [PartyFollowUpController::class, 'index'])->name('party-follow-ups.index');
     Route::post('/party-follow-ups/{contactLog}/complete', [PartyFollowUpController::class, 'complete'])->name('party-follow-ups.complete');
