@@ -162,5 +162,14 @@
         </form>
     </div>
 </div>
+
+    <div class="card" data-testid="suppliers-duplicates-center-card">
+        <h2>مركز كشف التكرارات</h2>
+        <div class="muted">افحص السجلات المتكررة حسب الهاتف أو البريد الإلكتروني.</div>
+        <div class="actions">
+            <a href="{{ route('party-duplicates.index') }}" class="btn secondary" data-testid="suppliers-duplicates-center-link">فتح مركز التكرارات</a>
+        </div>
+    </div>
+
 </body>
 </html>

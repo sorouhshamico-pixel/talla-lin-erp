@@ -429,5 +429,36 @@
         </form>
     </div>
 
+
+    @php
+        $supplierDuplicateGroups = app(\App\Services\PartyDuplicateService::class)->supplierDuplicates($supplier);
+        $supplierDuplicateCount = collect($supplierDuplicateGroups)->sum(fn ($items) => $items->count());
+    @endphp
+
+    <div class="card" data-testid="suppliers-duplicate-warning-card">
+        <h2>فحص تكرار المورد</h2>
+
+        @if($supplierDuplicateCount > 0)
+            <div class="muted" data-testid="suppliers-duplicate-warning-message">
+                يوجد { $supplierDuplicateCount } سجل محتمل التكرار مع هذا السجل حسب الهاتف أو البريد الإلكتروني.
+            </div>
+
+            @foreach($supplierDuplicateGroups as $duplicateField => $duplicateItems)
+                @foreach($duplicateItems as $duplicateItem)
+                    <div class="field" style="margin-top: 10px;" data-testid="suppliers-duplicate-item-{{ $duplicateField }}-{{ $duplicateItem['record']->id }}">
+                        <div class="muted">{{ $duplicateItem['field_label'] }}: {{ $duplicateItem['display_value'] }}</div>
+                        <strong>{{ $duplicateItem['record']->name }}</strong>
+                    </div>
+                @endforeach
+            @endforeach
+        @else
+            <div class="muted" data-testid="suppliers-duplicate-clean-message">لا توجد تكرارات واضحة لهذا السجل.</div>
+        @endif
+
+        <div class="actions">
+            <a href="{{ route('party-duplicates.index') }}" class="btn secondary" data-testid="suppliers-duplicates-center-link">فتح مركز التكرارات</a>
+        </div>
+    </div>
+
 </body>
 </html>

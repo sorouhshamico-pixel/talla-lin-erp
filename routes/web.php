@@ -20,6 +20,7 @@ use App\Http\Controllers\PartyTimelineController;
 use App\Http\Controllers\PartyStatementController;
 use App\Http\Controllers\PartyTagController;
 use App\Http\Controllers\PartyClassificationController;
+use App\Http\Controllers\PartyDuplicateController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/movements/create', [InventoryController::class, 'createMovement'])->name('inventory.movements.create');
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
+
+    Route::get('/party-duplicates', [PartyDuplicateController::class, 'index'])->name('party-duplicates.index');
 
     Route::get('/party-tags', [PartyTagController::class, 'index'])->name('party-tags.index');
     Route::post('/party-tags', [PartyTagController::class, 'store'])->name('party-tags.store');
