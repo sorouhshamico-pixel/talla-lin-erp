@@ -347,5 +347,43 @@
         </div>
     </div>
 
+
+    @php
+        $supplierFinancialSummary = app(\App\Services\PartyFinancialSummaryService::class)->supplierSummary($supplier->id);
+    @endphp
+
+    <div class="card" data-testid="suppliers-financial-summary-card">
+        <h2>الملخص المالي للمورد</h2>
+        <div class="muted">ملخص مالي محسوب من المصروفات المرتبطة بهذا المورد عند توفر البيانات.</div>
+
+        <div class="grid" style="margin-top: 16px;">
+            <div class="field" data-testid="suppliers-financial-total-card">
+                <div class="muted">{{ $supplierFinancialSummary['total_label'] }}</div>
+                <strong data-testid="suppliers-financial-total">{{ number_format($supplierFinancialSummary['total'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="suppliers-financial-paid-card">
+                <div class="muted">{{ $supplierFinancialSummary['paid_label'] }}</div>
+                <strong data-testid="suppliers-financial-paid">{{ number_format($supplierFinancialSummary['paid'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="suppliers-financial-pending-card">
+                <div class="muted">{{ $supplierFinancialSummary['pending_label'] }}</div>
+                <strong data-testid="suppliers-financial-pending">{{ number_format($supplierFinancialSummary['pending'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="suppliers-financial-count-card">
+                <div class="muted">عدد الحركات</div>
+                <strong data-testid="suppliers-financial-count">{{ $supplierFinancialSummary['count'] }}</strong>
+            </div>
+        </div>
+
+        @unless($supplierFinancialSummary['has_data_source'])
+            <div class="muted" style="margin-top: 12px;" data-testid="suppliers-financial-no-source">
+                لم يتم العثور على مصدر مالي مباشر مرتبط بالموردين حتى الآن.
+            </div>
+        @endunless
+    </div>
+
 </body>
 </html>

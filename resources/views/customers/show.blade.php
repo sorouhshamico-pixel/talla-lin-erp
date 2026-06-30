@@ -347,5 +347,43 @@
         </div>
     </div>
 
+
+    @php
+        $customerFinancialSummary = app(\App\Services\PartyFinancialSummaryService::class)->customerSummary($customer->id);
+    @endphp
+
+    <div class="card" data-testid="customers-financial-summary-card">
+        <h2>الملخص المالي للعميل</h2>
+        <div class="muted">ملخص مالي محسوب من الإيرادات المرتبطة بهذا العميل عند توفر البيانات.</div>
+
+        <div class="grid" style="margin-top: 16px;">
+            <div class="field" data-testid="customers-financial-total-card">
+                <div class="muted">{{ $customerFinancialSummary['total_label'] }}</div>
+                <strong data-testid="customers-financial-total">{{ number_format($customerFinancialSummary['total'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="customers-financial-paid-card">
+                <div class="muted">{{ $customerFinancialSummary['paid_label'] }}</div>
+                <strong data-testid="customers-financial-paid">{{ number_format($customerFinancialSummary['paid'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="customers-financial-pending-card">
+                <div class="muted">{{ $customerFinancialSummary['pending_label'] }}</div>
+                <strong data-testid="customers-financial-pending">{{ number_format($customerFinancialSummary['pending'], 2) }}</strong>
+            </div>
+
+            <div class="field" data-testid="customers-financial-count-card">
+                <div class="muted">عدد الحركات</div>
+                <strong data-testid="customers-financial-count">{{ $customerFinancialSummary['count'] }}</strong>
+            </div>
+        </div>
+
+        @unless($customerFinancialSummary['has_data_source'])
+            <div class="muted" style="margin-top: 12px;" data-testid="customers-financial-no-source">
+                لم يتم العثور على مصدر مالي مباشر مرتبط بالعملاء حتى الآن.
+            </div>
+        @endunless
+    </div>
+
 </body>
 </html>
