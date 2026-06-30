@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsurePartyPermission;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
@@ -21,6 +23,7 @@ use App\Http\Controllers\PartyStatementController;
 use App\Http\Controllers\PartyTagController;
 use App\Http\Controllers\PartyClassificationController;
 use App\Http\Controllers\PartyDuplicateController;
+use App\Http\Controllers\PartyPermissionController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,43 +49,45 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
 
 
-    Route::get('/party-duplicates', [PartyDuplicateController::class, 'index'])->name('party-duplicates.index');
+    Route::get('/party-permissions', [PartyPermissionController::class, 'index'])->name('party-permissions.index')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
-    Route::get('/party-tags', [PartyTagController::class, 'index'])->name('party-tags.index');
-    Route::post('/party-tags', [PartyTagController::class, 'store'])->name('party-tags.store');
-    Route::get('/party-tags/{partyTag}', [PartyTagController::class, 'show'])->name('party-tags.show');
-    Route::post('/party-tags/{partyTag}/toggle-active', [PartyTagController::class, 'toggleActive'])->name('party-tags.toggle-active');
-    Route::delete('/party-tags/{partyTag}', [PartyTagController::class, 'destroy'])->name('party-tags.destroy');
+    Route::get('/party-duplicates', [PartyDuplicateController::class, 'index'])->name('party-duplicates.index')->middleware(EnsurePartyPermission::class . ':view_parties');
 
-    Route::post('/customers/{customer}/classification', [PartyClassificationController::class, 'customer'])->name('customers.classification.update');
-    Route::post('/suppliers/{supplier}/classification', [PartyClassificationController::class, 'supplier'])->name('suppliers.classification.update');
+    Route::get('/party-tags', [PartyTagController::class, 'index'])->name('party-tags.index')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
+    Route::post('/party-tags', [PartyTagController::class, 'store'])->name('party-tags.store')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
+    Route::get('/party-tags/{partyTag}', [PartyTagController::class, 'show'])->name('party-tags.show')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
+    Route::post('/party-tags/{partyTag}/toggle-active', [PartyTagController::class, 'toggleActive'])->name('party-tags.toggle-active')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
+    Route::delete('/party-tags/{partyTag}', [PartyTagController::class, 'destroy'])->name('party-tags.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
 
-    Route::get('/party-follow-ups', [PartyFollowUpController::class, 'index'])->name('party-follow-ups.index');
-    Route::post('/party-follow-ups/{contactLog}/complete', [PartyFollowUpController::class, 'complete'])->name('party-follow-ups.complete');
-    Route::post('/party-follow-ups/{contactLog}/reschedule', [PartyFollowUpController::class, 'reschedule'])->name('party-follow-ups.reschedule');
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/exports/customers', [CustomerController::class, 'exportCsv'])->name('customers.export');
+    Route::post('/customers/{customer}/classification', [PartyClassificationController::class, 'customer'])->name('customers.classification.update')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
+    Route::post('/suppliers/{supplier}/classification', [PartyClassificationController::class, 'supplier'])->name('suppliers.classification.update')->middleware(EnsurePartyPermission::class . ':manage_party_classifications');
 
-    Route::get('/exports/customers/template', [CustomerController::class, 'exportTemplateCsv'])->name('customers.export-template');
-    Route::post('/imports/customers', [CustomerController::class, 'importCsv'])->name('customers.import');
+    Route::get('/party-follow-ups', [PartyFollowUpController::class, 'index'])->name('party-follow-ups.index')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::post('/party-follow-ups/{contactLog}/complete', [PartyFollowUpController::class, 'complete'])->name('party-follow-ups.complete')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::post('/party-follow-ups/{contactLog}/reschedule', [PartyFollowUpController::class, 'reschedule'])->name('party-follow-ups.reschedule')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::get('/exports/customers', [CustomerController::class, 'exportCsv'])->name('customers.export')->middleware(EnsurePartyPermission::class . ':export_parties');
+
+    Route::get('/exports/customers/template', [CustomerController::class, 'exportTemplateCsv'])->name('customers.export-template')->middleware(EnsurePartyPermission::class . ':export_parties');
+    Route::post('/imports/customers', [CustomerController::class, 'importCsv'])->name('customers.import')->middleware(EnsurePartyPermission::class . ':manage_parties');
     Route::patch('/bulk/customers/status', [CustomerController::class, 'bulkUpdateStatus'])->name('customers.bulk-status');
-    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
-    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    Route::get('/customers/{customer}/statement', [PartyStatementController::class, 'customer'])->name('customers.statement');
-    Route::get('/customers/{customer}/statement/export', [PartyStatementController::class, 'customerCsv'])->name('customers.statement.export');
-    Route::get('/customers/{customer}/activity-timeline', [PartyTimelineController::class, 'customer'])->name('customers.activity-timeline.index');
-    Route::post('/customers/{customer}/contact-logs', [CustomerController::class, 'storeContactLog'])->name('customers.contact-logs.store');
-    Route::delete('/customers/{customer}/contact-logs/{contactLog}', [CustomerController::class, 'destroyContactLog'])->name('customers.contact-logs.destroy');
-    Route::post('/customers/{customer}/attachments', [CustomerController::class, 'storeAttachment'])->name('customers.attachments.store');
-    Route::get('/customers/{customer}/attachments/{attachment}/download', [CustomerController::class, 'downloadAttachment'])->name('customers.attachments.download');
-    Route::delete('/customers/{customer}/attachments/{attachment}', [CustomerController::class, 'destroyAttachment'])->name('customers.attachments.destroy');
-    Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote'])->name('customers.notes.store');
-    Route::delete('/customers/{customer}/notes/{note}', [CustomerController::class, 'destroyNote'])->name('customers.notes.destroy');
-Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create')->middleware(EnsurePartyPermission::class . ':manage_parties');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store')->middleware(EnsurePartyPermission::class . ':manage_parties');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::get('/customers/{customer}/statement', [PartyStatementController::class, 'customer'])->name('customers.statement')->middleware(EnsurePartyPermission::class . ':view_party_financials');
+    Route::get('/customers/{customer}/statement/export', [PartyStatementController::class, 'customerCsv'])->name('customers.statement.export')->middleware(EnsurePartyPermission::class . ':export_parties');
+    Route::get('/customers/{customer}/activity-timeline', [PartyTimelineController::class, 'customer'])->name('customers.activity-timeline.index')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::post('/customers/{customer}/contact-logs', [CustomerController::class, 'storeContactLog'])->name('customers.contact-logs.store')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::delete('/customers/{customer}/contact-logs/{contactLog}', [CustomerController::class, 'destroyContactLog'])->name('customers.contact-logs.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::post('/customers/{customer}/attachments', [CustomerController::class, 'storeAttachment'])->name('customers.attachments.store')->middleware(EnsurePartyPermission::class . ':manage_party_attachments');
+    Route::get('/customers/{customer}/attachments/{attachment}/download', [CustomerController::class, 'downloadAttachment'])->name('customers.attachments.download')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::delete('/customers/{customer}/attachments/{attachment}', [CustomerController::class, 'destroyAttachment'])->name('customers.attachments.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_attachments');
+    Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote'])->name('customers.notes.store')->middleware(EnsurePartyPermission::class . ':manage_party_notes');
+    Route::delete('/customers/{customer}/notes/{note}', [CustomerController::class, 'destroyNote'])->name('customers.notes.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_notes');
+Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit')->middleware(EnsurePartyPermission::class . ':manage_parties');
+    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
-    Route::patch('/customers/{customer}/toggle-active', [CustomerController::class, 'toggleActive'])->name('customers.toggle-active');
+    Route::patch('/customers/{customer}/toggle-active', [CustomerController::class, 'toggleActive'])->name('customers.toggle-active')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
     Route::get('/sales-invoices', [SalesInvoiceController::class, 'index'])->name('sales-invoices.index');
     Route::get('/sales-invoices/create', [SalesInvoiceController::class, 'create'])->name('sales-invoices.create');
@@ -92,29 +97,29 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/sales-invoices/{salesInvoice}/payments', [SalesInvoiceController::class, 'storePayment'])->name('sales-invoices.payments.store');
     Route::get('/sales-invoices/{salesInvoice}', [SalesInvoiceController::class, 'show'])->name('sales-invoices.show');
 
-    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
-    Route::get('/exports/suppliers', [SupplierController::class, 'exportCsv'])->name('suppliers.export');
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::get('/exports/suppliers', [SupplierController::class, 'exportCsv'])->name('suppliers.export')->middleware(EnsurePartyPermission::class . ':export_parties');
 
-    Route::get('/exports/suppliers/template', [SupplierController::class, 'exportTemplateCsv'])->name('suppliers.export-template');
-    Route::post('/imports/suppliers', [SupplierController::class, 'importCsv'])->name('suppliers.import');
+    Route::get('/exports/suppliers/template', [SupplierController::class, 'exportTemplateCsv'])->name('suppliers.export-template')->middleware(EnsurePartyPermission::class . ':export_parties');
+    Route::post('/imports/suppliers', [SupplierController::class, 'importCsv'])->name('suppliers.import')->middleware(EnsurePartyPermission::class . ':manage_parties');
     Route::patch('/bulk/suppliers/status', [SupplierController::class, 'bulkUpdateStatus'])->name('suppliers.bulk-status');
-    Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
-    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create')->middleware(EnsurePartyPermission::class . ':manage_parties');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
-    Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
-    Route::get('/suppliers/{supplier}/statement', [PartyStatementController::class, 'supplier'])->name('suppliers.statement');
-    Route::get('/suppliers/{supplier}/statement/export', [PartyStatementController::class, 'supplierCsv'])->name('suppliers.statement.export');
-    Route::get('/suppliers/{supplier}/activity-timeline', [PartyTimelineController::class, 'supplier'])->name('suppliers.activity-timeline.index');
-    Route::post('/suppliers/{supplier}/contact-logs', [SupplierController::class, 'storeContactLog'])->name('suppliers.contact-logs.store');
-    Route::delete('/suppliers/{supplier}/contact-logs/{contactLog}', [SupplierController::class, 'destroyContactLog'])->name('suppliers.contact-logs.destroy');
-    Route::post('/suppliers/{supplier}/attachments', [SupplierController::class, 'storeAttachment'])->name('suppliers.attachments.store');
-    Route::get('/suppliers/{supplier}/attachments/{attachment}/download', [SupplierController::class, 'downloadAttachment'])->name('suppliers.attachments.download');
-    Route::delete('/suppliers/{supplier}/attachments/{attachment}', [SupplierController::class, 'destroyAttachment'])->name('suppliers.attachments.destroy');
-    Route::post('/suppliers/{supplier}/notes', [SupplierController::class, 'storeNote'])->name('suppliers.notes.store');
-    Route::delete('/suppliers/{supplier}/notes/{note}', [SupplierController::class, 'destroyNote'])->name('suppliers.notes.destroy');
-Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
-Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
-    Route::patch('/suppliers/{supplier}/toggle-active', [SupplierController::class, 'toggleActive'])->name('suppliers.toggle-active');
+    Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::get('/suppliers/{supplier}/statement', [PartyStatementController::class, 'supplier'])->name('suppliers.statement')->middleware(EnsurePartyPermission::class . ':view_party_financials');
+    Route::get('/suppliers/{supplier}/statement/export', [PartyStatementController::class, 'supplierCsv'])->name('suppliers.statement.export')->middleware(EnsurePartyPermission::class . ':export_parties');
+    Route::get('/suppliers/{supplier}/activity-timeline', [PartyTimelineController::class, 'supplier'])->name('suppliers.activity-timeline.index')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::post('/suppliers/{supplier}/contact-logs', [SupplierController::class, 'storeContactLog'])->name('suppliers.contact-logs.store')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::delete('/suppliers/{supplier}/contact-logs/{contactLog}', [SupplierController::class, 'destroyContactLog'])->name('suppliers.contact-logs.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_follow_ups');
+    Route::post('/suppliers/{supplier}/attachments', [SupplierController::class, 'storeAttachment'])->name('suppliers.attachments.store')->middleware(EnsurePartyPermission::class . ':manage_party_attachments');
+    Route::get('/suppliers/{supplier}/attachments/{attachment}/download', [SupplierController::class, 'downloadAttachment'])->name('suppliers.attachments.download')->middleware(EnsurePartyPermission::class . ':view_parties');
+    Route::delete('/suppliers/{supplier}/attachments/{attachment}', [SupplierController::class, 'destroyAttachment'])->name('suppliers.attachments.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_attachments');
+    Route::post('/suppliers/{supplier}/notes', [SupplierController::class, 'storeNote'])->name('suppliers.notes.store')->middleware(EnsurePartyPermission::class . ':manage_party_notes');
+    Route::delete('/suppliers/{supplier}/notes/{note}', [SupplierController::class, 'destroyNote'])->name('suppliers.notes.destroy')->middleware(EnsurePartyPermission::class . ':manage_party_notes');
+Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit')->middleware(EnsurePartyPermission::class . ':manage_parties');
+Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware(EnsurePartyPermission::class . ':manage_parties');
+    Route::patch('/suppliers/{supplier}/toggle-active', [SupplierController::class, 'toggleActive'])->name('suppliers.toggle-active')->middleware(EnsurePartyPermission::class . ':manage_parties');
 
 Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->name('purchase-invoices.index');
     Route::get('/purchase-invoices/create', [PurchaseInvoiceController::class, 'create'])->name('purchase-invoices.create');

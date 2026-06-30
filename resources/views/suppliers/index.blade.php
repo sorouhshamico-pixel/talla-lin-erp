@@ -171,5 +171,14 @@
         </div>
     </div>
 
+
+    <div class="card" data-testid="suppliers-permissions-card">
+        <h2>صلاحيات الوصول</h2>
+        <div class="muted">راجع صلاحيات الأدوار المتعلقة بالعملاء والموردين.</div>
+        <div class="actions">
+            <a href="{{ route('party-permissions.index') }}" class="btn secondary" data-testid="suppliers-permissions-link">عرض الصلاحيات</a>
+        </div>
+    </div>
+
 </body>
 </html>
