@@ -337,5 +337,15 @@
         </div>
     </div>
 
+
+    <div class="card" data-testid="customers-activity-timeline-entry-card">
+        <h2>خط نشاط العميل</h2>
+        <div class="muted">استعرض الملاحظات والمرفقات وسجلات التواصل في خط زمني واحد.</div>
+
+        <div class="actions">
+            <a href="{{ route('customers.activity-timeline.index', $customer) }}" class="btn secondary" data-testid="customers-activity-timeline-link">عرض خط النشاط</a>
+        </div>
+    </div>
+
 </body>
 </html>

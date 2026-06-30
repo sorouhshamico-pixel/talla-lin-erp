@@ -16,6 +16,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PartyFollowUpController;
+use App\Http\Controllers\PartyTimelineController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/customers/{customer}/activity-timeline', [PartyTimelineController::class, 'customer'])->name('customers.activity-timeline.index');
     Route::post('/customers/{customer}/contact-logs', [CustomerController::class, 'storeContactLog'])->name('customers.contact-logs.store');
     Route::delete('/customers/{customer}/contact-logs/{contactLog}', [CustomerController::class, 'destroyContactLog'])->name('customers.contact-logs.destroy');
     Route::post('/customers/{customer}/attachments', [CustomerController::class, 'storeAttachment'])->name('customers.attachments.store');
@@ -80,6 +82,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 
     Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
+    Route::get('/suppliers/{supplier}/activity-timeline', [PartyTimelineController::class, 'supplier'])->name('suppliers.activity-timeline.index');
     Route::post('/suppliers/{supplier}/contact-logs', [SupplierController::class, 'storeContactLog'])->name('suppliers.contact-logs.store');
     Route::delete('/suppliers/{supplier}/contact-logs/{contactLog}', [SupplierController::class, 'destroyContactLog'])->name('suppliers.contact-logs.destroy');
     Route::post('/suppliers/{supplier}/attachments', [SupplierController::class, 'storeAttachment'])->name('suppliers.attachments.store');
