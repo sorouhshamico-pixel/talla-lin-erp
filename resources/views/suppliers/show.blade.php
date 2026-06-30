@@ -385,5 +385,15 @@
         @endunless
     </div>
 
+
+    <div class="card" data-testid="suppliers-statement-entry-card">
+        <h2>كشف حساب المورد</h2>
+        <div class="muted">استعرض كشف الحساب والحركات المالية المرتبطة بهذا السجل.</div>
+
+        <div class="actions">
+            <a href="{{ route('suppliers.statement', $supplier) }}" class="btn secondary" data-testid="suppliers-statement-link">عرض كشف الحساب</a>
+        </div>
+    </div>
+
 </body>
 </html>

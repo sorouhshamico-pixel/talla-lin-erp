@@ -385,5 +385,15 @@
         @endunless
     </div>
 
+
+    <div class="card" data-testid="customers-statement-entry-card">
+        <h2>كشف حساب العميل</h2>
+        <div class="muted">استعرض كشف الحساب والحركات المالية المرتبطة بهذا السجل.</div>
+
+        <div class="actions">
+            <a href="{{ route('customers.statement', $customer) }}" class="btn secondary" data-testid="customers-statement-link">عرض كشف الحساب</a>
+        </div>
+    </div>
+
 </body>
 </html>
