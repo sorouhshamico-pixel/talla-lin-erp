@@ -68,6 +68,20 @@ class QuotationController extends Controller
             ->with('success', 'تم إنشاء عرض السعر بنجاح.');
     }
 
+
+    public function updateStatus(Request $request, Quotation $quotation)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:draft,sent,accepted,rejected,expired'],
+        ]);
+
+        $quotation->update([
+            'status' => $validated['status'],
+        ]);
+
+        return redirect()->route('quotations.show', $quotation);
+    }
+
     public function show(Quotation $quotation)
     {
         $quotation->load(['customer', 'creator', 'items']);
