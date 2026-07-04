@@ -108,6 +108,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::patch('/sales-orders/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales-orders.update-status');
     Route::post('/sales-orders/{salesOrder}/convert-to-delivery-note', [DeliveryNoteConversionController::class, 'store'])->name('sales-orders.convert-to-delivery-note');
     Route::get('/delivery-notes', [DeliveryNoteController::class, 'index'])->name('delivery-notes.index');
+    Route::patch('/delivery-notes/{deliveryNote}/status', [DeliveryNoteController::class, 'updateStatus'])->name('delivery-notes.update-status');
     Route::get('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'show'])->name('delivery-notes.show');
     Route::get('/sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
     Route::get('/sales-orders/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales-orders.show');
