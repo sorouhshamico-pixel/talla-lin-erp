@@ -18,6 +18,7 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\QuotationItemController;
 use App\Http\Controllers\SalesOrderConversionController;
 use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\DeliveryNoteConversionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
@@ -104,6 +105,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/quotations/{quotation}/convert-to-sales-order', [SalesOrderConversionController::class, 'store'])->name('quotations.convert-to-sales-order');
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales-orders.index');
     Route::patch('/sales-orders/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales-orders.update-status');
+    Route::post('/sales-orders/{salesOrder}/convert-to-delivery-note', [DeliveryNoteConversionController::class, 'store'])->name('sales-orders.convert-to-delivery-note');
     Route::get('/sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
     Route::get('/sales-orders/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales-orders.show');
     Route::get('/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('quotations.print');
