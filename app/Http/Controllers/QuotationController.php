@@ -70,7 +70,7 @@ class QuotationController extends Controller
 
     public function show(Quotation $quotation)
     {
-        $quotation->load(['customer', 'creator']);
+        $quotation->load(['customer', 'creator', 'items']);
 
         return view('quotations.show', compact('quotation'));
     }

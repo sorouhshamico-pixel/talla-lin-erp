@@ -15,6 +15,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\QuotationItemController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
@@ -98,6 +99,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
     Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
     Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
+    Route::post('/quotations/{quotation}/items', [QuotationItemController::class, 'store'])->name('quotations.items.store');
 
     Route::get('/sales-invoices', [SalesInvoiceController::class, 'index'])->name('sales-invoices.index');
     Route::get('/sales-invoices/create', [SalesInvoiceController::class, 'create'])->name('sales-invoices.create');
