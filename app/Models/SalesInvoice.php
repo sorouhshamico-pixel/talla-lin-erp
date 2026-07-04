@@ -15,6 +15,7 @@ class SalesInvoice extends Model
         'company_id',
         'branch_id',
         'customer_id',
+        'delivery_note_id',
         'user_id',
         'invoice_number',
         'status',
@@ -55,6 +56,11 @@ class SalesInvoice extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function deliveryNote(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryNote::class);
     }
 
     public function user(): BelongsTo

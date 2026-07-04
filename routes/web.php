@@ -20,6 +20,7 @@ use App\Http\Controllers\SalesOrderConversionController;
 use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\DeliveryNoteConversionController;
 use App\Http\Controllers\DeliveryNoteController;
+use App\Http\Controllers\DeliveryNoteInvoiceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
@@ -109,6 +110,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/sales-orders/{salesOrder}/convert-to-delivery-note', [DeliveryNoteConversionController::class, 'store'])->name('sales-orders.convert-to-delivery-note');
     Route::get('/delivery-notes', [DeliveryNoteController::class, 'index'])->name('delivery-notes.index');
     Route::patch('/delivery-notes/{deliveryNote}/status', [DeliveryNoteController::class, 'updateStatus'])->name('delivery-notes.update-status');
+    Route::post('/delivery-notes/{deliveryNote}/convert-to-sales-invoice', [DeliveryNoteInvoiceController::class, 'store'])->name('delivery-notes.convert-to-sales-invoice');
     Route::get('/delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])->name('delivery-notes.print');
     Route::get('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'show'])->name('delivery-notes.show');
     Route::get('/sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
