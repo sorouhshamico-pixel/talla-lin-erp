@@ -58,6 +58,59 @@ class QuotationItemsTest extends TestCase
         $showResponse->assertSee('2,500');
     }
 
+
+    public function test_user_can_update_quotation_item_and_recalculate_line_total(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل تعديل بند عرض السعر',
+            'phone' => '0533333333',
+            'email' => 'quotation-item-update@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000001',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'draft',
+            'notes' => 'اختبار تعديل بند',
+        ]);
+
+        $item = $quotation->items()->create([
+            'description' => 'خرسانة جاهزة C25',
+            'quantity' => 5,
+            'unit_price' => 200,
+            'line_total' => 1000,
+        ]);
+
+        $response = $this->actingAs($user)->patch('/quotations/' . $quotation->id . '/items/' . $item->id, [
+            'description' => 'خرسانة جاهزة C35',
+            'quantity' => 8,
+            'unit_price' => 275,
+        ]);
+
+        $response->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotation_items', [
+            'id' => $item->id,
+            'description' => 'خرسانة جاهزة C35',
+            'quantity' => 8,
+            'unit_price' => 275,
+            'line_total' => 2200,
+        ]);
+
+        $showResponse = $this->actingAs($user)->get('/quotations/' . $quotation->id);
+
+        $showResponse->assertOk();
+        $showResponse->assertSee('خرسانة جاهزة C35');
+        $showResponse->assertSee('2,200');
+    }
+
     private function createCompanyId(): int
     {
         $existingId = DB::table('companies')->value('id');

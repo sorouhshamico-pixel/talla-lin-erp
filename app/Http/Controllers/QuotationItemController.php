@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quotation;
+use App\Models\QuotationItem;
 use Illuminate\Http\Request;
 
 class QuotationItemController extends Controller
@@ -27,4 +28,28 @@ class QuotationItemController extends Controller
 
         return redirect()->route('quotations.show', $quotation);
     }
+
+    public function update(Request $request, Quotation $quotation, QuotationItem $item)
+    {
+        abort_unless($item->quotation_id === $quotation->id, 404);
+
+        $validated = $request->validate([
+            'description' => ['required', 'string', 'max:255'],
+            'quantity' => ['required', 'numeric', 'min:0.01'],
+            'unit_price' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $quantity = (float) $validated['quantity'];
+        $unitPrice = (float) $validated['unit_price'];
+
+        $item->update([
+            'description' => $validated['description'],
+            'quantity' => $quantity,
+            'unit_price' => $unitPrice,
+            'line_total' => $quantity * $unitPrice,
+        ]);
+
+        return redirect()->route('quotations.show', $quotation);
+    }
+
 }
