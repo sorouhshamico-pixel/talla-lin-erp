@@ -17,6 +17,7 @@ use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\QuotationItemController;
 use App\Http\Controllers\SalesOrderConversionController;
+use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
@@ -101,6 +102,8 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
     Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
     Route::post('/quotations/{quotation}/convert-to-sales-order', [SalesOrderConversionController::class, 'store'])->name('quotations.convert-to-sales-order');
+    Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales-orders.index');
+    Route::get('/sales-orders/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales-orders.show');
     Route::get('/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('quotations.print');
     Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
     Route::post('/quotations/{quotation}/items', [QuotationItemController::class, 'store'])->name('quotations.items.store');
