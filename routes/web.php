@@ -103,6 +103,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
     Route::post('/quotations/{quotation}/convert-to-sales-order', [SalesOrderConversionController::class, 'store'])->name('quotations.convert-to-sales-order');
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales-orders.index');
+    Route::patch('/sales-orders/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales-orders.update-status');
     Route::get('/sales-orders/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales-orders.show');
     Route::get('/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('quotations.print');
     Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
