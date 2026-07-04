@@ -31,6 +31,14 @@ class DeliveryNoteController extends Controller
         return redirect()->route('delivery-notes.show', $deliveryNote);
     }
 
+
+    public function print(DeliveryNote $deliveryNote)
+    {
+        $deliveryNote->load(['customer', 'salesOrder', 'items']);
+
+        return view('delivery-notes.print', compact('deliveryNote'));
+    }
+
     public function show(DeliveryNote $deliveryNote)
     {
         $deliveryNote->load(['customer', 'salesOrder', 'items']);
