@@ -101,6 +101,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
     Route::post('/quotations/{quotation}/items', [QuotationItemController::class, 'store'])->name('quotations.items.store');
     Route::patch('/quotations/{quotation}/items/{item}', [QuotationItemController::class, 'update'])->name('quotations.items.update');
+    Route::delete('/quotations/{quotation}/items/{item}', [QuotationItemController::class, 'destroy'])->name('quotations.items.destroy');
 
     Route::get('/sales-invoices', [SalesInvoiceController::class, 'index'])->name('sales-invoices.index');
     Route::get('/sales-invoices/create', [SalesInvoiceController::class, 'create'])->name('sales-invoices.create');

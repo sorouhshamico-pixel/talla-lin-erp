@@ -111,6 +111,45 @@ class QuotationItemsTest extends TestCase
         $showResponse->assertSee('2,200');
     }
 
+
+    public function test_user_can_delete_quotation_item(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل حذف بند عرض السعر',
+            'phone' => '0544444444',
+            'email' => 'quotation-item-delete@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000001',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'draft',
+            'notes' => 'اختبار حذف بند',
+        ]);
+
+        $item = $quotation->items()->create([
+            'description' => 'خرسانة جاهزة للحذف',
+            'quantity' => 3,
+            'unit_price' => 300,
+            'line_total' => 900,
+        ]);
+
+        $response = $this->actingAs($user)->delete('/quotations/' . $quotation->id . '/items/' . $item->id);
+
+        $response->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseMissing('quotation_items', [
+            'id' => $item->id,
+        ]);
+    }
+
     private function createCompanyId(): int
     {
         $existingId = DB::table('companies')->value('id');

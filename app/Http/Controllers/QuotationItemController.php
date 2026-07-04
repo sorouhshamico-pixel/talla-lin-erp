@@ -52,4 +52,13 @@ class QuotationItemController extends Controller
         return redirect()->route('quotations.show', $quotation);
     }
 
+    public function destroy(Quotation $quotation, QuotationItem $item)
+    {
+        abort_unless($item->quotation_id === $quotation->id, 404);
+
+        $item->delete();
+
+        return redirect()->route('quotations.show', $quotation);
+    }
+
 }
