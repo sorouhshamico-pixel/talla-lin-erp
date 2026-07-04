@@ -26,6 +26,8 @@ class QuotationItemController extends Controller
             'line_total' => $quantity * $unitPrice,
         ]);
 
+        $this->updateQuotationTotal($quotation);
+
         return redirect()->route('quotations.show', $quotation);
     }
 
@@ -49,6 +51,8 @@ class QuotationItemController extends Controller
             'line_total' => $quantity * $unitPrice,
         ]);
 
+        $this->updateQuotationTotal($quotation);
+
         return redirect()->route('quotations.show', $quotation);
     }
 
@@ -58,7 +62,15 @@ class QuotationItemController extends Controller
 
         $item->delete();
 
+        $this->updateQuotationTotal($quotation);
+
         return redirect()->route('quotations.show', $quotation);
     }
 
+    private function updateQuotationTotal(Quotation $quotation): void
+    {
+        $quotation->update([
+            'total_amount' => $quotation->items()->sum('line_total'),
+        ]);
+    }
 }

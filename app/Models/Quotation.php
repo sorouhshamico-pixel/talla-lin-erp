@@ -13,6 +13,7 @@ class Quotation extends Model
         'valid_until',
         'expiry_date',
         'status',
+        'total_amount',
         'notes',
         'created_by',
     ];
@@ -21,6 +22,7 @@ class Quotation extends Model
         'quotation_date' => 'date',
         'valid_until' => 'date',
         'expiry_date' => 'date',
+        'total_amount' => 'decimal:2',
     ];
 
     public function customer()

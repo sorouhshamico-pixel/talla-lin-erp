@@ -150,6 +150,62 @@ class QuotationItemsTest extends TestCase
         ]);
     }
 
+
+    public function test_quotation_total_updates_after_add_update_and_delete_items(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل إجمالي عرض السعر',
+            'phone' => '0555555555',
+            'email' => 'quotation-total@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000001',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'draft',
+            'notes' => 'اختبار إجمالي عرض السعر',
+        ]);
+
+        $this->actingAs($user)->post('/quotations/' . $quotation->id . '/items', [
+            'description' => 'بند إجمالي أول',
+            'quantity' => 4,
+            'unit_price' => 100,
+        ])->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotations', [
+            'id' => $quotation->id,
+            'total_amount' => 400,
+        ]);
+
+        $item = $quotation->items()->first();
+
+        $this->actingAs($user)->patch('/quotations/' . $quotation->id . '/items/' . $item->id, [
+            'description' => 'بند إجمالي معدل',
+            'quantity' => 6,
+            'unit_price' => 150,
+        ])->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotations', [
+            'id' => $quotation->id,
+            'total_amount' => 900,
+        ]);
+
+        $this->actingAs($user)->delete('/quotations/' . $quotation->id . '/items/' . $item->id)
+            ->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotations', [
+            'id' => $quotation->id,
+            'total_amount' => 0,
+        ]);
+    }
+
     private function createCompanyId(): int
     {
         $existingId = DB::table('companies')->value('id');
