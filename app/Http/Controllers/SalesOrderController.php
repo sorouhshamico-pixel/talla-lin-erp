@@ -31,6 +31,14 @@ class SalesOrderController extends Controller
         return redirect()->route('sales-orders.show', $salesOrder);
     }
 
+
+    public function print(SalesOrder $salesOrder)
+    {
+        $salesOrder->load(['customer', 'quotation', 'items']);
+
+        return view('sales-orders.print', compact('salesOrder'));
+    }
+
     public function show(SalesOrder $salesOrder)
     {
         $salesOrder->load(['customer', 'quotation', 'items']);
