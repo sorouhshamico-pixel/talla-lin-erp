@@ -82,6 +82,14 @@ class QuotationController extends Controller
         return redirect()->route('quotations.show', $quotation);
     }
 
+
+    public function print(Quotation $quotation)
+    {
+        $quotation->load(['customer', 'items']);
+
+        return view('quotations.print', compact('quotation'));
+    }
+
     public function show(Quotation $quotation)
     {
         $quotation->load(['customer', 'creator', 'items']);
