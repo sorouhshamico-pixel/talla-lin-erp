@@ -15,16 +15,23 @@ use InvalidArgumentException;
 
 class SalesInvoiceController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $invoices = SalesInvoice::query()
-            ->with(['customer', 'branch', 'user'])
+        $invoicesQuery = SalesInvoice::query()
+            ->with(['customer', 'branch', 'user']);
+
+        if ($request->filled('customer_id')) {
+            $invoicesQuery->where('customer_id', $request->input('customer_id'));
+        }
+
+        $invoices = $invoicesQuery
             ->latest('issued_at')
             ->latest('id')
             ->get();
 
         return view('sales-invoices.index', [
             'invoices' => $invoices,
+            'customerFilter' => $request->input('customer_id'),
         ]);
     }
 

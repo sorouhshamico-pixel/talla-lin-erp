@@ -156,6 +156,54 @@
     </div>
 </div>
 
+    @php
+        if (! isset($customerSalesInvoiceSummary)) {
+            $customerSalesInvoiceQuery = $customer->salesInvoices();
+
+            $customerSalesInvoiceSummary = [
+                'count' => (clone $customerSalesInvoiceQuery)->count(),
+                'grand_total' => round((float) (clone $customerSalesInvoiceQuery)->sum('grand_total'), 2),
+                'paid_amount' => round((float) (clone $customerSalesInvoiceQuery)->sum('paid_amount'), 2),
+                'remaining_amount' => round((float) (clone $customerSalesInvoiceQuery)->sum('remaining_amount'), 2),
+            ];
+        }
+    @endphp
+
+    <div class="card" data-testid="customer-sales-invoice-summary-card">
+        <h2>ملخص فواتير مبيعات العميل</h2>
+        <div class="muted">يعرض هذا الملخص فواتير المبيعات المرتبطة بهذا العميل.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد الفواتير</div>
+                <div class="summary-value" data-testid="customer-sales-invoice-summary-count">{{ $customerSalesInvoiceSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي الفواتير</div>
+                <div class="summary-value" data-testid="customer-sales-invoice-summary-grand-total">{{ number_format($customerSalesInvoiceSummary['grand_total'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المدفوع</div>
+                <div class="summary-value" data-testid="customer-sales-invoice-summary-paid">{{ number_format($customerSalesInvoiceSummary['paid_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المتبقي</div>
+                <div class="summary-value" data-testid="customer-sales-invoice-summary-remaining">{{ number_format($customerSalesInvoiceSummary['remaining_amount'], 2) }} ريال</div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="{{ route('sales-invoices.index', ['customer_id' => $customer->id]) }}"
+               class="btn secondary"
+               data-testid="customer-sales-invoice-summary-link">
+                عرض فواتير العميل
+            </a>
+        </div>
+    </div>
+
     <div class="card" data-testid="customers-notes-card">
         <h2>ملاحظات العميل</h2>
         <div class="muted">أضف ملاحظات داخلية مرتبطة بهذا السجل.</div>

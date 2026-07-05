@@ -135,7 +135,16 @@ class CustomerController extends Controller
     }
     public function show(Customer $customer)
     {
-        return view('customers.show', compact('customer'));
+        $customerSalesInvoiceQuery = $customer->salesInvoices();
+
+        $customerSalesInvoiceSummary = [
+            'count' => (clone $customerSalesInvoiceQuery)->count(),
+            'grand_total' => round((float) (clone $customerSalesInvoiceQuery)->sum('grand_total'), 2),
+            'paid_amount' => round((float) (clone $customerSalesInvoiceQuery)->sum('paid_amount'), 2),
+            'remaining_amount' => round((float) (clone $customerSalesInvoiceQuery)->sum('remaining_amount'), 2),
+        ];
+
+        return view('customers.show', compact('customer', 'customerSalesInvoiceSummary'));
     }
 
     public function toggleActive(Customer $customer)
