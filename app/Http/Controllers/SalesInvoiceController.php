@@ -32,6 +32,15 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('payment_status', $request->input('payment_status'));
         }
 
+        $salesInvoiceSummary = [
+            'count' => (clone $invoicesQuery)->count(),
+            'grand_total' => round((float) (clone $invoicesQuery)->sum('grand_total'), 2),
+            'paid_amount' => round((float) (clone $invoicesQuery)->sum('paid_amount'), 2),
+            'remaining_amount' => round((float) (clone $invoicesQuery)->sum('remaining_amount'), 2),
+            'outstanding_count' => (clone $invoicesQuery)->where('remaining_amount', '>', 0)->count(),
+            'paid_count' => (clone $invoicesQuery)->where('payment_status', 'paid')->count(),
+        ];
+
         $invoices = $invoicesQuery
             ->latest('issued_at')
             ->latest('id')
@@ -44,6 +53,7 @@ class SalesInvoiceController extends Controller
         return view('sales-invoices.index', [
             'invoices' => $invoices,
             'customers' => $customers,
+            'salesInvoiceSummary' => $salesInvoiceSummary,
             'customerFilter' => $request->input('customer_id'),
             'collectionStatusFilter' => $request->input('collection_status'),
             'paymentStatusFilter' => $request->input('payment_status'),

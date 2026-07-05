@@ -61,6 +61,56 @@
         </form>
     </div>
 
+    @php
+        if (! isset($salesInvoiceSummary)) {
+            $salesInvoiceSummary = [
+                'count' => $invoices->count(),
+                'grand_total' => round((float) $invoices->sum('grand_total'), 2),
+                'paid_amount' => round((float) $invoices->sum('paid_amount'), 2),
+                'remaining_amount' => round((float) $invoices->sum('remaining_amount'), 2),
+                'outstanding_count' => $invoices->where('remaining_amount', '>', 0)->count(),
+                'paid_count' => $invoices->where('payment_status', 'paid')->count(),
+            ];
+        }
+    @endphp
+
+    <div class="card" data-testid="sales-invoice-summary-card" style="margin-bottom:20px;">
+        <h2>ملخص فواتير المبيعات</h2>
+        <div class="muted">يعرض هذا الملخص نتائج الفواتير حسب الفلاتر الحالية.</div>
+
+        <div class="detail-summary" style="margin-top:16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد الفواتير</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-count">{{ $salesInvoiceSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي الفواتير</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-grand-total">{{ number_format($salesInvoiceSummary['grand_total'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المدفوع</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-paid-amount">{{ number_format($salesInvoiceSummary['paid_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المتبقي</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-remaining-amount">{{ number_format($salesInvoiceSummary['remaining_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">فواتير ذات متبقي</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-outstanding-count">{{ $salesInvoiceSummary['outstanding_count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">فواتير مدفوعة</div>
+                <div class="summary-value" data-testid="sales-invoice-summary-paid-count">{{ $salesInvoiceSummary['paid_count'] }}</div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="table-wrap">
             <table>
