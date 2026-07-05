@@ -142,6 +142,22 @@ class SalesInvoiceController extends Controller
                 ]);
             }
 
+            fputcsv($handle, []);
+
+            fputcsv($handle, [
+                'إجمالي النتائج',
+                '',
+                '',
+                '',
+                '',
+                '',
+                number_format((float) $invoices->sum('grand_total'), 2, '.', ''),
+                number_format((float) $invoices->sum('paid_amount'), 2, '.', ''),
+                number_format((float) $invoices->sum('remaining_amount'), 2, '.', ''),
+                '',
+                'عدد الفواتير: ' . $invoices->count(),
+            ]);
+
             fclose($handle);
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
