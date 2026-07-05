@@ -111,7 +111,10 @@ class SalesInvoiceController extends Controller
             'user',
             'items.product',
             'items.variant',
-            'payments.user',
+            'payments' => fn ($query) => $query
+                ->with('user')
+                ->latest('paid_at')
+                ->latest('id'),
         ]);
 
         return view('sales-invoices.show', [
