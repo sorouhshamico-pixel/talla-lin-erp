@@ -267,6 +267,31 @@
         </div>
     </div>
 
+    <div class="card" data-testid="supplier-expense-export-links-card">
+        <h2>تصدير مصروفات المورد</h2>
+        <div class="muted">روابط سريعة لتصدير مصروفات هذا المورد حسب حالة الدفع.</div>
+
+        <div class="actions">
+            <a href="{{ url('/expenses/export') . '?' . http_build_query(['supplier_id' => $supplier->id]) }}"
+               class="btn secondary"
+               data-testid="supplier-expense-export-all-link">
+                تصدير كل مصروفات المورد CSV
+            </a>
+
+            <a href="{{ url('/expenses/export') . '?' . http_build_query(['supplier_id' => $supplier->id, 'payment_status' => 'unpaid']) }}"
+               class="btn secondary"
+               data-testid="supplier-expense-export-unpaid-link">
+                تصدير غير المدفوع CSV
+            </a>
+
+            <a href="{{ url('/expenses/export') . '?' . http_build_query(['supplier_id' => $supplier->id, 'payment_status' => 'paid']) }}"
+               class="btn secondary"
+               data-testid="supplier-expense-export-paid-link">
+                تصدير المدفوع CSV
+            </a>
+        </div>
+    </div>
+
     <div class="card" data-testid="supplier-recent-expenses-card">
         <h2>آخر مصروفات المورد</h2>
         <div class="muted">يعرض هذا القسم آخر 5 مصروفات تشغيلية مرتبطة بهذا المورد.</div>
