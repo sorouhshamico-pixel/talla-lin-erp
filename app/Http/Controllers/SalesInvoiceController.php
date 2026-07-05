@@ -24,6 +24,10 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('customer_id', $request->input('customer_id'));
         }
 
+        if ($request->input('collection_status') === 'outstanding') {
+            $invoicesQuery->where('remaining_amount', '>', 0);
+        }
+
         $invoices = $invoicesQuery
             ->latest('issued_at')
             ->latest('id')
@@ -32,6 +36,7 @@ class SalesInvoiceController extends Controller
         return view('sales-invoices.index', [
             'invoices' => $invoices,
             'customerFilter' => $request->input('customer_id'),
+            'collectionStatusFilter' => $request->input('collection_status'),
         ]);
     }
 

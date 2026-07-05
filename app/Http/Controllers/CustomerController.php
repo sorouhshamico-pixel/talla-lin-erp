@@ -150,10 +150,19 @@ class CustomerController extends Controller
             ->limit(5)
             ->get();
 
+        $customerOutstandingSalesInvoiceQuery = $customer->salesInvoices()
+            ->where('remaining_amount', '>', 0);
+
+        $customerOutstandingSalesInvoiceSummary = [
+            'count' => (clone $customerOutstandingSalesInvoiceQuery)->count(),
+            'remaining_amount' => round((float) (clone $customerOutstandingSalesInvoiceQuery)->sum('remaining_amount'), 2),
+        ];
+
         return view('customers.show', compact(
             'customer',
             'customerSalesInvoiceSummary',
-            'customerRecentSalesInvoices'
+            'customerRecentSalesInvoices',
+            'customerOutstandingSalesInvoiceSummary'
         ));
     }
 

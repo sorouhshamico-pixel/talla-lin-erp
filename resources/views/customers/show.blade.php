@@ -205,6 +205,57 @@
     </div>
 
     @php
+        if (! isset($customerOutstandingSalesInvoiceSummary)) {
+            $customerOutstandingSalesInvoiceQuery = $customer->salesInvoices()
+                ->where('remaining_amount', '>', 0);
+
+            $customerOutstandingSalesInvoiceSummary = [
+                'count' => (clone $customerOutstandingSalesInvoiceQuery)->count(),
+                'remaining_amount' => round((float) (clone $customerOutstandingSalesInvoiceQuery)->sum('remaining_amount'), 2),
+            ];
+        }
+    @endphp
+
+    <div class="card" data-testid="customer-outstanding-sales-invoice-summary-card">
+        <h2>ملخص فواتير العميل ذات المبالغ المتبقية</h2>
+        <div class="muted">يعرض هذا الملخص فواتير المبيعات التي لا يزال عليها مبلغ متبقٍ.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد الفواتير ذات المتبقي</div>
+                <div class="summary-value" data-testid="customer-outstanding-sales-invoice-summary-count">{{ $customerOutstandingSalesInvoiceSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المتبقي</div>
+                <div class="summary-value" data-testid="customer-outstanding-sales-invoice-summary-total">{{ number_format($customerOutstandingSalesInvoiceSummary['remaining_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">حالة التحصيل</div>
+                <div class="summary-value">
+                    @if ($customerOutstandingSalesInvoiceSummary['count'] > 0)
+                        يحتاج متابعة
+                    @else
+                        لا توجد مبالغ متبقية
+                    @endif
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض الفواتير</div>
+                <div class="summary-value">
+                    <a href="{{ route('sales-invoices.index', ['customer_id' => $customer->id, 'collection_status' => 'outstanding']) }}"
+                       class="btn secondary"
+                       data-testid="customer-outstanding-sales-invoice-summary-link">
+                        عرض الفواتير ذات المتبقي
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @php
         if (! isset($customerRecentSalesInvoices)) {
             $customerRecentSalesInvoices = $customer->salesInvoices()
                 ->latest('issued_at')
