@@ -139,7 +139,20 @@ class SupplierController extends Controller
             ->limit(5)
             ->get();
 
-        return view('suppliers.show', compact('supplier', 'supplierExpenseSummary', 'supplierRecentExpenses'));
+        $supplierUnpaidExpenseQuery = $supplier->expenses()
+            ->where('is_paid', false);
+
+        $supplierUnpaidExpenseSummary = [
+            'count' => (clone $supplierUnpaidExpenseQuery)->count(),
+            'amount' => round((float) (clone $supplierUnpaidExpenseQuery)->sum('amount'), 2),
+        ];
+
+        return view('suppliers.show', compact(
+            'supplier',
+            'supplierExpenseSummary',
+            'supplierRecentExpenses',
+            'supplierUnpaidExpenseSummary'
+        ));
     }
 
     public function toggleActive(Supplier $supplier)

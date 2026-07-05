@@ -189,6 +189,45 @@
         </div>
     </div>
 
+    <div class="card" data-testid="supplier-unpaid-expense-summary-card">
+        <h2>ملخص مصروفات المورد غير المدفوعة</h2>
+        <div class="muted">يعرض هذا الملخص الالتزامات غير المسددة المرتبطة بهذا المورد.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد المصروفات غير المدفوعة</div>
+                <div class="summary-value" data-testid="supplier-unpaid-expense-summary-count">{{ $supplierUnpaidExpenseSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي غير المدفوع</div>
+                <div class="summary-value" data-testid="supplier-unpaid-expense-summary-total">{{ number_format($supplierUnpaidExpenseSummary['amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">حالة المتابعة</div>
+                <div class="summary-value">
+                    @if ($supplierUnpaidExpenseSummary['count'] > 0)
+                        يحتاج متابعة
+                    @else
+                        لا توجد التزامات غير مدفوعة
+                    @endif
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض غير المدفوع</div>
+                <div class="summary-value">
+                    <a href="{{ route('expenses.index', ['supplier_id' => $supplier->id, 'payment_status' => 'unpaid']) }}"
+                       class="btn secondary"
+                       data-testid="supplier-unpaid-expense-summary-link">
+                        عرض المصروفات غير المدفوعة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card" data-testid="supplier-recent-expenses-card">
         <h2>آخر مصروفات المورد</h2>
         <div class="muted">يعرض هذا القسم آخر 5 مصروفات تشغيلية مرتبطة بهذا المورد.</div>
