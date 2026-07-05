@@ -46,6 +46,14 @@
                 </div>
 
                 <div class="field">
+                    <label for="sales_invoice_collection_status_filter" class="label">حالة التحصيل</label>
+                    <select id="sales_invoice_collection_status_filter" name="collection_status" data-testid="sales-invoice-collection-status-filter">
+                        <option value="">كل الفواتير</option>
+                        <option value="outstanding" @selected((string) $collectionStatusFilter === 'outstanding')>فواتير ذات مبالغ متبقية</option>
+                    </select>
+                </div>
+
+                <div class="field">
                     <button type="submit" class="btn" data-testid="sales-invoice-apply-filters-button">تطبيق الفلتر</button>
                     <a href="{{ route('sales-invoices.index') }}" class="btn secondary" data-testid="sales-invoice-reset-filters-link">إعادة ضبط</a>
                 </div>
