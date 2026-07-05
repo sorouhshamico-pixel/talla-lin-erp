@@ -34,6 +34,14 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div class="card" style="margin-bottom: 20px; border-color: #ffd0c9; color: #b42318;">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="grid" style="margin-bottom:20px;">
         <div class="metric">
             <div class="metric-label">العميل</div>
