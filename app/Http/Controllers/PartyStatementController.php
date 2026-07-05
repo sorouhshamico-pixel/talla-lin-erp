@@ -61,7 +61,7 @@ class PartyStatementController extends Controller
             $request->query('to')
         );
 
-        return $this->csvResponse($statement['rows'], 'customer-statement-' . $customer->id . '.csv');
+        return $this->csvResponse($statement, 'customer-statement-' . $customer->id . '.csv');
     }
 
     public function supplierCsv(Request $request, Supplier $supplier, PartyStatementService $service)
@@ -72,11 +72,13 @@ class PartyStatementController extends Controller
             $request->query('to')
         );
 
-        return $this->csvResponse($statement['rows'], 'supplier-statement-' . $supplier->id . '.csv');
+        return $this->csvResponse($statement, 'supplier-statement-' . $supplier->id . '.csv');
     }
 
-    private function csvResponse($rows, string $filename)
+    private function csvResponse(array $statement, string $filename)
     {
+        $rows = $statement['rows'];
+
         $lines = [];
         $lines[] = ['date', 'type', 'description', 'status', 'debit', 'credit', 'balance'];
 
@@ -92,7 +94,36 @@ class PartyStatementController extends Controller
             ];
         }
 
-        $csv = "\xEF\xBB\xBF";
+        $lines[] = ['', '', '', '', '', '', ''];
+        $lines[] = [
+            'summary',
+            'total_debit',
+            '',
+            '',
+            number_format((float) $statement['total_debit'], 2, '.', ''),
+            '',
+            '',
+        ];
+        $lines[] = [
+            'summary',
+            'total_credit',
+            '',
+            '',
+            '',
+            number_format((float) $statement['total_credit'], 2, '.', ''),
+            '',
+        ];
+        $lines[] = [
+            'summary',
+            'balance',
+            '',
+            '',
+            '',
+            '',
+            number_format((float) $statement['balance'], 2, '.', ''),
+        ];
+
+        $csv = chr(239) . chr(187) . chr(191);
 
         foreach ($lines as $line) {
             $csv .= implode(',', array_map(function ($value) {
@@ -107,4 +138,5 @@ class PartyStatementController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
+
 }
