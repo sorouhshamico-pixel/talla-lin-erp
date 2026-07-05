@@ -147,11 +147,20 @@ class SupplierController extends Controller
             'amount' => round((float) (clone $supplierUnpaidExpenseQuery)->sum('amount'), 2),
         ];
 
+        $supplierPaidExpenseQuery = $supplier->expenses()
+            ->where('is_paid', true);
+
+        $supplierPaidExpenseSummary = [
+            'count' => (clone $supplierPaidExpenseQuery)->count(),
+            'amount' => round((float) (clone $supplierPaidExpenseQuery)->sum('amount'), 2),
+        ];
+
         return view('suppliers.show', compact(
             'supplier',
             'supplierExpenseSummary',
             'supplierRecentExpenses',
-            'supplierUnpaidExpenseSummary'
+            'supplierUnpaidExpenseSummary',
+            'supplierPaidExpenseSummary'
         ));
     }
 

@@ -228,6 +228,45 @@
         </div>
     </div>
 
+    <div class="card" data-testid="supplier-paid-expense-summary-card">
+        <h2>ملخص مصروفات المورد المدفوعة</h2>
+        <div class="muted">يعرض هذا الملخص المصروفات التي تم سدادها لهذا المورد.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد المصروفات المدفوعة</div>
+                <div class="summary-value" data-testid="supplier-paid-expense-summary-count">{{ $supplierPaidExpenseSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المدفوع</div>
+                <div class="summary-value" data-testid="supplier-paid-expense-summary-total">{{ number_format($supplierPaidExpenseSummary['amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">حالة المتابعة</div>
+                <div class="summary-value">
+                    @if ($supplierPaidExpenseSummary['count'] > 0)
+                        مدفوعات مسجلة
+                    @else
+                        لا توجد مصروفات مدفوعة
+                    @endif
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض المدفوع</div>
+                <div class="summary-value">
+                    <a href="{{ route('expenses.index', ['supplier_id' => $supplier->id, 'payment_status' => 'paid']) }}"
+                       class="btn secondary"
+                       data-testid="supplier-paid-expense-summary-link">
+                        عرض المصروفات المدفوعة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card" data-testid="supplier-recent-expenses-card">
         <h2>آخر مصروفات المورد</h2>
         <div class="muted">يعرض هذا القسم آخر 5 مصروفات تشغيلية مرتبطة بهذا المورد.</div>
