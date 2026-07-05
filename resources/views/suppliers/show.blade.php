@@ -156,6 +156,39 @@
     </div>
 </div>
 
+    <div class="card" data-testid="supplier-expense-summary-card">
+        <h2>ملخص مصروفات المورد</h2>
+        <div class="muted">يعرض هذا الملخص المصروفات التشغيلية المرتبطة بهذا المورد.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد المصروفات</div>
+                <div class="summary-value" data-testid="supplier-expense-summary-count">{{ $supplierExpenseSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المصروفات</div>
+                <div class="summary-value" data-testid="supplier-expense-summary-total">{{ number_format($supplierExpenseSummary['amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">المورد</div>
+                <div class="summary-value" data-testid="supplier-expense-summary-name">{{ $supplier->name }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض المصروفات</div>
+                <div class="summary-value">
+                    <a href="{{ route('expenses.index', ['supplier_id' => $supplier->id]) }}"
+                       class="btn secondary"
+                       data-testid="supplier-expense-summary-link">
+                        عرض مصروفات المورد
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card" data-testid="suppliers-notes-card">
         <h2>ملاحظات المورد</h2>
         <div class="muted">أضف ملاحظات داخلية مرتبطة بهذا السجل.</div>

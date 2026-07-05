@@ -126,7 +126,14 @@ class SupplierController extends Controller
 
     public function show(Supplier $supplier)
     {
-        return view('suppliers.show', compact('supplier'));
+        $supplierExpenseQuery = $supplier->expenses();
+
+        $supplierExpenseSummary = [
+            'count' => (clone $supplierExpenseQuery)->count(),
+            'amount' => round((float) (clone $supplierExpenseQuery)->sum('amount'), 2),
+        ];
+
+        return view('suppliers.show', compact('supplier', 'supplierExpenseSummary'));
     }
 
     public function toggleActive(Supplier $supplier)

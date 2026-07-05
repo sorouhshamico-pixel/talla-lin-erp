@@ -37,6 +37,11 @@ class Supplier extends Model
         return $this->hasMany(PurchaseInvoice::class);
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function partyTag()
     {
         return $this->belongsTo(PartyTag::class);
