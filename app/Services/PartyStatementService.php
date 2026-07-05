@@ -238,6 +238,7 @@ class PartyStatementService
             'status',
             'paid_status',
             'collection_status',
+            'is_paid',
         ]);
 
         $query = DB::table($table)->where($foreignKey, $id);
@@ -268,7 +269,11 @@ class PartyStatementService
                 'date' => $dateColumn ? (string) ($record->{$dateColumn} ?? '-') : '-',
                 'type' => $typeLabel,
                 'description' => $descriptionColumn ? (string) ($record->{$descriptionColumn} ?? '-') : '-',
-                'status' => $statusColumn ? (string) ($record->{$statusColumn} ?? '-') : '-',
+                'status' => $statusColumn
+                    ? ($statusColumn === 'is_paid'
+                        ? ((bool) $record->{$statusColumn} ? 'paid' : 'unpaid')
+                        : (string) ($record->{$statusColumn} ?? '-'))
+                    : '-',
                 'debit' => $debit,
                 'credit' => $credit,
                 'balance' => $credit - $debit,

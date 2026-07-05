@@ -15,6 +15,7 @@ class Expense extends Model
         'company_id',
         'branch_id',
         'expense_category_id',
+        'supplier_id',
         'user_id',
         'code',
         'description',
@@ -81,4 +82,10 @@ class Expense extends Model
 
         return Storage::disk('public')->url($this->attachment_path);
     }
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+
 }
