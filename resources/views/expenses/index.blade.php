@@ -129,6 +129,7 @@
         $expenseFilterLabels13D = [
             'branch_id' => 'الفرع',
             'expense_category_id' => 'تصنيف المصروف',
+            'supplier_id' => 'المورد',
             'category_id' => 'تصنيف المصروف',
             'payment_method' => 'طريقة الدفع',
             'status' => 'حالة المصروف',
@@ -710,7 +711,7 @@
 
     <div class="card" style="margin-bottom:20px;">
         <form method="GET" action="{{ route('expenses.index') }}">
-            <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:16px;align-items:end;">
+            <div style="display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px;align-items:end;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">من تاريخ</label>
                     <input type="date" name="from_date" value="{{ $filters['from_date'] }}"
@@ -746,6 +747,18 @@
                         @endforeach
                     </select>
                 </div>
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">المورد</label>
+                    <select name="supplier_id" data-testid="expense-supplier-filter" style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="">كل الموردين</option>
+                        @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected((string) request('supplier_id') === (string) $supplier->id)>
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
 
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">طريقة الدفع</label>

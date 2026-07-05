@@ -66,11 +66,17 @@ class ExpenseController extends Controller
             ->latest('expense_date')
             ->latest('id')
             ->get();
+        $suppliers = Supplier::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
 
         return view('expenses.index', [
             'expenses' => $expenses,
             'branches' => $branches,
             'categories' => $categories,
+            'suppliers' => $suppliers,
             'paymentMethods' => $paymentMethods,
             'paymentStatuses' => $paymentStatuses,
             'attachmentStatuses' => $attachmentStatuses,
@@ -492,6 +498,7 @@ class ExpenseController extends Controller
             'to_date' => $request->input('to_date'),
             'branch_id' => $request->input('branch_id'),
             'expense_category_id' => $request->input('expense_category_id'),
+            'supplier_id' => $request->input('supplier_id'),
             'payment_method' => $request->input('payment_method'),
             'payment_status' => $request->input('payment_status'),
             'attachment_status' => $request->input('attachment_status'),
@@ -657,6 +664,10 @@ class ExpenseController extends Controller
 
         if (! empty($filters['expense_category_id'])) {
             $expensesQuery->where('expense_category_id', $filters['expense_category_id']);
+        }
+
+        if (! empty($filters['supplier_id'])) {
+            $expensesQuery->where('supplier_id', $filters['supplier_id']);
         }
 
         if (! empty($filters['payment_method'])) {
