@@ -501,7 +501,7 @@ class ExpenseController extends Controller
     private function filteredExpensesQuery(array $filters): Builder
     {
         $expensesQuery = Expense::query()
-            ->with(['branch', 'category', 'user']);
+            ->with(['branch', 'category', 'user', 'supplier']);
 
         if (! empty($filters['from_date'])) {
             $expensesQuery->whereDate('expense_date', '>=', $filters['from_date']);

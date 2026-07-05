@@ -970,6 +970,7 @@
                             <th>الوصف</th>
                             <th>الفرع</th>
                             <th>التصنيف</th>
+                            <th data-testid=\"expense-supplier-header\">المورد</th>
                             <th>طريقة الدفع</th>
                             <th>حالة الدفع</th>
                             <th>المبلغ</th>
@@ -1178,6 +1179,7 @@
                         <th>الوصف</th>
                         <th>الفرع</th>
                         <th>التصنيف</th>
+                        <th data-testid="expense-supplier-header">المورد</th>
                         <th>طريقة الدفع</th>
                         <th>المبلغ</th>
                         <th>الضريبة</th>
@@ -1195,6 +1197,7 @@
                             <td>{{ $expense->description }}</td>
                             <td>{{ $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '—' }}</td>
                             <td>{{ $expense->category?->name ?? '—' }}</td>
+                            <td data-testid="expense-supplier-cell">{{ $expense->supplier?->name ?? '-' }}</td>
                             <td>{{ $expense->displayPaymentMethod() }}</td>
                             <td>{{ number_format((float) $expense->amount, 2) }} ريال</td>
                             <td>{{ number_format((float) $expense->tax_amount, 2) }} ريال</td>
