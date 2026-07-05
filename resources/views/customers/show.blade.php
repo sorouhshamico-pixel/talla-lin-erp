@@ -306,6 +306,31 @@
         </div>
     </div>
 
+    <div class="card" data-testid="customer-sales-invoice-export-links-card">
+        <h2>تصدير فواتير مبيعات العميل</h2>
+        <div class="muted">روابط سريعة لتصدير فواتير هذا العميل حسب حالة التحصيل.</div>
+
+        <div class="actions">
+            <a href="{{ route('sales-invoices.export', ['customer_id' => $customer->id]) }}"
+               class="btn secondary"
+               data-testid="customer-sales-invoice-export-all-link">
+                تصدير كل فواتير العميل CSV
+            </a>
+
+            <a href="{{ route('sales-invoices.export', ['customer_id' => $customer->id, 'collection_status' => 'outstanding']) }}"
+               class="btn secondary"
+               data-testid="customer-sales-invoice-export-outstanding-link">
+                تصدير الفواتير ذات المتبقي CSV
+            </a>
+
+            <a href="{{ route('sales-invoices.export', ['customer_id' => $customer->id, 'payment_status' => 'paid']) }}"
+               class="btn secondary"
+               data-testid="customer-sales-invoice-export-paid-link">
+                تصدير الفواتير المدفوعة CSV
+            </a>
+        </div>
+    </div>
+
     @php
         if (! isset($customerRecentSalesInvoices)) {
             $customerRecentSalesInvoices = $customer->salesInvoices()

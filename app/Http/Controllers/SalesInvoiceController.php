@@ -45,6 +45,76 @@ class SalesInvoiceController extends Controller
         ]);
     }
 
+
+    public function export(Request $request)
+    {
+        $invoicesQuery = SalesInvoice::query()
+            ->with(['customer', 'branch', 'user']);
+
+        if ($request->filled('customer_id')) {
+            $invoicesQuery->where('customer_id', $request->input('customer_id'));
+        }
+
+        if ($request->input('collection_status') === 'outstanding') {
+            $invoicesQuery->where('remaining_amount', '>', 0);
+        }
+
+        if ($request->filled('payment_status')) {
+            $invoicesQuery->where('payment_status', $request->input('payment_status'));
+        }
+
+        $invoices = $invoicesQuery
+            ->latest('issued_at')
+            ->latest('id')
+            ->get();
+
+        $fileName = 'sales-invoices-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($invoices): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'رقم الفاتورة',
+                'التاريخ',
+                'العميل',
+                'الفرع',
+                'حالة الفاتورة',
+                'حالة الدفع',
+                'الإجمالي',
+                'المدفوع',
+                'المتبقي',
+                'تاريخ الاستحقاق',
+                'ملاحظات',
+            ]);
+
+            foreach ($invoices as $invoice) {
+                fputcsv($handle, [
+                    $invoice->invoice_number,
+                    $invoice->issued_at?->format('Y-m-d'),
+                    $invoice->customer?->name ?? '',
+                    $invoice->branch?->name_ar ?? $invoice->branch?->name ?? $invoice->branch?->name_en ?? '',
+                    $invoice->displayStatus(),
+                    $invoice->displayPaymentStatus(),
+                    number_format((float) $invoice->grand_total, 2, '.', ''),
+                    number_format((float) $invoice->paid_amount, 2, '.', ''),
+                    number_format((float) $invoice->remaining_amount, 2, '.', ''),
+                    $invoice->due_at?->format('Y-m-d'),
+                    $invoice->notes,
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     public function create(): View
     {
         $customers = Customer::query()
