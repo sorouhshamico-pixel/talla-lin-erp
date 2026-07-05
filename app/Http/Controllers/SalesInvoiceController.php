@@ -101,10 +101,33 @@ class SalesInvoiceController extends Controller
             ->latest('id')
             ->get();
 
+        $customerFilterLabel = 'all';
+
+        if ($request->filled('customer_id')) {
+            $customerFilterModel = Customer::query()->find($request->input('customer_id'));
+            $customerFilterLabel = $customerFilterModel
+                ? $customerFilterModel->name . ' #' . $customerFilterModel->id
+                : (string) $request->input('customer_id');
+        }
+
+        $paymentStatusLabels = [
+            'unpaid' => 'غير مدفوعة',
+            'partial' => 'مدفوعة جزئيًا',
+            'paid' => 'مدفوعة بالكامل',
+        ];
+
+        $collectionStatusLabels = [
+            'outstanding' => 'فواتير ذات مبالغ متبقية',
+        ];
+
         $exportFilters = [
-            'customer_id' => $request->input('customer_id') ?: 'all',
-            'payment_status' => $request->input('payment_status') ?: 'all',
-            'collection_status' => $request->input('collection_status') ?: 'all',
+            'customer_id' => $customerFilterLabel,
+            'payment_status' => $request->filled('payment_status')
+                ? ($paymentStatusLabels[$request->input('payment_status')] ?? $request->input('payment_status'))
+                : 'all',
+            'collection_status' => $request->filled('collection_status')
+                ? ($collectionStatusLabels[$request->input('collection_status')] ?? $request->input('collection_status'))
+                : 'all',
             'issued_from' => $request->input('issued_from') ?: 'all',
             'issued_to' => $request->input('issued_to') ?: 'all',
         ];
