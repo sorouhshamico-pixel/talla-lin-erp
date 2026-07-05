@@ -37,6 +37,14 @@ class DeliveryNoteInvoiceController extends Controller
 
         $variant = $this->getDefaultVariant($deliveryNote->customer->company_id);
 
+        if (! $deliveryNote->items()->exists()) {
+            return redirect()
+                ->route('delivery-notes.show', $deliveryNote)
+                ->withErrors([
+                    'delivery_note_items' => 'لا يمكن تحويل سند التسليم إلى فاتورة مبيعات بدون بنود.',
+                ]);
+        }
+
         $invoice = DB::transaction(function () use ($deliveryNote, $branch, $variant) {
             $invoice = SalesInvoice::query()->create([
                 'company_id' => $branch->company_id,
