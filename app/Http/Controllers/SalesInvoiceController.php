@@ -88,6 +88,14 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('payment_status', $request->input('payment_status'));
         }
 
+        if ($request->filled('issued_from')) {
+            $invoicesQuery->whereDate('issued_at', '>=', $request->input('issued_from'));
+        }
+
+        if ($request->filled('issued_to')) {
+            $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
+        }
+
         $invoices = $invoicesQuery
             ->latest('issued_at')
             ->latest('id')
