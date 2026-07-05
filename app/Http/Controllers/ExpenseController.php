@@ -70,9 +70,26 @@ class ExpenseController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
+        $selectedSupplierSummary = null;
+
+        if (! empty($filters['supplier_id'])) {
+            $selectedSupplier = Supplier::query()->find($filters['supplier_id']);
+
+            if ($selectedSupplier) {
+                $supplierSummaryQuery = $this->filteredExpensesQuery($filters);
+
+                $selectedSupplierSummary = [
+                    'supplier' => $selectedSupplier,
+                    'count' => (clone $supplierSummaryQuery)->count(),
+                    'amount' => round((float) (clone $supplierSummaryQuery)->sum('amount'), 2),
+                ];
+            }
+        }
+
 
 
         return view('expenses.index', [
+            'selectedSupplierSummary' => $selectedSupplierSummary,
             'expenses' => $expenses,
             'branches' => $branches,
             'categories' => $categories,

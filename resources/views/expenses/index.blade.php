@@ -88,6 +88,38 @@
         </div>
     @endif
 
+    @if (! empty($selectedSupplierSummary))
+        <div
+            class="card"
+            data-testid="expense-selected-supplier-summary-card"
+            style="margin-bottom:20px;border-color:#d1fae5;background:#f0fdf4;"
+        >
+            <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin-top:0;">ملخص مصروفات المورد المحدد</h2>
+                    <div class="muted">
+                        يعرض هذا الملخص عدد وإجمالي المصروفات الخاصة بالمورد المحدد ضمن الفلاتر الحالية.
+                    </div>
+                    <div style="margin-top:10px;font-weight:700;" data-testid="expense-selected-supplier-name">
+                        {{ $selectedSupplierSummary['supplier']->name }}
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div style="min-width:150px;padding:12px 14px;border:1px solid #bbf7d0;border-radius:10px;background:#fff;">
+                        <div class="muted">عدد المصروفات</div>
+                        <strong data-testid="expense-selected-supplier-count">{{ $selectedSupplierSummary['count'] }}</strong>
+                    </div>
+
+                    <div style="min-width:180px;padding:12px 14px;border:1px solid #bbf7d0;border-radius:10px;background:#fff;">
+                        <div class="muted">إجمالي المصروفات</div>
+                        <strong data-testid="expense-selected-supplier-total">{{ number_format($selectedSupplierSummary['amount'], 2) }} ريال</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- 13C_EXPENSE_ACTIVE_FILTER_COUNT_CARD --}}
     @php
         $expenseActiveFilters13C = collect(request()->query())
