@@ -101,9 +101,17 @@ class SalesInvoiceController extends Controller
             ->latest('id')
             ->get();
 
+        $exportFilters = [
+            'customer_id' => $request->input('customer_id') ?: 'all',
+            'payment_status' => $request->input('payment_status') ?: 'all',
+            'collection_status' => $request->input('collection_status') ?: 'all',
+            'issued_from' => $request->input('issued_from') ?: 'all',
+            'issued_to' => $request->input('issued_to') ?: 'all',
+        ];
+
         $fileName = 'sales-invoices-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($invoices): void {
+        return response()->streamDownload(function () use ($invoices, $exportFilters): void {
             $handle = fopen('php://output', 'w');
 
             if ($handle === false) {
@@ -111,6 +119,15 @@ class SalesInvoiceController extends Controller
             }
 
             fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['تقرير فواتير المبيعات']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['فلتر العميل', $exportFilters['customer_id']]);
+            fputcsv($handle, ['فلتر حالة الدفع', $exportFilters['payment_status']]);
+            fputcsv($handle, ['فلتر حالة التحصيل', $exportFilters['collection_status']]);
+            fputcsv($handle, ['من تاريخ', $exportFilters['issued_from']]);
+            fputcsv($handle, ['إلى تاريخ', $exportFilters['issued_to']]);
+            fputcsv($handle, []);
 
             fputcsv($handle, [
                 'رقم الفاتورة',
