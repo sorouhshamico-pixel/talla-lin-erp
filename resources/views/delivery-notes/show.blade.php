@@ -90,12 +90,53 @@
         <p><strong>الحالة:</strong> {{ $deliveryNote->status }}</p>
 
         @if ($deliveryNote->salesInvoice)
-            <p>
-                <strong>الفاتورة المرتبطة:</strong>
-                <a href="{{ route('sales-invoices.show', $deliveryNote->salesInvoice) }}">
-                    {{ $deliveryNote->salesInvoice->invoice_number }}
-                </a>
-            </p>
+            <div style="margin-top:20px;padding:16px;border:1px solid #cbe7d5;border-radius:14px;background:#f6fbf8;">
+                <h3 style="margin-top:0;color:#157347;">تفاصيل الفاتورة المرتبطة</h3>
+
+                <div class="grid">
+                    <div class="metric">
+                        <div class="metric-label">رقم الفاتورة</div>
+                        <div class="metric-value" style="font-size:20px;" dir="ltr">
+                            {{ $deliveryNote->salesInvoice->invoice_number }}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">حالة الفاتورة</div>
+                        <div class="metric-value" style="font-size:20px;">
+                            {{ $deliveryNote->salesInvoice->displayStatus() }}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">حالة السداد</div>
+                        <div class="metric-value" style="font-size:20px;">
+                            {{ $deliveryNote->salesInvoice->displayPaymentStatus() }}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">إجمالي الفاتورة</div>
+                        <div class="metric-value" style="font-size:20px;">
+                            {{ number_format((float) $deliveryNote->salesInvoice->grand_total, 2) }} ريال
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">تاريخ الفاتورة</div>
+                        <div class="metric-value" style="font-size:20px;">
+                            {{ optional($deliveryNote->salesInvoice->issued_at)->format('Y-m-d') ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <a href="{{ route('sales-invoices.show', $deliveryNote->salesInvoice) }}"
+                       style="display:inline-block;background:#157347;color:#fff;padding:10px 15px;border-radius:12px;font-weight:700;">
+                        فتح الفاتورة
+                    </a>
+                </div>
+            </div>
         @endif
     </div>
 
