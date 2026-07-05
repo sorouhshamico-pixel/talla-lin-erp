@@ -137,8 +137,24 @@ class SalesInvoiceController extends Controller
             ->with('success', 'تم اعتماد الفاتورة وخصم المخزون بنجاح.');
     }
 
-    public function createPayment(SalesInvoice $salesInvoice): View
+    public function createPayment(SalesInvoice $salesInvoice): RedirectResponse|View
     {
+        if ($salesInvoice->status !== 'issued') {
+            return redirect()
+                ->route('sales-invoices.show', $salesInvoice)
+                ->withErrors([
+                    'payment' => 'لا يمكن تسجيل دفعة على فاتورة غير معتمدة.',
+                ]);
+        }
+
+        if ((float) $salesInvoice->remaining_amount <= 0) {
+            return redirect()
+                ->route('sales-invoices.show', $salesInvoice)
+                ->withErrors([
+                    'payment' => 'لا يمكن تسجيل دفعة على فاتورة مدفوعة بالكامل.',
+                ]);
+        }
+
         $salesInvoice->load(['customer', 'branch']);
 
         return view('sales-invoices.create-payment', [
