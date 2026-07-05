@@ -20,6 +20,29 @@
         </div>
     </div>
 
+    <div class="card" data-testid="sales-invoice-filters-card" style="margin-bottom:20px;">
+        <form method="GET" action="{{ route('sales-invoices.index') }}">
+            <div class="grid" style="align-items:end;">
+                <div class="field">
+                    <label for="sales_invoice_customer_filter" class="label">العميل</label>
+                    <select id="sales_invoice_customer_filter" name="customer_id" data-testid="sales-invoice-customer-filter">
+                        <option value="">كل العملاء</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @selected((string) $customerFilter === (string) $customer->id)>
+                                {{ $customer->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="field">
+                    <button type="submit" class="btn" data-testid="sales-invoice-apply-filters-button">تطبيق الفلتر</button>
+                    <a href="{{ route('sales-invoices.index') }}" class="btn secondary" data-testid="sales-invoice-reset-filters-link">إعادة ضبط</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card">
         <div class="table-wrap">
             <table>

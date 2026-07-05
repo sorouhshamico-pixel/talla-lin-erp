@@ -37,8 +37,13 @@ class SalesInvoiceController extends Controller
             ->latest('id')
             ->get();
 
+        $customers = Customer::query()
+            ->orderBy('name')
+            ->get();
+
         return view('sales-invoices.index', [
             'invoices' => $invoices,
+            'customers' => $customers,
             'customerFilter' => $request->input('customer_id'),
             'collectionStatusFilter' => $request->input('collection_status'),
             'paymentStatusFilter' => $request->input('payment_status'),
