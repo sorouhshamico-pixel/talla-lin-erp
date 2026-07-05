@@ -51,6 +51,16 @@
             <button type="button" class="btn secondary" onclick="window.print()" data-testid="statement-print-button">طباعة</button>
         </div>
 
+        @if(($partyType ?? null) === 'customer')
+            <div class="card" data-testid="customer-statement-sales-invoice-source" style="margin-top: 16px;">
+                <strong>مصدر كشف الحساب:</strong>
+                فواتير المبيعات ودفعات فواتير المبيعات.
+                <div class="muted" style="margin-top: 8px;">
+                    المدين يمثل قيمة فواتير البيع على العميل، والدائن يمثل الدفعات المسجلة من العميل.
+                </div>
+            </div>
+        @endif
+
         <form method="GET" class="actions no-print" data-testid="statement-filter-form">
             <label>
                 من
@@ -125,7 +135,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="muted" data-testid="statement-empty">لا توجد حركات مالية مطابقة.</td>
+                        <td colspan="7" class="muted" data-testid="statement-empty">لا توجد حركات في كشف الحساب للفترة المحددة.</td>
                     </tr>
                 @endforelse
             </tbody>
