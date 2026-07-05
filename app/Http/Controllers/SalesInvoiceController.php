@@ -28,6 +28,10 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('remaining_amount', '>', 0);
         }
 
+        if ($request->filled('payment_status')) {
+            $invoicesQuery->where('payment_status', $request->input('payment_status'));
+        }
+
         $invoices = $invoicesQuery
             ->latest('issued_at')
             ->latest('id')
@@ -37,6 +41,7 @@ class SalesInvoiceController extends Controller
             'invoices' => $invoices,
             'customerFilter' => $request->input('customer_id'),
             'collectionStatusFilter' => $request->input('collection_status'),
+            'paymentStatusFilter' => $request->input('payment_status'),
         ]);
     }
 

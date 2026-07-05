@@ -158,11 +158,20 @@ class CustomerController extends Controller
             'remaining_amount' => round((float) (clone $customerOutstandingSalesInvoiceQuery)->sum('remaining_amount'), 2),
         ];
 
+        $customerPaidSalesInvoiceQuery = $customer->salesInvoices()
+            ->where('payment_status', 'paid');
+
+        $customerPaidSalesInvoiceSummary = [
+            'count' => (clone $customerPaidSalesInvoiceQuery)->count(),
+            'grand_total' => round((float) (clone $customerPaidSalesInvoiceQuery)->sum('grand_total'), 2),
+        ];
+
         return view('customers.show', compact(
             'customer',
             'customerSalesInvoiceSummary',
             'customerRecentSalesInvoices',
-            'customerOutstandingSalesInvoiceSummary'
+            'customerOutstandingSalesInvoiceSummary',
+            'customerPaidSalesInvoiceSummary'
         ));
     }
 

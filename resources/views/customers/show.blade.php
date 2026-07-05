@@ -256,6 +256,57 @@
     </div>
 
     @php
+        if (! isset($customerPaidSalesInvoiceSummary)) {
+            $customerPaidSalesInvoiceQuery = $customer->salesInvoices()
+                ->where('payment_status', 'paid');
+
+            $customerPaidSalesInvoiceSummary = [
+                'count' => (clone $customerPaidSalesInvoiceQuery)->count(),
+                'grand_total' => round((float) (clone $customerPaidSalesInvoiceQuery)->sum('grand_total'), 2),
+            ];
+        }
+    @endphp
+
+    <div class="card" data-testid="customer-paid-sales-invoice-summary-card">
+        <h2>ملخص فواتير العميل المدفوعة بالكامل</h2>
+        <div class="muted">يعرض هذا الملخص فواتير المبيعات التي تم سدادها بالكامل.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد الفواتير المدفوعة</div>
+                <div class="summary-value" data-testid="customer-paid-sales-invoice-summary-count">{{ $customerPaidSalesInvoiceSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي الفواتير المدفوعة</div>
+                <div class="summary-value" data-testid="customer-paid-sales-invoice-summary-total">{{ number_format($customerPaidSalesInvoiceSummary['grand_total'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">حالة التحصيل</div>
+                <div class="summary-value">
+                    @if ($customerPaidSalesInvoiceSummary['count'] > 0)
+                        فواتير مدفوعة مسجلة
+                    @else
+                        لا توجد فواتير مدفوعة بالكامل
+                    @endif
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض الفواتير</div>
+                <div class="summary-value">
+                    <a href="{{ route('sales-invoices.index', ['customer_id' => $customer->id, 'payment_status' => 'paid']) }}"
+                       class="btn secondary"
+                       data-testid="customer-paid-sales-invoice-summary-link">
+                        عرض الفواتير المدفوعة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @php
         if (! isset($customerRecentSalesInvoices)) {
             $customerRecentSalesInvoices = $customer->salesInvoices()
                 ->latest('issued_at')
