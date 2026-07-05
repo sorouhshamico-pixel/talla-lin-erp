@@ -189,6 +189,41 @@
         </div>
     </div>
 
+    <div class="card" data-testid="supplier-recent-expenses-card">
+        <h2>آخر مصروفات المورد</h2>
+        <div class="muted">يعرض هذا القسم آخر 5 مصروفات تشغيلية مرتبطة بهذا المورد.</div>
+
+        <div style="margin-top: 16px;" data-testid="supplier-recent-expenses-list">
+            @forelse ($supplierRecentExpenses as $expense)
+                <div class="field" data-testid="supplier-recent-expense-row" style="margin-bottom: 10px;">
+                    <div class="label">
+                        {{ $expense->expense_date?->format('Y-m-d') ?: '-' }}
+                        —
+                        {{ $expense->is_paid ? 'مدفوع' : 'غير مدفوع' }}
+                    </div>
+
+                    <div class="value">
+                        {{ $expense->description }}
+                    </div>
+
+                    <div class="muted" style="margin-top: 6px;">
+                        {{ number_format((float) $expense->amount, 2) }} ريال
+                    </div>
+
+                    <div class="actions">
+                        <a href="{{ route('expenses.edit', $expense) }}"
+                           class="btn secondary"
+                           data-testid="supplier-recent-expense-edit-link">
+                            تعديل المصروف
+                        </a>
+                    </div>
+                </div>
+            @empty
+                <div class="muted" data-testid="supplier-recent-expenses-empty">لا توجد مصروفات مرتبطة بهذا المورد بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
     <div class="card" data-testid="suppliers-notes-card">
         <h2>ملاحظات المورد</h2>
         <div class="muted">أضف ملاحظات داخلية مرتبطة بهذا السجل.</div>

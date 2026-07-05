@@ -133,7 +133,13 @@ class SupplierController extends Controller
             'amount' => round((float) (clone $supplierExpenseQuery)->sum('amount'), 2),
         ];
 
-        return view('suppliers.show', compact('supplier', 'supplierExpenseSummary'));
+        $supplierRecentExpenses = $supplier->expenses()
+            ->latest('expense_date')
+            ->latest('id')
+            ->limit(5)
+            ->get();
+
+        return view('suppliers.show', compact('supplier', 'supplierExpenseSummary', 'supplierRecentExpenses'));
     }
 
     public function toggleActive(Supplier $supplier)
