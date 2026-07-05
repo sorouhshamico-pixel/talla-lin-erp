@@ -36,6 +36,16 @@
                 </div>
 
                 <div class="field">
+                    <label for="sales_invoice_payment_status_filter" class="label">حالة الدفع</label>
+                    <select id="sales_invoice_payment_status_filter" name="payment_status" data-testid="sales-invoice-payment-status-filter">
+                        <option value="">كل الحالات</option>
+                        <option value="unpaid" @selected((string) $paymentStatusFilter === 'unpaid')>غير مدفوعة</option>
+                        <option value="partial" @selected((string) $paymentStatusFilter === 'partial')>مدفوعة جزئيًا</option>
+                        <option value="paid" @selected((string) $paymentStatusFilter === 'paid')>مدفوعة بالكامل</option>
+                    </select>
+                </div>
+
+                <div class="field">
                     <button type="submit" class="btn" data-testid="sales-invoice-apply-filters-button">تطبيق الفلتر</button>
                     <a href="{{ route('sales-invoices.index') }}" class="btn secondary" data-testid="sales-invoice-reset-filters-link">إعادة ضبط</a>
                 </div>
