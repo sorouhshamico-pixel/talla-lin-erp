@@ -122,6 +122,7 @@
                         <th>طريقة الدفع</th>
                         <th>المرجع</th>
                         <th>الموظف</th>
+                        <th>ملاحظات</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,6 +133,7 @@
                             <td>{{ $payment->displayMethod() }}</td>
                             <td dir="ltr">{{ $payment->reference_number ?? '-' }}</td>
                             <td>{{ $payment->user?->name ?? '-' }}</td>
+                            <td>{{ $payment->notes ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
