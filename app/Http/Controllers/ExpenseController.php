@@ -136,6 +136,7 @@ class ExpenseController extends Controller
                     $expense->description,
                     $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
                     $expense->category?->name ?? '',
+                    $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
                     $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
                     number_format((float) $expense->amount, 2, '.', ''),
@@ -195,6 +196,7 @@ class ExpenseController extends Controller
                     $expense->description,
                     $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
                     $expense->category?->name ?? '',
+                    $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
                     $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
                     number_format((float) $expense->amount, 2, '.', ''),
@@ -253,6 +255,7 @@ class ExpenseController extends Controller
                     $expense->description,
                     $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
                     $expense->category?->name ?? '',
+                    $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
                     $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
                     number_format((float) $expense->amount, 2, '.', ''),
@@ -282,10 +285,7 @@ class ExpenseController extends Controller
             ->get();
 
         $suppliers = $this->expenseSuppliers();
-        $suppliers = Supplier::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
+
 
 
         return view('expenses.create', [
@@ -330,7 +330,6 @@ class ExpenseController extends Controller
 
         Expense::query()->create([
             'company_id' => $branch->company_id,
-            'supplier_id' => $data['supplier_id'] ?? null,
             'branch_id' => $branch->id,
             'expense_category_id' => $category->id,
             'supplier_id' => $data['supplier_id'] ?? null,
@@ -369,19 +368,8 @@ class ExpenseController extends Controller
             ->orderBy('name')
             ->get();
 
-        $editSuppliers = $this->expenseSuppliers();
+        $suppliers = $this->expenseSuppliers($expense);
 
-        $suppliers = $this->expenseSuppliers();
-        $suppliers = Supplier::query()
-            ->where(function ($query) use ($expense): void {
-                $query->where('is_active', true);
-
-                if ($expense->supplier_id) {
-                    $query->orWhere('id', $expense->supplier_id);
-                }
-            })
-            ->orderBy('name')
-            ->get();
 
 
         return view('expenses.edit', [
@@ -389,7 +377,6 @@ class ExpenseController extends Controller
             'branches' => $branches,
             'categories' => $categories,
             'suppliers' => $suppliers,
-            'suppliers' => $editSuppliers,
             'paymentMethods' => $this->paymentMethods(),
             'paymentStatuses' => $this->paymentStatuses(),
         ]);
@@ -436,7 +423,6 @@ class ExpenseController extends Controller
 
         $expense->update([
             'company_id' => $branch->company_id,
-            'supplier_id' => $data['supplier_id'] ?? null,
             'branch_id' => $branch->id,
             'expense_category_id' => $category->id,
             'supplier_id' => $data['supplier_id'] ?? null,
@@ -483,9 +469,17 @@ class ExpenseController extends Controller
     }
 
 
-    private function expenseSuppliers()
+
+    private function expenseSuppliers(?Expense $expense = null)
     {
         return Supplier::query()
+            ->where(function ($query) use ($expense): void {
+                $query->where('is_active', true);
+
+                if ($expense?->supplier_id) {
+                    $query->orWhere('id', $expense->supplier_id);
+                }
+            })
             ->orderBy('name')
             ->get();
     }
@@ -856,6 +850,7 @@ class ExpenseController extends Controller
                     $expense->description,
                     $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
                     $expense->category?->name ?? '',
+                    $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
                     $expense->is_paid ? 'مدفوع' : 'غير مدفوع',
                     number_format((float) $expense->amount, 2, '.', ''),
