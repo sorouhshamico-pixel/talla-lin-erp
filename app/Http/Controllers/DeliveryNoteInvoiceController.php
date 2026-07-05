@@ -99,7 +99,9 @@ class DeliveryNoteInvoiceController extends Controller
             return $invoice;
         });
 
-        return redirect()->route('sales-invoices.show', $invoice);
+        return redirect()
+            ->route('sales-invoices.show', $invoice)
+            ->with('success', 'تم تحويل سند التسليم إلى فاتورة مبيعات بنجاح.');
     }
 
     private function getDefaultVariant(int $companyId): ProductVariant

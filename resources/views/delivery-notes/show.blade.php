@@ -25,9 +25,13 @@
                       style="display:inline-block;">
                     @csrf
                     <button type="submit"
+                            onclick="return confirm('تأكيد التحويل إلى فاتورة مبيعات؟ سيتم إنشاء فاتورة مرتبطة بهذا السند ولا يمكن تكرار التحويل.')"
                             style="border:0;background:#157347;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer;">
                         تحويل إلى فاتورة مبيعات
                     </button>
+                    <div style="margin-top:8px;color:#6c757d;font-size:13px;">
+                        سيتم إنشاء فاتورة مبيعات مرتبطة بهذا السند بعد التأكيد.
+                    </div>
                 </form>
             @endif
 
