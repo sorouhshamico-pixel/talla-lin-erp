@@ -32,6 +32,14 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('payment_status', $request->input('payment_status'));
         }
 
+        if ($request->filled('issued_from')) {
+            $invoicesQuery->whereDate('issued_at', '>=', $request->input('issued_from'));
+        }
+
+        if ($request->filled('issued_to')) {
+            $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
+        }
+
         $salesInvoiceSummary = [
             'count' => (clone $invoicesQuery)->count(),
             'grand_total' => round((float) (clone $invoicesQuery)->sum('grand_total'), 2),
@@ -57,6 +65,8 @@ class SalesInvoiceController extends Controller
             'customerFilter' => $request->input('customer_id'),
             'collectionStatusFilter' => $request->input('collection_status'),
             'paymentStatusFilter' => $request->input('payment_status'),
+            'issuedFromFilter' => $request->input('issued_from'),
+            'issuedToFilter' => $request->input('issued_to'),
         ]);
     }
 

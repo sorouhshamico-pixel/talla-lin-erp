@@ -54,6 +54,24 @@
                 </div>
 
                 <div class="field">
+                    <label for="sales_invoice_issued_from_filter" class="label">من تاريخ</label>
+                    <input id="sales_invoice_issued_from_filter"
+                           type="date"
+                           name="issued_from"
+                           value="{{ $issuedFromFilter }}"
+                           data-testid="sales-invoice-issued-from-filter">
+                </div>
+
+                <div class="field">
+                    <label for="sales_invoice_issued_to_filter" class="label">إلى تاريخ</label>
+                    <input id="sales_invoice_issued_to_filter"
+                           type="date"
+                           name="issued_to"
+                           value="{{ $issuedToFilter }}"
+                           data-testid="sales-invoice-issued-to-filter">
+                </div>
+
+                <div class="field">
                     <button type="submit" class="btn" data-testid="sales-invoice-apply-filters-button">تطبيق الفلتر</button>
                     <a href="{{ route('sales-invoices.index') }}" class="btn secondary" data-testid="sales-invoice-reset-filters-link">إعادة ضبط</a>
                 </div>
@@ -79,7 +97,7 @@
         <div class="muted">تصدير نتائج الفواتير حسب الفلاتر الحالية إلى ملف CSV.</div>
 
         <div class="actions" style="margin-top:16px;">
-            <a href="{{ route('sales-invoices.export', request()->only(['customer_id', 'payment_status', 'collection_status'])) }}"
+            <a href="{{ route('sales-invoices.export', request()->only(['customer_id', 'payment_status', 'collection_status', 'issued_from', 'issued_to'])) }}"
                class="btn secondary"
                data-testid="sales-invoice-export-filtered-link">
                 تصدير النتائج الحالية CSV
