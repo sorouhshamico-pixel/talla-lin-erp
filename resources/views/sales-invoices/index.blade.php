@@ -74,6 +74,25 @@
         }
     @endphp
 
+    <div class="card" data-testid="sales-invoice-export-links-card" style="margin-bottom:20px;">
+        <h2>تصدير فواتير المبيعات</h2>
+        <div class="muted">تصدير نتائج الفواتير حسب الفلاتر الحالية إلى ملف CSV.</div>
+
+        <div class="actions" style="margin-top:16px;">
+            <a href="{{ route('sales-invoices.export', request()->only(['customer_id', 'payment_status', 'collection_status'])) }}"
+               class="btn secondary"
+               data-testid="sales-invoice-export-filtered-link">
+                تصدير النتائج الحالية CSV
+            </a>
+
+            <a href="{{ route('sales-invoices.export') }}"
+               class="btn secondary"
+               data-testid="sales-invoice-export-all-link">
+                تصدير كل الفواتير CSV
+            </a>
+        </div>
+    </div>
+
     <div class="card" data-testid="sales-invoice-summary-card" style="margin-bottom:20px;">
         <h2>ملخص فواتير المبيعات</h2>
         <div class="muted">يعرض هذا الملخص نتائج الفواتير حسب الفلاتر الحالية.</div>
