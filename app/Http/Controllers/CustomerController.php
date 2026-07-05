@@ -144,7 +144,17 @@ class CustomerController extends Controller
             'remaining_amount' => round((float) (clone $customerSalesInvoiceQuery)->sum('remaining_amount'), 2),
         ];
 
-        return view('customers.show', compact('customer', 'customerSalesInvoiceSummary'));
+        $customerRecentSalesInvoices = $customer->salesInvoices()
+            ->latest('issued_at')
+            ->latest('id')
+            ->limit(5)
+            ->get();
+
+        return view('customers.show', compact(
+            'customer',
+            'customerSalesInvoiceSummary',
+            'customerRecentSalesInvoices'
+        ));
     }
 
     public function toggleActive(Customer $customer)

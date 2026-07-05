@@ -204,6 +204,55 @@
         </div>
     </div>
 
+    @php
+        if (! isset($customerRecentSalesInvoices)) {
+            $customerRecentSalesInvoices = $customer->salesInvoices()
+                ->latest('issued_at')
+                ->latest('id')
+                ->limit(5)
+                ->get();
+        }
+    @endphp
+
+    <div class="card" data-testid="customer-recent-sales-invoices-card">
+        <h2>آخر فواتير مبيعات العميل</h2>
+        <div class="muted">يعرض هذا القسم آخر 5 فواتير مبيعات مرتبطة بهذا العميل.</div>
+
+        <div style="margin-top: 16px;" data-testid="customer-recent-sales-invoices-list">
+            @forelse ($customerRecentSalesInvoices as $invoice)
+                <div class="field" data-testid="customer-recent-sales-invoice-row" style="margin-bottom: 10px;">
+                    <div class="label">
+                        {{ $invoice->issued_at?->format('Y-m-d') ?: '-' }}
+                        —
+                        {{ $invoice->displayPaymentStatus() }}
+                    </div>
+
+                    <div class="value">
+                        {{ $invoice->invoice_number }}
+                    </div>
+
+                    <div class="muted" style="margin-top: 6px;">
+                        الإجمالي: {{ number_format((float) $invoice->grand_total, 2) }} ريال
+                        —
+                        المدفوع: {{ number_format((float) $invoice->paid_amount, 2) }} ريال
+                        —
+                        المتبقي: {{ number_format((float) $invoice->remaining_amount, 2) }} ريال
+                    </div>
+
+                    <div class="actions">
+                        <a href="{{ route('sales-invoices.show', $invoice) }}"
+                           class="btn secondary"
+                           data-testid="customer-recent-sales-invoice-show-link">
+                            فتح الفاتورة
+                        </a>
+                    </div>
+                </div>
+            @empty
+                <div class="muted" data-testid="customer-recent-sales-invoices-empty">لا توجد فواتير مبيعات مرتبطة بهذا العميل بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
     <div class="card" data-testid="customers-notes-card">
         <h2>ملاحظات العميل</h2>
         <div class="muted">أضف ملاحظات داخلية مرتبطة بهذا السجل.</div>
