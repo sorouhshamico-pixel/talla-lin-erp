@@ -61,6 +61,16 @@
             </div>
         @endif
 
+        @if(($partyType ?? null) === 'supplier')
+            <div class="card" data-testid="supplier-statement-expense-source" style="margin-top: 16px;">
+                <strong>مصدر كشف الحساب:</strong>
+                المصروفات المرتبطة بالمورد.
+                <div class="muted" style="margin-top: 8px;">
+                    المدين يمثل قيمة المصروفات المستحقة للمورد، والدائن يمثل أي مبالغ مسددة أو مخصومة عند توفرها في النظام.
+                </div>
+            </div>
+        @endif
+
         <form method="GET" class="actions no-print" data-testid="statement-filter-form">
             <label>
                 من
