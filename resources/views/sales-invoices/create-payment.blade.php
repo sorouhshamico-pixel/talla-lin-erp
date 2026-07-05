@@ -52,8 +52,11 @@
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">مبلغ الدفعة</label>
-                    <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount', $invoice->remaining_amount) }}"
+                    <input type="number" step="0.01" min="0.01" max="{{ $invoice->remaining_amount }}" name="amount" value="{{ old('amount', $invoice->remaining_amount) }}"
                            required style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                    <div class="muted" style="margin-top:6px;font-size:13px;">
+                        لا يمكن أن تتجاوز الدفعة المبلغ المتبقي: {{ number_format((float) $invoice->remaining_amount, 2) }} ريال
+                    </div>
                 </div>
 
                 <div>
