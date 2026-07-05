@@ -30,6 +30,22 @@
         <form method="POST" action="{{ route('expenses.store') }}" enctype="multipart/form-data">
             @csrf
 
+        <div class="mb-3">
+            <label for="supplier_id" class="form-label">المورد</label>
+            <select name="supplier_id" id="supplier_id" class="form-select @error('supplier_id') is-invalid @enderror">
+                <option value="">بدون مورد</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" {{ (string) old('supplier_id', $expense->supplier_id ?? '') === (string) $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->name }}@if(!empty($supplier->phone)) — {{ $supplier->phone }}@endif
+                    </option>
+                @endforeach
+            </select>
+            @error('supplier_id')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;">
                 <div>
                     <label class="muted" style="display:block;margin-bottom:8px;">الفرع</label>
@@ -53,6 +69,21 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                <div>
+                    <label class="muted" style="display:block;margin-bottom:8px;">المورد</label>
+                    <select name="supplier_id" data-testid="expense-supplier-select" style="width:100%;padding:12px;border:1px solid #e7dcd2;border-radius:12px;">
+                        <option value="">بدون مورد محدد</option>
+                        @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected((string) old('supplier_id') === (string) $supplier->id)>
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="muted" style="font-size:12px;margin-top:6px;">
+                        اختيار المورد اختياري، ويُستخدم لربط المصروف بكشف حساب المورد.
+                    </div>
                 </div>
 
                 <div style="grid-column:1 / -1;">

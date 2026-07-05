@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -274,9 +275,17 @@ class ExpenseController extends Controller
             ->orderBy('id')
             ->get();
 
+        $suppliers = $this->expenseSuppliers();
+        $suppliers = Supplier::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+
         return view('expenses.create', [
             'branches' => $branches,
             'categories' => $categories,
+            'suppliers' => $suppliers,
             'paymentMethods' => $this->paymentMethods(),
             'paymentStatuses' => $this->paymentStatuses(),
         ]);
@@ -285,6 +294,14 @@ class ExpenseController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedExpenseData($request);
+        $request->validate([
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
+        ]);
+
+        $data['supplier_id'] = $request->filled('supplier_id')
+            ? (int) $request->input('supplier_id')
+            : null;
+
 
         $branch = Branch::query()->findOrFail($data['branch_id']);
         $category = ExpenseCategory::query()->findOrFail($data['expense_category_id']);
@@ -307,8 +324,10 @@ class ExpenseController extends Controller
 
         Expense::query()->create([
             'company_id' => $branch->company_id,
+            'supplier_id' => $data['supplier_id'] ?? null,
             'branch_id' => $branch->id,
             'expense_category_id' => $category->id,
+            'supplier_id' => $data['supplier_id'] ?? null,
             'user_id' => $request->user()?->id,
             'code' => $this->generateNextExpenseCode((int) $branch->company_id),
             'description' => $data['description'],
@@ -344,10 +363,27 @@ class ExpenseController extends Controller
             ->orderBy('name')
             ->get();
 
+        $editSuppliers = $this->expenseSuppliers();
+
+        $suppliers = $this->expenseSuppliers();
+        $suppliers = Supplier::query()
+            ->where(function ($query) use ($expense): void {
+                $query->where('is_active', true);
+
+                if ($expense->supplier_id) {
+                    $query->orWhere('id', $expense->supplier_id);
+                }
+            })
+            ->orderBy('name')
+            ->get();
+
+
         return view('expenses.edit', [
-            'expense' => $expense->load(['branch', 'category']),
+            'expense' => $expense->load(['branch', 'category', 'supplier']),
             'branches' => $branches,
             'categories' => $categories,
+            'suppliers' => $suppliers,
+            'suppliers' => $editSuppliers,
             'paymentMethods' => $this->paymentMethods(),
             'paymentStatuses' => $this->paymentStatuses(),
         ]);
@@ -356,6 +392,14 @@ class ExpenseController extends Controller
     public function update(Request $request, Expense $expense): RedirectResponse
     {
         $data = $this->validatedExpenseData($request);
+        $request->validate([
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
+        ]);
+
+        $data['supplier_id'] = $request->filled('supplier_id')
+            ? (int) $request->input('supplier_id')
+            : null;
+
 
         $branch = Branch::query()->findOrFail($data['branch_id']);
         $category = ExpenseCategory::query()->findOrFail($data['expense_category_id']);
@@ -386,8 +430,10 @@ class ExpenseController extends Controller
 
         $expense->update([
             'company_id' => $branch->company_id,
+            'supplier_id' => $data['supplier_id'] ?? null,
             'branch_id' => $branch->id,
             'expense_category_id' => $category->id,
+            'supplier_id' => $data['supplier_id'] ?? null,
             'description' => $data['description'],
             'amount' => (float) $data['amount'],
             'tax_amount' => (float) ($data['tax_amount'] ?? 0),
@@ -429,6 +475,15 @@ class ExpenseController extends Controller
             ->route('expenses.index')
             ->with('success', 'تم حذف المصروف بنجاح.');
     }
+
+
+    private function expenseSuppliers()
+    {
+        return Supplier::query()
+            ->orderBy('name')
+            ->get();
+    }
+
 
     private function expenseFilters(Request $request): array
     {
@@ -637,6 +692,7 @@ class ExpenseController extends Controller
     private function validatedExpenseData(Request $request): array
     {
         return $request->validate([
+            'supplier_id' => ['nullable', 'integer', Rule::exists('suppliers', 'id')],
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'expense_category_id' => ['required', 'integer', Rule::exists('expense_categories', 'id')->where('is_active', true)],
             'description' => ['required', 'string', 'max:255'],
