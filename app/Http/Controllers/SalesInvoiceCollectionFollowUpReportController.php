@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\SalesInvoiceCollectionNote;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class SalesInvoiceCollectionFollowUpReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $today = now()->toDateString();
+
+        $customers = Customer::query()
+            ->orderBy('name')
+            ->get();
 
         $baseQuery = SalesInvoiceCollectionNote::query()
             ->with([
@@ -18,6 +24,20 @@ class SalesInvoiceCollectionFollowUpReportController extends Controller
                 'user',
             ])
             ->whereNotNull('follow_up_at');
+
+        if ($request->filled('customer_id')) {
+            $baseQuery->whereHas('salesInvoice', function ($query) use ($request): void {
+                $query->where('customer_id', $request->input('customer_id'));
+            });
+        }
+
+        if ($request->filled('follow_up_from')) {
+            $baseQuery->whereDate('follow_up_at', '>=', $request->input('follow_up_from'));
+        }
+
+        if ($request->filled('follow_up_to')) {
+            $baseQuery->whereDate('follow_up_at', '<=', $request->input('follow_up_to'));
+        }
 
         $dueQuery = (clone $baseQuery)
             ->whereDate('follow_up_at', '<=', $today)
@@ -48,6 +68,10 @@ class SalesInvoiceCollectionFollowUpReportController extends Controller
             'summary' => $summary,
             'dueNotes' => $dueNotes,
             'today' => $today,
+            'customers' => $customers,
+            'customerFilter' => $request->input('customer_id'),
+            'followUpFromFilter' => $request->input('follow_up_from'),
+            'followUpToFilter' => $request->input('follow_up_to'),
         ]);
     }
 }

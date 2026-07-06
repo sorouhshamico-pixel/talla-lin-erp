@@ -43,6 +43,58 @@
         </div>
     </div>
 
+    <div class="card" data-testid="collection-follow-up-report-filters-card">
+        <h2>فلاتر التقرير</h2>
+
+        <form method="GET" action="{{ route('reports.sales-invoice-collection-follow-ups.index') }}">
+            <div class="grid">
+                <div class="metric">
+                    <label class="metric-label" for="collection_follow_up_customer_filter">العميل</label>
+                    <select id="collection_follow_up_customer_filter"
+                            name="customer_id"
+                            data-testid="collection-follow-up-customer-filter"
+                            style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل العملاء</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @selected((string) $customerFilter === (string) $customer->id)>
+                                {{ $customer->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <label class="metric-label" for="collection_follow_up_from_filter">من تاريخ متابعة</label>
+                    <input id="collection_follow_up_from_filter"
+                           type="date"
+                           name="follow_up_from"
+                           value="{{ $followUpFromFilter }}"
+                           data-testid="collection-follow-up-from-filter"
+                           style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                </div>
+
+                <div class="metric">
+                    <label class="metric-label" for="collection_follow_up_to_filter">إلى تاريخ متابعة</label>
+                    <input id="collection_follow_up_to_filter"
+                           type="date"
+                           name="follow_up_to"
+                           value="{{ $followUpToFilter }}"
+                           data-testid="collection-follow-up-to-filter"
+                           style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">الإجراء</div>
+                    <button type="submit" class="btn" data-testid="collection-follow-up-apply-filters-button">تطبيق الفلتر</button>
+                    <a href="{{ route('reports.sales-invoice-collection-follow-ups.index') }}"
+                       class="btn secondary"
+                       data-testid="collection-follow-up-reset-filters-link"
+                       style="margin-top:8px;">إعادة ضبط</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card" data-testid="collection-follow-up-summary-card">
         <h2>ملخص المتابعات</h2>
 
