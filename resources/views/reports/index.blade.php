@@ -344,5 +344,13 @@
             <div class="muted">متابعة ملاحظات التحصيل المستحقة حسب تاريخ المتابعة.</div>
         </a>
 
+        <a href="{{ route('reports.sales-invoice-aging.index') }}"
+           class="card"
+           data-testid="sales-invoice-aging-report-link"
+           style="display:block;text-decoration:none;color:inherit;">
+            <h2>تقرير أعمار ذمم فواتير المبيعات</h2>
+            <div class="muted">توزيع الفواتير المفتوحة حسب تاريخ الاستحقاق وأيام التأخير.</div>
+        </a>
+
 </div>
 @endsection
