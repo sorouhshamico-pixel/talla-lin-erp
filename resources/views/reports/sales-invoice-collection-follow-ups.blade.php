@@ -38,6 +38,9 @@
 
             <div>
                 <a class="btn secondary" href="{{ route('reports.index') }}" data-testid="collection-follow-up-report-back-link">رجوع للتقارير</a>
+                <a class="btn secondary"
+                   href="{{ route('reports.sales-invoice-collection-follow-ups.export', request()->only(['customer_id', 'follow_up_from', 'follow_up_to'])) }}"
+                   data-testid="collection-follow-up-report-export-link">تصدير CSV</a>
                 <a class="btn" href="{{ route('reports.sales-invoice-collections.index') }}" data-testid="collection-follow-up-report-collection-report-link">تقرير التحصيل</a>
             </div>
         </div>
