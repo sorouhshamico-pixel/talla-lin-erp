@@ -41,6 +41,51 @@
         </div>
     </div>
 
+    <div class="card" data-testid="sales-invoice-aging-report-filters-card">
+        <h2>فلاتر التقرير</h2>
+
+        <form method="GET" action="{{ route('reports.sales-invoice-aging.index') }}">
+            <div class="grid">
+                <div class="metric">
+                    <label class="metric-label" for="sales_invoice_aging_customer_filter">العميل</label>
+                    <select id="sales_invoice_aging_customer_filter"
+                            name="customer_id"
+                            data-testid="sales-invoice-aging-customer-filter"
+                            style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل العملاء</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @selected((string) $customerFilter === (string) $customer->id)>
+                                {{ $customer->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <label class="metric-label" for="sales_invoice_aging_payment_status_filter">حالة الدفع</label>
+                    <select id="sales_invoice_aging_payment_status_filter"
+                            name="payment_status"
+                            data-testid="sales-invoice-aging-payment-status-filter"
+                            style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل الحالات</option>
+                        <option value="unpaid" @selected((string) $paymentStatusFilter === 'unpaid')>غير مدفوعة</option>
+                        <option value="partial" @selected((string) $paymentStatusFilter === 'partial')>مدفوعة جزئيًا</option>
+                        <option value="paid" @selected((string) $paymentStatusFilter === 'paid')>مدفوعة بالكامل</option>
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">الإجراء</div>
+                    <button type="submit" class="btn" data-testid="sales-invoice-aging-apply-filters-button">تطبيق الفلتر</button>
+                    <a href="{{ route('reports.sales-invoice-aging.index') }}"
+                       class="btn secondary"
+                       data-testid="sales-invoice-aging-reset-filters-link"
+                       style="margin-top:8px;">إعادة ضبط</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card" data-testid="sales-invoice-aging-total-card">
         <h2>الإجمالي العام</h2>
         <div class="grid">

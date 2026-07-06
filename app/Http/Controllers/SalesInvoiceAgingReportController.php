@@ -2,18 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\SalesInvoice;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class SalesInvoiceAgingReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $today = now()->toDateString();
+
+        $customers = Customer::query()
+            ->orderBy('name')
+            ->get();
 
         $baseQuery = SalesInvoice::query()
             ->with(['customer', 'branch'])
             ->where('remaining_amount', '>', 0);
+
+        if ($request->filled('customer_id')) {
+            $baseQuery->where('customer_id', $request->input('customer_id'));
+        }
+
+        if ($request->filled('payment_status')) {
+            $baseQuery->where('payment_status', $request->input('payment_status'));
+        }
 
         $notDueQuery = (clone $baseQuery)
             ->whereNotNull('due_at')
@@ -90,6 +104,9 @@ class SalesInvoiceAgingReportController extends Controller
             'totalOutstanding' => $totalOutstanding,
             'totalCount' => $totalCount,
             'today' => $today,
+            'customers' => $customers,
+            'customerFilter' => $request->input('customer_id'),
+            'paymentStatusFilter' => $request->input('payment_status'),
         ]);
     }
 }
