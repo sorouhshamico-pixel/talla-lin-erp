@@ -50,6 +50,7 @@
                     <select id="sales_invoice_collection_status_filter" name="collection_status" data-testid="sales-invoice-collection-status-filter">
                         <option value="">كل الفواتير</option>
                         <option value="outstanding" @selected((string) $collectionStatusFilter === 'outstanding')>فواتير ذات مبالغ متبقية</option>
+                        <option value="overdue" @selected((string) $collectionStatusFilter === 'overdue')>فواتير متأخرة التحصيل</option>
                     </select>
                 </div>
 

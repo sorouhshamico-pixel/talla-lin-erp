@@ -28,6 +28,12 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('remaining_amount', '>', 0);
         }
 
+        if ($request->input('collection_status') === 'overdue') {
+            $invoicesQuery
+                ->where('remaining_amount', '>', 0)
+                ->whereDate('due_at', '<', now()->toDateString());
+        }
+
         if ($request->filled('payment_status')) {
             $invoicesQuery->where('payment_status', $request->input('payment_status'));
         }
@@ -84,6 +90,12 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->where('remaining_amount', '>', 0);
         }
 
+        if ($request->input('collection_status') === 'overdue') {
+            $invoicesQuery
+                ->where('remaining_amount', '>', 0)
+                ->whereDate('due_at', '<', now()->toDateString());
+        }
+
         if ($request->filled('payment_status')) {
             $invoicesQuery->where('payment_status', $request->input('payment_status'));
         }
@@ -118,6 +130,7 @@ class SalesInvoiceController extends Controller
 
         $collectionStatusLabels = [
             'outstanding' => 'فواتير ذات مبالغ متبقية',
+            'overdue' => 'فواتير متأخرة التحصيل',
         ];
 
         $exportFilters = [
