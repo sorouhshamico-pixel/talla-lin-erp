@@ -328,5 +328,13 @@
         <p style="margin-bottom:0;">
             تقييم المخزون محسوب على أساس الكمية الفعلية الحالية مضروبة في تكلفة أو سعر بيع كل متغير.
         </p>
-    </div>
+            <a href="{{ route('reports.sales-invoice-collections.index') }}"
+           class="card"
+           data-testid="sales-invoice-collection-report-link"
+           style="display:block;text-decoration:none;color:inherit;">
+            <h2>تقرير تحصيل فواتير المبيعات</h2>
+            <div class="muted">متابعة الفواتير ذات المتبقي والفواتير المتأخرة.</div>
+        </a>
+
+</div>
 @endsection
