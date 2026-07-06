@@ -2,18 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\SalesInvoice;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class CustomerSalesInvoiceAgingReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $today = now()->toDateString();
 
-        $invoices = SalesInvoice::query()
+        $customers = Customer::query()
+            ->orderBy('name')
+            ->get();
+
+        $invoicesQuery = SalesInvoice::query()
             ->with(['customer'])
-            ->where('remaining_amount', '>', 0)
+            ->where('remaining_amount', '>', 0);
+
+        if ($request->filled('customer_id')) {
+            $invoicesQuery->where('customer_id', $request->input('customer_id'));
+        }
+
+        if ($request->filled('aging_bucket')) {
+            $this->applyAgingBucketFilter($invoicesQuery, $request->input('aging_bucket'), $today);
+        }
+
+        $invoices = $invoicesQuery
             ->orderByRaw('CASE WHEN due_at IS NULL THEN 1 ELSE 0 END')
             ->orderBy('due_at')
             ->latest('id')
@@ -88,6 +105,23 @@ class CustomerSalesInvoiceAgingReportController extends Controller
             'rows' => $rows,
             'summary' => $summary,
             'today' => $today,
+            'customers' => $customers,
+            'customerFilter' => $request->input('customer_id'),
+            'agingBucketFilter' => $request->input('aging_bucket'),
         ]);
     }
+
+    private function applyAgingBucketFilter(Builder $query, ?string $bucket, string $today): void
+    {
+        match ($bucket) {
+            'not_due' => $query->whereNotNull('due_at')->whereDate('due_at', '>=', $today),
+            'overdue_1_30' => $query->whereNotNull('due_at')->whereDate('due_at', '>=', now()->subDays(30)->toDateString())->whereDate('due_at', '<', $today),
+            'overdue_31_60' => $query->whereNotNull('due_at')->whereDate('due_at', '>=', now()->subDays(60)->toDateString())->whereDate('due_at', '<', now()->subDays(30)->toDateString()),
+            'overdue_61_90' => $query->whereNotNull('due_at')->whereDate('due_at', '>=', now()->subDays(90)->toDateString())->whereDate('due_at', '<', now()->subDays(60)->toDateString()),
+            'overdue_more_than_90' => $query->whereNotNull('due_at')->whereDate('due_at', '<', now()->subDays(90)->toDateString()),
+            'without_due_date' => $query->whereNull('due_at'),
+            default => null,
+        };
+    }
+
 }

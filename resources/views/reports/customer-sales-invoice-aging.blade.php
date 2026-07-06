@@ -39,6 +39,43 @@
         </div>
     </div>
 
+    <div class="card" data-testid="customer-aging-filters-card">
+        <h2>فلاتر التقرير</h2>
+
+        <form method="GET" action="{{ route('reports.customer-sales-invoice-aging.index') }}">
+            <div class="grid">
+                <div class="metric">
+                    <label class="metric-label">العميل</label>
+                    <select name="customer_id" data-testid="customer-aging-customer-filter" style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل العملاء</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @selected((string) $customerFilter === (string) $customer->id)>{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <label class="metric-label">شريحة العمر</label>
+                    <select name="aging_bucket" data-testid="customer-aging-bucket-filter" style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل الشرائح</option>
+                        <option value="not_due" @selected((string) $agingBucketFilter === 'not_due')>غير مستحقة بعد</option>
+                        <option value="overdue_1_30" @selected((string) $agingBucketFilter === 'overdue_1_30')>متأخرة 1 إلى 30 يوم</option>
+                        <option value="overdue_31_60" @selected((string) $agingBucketFilter === 'overdue_31_60')>متأخرة 31 إلى 60 يوم</option>
+                        <option value="overdue_61_90" @selected((string) $agingBucketFilter === 'overdue_61_90')>متأخرة 61 إلى 90 يوم</option>
+                        <option value="overdue_more_than_90" @selected((string) $agingBucketFilter === 'overdue_more_than_90')>أكثر من 90 يوم</option>
+                        <option value="without_due_date" @selected((string) $agingBucketFilter === 'without_due_date')>بدون تاريخ استحقاق</option>
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">الإجراء</div>
+                    <button type="submit" class="btn" data-testid="customer-aging-apply-filters-button">تطبيق الفلتر</button>
+                    <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn secondary" data-testid="customer-aging-reset-filters-link" style="margin-top:8px;">إعادة ضبط</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card" data-testid="customer-aging-summary-card">
         <h2>ملخص عام</h2>
 
