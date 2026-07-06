@@ -332,6 +332,58 @@
     </div>
 
     @php
+        if (! isset($customerOverdueSalesInvoiceSummary)) {
+            $customerOverdueSalesInvoiceQuery = $customer->salesInvoices()
+                ->where('remaining_amount', '>', 0)
+                ->whereDate('due_at', '<', now()->toDateString());
+
+            $customerOverdueSalesInvoiceSummary = [
+                'count' => (clone $customerOverdueSalesInvoiceQuery)->count(),
+                'remaining_amount' => round((float) (clone $customerOverdueSalesInvoiceQuery)->sum('remaining_amount'), 2),
+            ];
+        }
+    @endphp
+
+    <div class="card" data-testid="customer-overdue-sales-invoice-summary-card">
+        <h2>ملخص فواتير العميل المتأخرة التحصيل</h2>
+        <div class="muted">يعرض هذا الملخص فواتير المبيعات التي تجاوزت تاريخ الاستحقاق ولا يزال عليها مبلغ متبقٍ.</div>
+
+        <div class="detail-summary" style="margin-top: 16px;">
+            <div class="summary-item">
+                <div class="summary-label">عدد الفواتير المتأخرة</div>
+                <div class="summary-value" data-testid="customer-overdue-sales-invoice-summary-count">{{ $customerOverdueSalesInvoiceSummary['count'] }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">إجمالي المتأخر</div>
+                <div class="summary-value" data-testid="customer-overdue-sales-invoice-summary-total">{{ number_format($customerOverdueSalesInvoiceSummary['remaining_amount'], 2) }} ريال</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">حالة التحصيل</div>
+                <div class="summary-value">
+                    @if ($customerOverdueSalesInvoiceSummary['count'] > 0)
+                        يحتاج متابعة عاجلة
+                    @else
+                        لا توجد فواتير متأخرة
+                    @endif
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">عرض الفواتير</div>
+                <div class="summary-value">
+                    <a href="{{ route('sales-invoices.index', ['customer_id' => $customer->id, 'collection_status' => 'overdue']) }}"
+                       class="btn secondary"
+                       data-testid="customer-overdue-sales-invoice-summary-link">
+                        عرض الفواتير المتأخرة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @php
         if (! isset($customerRecentSalesInvoices)) {
             $customerRecentSalesInvoices = $customer->salesInvoices()
                 ->latest('issued_at')
