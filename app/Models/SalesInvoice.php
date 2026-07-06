@@ -78,6 +78,11 @@ class SalesInvoice extends Model
         return $this->hasMany(SalesInvoicePayment::class);
     }
 
+    public function collectionNotes(): HasMany
+    {
+        return $this->hasMany(SalesInvoiceCollectionNote::class);
+    }
+
     public function displayStatus(): string
     {
         return match ($this->status) {

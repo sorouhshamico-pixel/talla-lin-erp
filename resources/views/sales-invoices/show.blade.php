@@ -144,4 +144,67 @@
             </table>
         </div>
     </div>
+    <div class="card" data-testid="sales-invoice-collection-notes-card" style="margin-top:20px;">
+        <h2 style="margin-top:0;">ملاحظات متابعة التحصيل</h2>
+        <div class="muted">أضف ملاحظات مرتبطة بمتابعة تحصيل هذه الفاتورة.</div>
+
+        <form method="POST"
+              action="{{ route('sales-invoices.collection-notes.store', $invoice) }}"
+              data-testid="sales-invoice-collection-note-form"
+              style="margin-top:16px;">
+            @csrf
+
+            <div class="grid">
+                <div class="field">
+                    <label for="collection_note" class="label">ملاحظة التحصيل</label>
+                    <textarea id="collection_note"
+                              name="note"
+                              required
+                              data-testid="sales-invoice-collection-note-input"
+                              style="width:100%;min-height:90px;">{{ old('note') }}</textarea>
+
+                    @error('note')
+                        <div class="muted">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="field">
+                    <label for="collection_follow_up_at" class="label">تاريخ المتابعة</label>
+                    <input id="collection_follow_up_at"
+                           type="date"
+                           name="follow_up_at"
+                           value="{{ old('follow_up_at') }}"
+                           data-testid="sales-invoice-collection-follow-up-input">
+
+                    @error('follow_up_at')
+                        <div class="muted">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div style="margin-top:14px;">
+                <button type="submit" class="btn" data-testid="sales-invoice-collection-note-submit">
+                    إضافة ملاحظة تحصيل
+                </button>
+            </div>
+        </form>
+
+        <div style="margin-top:18px;" data-testid="sales-invoice-collection-notes-list">
+            @forelse ($invoice->collectionNotes as $collectionNote)
+                <div class="field" data-testid="sales-invoice-collection-note-row" style="margin-bottom:10px;">
+                    <div class="label">
+                        المتابعة:
+                        {{ $collectionNote->follow_up_at?->format('Y-m-d') ?: '-' }}
+                        —
+                        المستخدم:
+                        {{ $collectionNote->user?->name ?: '-' }}
+                    </div>
+                    <div class="value">{{ $collectionNote->note }}</div>
+                </div>
+            @empty
+                <div class="muted" data-testid="sales-invoice-collection-notes-empty">لا توجد ملاحظات تحصيل بعد.</div>
+            @endforelse
+        </div>
+    </div>
+
 @endsection

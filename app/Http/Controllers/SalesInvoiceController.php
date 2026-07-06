@@ -326,6 +326,10 @@ class SalesInvoiceController extends Controller
                 ->with('user')
                 ->latest('paid_at')
                 ->latest('id'),
+            'collectionNotes' => fn ($query) => $query
+                ->with('user')
+                ->latest('follow_up_at')
+                ->latest('id'),
         ]);
 
         return view('sales-invoices.show', [
