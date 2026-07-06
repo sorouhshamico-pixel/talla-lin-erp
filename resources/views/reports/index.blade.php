@@ -352,5 +352,13 @@
             <div class="muted">توزيع الفواتير المفتوحة حسب تاريخ الاستحقاق وأيام التأخير.</div>
         </a>
 
+        <a href="{{ route('reports.customer-sales-invoice-aging.index') }}"
+           class="card"
+           data-testid="customer-sales-invoice-aging-report-link"
+           style="display:block;text-decoration:none;color:inherit;">
+            <h2>تقرير أعمار ذمم العملاء</h2>
+            <div class="muted">تجميع الذمم المفتوحة حسب العميل وشرائح التأخير.</div>
+        </a>
+
 </div>
 @endsection
