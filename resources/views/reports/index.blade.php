@@ -336,5 +336,13 @@
             <div class="muted">متابعة الفواتير ذات المتبقي والفواتير المتأخرة.</div>
         </a>
 
+        <a href="{{ route('reports.sales-invoice-collection-follow-ups.index') }}"
+           class="card"
+           data-testid="sales-invoice-collection-follow-up-report-link"
+           style="display:block;text-decoration:none;color:inherit;">
+            <h2>تقرير متابعات تحصيل فواتير المبيعات</h2>
+            <div class="muted">متابعة ملاحظات التحصيل المستحقة حسب تاريخ المتابعة.</div>
+        </a>
+
 </div>
 @endsection

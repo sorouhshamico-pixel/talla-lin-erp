@@ -181,6 +181,7 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/sales-invoice-collections', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'index'])->name('reports.sales-invoice-collections.index');
+Route::get('/reports/sales-invoice-collection-follow-ups', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'index'])->name('reports.sales-invoice-collection-follow-ups.index');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
