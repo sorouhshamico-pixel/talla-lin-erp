@@ -23,7 +23,8 @@ class SalesInvoiceCollectionFollowUpReportController extends Controller
                 'salesInvoice.branch',
                 'user',
             ])
-            ->whereNotNull('follow_up_at');
+            ->whereNotNull('follow_up_at')
+            ->whereNull('completed_at');
 
         if ($request->filled('customer_id')) {
             $baseQuery->whereHas('salesInvoice', function ($query) use ($request): void {
@@ -84,7 +85,8 @@ class SalesInvoiceCollectionFollowUpReportController extends Controller
                 'salesInvoice.branch',
                 'user',
             ])
-            ->whereNotNull('follow_up_at');
+            ->whereNotNull('follow_up_at')
+            ->whereNull('completed_at');
 
         if ($request->filled('customer_id')) {
             $baseQuery->whereHas('salesInvoice', function ($query) use ($request): void {

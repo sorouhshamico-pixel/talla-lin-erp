@@ -122,6 +122,7 @@ Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->n
     Route::delete('/quotations/{quotation}/items/{item}', [QuotationItemController::class, 'destroy'])->name('quotations.items.destroy');
 
     Route::post('/sales-invoices/{salesInvoice}/collection-notes', [\App\Http\Controllers\SalesInvoiceCollectionNoteController::class, 'store'])->name('sales-invoices.collection-notes.store');
+Route::post('/sales-invoices/{salesInvoice}/collection-notes/{collectionNote}/complete', [\App\Http\Controllers\SalesInvoiceCollectionNoteController::class, 'complete'])->name('sales-invoices.collection-notes.complete');
 Route::get('/sales-invoices/export', [SalesInvoiceController::class, 'export'])->name('sales-invoices.export');
 Route::get('/sales-invoices', [SalesInvoiceController::class, 'index'])->name('sales-invoices.index');
     Route::get('/sales-invoices/create', [SalesInvoiceController::class, 'create'])->name('sales-invoices.create');

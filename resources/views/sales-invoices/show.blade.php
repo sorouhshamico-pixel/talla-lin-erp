@@ -200,6 +200,35 @@
                         {{ $collectionNote->user?->name ?: '-' }}
                     </div>
                     <div class="value">{{ $collectionNote->note }}</div>
+
+                    @if ($collectionNote->completed_at)
+                        <div class="muted" data-testid="sales-invoice-collection-note-completed-status">
+                            مكتملة بتاريخ {{ $collectionNote->completed_at->format('Y-m-d') }}
+                            بواسطة {{ $collectionNote->completedByUser?->name ?: '-' }}
+                            @if ($collectionNote->completion_note)
+                                — {{ $collectionNote->completion_note }}
+                            @endif
+                        </div>
+                    @else
+                        <form method="POST"
+                              action="{{ route('sales-invoices.collection-notes.complete', [$invoice, $collectionNote]) }}"
+                              data-testid="sales-invoice-collection-note-complete-form"
+                              style="margin-top:10px;">
+                            @csrf
+
+                            <input type="text"
+                                   name="completion_note"
+                                   placeholder="ملاحظة إغلاق اختيارية"
+                                   data-testid="sales-invoice-collection-note-completion-note-input"
+                                   style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;margin-bottom:8px;">
+
+                            <button type="submit"
+                                    class="btn secondary"
+                                    data-testid="sales-invoice-collection-note-complete-submit">
+                                تعليم المتابعة كمكتملة
+                            </button>
+                        </form>
+                    @endif
                 </div>
             @empty
                 <div class="muted" data-testid="sales-invoice-collection-notes-empty">لا توجد ملاحظات تحصيل بعد.</div>
