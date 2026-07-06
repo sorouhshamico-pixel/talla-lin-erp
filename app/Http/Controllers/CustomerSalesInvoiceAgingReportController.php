@@ -111,6 +111,24 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         ]);
     }
 
+
+    public function export(Request $request)
+    {
+        $fileName = 'customer-sales-invoice-aging-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, chr(239) . chr(187) . chr(191));
+
+            fputcsv($handle, ['تقرير أعمار ذمم العملاء']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
     private function applyAgingBucketFilter(Builder $query, ?string $bucket, string $today): void
     {
         match ($bucket) {

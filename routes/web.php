@@ -187,6 +187,7 @@ Route::get('/reports/sales-invoice-collection-follow-ups/export', [\App\Http\Con
 Route::get('/reports/sales-invoice-collection-follow-ups', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'index'])->name('reports.sales-invoice-collection-follow-ups.index');
 Route::get('/reports/sales-invoice-aging/export', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'export'])->name('reports.sales-invoice-aging.export');
 Route::get('/reports/sales-invoice-aging', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'index'])->name('reports.sales-invoice-aging.index');
+Route::get('/reports/customer-sales-invoice-aging/export', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'export'])->name('reports.customer-sales-invoice-aging.export');
 Route::get('/reports/customer-sales-invoice-aging', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'index'])->name('reports.customer-sales-invoice-aging.index');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
