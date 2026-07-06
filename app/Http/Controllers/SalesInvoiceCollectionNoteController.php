@@ -45,4 +45,22 @@ class SalesInvoiceCollectionNoteController extends Controller
             ->with('success', 'تم إغلاق متابعة التحصيل بنجاح.');
     }
 
+    public function reschedule(Request $request, SalesInvoice $salesInvoice, SalesInvoiceCollectionNote $collectionNote): RedirectResponse
+    {
+        abort_unless((int) $collectionNote->sales_invoice_id === (int) $salesInvoice->id, 404);
+        abort_unless($collectionNote->completed_at === null, 404);
+
+        $data = $request->validate([
+            'follow_up_at' => ['required', 'date'],
+        ]);
+
+        $collectionNote->update([
+            'follow_up_at' => $data['follow_up_at'],
+        ]);
+
+        return redirect()
+            ->route('sales-invoices.show', $salesInvoice)
+            ->with('success', 'تمت إعادة جدولة متابعة التحصيل بنجاح.');
+    }
+
 }

@@ -211,6 +211,28 @@
                         </div>
                     @else
                         <form method="POST"
+                              action="{{ route('sales-invoices.collection-notes.reschedule', [$invoice, $collectionNote]) }}"
+                              data-testid="sales-invoice-collection-note-reschedule-form"
+                              style="margin-top:10px;">
+                            @csrf
+
+                            <label class="label" for="collection_note_reschedule_{{ $collectionNote->id }}">إعادة جدولة المتابعة</label>
+                            <input id="collection_note_reschedule_{{ $collectionNote->id }}"
+                                   type="date"
+                                   name="follow_up_at"
+                                   value="{{ $collectionNote->follow_up_at?->format('Y-m-d') }}"
+                                   required
+                                   data-testid="sales-invoice-collection-note-reschedule-input"
+                                   style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;margin-bottom:8px;">
+
+                            <button type="submit"
+                                    class="btn secondary"
+                                    data-testid="sales-invoice-collection-note-reschedule-submit">
+                                إعادة جدولة المتابعة
+                            </button>
+                        </form>
+
+                        <form method="POST"
                               action="{{ route('sales-invoices.collection-notes.complete', [$invoice, $collectionNote]) }}"
                               data-testid="sales-invoice-collection-note-complete-form"
                               style="margin-top:10px;">
