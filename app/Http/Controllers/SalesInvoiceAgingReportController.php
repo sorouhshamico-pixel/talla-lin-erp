@@ -29,6 +29,10 @@ class SalesInvoiceAgingReportController extends Controller
             $baseQuery->where('payment_status', $request->input('payment_status'));
         }
 
+        if ($request->filled('aging_bucket')) {
+            $this->applyAgingBucketFilter($baseQuery, $request->input('aging_bucket'), $today);
+        }
+
         $notDueQuery = (clone $baseQuery)
             ->whereNotNull('due_at')
             ->whereDate('due_at', '>=', $today);
@@ -107,6 +111,7 @@ class SalesInvoiceAgingReportController extends Controller
             'customers' => $customers,
             'customerFilter' => $request->input('customer_id'),
             'paymentStatusFilter' => $request->input('payment_status'),
+            'agingBucketFilter' => $request->input('aging_bucket'),
         ]);
     }
     public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
@@ -123,6 +128,10 @@ class SalesInvoiceAgingReportController extends Controller
 
         if ($request->filled('payment_status')) {
             $baseQuery->where('payment_status', $request->input('payment_status'));
+        }
+
+        if ($request->filled('aging_bucket')) {
+            $this->applyAgingBucketFilter($baseQuery, $request->input('aging_bucket'), $today);
         }
 
         $invoices = (clone $baseQuery)
@@ -278,6 +287,40 @@ class SalesInvoiceAgingReportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    private function applyAgingBucketFilter(\Illuminate\Database\Eloquent\Builder $query, ?string $bucket, string $today): void
+    {
+        match ($bucket) {
+            'not_due' => $query
+                ->whereNotNull('due_at')
+                ->whereDate('due_at', '>=', $today),
+
+            'overdue_1_30' => $query
+                ->whereNotNull('due_at')
+                ->whereDate('due_at', '>=', now()->subDays(30)->toDateString())
+                ->whereDate('due_at', '<', $today),
+
+            'overdue_31_60' => $query
+                ->whereNotNull('due_at')
+                ->whereDate('due_at', '>=', now()->subDays(60)->toDateString())
+                ->whereDate('due_at', '<', now()->subDays(30)->toDateString()),
+
+            'overdue_61_90' => $query
+                ->whereNotNull('due_at')
+                ->whereDate('due_at', '>=', now()->subDays(90)->toDateString())
+                ->whereDate('due_at', '<', now()->subDays(60)->toDateString()),
+
+            'overdue_more_than_90' => $query
+                ->whereNotNull('due_at')
+                ->whereDate('due_at', '<', now()->subDays(90)->toDateString()),
+
+            'without_due_date' => $query
+                ->whereNull('due_at'),
+
+            default => null,
+        };
     }
 
 

@@ -37,7 +37,7 @@
             <div>
                 <a class="btn secondary" href="{{ route('reports.index') }}" data-testid="sales-invoice-aging-report-back-link">رجوع للتقارير</a>
                 <a class="btn secondary"
-                   href="{{ route('reports.sales-invoice-aging.export', request()->only(['customer_id', 'payment_status'])) }}"
+                   href="{{ route('reports.sales-invoice-aging.export', request()->only(['customer_id', 'payment_status', 'aging_bucket'])) }}"
                    data-testid="sales-invoice-aging-report-export-link">تصدير CSV</a>
                 <a class="btn" href="{{ route('sales-invoices.index', ['collection_status' => 'outstanding']) }}" data-testid="sales-invoice-aging-report-outstanding-link">الفواتير ذات المتبقي</a>
             </div>
@@ -74,6 +74,22 @@
                         <option value="unpaid" @selected((string) $paymentStatusFilter === 'unpaid')>غير مدفوعة</option>
                         <option value="partial" @selected((string) $paymentStatusFilter === 'partial')>مدفوعة جزئيًا</option>
                         <option value="paid" @selected((string) $paymentStatusFilter === 'paid')>مدفوعة بالكامل</option>
+                    </select>
+                </div>
+
+                <div class="metric">
+                    <label class="metric-label" for="sales_invoice_aging_bucket_filter">شريحة العمر</label>
+                    <select id="sales_invoice_aging_bucket_filter"
+                            name="aging_bucket"
+                            data-testid="sales-invoice-aging-bucket-filter"
+                            style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;">
+                        <option value="">كل الشرائح</option>
+                        <option value="not_due" @selected((string) $agingBucketFilter === 'not_due')>غير مستحقة بعد</option>
+                        <option value="overdue_1_30" @selected((string) $agingBucketFilter === 'overdue_1_30')>متأخرة 1 إلى 30 يوم</option>
+                        <option value="overdue_31_60" @selected((string) $agingBucketFilter === 'overdue_31_60')>متأخرة 31 إلى 60 يوم</option>
+                        <option value="overdue_61_90" @selected((string) $agingBucketFilter === 'overdue_61_90')>متأخرة 61 إلى 90 يوم</option>
+                        <option value="overdue_more_than_90" @selected((string) $agingBucketFilter === 'overdue_more_than_90')>أكثر من 90 يوم</option>
+                        <option value="without_due_date" @selected((string) $agingBucketFilter === 'without_due_date')>بدون تاريخ استحقاق</option>
                     </select>
                 </div>
 
