@@ -46,6 +46,14 @@ class SalesInvoiceController extends Controller
             $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
         }
 
+        if ($request->filled('due_from')) {
+            $invoicesQuery->whereDate('due_at', '>=', $request->input('due_from'));
+        }
+
+        if ($request->filled('due_to')) {
+            $invoicesQuery->whereDate('due_at', '<=', $request->input('due_to'));
+        }
+
         $salesInvoiceSummary = [
             'count' => (clone $invoicesQuery)->count(),
             'grand_total' => round((float) (clone $invoicesQuery)->sum('grand_total'), 2),
@@ -73,6 +81,8 @@ class SalesInvoiceController extends Controller
             'paymentStatusFilter' => $request->input('payment_status'),
             'issuedFromFilter' => $request->input('issued_from'),
             'issuedToFilter' => $request->input('issued_to'),
+            'dueFromFilter' => $request->input('due_from'),
+            'dueToFilter' => $request->input('due_to'),
         ]);
     }
 
@@ -106,6 +116,14 @@ class SalesInvoiceController extends Controller
 
         if ($request->filled('issued_to')) {
             $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
+        }
+
+        if ($request->filled('due_from')) {
+            $invoicesQuery->whereDate('due_at', '>=', $request->input('due_from'));
+        }
+
+        if ($request->filled('due_to')) {
+            $invoicesQuery->whereDate('due_at', '<=', $request->input('due_to'));
         }
 
         $invoices = $invoicesQuery
@@ -143,6 +161,8 @@ class SalesInvoiceController extends Controller
                 : 'all',
             'issued_from' => $request->input('issued_from') ?: 'all',
             'issued_to' => $request->input('issued_to') ?: 'all',
+            'due_from' => $request->input('due_from') ?: 'all',
+            'due_to' => $request->input('due_to') ?: 'all',
         ];
 
         $fileName = 'sales-invoices-' . now()->format('Ymd-His') . '.csv';
@@ -163,6 +183,8 @@ class SalesInvoiceController extends Controller
             fputcsv($handle, ['فلتر حالة التحصيل', $exportFilters['collection_status']]);
             fputcsv($handle, ['من تاريخ', $exportFilters['issued_from']]);
             fputcsv($handle, ['إلى تاريخ', $exportFilters['issued_to']]);
+            fputcsv($handle, ['من تاريخ الاستحقاق', $exportFilters['due_from']]);
+            fputcsv($handle, ['إلى تاريخ الاستحقاق', $exportFilters['due_to']]);
             fputcsv($handle, []);
 
             fputcsv($handle, [
