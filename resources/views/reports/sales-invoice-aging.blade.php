@@ -36,6 +36,9 @@
 
             <div>
                 <a class="btn secondary" href="{{ route('reports.index') }}" data-testid="sales-invoice-aging-report-back-link">رجوع للتقارير</a>
+                <a class="btn secondary"
+                   href="{{ route('reports.sales-invoice-aging.export', request()->only(['customer_id', 'payment_status'])) }}"
+                   data-testid="sales-invoice-aging-report-export-link">تصدير CSV</a>
                 <a class="btn" href="{{ route('sales-invoices.index', ['collection_status' => 'outstanding']) }}" data-testid="sales-invoice-aging-report-outstanding-link">الفواتير ذات المتبقي</a>
             </div>
         </div>
