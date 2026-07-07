@@ -42,6 +42,13 @@
                     <div class="filter-row">
                         <label for="as_of_date">تاريخ التقرير</label>
                         <input type="date" name="as_of_date" id="as_of_date" value="{{ $selectedAsOfDate }}" data-testid="supplier-aging-drilldown-as-of-date-input">
+
+                        <div class="report-actions" data-testid="supplier-aging-drilldown-date-presets">
+                            <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_filter(['supplier_id' => $selectedSupplierId, 'branch_id' => $selectedBranchId, 'as_of_date' => now()->format('Y-m-d'), 'aging_bucket' => $selectedAgingBucket])) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-drilldown-date-preset-today">اليوم</a>
+                            <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_filter(['supplier_id' => $selectedSupplierId, 'branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->endOfMonth()->format('Y-m-d'), 'aging_bucket' => $selectedAgingBucket])) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-drilldown-date-preset-month-end">نهاية الشهر</a>
+                            <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_filter(['supplier_id' => $selectedSupplierId, 'branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->subMonthNoOverflow()->endOfMonth()->format('Y-m-d'), 'aging_bucket' => $selectedAgingBucket])) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-drilldown-date-preset-previous-month-end">نهاية الشهر السابق</a>
+                            <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_filter(['supplier_id' => $selectedSupplierId, 'branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->endOfQuarter()->format('Y-m-d'), 'aging_bucket' => $selectedAgingBucket])) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-drilldown-date-preset-quarter-end">نهاية الربع</a>
+                        </div>
                     </div>
 
                     <div class="filter-row">
