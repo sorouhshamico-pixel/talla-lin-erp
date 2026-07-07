@@ -53,9 +53,33 @@
             </div>
         </div>
 
+        <div class="summary-grid" data-testid="main-dashboard-financial-risk-cards">
+            <div class="summary-card">
+                <span>صافي الضغط النقدي المتأخر</span>
+                <strong>{{ number_format((float) $financialDashboardSummary['net_overdue_pressure'], 2) }} ريال</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>نسبة تغطية الالتزامات</span>
+                <strong>{{ $financialDashboardSummary['cash_coverage_ratio'] === null ? 'غير مطبق' : number_format((float) $financialDashboardSummary['cash_coverage_ratio'], 2) . '%' }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>حالة التغطية النقدية</span>
+                <strong>{{ $financialDashboardSummary['cash_coverage_label'] }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>مؤشر المتابعة المالية</span>
+                <strong>{{ $financialDashboardSummary['risk_label'] }}</strong>
+            </div>
+        </div>
+
         <div class="report-actions">
             <a href="{{ route('reports.cash-flow-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-cash-flow-link">لوحة التدفق النقدي</a>
             <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-aging-link">لوحة أعمار الذمم</a>
+            <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-customer-drilldown-link">تفاصيل فواتير العملاء</a>
+            <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-supplier-drilldown-link">تفاصيل فواتير الموردين</a>
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-reports-link">مركز التقارير</a>
         </div>
     </div>
