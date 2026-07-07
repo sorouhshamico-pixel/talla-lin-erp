@@ -11,11 +11,15 @@ class CustomerSalesInvoiceAgingReportBuilder
 {
     public function build(Request $request): array
     {
-        $reportDate = now()->startOfDay();
+        $reportDate = $this->reportDate($request);
 
         $invoicesQuery = SalesInvoice::query()
             ->with(['customer'])
             ->where('remaining_amount', '>', 0);
+
+        if ($request->integer('branch_id')) {
+            $invoicesQuery->where('branch_id', $request->integer('branch_id'));
+        }
 
         if ($request->filled('customer_id')) {
             $invoicesQuery->where('customer_id', $request->input('customer_id'));
@@ -108,6 +112,31 @@ class CustomerSalesInvoiceAgingReportBuilder
         ];
     }
 
+    private function reportDate(Request $request): Carbon
+    {
+        $asOfDate = $this->dateInput($request, 'as_of_date');
+
+        if ($asOfDate) {
+            return Carbon::parse($asOfDate)->startOfDay();
+        }
+
+        return now()->startOfDay();
+    }
+
+    private function dateInput(Request $request, string $key): ?string
+    {
+        $value = $request->input($key);
+
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
+    }
     private function customerFilterLabel(Request $request): string
     {
         if (! $request->filled('customer_id')) {
