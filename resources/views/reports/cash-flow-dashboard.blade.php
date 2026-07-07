@@ -130,6 +130,7 @@
                 </div>
 
                 <div class="report-actions">
+                    <a href="{{ route('reports.cash-flow-dashboard.print') }}" class="btn btn-outline-secondary" data-testid="cash-flow-print-link">طباعة اللوحة</a>
                     <a href="{{ route('reports.cash-flow-dashboard.export') }}" class="btn btn-outline-primary" data-testid="cash-flow-export-link">تصدير CSV</a>
                     <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-customer-aging-link">تقرير أعمار ذمم العملاء</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-supplier-aging-link">تقرير أعمار ذمم الموردين</a>

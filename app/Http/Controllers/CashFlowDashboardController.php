@@ -18,9 +18,18 @@ class CashFlowDashboardController extends Controller
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
 
-        $data = $this->dashboardData($customerAging, $supplierAging);
+        return view('reports.cash-flow-dashboard', $this->dashboardData($customerAging, $supplierAging));
+    }
 
-        return view('reports.cash-flow-dashboard', $data);
+    public function print(
+        Request $request,
+        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+    ): View {
+        $customerAging = $customerAgingBuilder->build($request);
+        $supplierAging = $supplierAgingBuilder->build($request);
+
+        return view('reports.cash-flow-dashboard-print', $this->dashboardData($customerAging, $supplierAging));
     }
 
     public function export(
