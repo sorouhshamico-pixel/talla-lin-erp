@@ -40,6 +40,11 @@
                     </div>
 
                     <div class="filter-row">
+                        <label for="as_of_date">تاريخ التقرير</label>
+                        <input type="date" name="as_of_date" id="as_of_date" value="{{ $selectedAsOfDate }}" data-testid="customer-aging-drilldown-as-of-date-input">
+                    </div>
+
+                    <div class="filter-row">
                         <label for="aging_bucket">شريحة العمر</label>
                         <select name="aging_bucket" id="aging_bucket" data-testid="customer-aging-drilldown-bucket-select">
                             <option value="">كل الشرائح</option>
@@ -53,7 +58,7 @@
 
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="customer-aging-drilldown-apply-filters">تطبيق الفلاتر</button>
-                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown.export', request()->only(['customer_id', 'supplier_id', 'branch_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-export-link">تصدير CSV</a>
+                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown.export', request()->only(['customer_id', 'supplier_id', 'branch_id', 'as_of_date', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-export-link">تصدير CSV</a>
                         <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-secondary" data-testid="customer-aging-drilldown-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
@@ -62,6 +67,7 @@
                     <p data-testid="customer-aging-drilldown-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
                     <p data-testid="customer-aging-drilldown-customer-filter">فلتر العميل: {{ $selectedCustomerLabel }}</p>
                     <p data-testid="customer-aging-drilldown-branch-filter">فلتر الفرع: {{ $selectedBranchLabel }}</p>
+                    <p data-testid="customer-aging-drilldown-as-of-date-filter">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
                     <p data-testid="customer-aging-drilldown-bucket-filter">فلتر شريحة العمر: {{ $selectedAgingBucketLabel }}</p>
                 </div>
 

@@ -74,7 +74,7 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
 
     private function drilldownData(Request $request): array
     {
-        $reportDate = now()->startOfDay();
+        $reportDate = $this->reportDate($request);
 
         $agingBuckets = [
             'not_due' => 'غير مستحقة بعد',
@@ -131,6 +131,7 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
             'agingBuckets' => $agingBuckets,
             'selectedSupplierId' => $supplierId,
             'selectedBranchId' => $branchId,
+            'selectedAsOfDate' => $reportDate->format('Y-m-d'),
             'selectedAgingBucket' => $agingBucket,
             'selectedSupplierLabel' => $supplierId ? $selectedSupplierName . ' #' . $supplierId : 'كل الموردين',
             'selectedBranchLabel' => $this->branchLabel($request),
@@ -146,6 +147,20 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
         ];
     }
 
+    private function reportDate(Request $request): Carbon
+    {
+        $asOfDate = $request->input('as_of_date');
+
+        if ($asOfDate) {
+            try {
+                return Carbon::parse($asOfDate)->startOfDay();
+            } catch (\Throwable) {
+                return now()->startOfDay();
+            }
+        }
+
+        return now()->startOfDay();
+    }
     private function branchLabel(Request $request): string
     {
         $branchId = $request->integer('branch_id') ?: null;
