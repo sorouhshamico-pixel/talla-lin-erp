@@ -13,6 +13,30 @@
 
         <div class="card" data-testid="receivable-payable-aging-dashboard">
             <div class="card-body">
+                <form method="GET" action="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="filters" data-testid="aging-dashboard-filters">
+                    <div class="filter-row">
+                        <label for="branch_id">الفرع</label>
+                        <select name="branch_id" id="branch_id" data-testid="aging-dashboard-branch-select">
+                            <option value="">كل الفروع</option>
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}" @selected((string) $selectedBranchId === (string) $branch->id)>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="as_of_date">تاريخ التقرير</label>
+                        <input type="date" name="as_of_date" id="as_of_date" value="{{ $selectedAsOfDate }}" data-testid="aging-dashboard-as-of-date-input">
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-primary" data-testid="aging-dashboard-apply-filters">تطبيق الفلاتر</button>
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-reset-filters">إعادة تعيين</a>
+                    </div>
+                </form>
+
                 <p data-testid="aging-dashboard-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
 
                 <div class="summary-grid" data-testid="aging-dashboard-customer-summary">
@@ -59,7 +83,6 @@
                     </div>
                 </div>
 
-
                 <div class="summary-grid" data-testid="aging-dashboard-net-summary">
                     <div class="summary-card">
                         <span>صافي الذمم المفتوحة</span>
@@ -96,15 +119,16 @@
                         </thead>
                         <tbody>
                             @foreach ($bucketComparison as $bucket)
+                                @php($bucketKey = str_replace('_total', '', $bucket['key']))
                                 <tr>
                                     <td>{{ $bucket['label'] }}</td>
                                     <td>
-                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="aging-dashboard-customer-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', array_merge($drilldownParams, ['aging_bucket' => $bucketKey])) }}" data-testid="aging-dashboard-customer-bucket-drilldown-{{ $bucketKey }}">
                                             {{ number_format((float) $bucket['customer_total'], 2) }} ريال
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="aging-dashboard-supplier-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_merge($drilldownParams, ['aging_bucket' => $bucketKey])) }}" data-testid="aging-dashboard-supplier-bucket-drilldown-{{ $bucketKey }}">
                                             {{ number_format((float) $bucket['supplier_total'], 2) }} ريال
                                         </a>
                                     </td>
@@ -116,10 +140,10 @@
                 </div>
 
                 <div class="report-actions">
-                    <a href="{{ route('reports.receivable-payable-aging-dashboard.print') }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-print-link">طباعة اللوحة</a>
-                    <a href="{{ route('reports.receivable-payable-aging-dashboard.export') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-export-link">تصدير CSV</a>
-                    <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-customer-report-link">تقرير أعمار ذمم العملاء</a>
-                    <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-supplier-report-link">تقرير أعمار ذمم الموردين</a>
+                    <a href="{{ route('reports.receivable-payable-aging-dashboard.print', $filterParams) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-print-link">طباعة اللوحة</a>
+                    <a href="{{ route('reports.receivable-payable-aging-dashboard.export', $filterParams) }}" class="btn btn-outline-primary" data-testid="aging-dashboard-export-link">تصدير CSV</a>
+                    <a href="{{ route('reports.customer-sales-invoice-aging.index', $filterParams) }}" class="btn btn-outline-primary" data-testid="aging-dashboard-customer-report-link">تقرير أعمار ذمم العملاء</a>
+                    <a href="{{ route('reports.supplier-purchase-invoice-aging.index', $filterParams) }}" class="btn btn-outline-primary" data-testid="aging-dashboard-supplier-report-link">تقرير أعمار ذمم الموردين</a>
                 </div>
             </div>
         </div>
