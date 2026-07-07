@@ -120,8 +120,16 @@
                             @foreach ($bucketCashFlow as $bucket)
                                 <tr>
                                     <td>{{ $bucket['label'] }}</td>
-                                    <td>{{ number_format((float) $bucket['expected_inflows'], 2) }} ريال</td>
-                                    <td>{{ number_format((float) $bucket['expected_outflows'], 2) }} ريال</td>
+                                    <td>
+                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="cash-flow-customer-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                            {{ number_format((float) $bucket['expected_inflows'], 2) }} ريال
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="cash-flow-supplier-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                            {{ number_format((float) $bucket['expected_outflows'], 2) }} ريال
+                                        </a>
+                                    </td>
                                     <td>{{ number_format((float) $bucket['net_cash_flow'], 2) }} ريال</td>
                                 </tr>
                             @endforeach
