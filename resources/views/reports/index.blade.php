@@ -354,6 +354,10 @@
 
         <a href="{{ route('reports.customer-sales-invoice-aging.index') }}"
            class="card"
+<a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="report-card" data-testid="supplier-purchase-invoice-aging-report-link">
+    <strong>تقرير أعمار ذمم الموردين</strong>
+    <span>متابعة فواتير المشتريات المفتوحة حسب المورد وشرائح العمر.</span>
+</a>
            data-testid="customer-sales-invoice-aging-report-link"
            style="display:block;text-decoration:none;color:inherit;">
             <h2>تقرير أعمار ذمم العملاء</h2>
