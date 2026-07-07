@@ -3,8 +3,9 @@
 @php($topOverdueCustomers = $financialDashboardSummaryService->topOverdueCustomers(request(), 5))
 @php($topOverdueSuppliers = $financialDashboardSummaryService->topOverdueSuppliers(request(), 5))
 @php($dashboardBranchId = request()->integer('branch_id') ?: null)
+@php($dashboardAsOfDate = request()->input('as_of_date') ?: now()->format('Y-m-d'))
 @php($dashboardBranches = \Illuminate\Support\Facades\DB::table('branches')->orderBy('name')->get(['id', 'name']))
-@php($dashboardFilterParams = request()->only(['branch_id']))
+@php($dashboardFilterParams = request()->only(['branch_id', 'as_of_date']))
 
 <div class="card" data-testid="main-dashboard-financial-summary">
     <div class="card-body">
@@ -26,6 +27,11 @@
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <div class="filter-row">
+                <label for="as_of_date">تاريخ التقرير</label>
+                <input type="date" name="as_of_date" id="as_of_date" value="{{ $dashboardAsOfDate }}" data-testid="main-dashboard-financial-as-of-date-input">
             </div>
 
             <div class="filter-actions">

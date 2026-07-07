@@ -30,7 +30,7 @@ class FinancialDashboardSummaryService
         $this->applyBranchFilter($customerQuery, $request);
         $this->applyBranchFilter($supplierQuery, $request);
 
-        $reportDate = now()->startOfDay();
+        $reportDate = $this->reportDate($request);
 
         $expectedInflows = round((float) (clone $customerQuery)->sum('remaining_amount'), 2);
         $expectedOutflows = round((float) (clone $supplierQuery)->sum('remaining_amount'), 2);
@@ -81,7 +81,7 @@ class FinancialDashboardSummaryService
     {
         $request ??= request();
 
-        $reportDate = now()->startOfDay();
+        $reportDate = $this->reportDate($request);
 
         $query = SalesInvoice::query()
             ->where('remaining_amount', '>', 0)
@@ -139,7 +139,7 @@ class FinancialDashboardSummaryService
     {
         $request ??= request();
 
-        $reportDate = now()->startOfDay();
+        $reportDate = $this->reportDate($request);
 
         $query = PurchaseInvoice::query()
             ->where('remaining_amount', '>', 0)
@@ -193,6 +193,20 @@ class FinancialDashboardSummaryService
             ->all();
     }
 
+    private function reportDate(Request $request): Carbon
+    {
+        $asOfDate = $request->input('as_of_date');
+
+        if ($asOfDate) {
+            try {
+                return Carbon::parse($asOfDate)->startOfDay();
+            } catch (\Throwable) {
+                return now()->startOfDay();
+            }
+        }
+
+        return now()->startOfDay();
+    }
     private function applyBranchFilter($query, Request $request): void
     {
         $branchId = $request->integer('branch_id') ?: null;
