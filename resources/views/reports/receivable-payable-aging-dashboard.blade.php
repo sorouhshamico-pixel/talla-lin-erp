@@ -59,6 +59,29 @@
                     </div>
                 </div>
 
+
+                <div class="summary-grid" data-testid="aging-dashboard-net-summary">
+                    <div class="summary-card">
+                        <span>صافي الذمم المفتوحة</span>
+                        <strong>{{ number_format((float) $netSummary['net_open_total'], 2) }} ريال</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>حالة صافي الذمم</span>
+                        <strong>{{ $netSummary['position_label'] }}</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>صافي المتأخرات</span>
+                        <strong>{{ number_format((float) $netSummary['net_overdue_total'], 2) }} ريال</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>حالة صافي المتأخرات</span>
+                        <strong>{{ $netSummary['overdue_position_label'] }}</strong>
+                    </div>
+                </div>
+
                 <div class="table-responsive" data-testid="aging-dashboard-bucket-comparison">
                     <h2>مقارنة شرائح الأعمار</h2>
 

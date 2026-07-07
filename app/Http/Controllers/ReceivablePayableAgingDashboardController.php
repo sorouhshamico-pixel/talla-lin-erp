@@ -23,7 +23,21 @@ class ReceivablePayableAgingDashboardController extends Controller
             'customerSummary' => $customerAging['summary'],
             'supplierSummary' => $supplierAging['summary'],
             'bucketComparison' => $this->bucketComparison($customerAging['rows'], $supplierAging['rows']),
+            'netSummary' => $this->netSummary($customerAging['summary'], $supplierAging['summary']),
         ]);
+    }
+
+    private function netSummary(array $customerSummary, array $supplierSummary): array
+    {
+        $netOpen = round((float) $customerSummary['remaining_total'] - (float) $supplierSummary['remaining_total'], 2);
+        $netOverdue = round((float) $customerSummary['overdue_total'] - (float) $supplierSummary['overdue_total'], 2);
+
+        return [
+            'net_open_total' => $netOpen,
+            'net_overdue_total' => $netOverdue,
+            'position_label' => $netOpen >= 0 ? 'صافي لصالح الشركة' : 'صافي مستحق على الشركة',
+            'overdue_position_label' => $netOverdue >= 0 ? 'متأخرات لصالح الشركة' : 'متأخرات مستحقة على الشركة',
+        ];
     }
 
     private function bucketComparison(Collection $customerRows, Collection $supplierRows): array

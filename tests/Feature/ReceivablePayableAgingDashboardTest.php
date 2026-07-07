@@ -46,9 +46,12 @@ class ReceivablePayableAgingDashboardTest extends TestCase
         $response->assertSee('تاريخ التقرير: 2026-07-06');
         $response->assertSee('data-testid="aging-dashboard-customer-summary"', false);
         $response->assertSee('data-testid="aging-dashboard-supplier-summary"', false);
+        $response->assertSee('data-testid="aging-dashboard-net-summary"', false);
         $response->assertSee('data-testid="aging-dashboard-bucket-comparison"', false);
         $response->assertSee('إجمالي ذمم العملاء المفتوحة');
         $response->assertSee('إجمالي ذمم الموردين المفتوحة');
+        $response->assertSee('صافي الذمم المفتوحة');
+        $response->assertSee('صافي المتأخرات');
         $response->assertSee('مقارنة شرائح الأعمار');
         $response->assertSee('data-testid="aging-dashboard-customer-report-link"', false);
         $response->assertSee('data-testid="aging-dashboard-supplier-report-link"', false);
@@ -97,6 +100,52 @@ class ReceivablePayableAgingDashboardTest extends TestCase
         $response->assertSee('3,000.00 ريال');
         $response->assertSee('1,200.00 ريال');
         $response->assertSee('1,800.00 ريال');
+    }
+
+    public function test_receivable_payable_aging_dashboard_displays_net_position_cards(): void
+    {
+        $user = User::query()->firstOrFail();
+
+        SalesInvoice::query()->delete();
+        PurchaseInvoice::query()->delete();
+
+        $customer = $this->createCustomer([
+            'name' => 'عميل صافي لوحة أعمار الذمم',
+            'phone' => '0579851933',
+        ]);
+
+        $supplier = $this->createSupplier([
+            'name' => 'مورد صافي لوحة أعمار الذمم',
+            'phone' => '0579851934',
+        ]);
+
+        $this->createSalesInvoice([
+            'customer_id' => $customer->id,
+            'invoice_number' => 'SI-AGING-DASHBOARD-NET-001',
+            'remaining_amount' => 5000,
+            'grand_total' => 5000,
+            'subtotal' => 5000,
+            'due_at' => '2026-05-20 09:00:00',
+        ]);
+
+        $this->createPurchaseInvoice([
+            'supplier_id' => $supplier->id,
+            'invoice_number' => 'PI-AGING-DASHBOARD-NET-001',
+            'remaining_amount' => 1800,
+            'grand_total' => 1800,
+            'subtotal' => 1800,
+            'due_at' => '2026-05-20 09:00:00',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('reports.receivable-payable-aging-dashboard.index'));
+
+        $response->assertOk();
+        $response->assertSee('data-testid="aging-dashboard-net-summary"', false);
+        $response->assertSee('صافي الذمم المفتوحة');
+        $response->assertSee('صافي لصالح الشركة');
+        $response->assertSee('صافي المتأخرات');
+        $response->assertSee('متأخرات لصالح الشركة');
+        $response->assertSee('3,200.00 ريال');
     }
 
     public function test_reports_index_displays_receivable_payable_aging_dashboard_link(): void
