@@ -114,7 +114,6 @@ class CustomerSalesInvoiceAgingReportController extends Controller
 
     public function export(Request $request)
     {
-        $today = now()->toDateString();
         $reportDate = now()->startOfDay();
 
         $invoicesQuery = \App\Models\SalesInvoice::query()
@@ -126,7 +125,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         }
 
         if ($request->filled('aging_bucket')) {
-            $this->applyAgingBucketFilter($invoicesQuery, $request->input('aging_bucket'), $today);
+            $this->applyAgingBucketFilter($invoicesQuery, $request->input('aging_bucket'), $reportDate);
         }
 
         $invoices = $invoicesQuery
@@ -227,14 +226,19 @@ class CustomerSalesInvoiceAgingReportController extends Controller
 
         $fileName = 'customer-sales-invoice-aging-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($summary, $customerFilterLabel, $agingBucketFilterLabel) {
+        return response()->streamDownload(function () use ($summary, $reportDate, $customerFilterLabel, $agingBucketFilterLabel) {
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, chr(239) . chr(187) . chr(191));
 
             fputcsv($handle, ['تقرير أعمار ذمم العملاء']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['تاريخ التقرير', $reportDate->format('Y-m-d')]);
             fputcsv($handle, ['فلتر العميل', $customerFilterLabel]);
             fputcsv($handle, ['فلتر شريحة العمر', $agingBucketFilterLabel]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص عام']);
             fputcsv($handle, ['عدد العملاء', $summary['customers_count']]);
             fputcsv($handle, ['عدد الفواتير المفتوحة', $summary['invoice_count']]);
             fputcsv($handle, ['إجمالي الذمم المفتوحة', number_format((float) $summary['remaining_total'], 2, '.', '')]);
@@ -245,6 +249,8 @@ class CustomerSalesInvoiceAgingReportController extends Controller
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
+
+
 
 
     private function applyAgingBucketFilter(Builder $query, ?string $bucket, string $today): void
