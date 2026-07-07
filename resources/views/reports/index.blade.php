@@ -354,6 +354,10 @@
 
         <a href="{{ route('reports.customer-sales-invoice-aging.index') }}"
            class="card"
+<a href="{{ route('reports.cash-flow-dashboard.index') }}" class="report-card" data-testid="cash-flow-dashboard-link">
+    <strong>لوحة التدفق النقدي المتوقع</strong>
+    <span>ملخص التدفقات الداخلة والخارجة المتوقعة من ذمم العملاء والموردين.</span>
+</a>
 <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="report-card" data-testid="receivable-payable-aging-dashboard-link">
     <strong>لوحة أعمار الذمم</strong>
     <span>ملخص سريع لأعمار ذمم العملاء والموردين.</span>
