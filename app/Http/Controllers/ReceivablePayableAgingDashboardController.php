@@ -27,6 +27,69 @@ class ReceivablePayableAgingDashboardController extends Controller
         ]);
     }
 
+    public function export(
+        Request $request,
+        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+    ) {
+        $customerAging = $customerAgingBuilder->build($request);
+        $supplierAging = $supplierAgingBuilder->build($request);
+
+        $reportDate = now()->startOfDay();
+        $bucketComparison = $this->bucketComparison($customerAging['rows'], $supplierAging['rows']);
+        $netSummary = $this->netSummary($customerAging['summary'], $supplierAging['summary']);
+
+        $fileName = 'receivable-payable-aging-dashboard-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($reportDate, $customerAging, $supplierAging, $bucketComparison, $netSummary) {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, chr(239) . chr(187) . chr(191));
+
+            fputcsv($handle, ['لوحة أعمار الذمم']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['تاريخ التقرير', $reportDate->format('Y-m-d')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص ذمم العملاء']);
+            fputcsv($handle, ['عدد العملاء', $customerAging['summary']['customers_count']]);
+            fputcsv($handle, ['عدد فواتير العملاء المفتوحة', $customerAging['summary']['invoice_count']]);
+            fputcsv($handle, ['إجمالي ذمم العملاء المفتوحة', number_format((float) $customerAging['summary']['remaining_total'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المتأخر على العملاء', number_format((float) $customerAging['summary']['overdue_total'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص ذمم الموردين']);
+            fputcsv($handle, ['عدد الموردين', $supplierAging['summary']['suppliers_count']]);
+            fputcsv($handle, ['عدد فواتير الموردين المفتوحة', $supplierAging['summary']['invoice_count']]);
+            fputcsv($handle, ['إجمالي ذمم الموردين المفتوحة', number_format((float) $supplierAging['summary']['remaining_total'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المتأخر للموردين', number_format((float) $supplierAging['summary']['overdue_total'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['صافي الذمم']);
+            fputcsv($handle, ['صافي الذمم المفتوحة', number_format((float) $netSummary['net_open_total'], 2, '.', '')]);
+            fputcsv($handle, ['حالة صافي الذمم', $netSummary['position_label']]);
+            fputcsv($handle, ['صافي المتأخرات', number_format((float) $netSummary['net_overdue_total'], 2, '.', '')]);
+            fputcsv($handle, ['حالة صافي المتأخرات', $netSummary['overdue_position_label']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['مقارنة شرائح الأعمار']);
+            fputcsv($handle, ['شريحة العمر', 'ذمم العملاء', 'ذمم الموردين', 'صافي الفرق']);
+
+            foreach ($bucketComparison as $bucket) {
+                fputcsv($handle, [
+                    $bucket['label'],
+                    number_format((float) $bucket['customer_total'], 2, '.', ''),
+                    number_format((float) $bucket['supplier_total'], 2, '.', ''),
+                    number_format((float) $bucket['net_total'], 2, '.', ''),
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     private function netSummary(array $customerSummary, array $supplierSummary): array
     {
         $netOpen = round((float) $customerSummary['remaining_total'] - (float) $supplierSummary['remaining_total'], 2);

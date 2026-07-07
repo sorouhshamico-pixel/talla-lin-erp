@@ -191,6 +191,7 @@ Route::get('/reports/customer-sales-invoice-aging/print', [\App\Http\Controllers
 Route::get('/reports/customer-sales-invoice-aging/export', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'export'])->name('reports.customer-sales-invoice-aging.export');
 Route::get('/reports/supplier-purchase-invoice-aging/print', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'print'])->name('reports.supplier-purchase-invoice-aging.print');
 Route::get('/reports/supplier-purchase-invoice-aging/export', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'export'])->name('reports.supplier-purchase-invoice-aging.export');
+Route::get('/reports/receivable-payable-aging-dashboard/export', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'export'])->name('reports.receivable-payable-aging-dashboard.export');
 Route::get('/reports/receivable-payable-aging-dashboard', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'index'])->name('reports.receivable-payable-aging-dashboard.index');
 Route::get('/reports/supplier-purchase-invoice-aging', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'index'])->name('reports.supplier-purchase-invoice-aging.index');
 Route::get('/reports/customer-sales-invoice-aging', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'index'])->name('reports.customer-sales-invoice-aging.index');

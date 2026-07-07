@@ -108,6 +108,7 @@
                 </div>
 
                 <div class="report-actions">
+                    <a href="{{ route('reports.receivable-payable-aging-dashboard.export') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-export-link">تصدير CSV</a>
                     <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-customer-report-link">تقرير أعمار ذمم العملاء</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-supplier-report-link">تقرير أعمار ذمم الموردين</a>
                 </div>
