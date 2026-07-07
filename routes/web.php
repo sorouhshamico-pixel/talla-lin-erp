@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 Route::get('/dashboard/financial-summary/print', \App\Http\Controllers\FinancialDashboardSummaryPrintController::class)->name('dashboard.financial-summary.print');
 Route::get('/dashboard/top-overdue-suppliers/export', \App\Http\Controllers\MainDashboardTopOverdueSuppliersExportController::class)->name('dashboard.top-overdue-suppliers.export');
+Route::get('/dashboard/top-overdue/print', \App\Http\Controllers\MainDashboardTopOverduePrintController::class)->name('dashboard.top-overdue.print');
 Route::get('/dashboard/top-overdue-customers/export', \App\Http\Controllers\MainDashboardTopOverdueCustomersExportController::class)->name('dashboard.top-overdue-customers.export');
 Route::get('/dashboard/financial-summary/export', \App\Http\Controllers\FinancialDashboardSummaryExportController::class)->name('dashboard.financial-summary.export');
 
