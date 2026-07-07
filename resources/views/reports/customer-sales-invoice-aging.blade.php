@@ -37,7 +37,6 @@
 <a href="{{ route('reports.customer-sales-invoice-aging.print', request()->only(['customer_id', 'aging_bucket'])) }}" class="btn btn-outline-secondary" data-testid="customer-aging-print-link">طباعة التقرير</a>
                         <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', request()->only(['customer_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-link">تفاصيل الفواتير المفتوحة</a>
 <a href="{{ route('reports.customer-sales-invoice-aging.export', request()->only(['customer_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-export-button">تصدير CSV</a>
-                <a class="btn secondary" href="{{ route('reports.customer-sales-invoice-aging.export', request()->only(['customer_id', 'aging_bucket'])) }}" data-testid="customer-aging-report-export-link">تصدير CSV</a>
                 <a class="btn" href="{{ route('reports.sales-invoice-aging.index') }}" data-testid="customer-aging-report-aging-link">تقرير أعمار الفواتير</a>
             </div>
         </div>
