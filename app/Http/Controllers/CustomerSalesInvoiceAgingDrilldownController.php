@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CustomerSalesInvoiceAgingDrilldownController extends Controller
@@ -30,6 +31,7 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
             fputcsv($handle, ['تاريخ التقرير', $data['reportDate']->format('Y-m-d')]);
             fputcsv($handle, ['فلتر العميل', $data['selectedCustomerLabel']]);
+            fputcsv($handle, ['فلتر الفرع', $data['selectedBranchLabel']]);
             fputcsv($handle, ['فلتر شريحة العمر', $data['selectedAgingBucketLabel']]);
             fputcsv($handle, []);
 
@@ -84,6 +86,7 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
         ];
 
         $customerId = $request->integer('customer_id') ?: null;
+        $branchId = $request->integer('branch_id') ?: null;
         $agingBucket = $request->input('aging_bucket');
 
         $query = SalesInvoice::query()
@@ -91,6 +94,10 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
 
         if ($customerId) {
             $query->where('customer_id', $customerId);
+        }
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
         }
 
         $this->applyAgingBucket($query, $agingBucket, $reportDate);
@@ -109,6 +116,10 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $branches = DB::table('branches')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         $selectedCustomerName = $customerId
             ? Customer::query()->whereKey($customerId)->value('name')
             : null;
@@ -116,10 +127,13 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
         return [
             'reportDate' => $reportDate,
             'customers' => $customers,
+            'branches' => $branches,
             'agingBuckets' => $agingBuckets,
             'selectedCustomerId' => $customerId,
+            'selectedBranchId' => $branchId,
             'selectedAgingBucket' => $agingBucket,
             'selectedCustomerLabel' => $customerId ? $selectedCustomerName . ' #' . $customerId : 'كل العملاء',
+            'selectedBranchLabel' => $this->branchLabel($request),
             'selectedAgingBucketLabel' => $agingBuckets[$agingBucket] ?? 'كل الشرائح',
             'invoices' => $invoices,
             'customerNames' => $customerNames,
@@ -130,6 +144,19 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
                 'paid_total' => round((float) $invoices->sum('paid_amount'), 2),
             ],
         ];
+    }
+
+    private function branchLabel(Request $request): string
+    {
+        $branchId = $request->integer('branch_id') ?: null;
+
+        if (! $branchId) {
+            return 'كل الفروع';
+        }
+
+        $name = DB::table('branches')->where('id', $branchId)->value('name');
+
+        return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
     }
 
     private function applyAgingBucket($query, ?string $agingBucket, Carbon $reportDate): void

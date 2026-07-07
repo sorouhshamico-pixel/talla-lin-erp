@@ -26,6 +26,19 @@
                         </select>
                     </div>
 
+
+                    <div class="filter-row">
+                        <label for="branch_id">الفرع</label>
+                        <select name="branch_id" id="branch_id" data-testid="customer-aging-drilldown-branch-select">
+                            <option value="">كل الفروع</option>
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}" @selected((string) $selectedBranchId === (string) $branch->id)>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="filter-row">
                         <label for="aging_bucket">شريحة العمر</label>
                         <select name="aging_bucket" id="aging_bucket" data-testid="customer-aging-drilldown-bucket-select">
@@ -40,7 +53,7 @@
 
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="customer-aging-drilldown-apply-filters">تطبيق الفلاتر</button>
-                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown.export', request()->only(['customer_id', 'supplier_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-export-link">تصدير CSV</a>
+                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown.export', request()->only(['customer_id', 'supplier_id', 'branch_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-export-link">تصدير CSV</a>
                         <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-secondary" data-testid="customer-aging-drilldown-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
@@ -48,6 +61,7 @@
                 <div class="report-meta">
                     <p data-testid="customer-aging-drilldown-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
                     <p data-testid="customer-aging-drilldown-customer-filter">فلتر العميل: {{ $selectedCustomerLabel }}</p>
+                    <p data-testid="customer-aging-drilldown-branch-filter">فلتر الفرع: {{ $selectedBranchLabel }}</p>
                     <p data-testid="customer-aging-drilldown-bucket-filter">فلتر شريحة العمر: {{ $selectedAgingBucketLabel }}</p>
                 </div>
 
