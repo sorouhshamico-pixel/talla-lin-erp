@@ -112,6 +112,16 @@ class CustomerSalesInvoiceAgingReportController extends Controller
     }
 
 
+
+    public function print(Request $request)
+    {
+        return view('reports.customer-sales-invoice-aging-print', [
+            'reportDate' => now()->toDateString(),
+            'customerFilter' => $request->input('customer_id'),
+            'agingBucketFilter' => $request->input('aging_bucket'),
+        ]);
+    }
+
     public function export(Request $request)
     {
         $reportDate = now()->startOfDay();
