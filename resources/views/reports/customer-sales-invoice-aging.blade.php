@@ -34,6 +34,7 @@
 
             <div>
                 <a class="btn secondary" href="{{ route('reports.index') }}" data-testid="customer-aging-report-back-link">رجوع للتقارير</a>
+<a href="{{ route('reports.customer-sales-invoice-aging.export', request()->only(['customer_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-export-button">تصدير CSV</a>
                 <a class="btn" href="{{ route('reports.sales-invoice-aging.index') }}" data-testid="customer-aging-report-aging-link">تقرير أعمار الفواتير</a>
             </div>
         </div>
