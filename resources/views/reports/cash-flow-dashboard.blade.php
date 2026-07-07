@@ -71,6 +71,31 @@
                     </div>
                 </div>
 
+                <div class="table-responsive" data-testid="cash-flow-bucket-comparison">
+                    <h2>التدفق النقدي حسب شرائح الأعمار</h2>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>شريحة العمر</th>
+                                <th>تدفقات داخلة متوقعة</th>
+                                <th>تدفقات خارجة متوقعة</th>
+                                <th>صافي التدفق النقدي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($bucketCashFlow as $bucket)
+                                <tr>
+                                    <td>{{ $bucket['label'] }}</td>
+                                    <td>{{ number_format((float) $bucket['expected_inflows'], 2) }} ريال</td>
+                                    <td>{{ number_format((float) $bucket['expected_outflows'], 2) }} ريال</td>
+                                    <td>{{ number_format((float) $bucket['net_cash_flow'], 2) }} ريال</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="report-actions">
                     <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-customer-aging-link">تقرير أعمار ذمم العملاء</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-supplier-aging-link">تقرير أعمار ذمم الموردين</a>
