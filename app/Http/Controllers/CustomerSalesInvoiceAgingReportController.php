@@ -117,7 +117,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         $today = now()->toDateString();
         $reportDate = now()->startOfDay();
 
-        $invoicesQuery = SalesInvoice::query()
+        $invoicesQuery = \App\Models\SalesInvoice::query()
             ->with(['customer'])
             ->where('remaining_amount', '>', 0);
 
@@ -205,7 +205,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         $customerFilterLabel = 'all';
 
         if ($request->filled('customer_id')) {
-            $customer = Customer::query()->find($request->input('customer_id'));
+            $customer = \App\Models\Customer::query()->find($request->input('customer_id'));
 
             $customerFilterLabel = $customer
                 ? $customer->name . ' #' . $customer->id
@@ -237,12 +237,16 @@ class CustomerSalesInvoiceAgingReportController extends Controller
             fputcsv($handle, ['فلتر شريحة العمر', $agingBucketFilterLabel]);
             fputcsv($handle, ['عدد العملاء', $summary['customers_count']]);
             fputcsv($handle, ['عدد الفواتير المفتوحة', $summary['invoice_count']]);
+            fputcsv($handle, ['إجمالي الذمم المفتوحة', number_format((float) $summary['remaining_total'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المتأخر', number_format((float) $summary['overdue_total'], 2, '.', '')]);
 
             fclose($handle);
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
+
+
     private function applyAgingBucketFilter(Builder $query, ?string $bucket, string $today): void
     {
         match ($bucket) {
