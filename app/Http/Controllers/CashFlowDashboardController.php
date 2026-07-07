@@ -18,13 +18,88 @@ class CashFlowDashboardController extends Controller
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
 
+        $data = $this->dashboardData($customerAging, $supplierAging);
+
+        return view('reports.cash-flow-dashboard', $data);
+    }
+
+    public function export(
+        Request $request,
+        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+    ) {
+        $customerAging = $customerAgingBuilder->build($request);
+        $supplierAging = $supplierAgingBuilder->build($request);
+
+        $data = $this->dashboardData($customerAging, $supplierAging);
+
+        $fileName = 'cash-flow-dashboard-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($data) {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, chr(239) . chr(187) . chr(191));
+
+            fputcsv($handle, ['لوحة التدفق النقدي المتوقع']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['تاريخ التقرير', $data['reportDate']->format('Y-m-d')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص التدفقات الداخلة']);
+            fputcsv($handle, ['عدد العملاء أصحاب الذمم', $data['inflowSummary']['customers_count']]);
+            fputcsv($handle, ['فواتير العملاء المفتوحة', $data['inflowSummary']['open_invoice_count']]);
+            fputcsv($handle, ['التدفقات الداخلة المتوقعة', number_format((float) $data['inflowSummary']['expected_inflows'], 2, '.', '')]);
+            fputcsv($handle, ['تدفقات داخلة متأخرة', number_format((float) $data['inflowSummary']['overdue_inflows'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص التدفقات الخارجة']);
+            fputcsv($handle, ['عدد الموردين أصحاب الذمم', $data['outflowSummary']['suppliers_count']]);
+            fputcsv($handle, ['فواتير الموردين المفتوحة', $data['outflowSummary']['open_invoice_count']]);
+            fputcsv($handle, ['التدفقات الخارجة المتوقعة', number_format((float) $data['outflowSummary']['expected_outflows'], 2, '.', '')]);
+            fputcsv($handle, ['تدفقات خارجة متأخرة', number_format((float) $data['outflowSummary']['overdue_outflows'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['صافي التدفق النقدي']);
+            fputcsv($handle, ['صافي التدفق النقدي المتوقع', number_format((float) $data['netCashSummary']['net_expected_cash'], 2, '.', '')]);
+            fputcsv($handle, ['حالة التدفق النقدي المتوقع', $data['netCashSummary']['position_label']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['مخاطر التدفق النقدي']);
+            fputcsv($handle, ['إجمالي التدفقات الداخلة المتأخرة', number_format((float) $data['riskSummary']['overdue_inflows'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي التدفقات الخارجة المتأخرة', number_format((float) $data['riskSummary']['overdue_outflows'], 2, '.', '')]);
+            fputcsv($handle, ['صافي الضغط النقدي المتأخر', number_format((float) $data['riskSummary']['net_overdue_pressure'], 2, '.', '')]);
+            fputcsv($handle, ['حالة الضغط النقدي', $data['riskSummary']['pressure_label']]);
+            fputcsv($handle, ['نسبة تغطية الالتزامات المتوقعة', $data['riskSummary']['cash_coverage_ratio'] === null ? 'غير مطبق' : number_format((float) $data['riskSummary']['cash_coverage_ratio'], 2, '.', '') . '%']);
+            fputcsv($handle, ['حالة التغطية النقدية', $data['riskSummary']['coverage_label']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['التدفق النقدي حسب شرائح الأعمار']);
+            fputcsv($handle, ['شريحة العمر', 'تدفقات داخلة متوقعة', 'تدفقات خارجة متوقعة', 'صافي التدفق النقدي']);
+
+            foreach ($data['bucketCashFlow'] as $bucket) {
+                fputcsv($handle, [
+                    $bucket['label'],
+                    number_format((float) $bucket['expected_inflows'], 2, '.', ''),
+                    number_format((float) $bucket['expected_outflows'], 2, '.', ''),
+                    number_format((float) $bucket['net_cash_flow'], 2, '.', ''),
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    private function dashboardData(array $customerAging, array $supplierAging): array
+    {
         $expectedInflows = round((float) $customerAging['summary']['remaining_total'], 2);
         $expectedOutflows = round((float) $supplierAging['summary']['remaining_total'], 2);
         $overdueInflows = round((float) $customerAging['summary']['overdue_total'], 2);
         $overdueOutflows = round((float) $supplierAging['summary']['overdue_total'], 2);
         $netExpectedCash = round($expectedInflows - $expectedOutflows, 2);
 
-        return view('reports.cash-flow-dashboard', [
+        return [
             'reportDate' => now()->startOfDay(),
             'inflowSummary' => [
                 'customers_count' => $customerAging['summary']['customers_count'],
@@ -46,7 +121,7 @@ class CashFlowDashboardController extends Controller
             ],
             'riskSummary' => $this->riskSummary($overdueInflows, $overdueOutflows, $expectedInflows, $expectedOutflows),
             'bucketCashFlow' => $this->bucketCashFlow($customerAging['rows'], $supplierAging['rows']),
-        ]);
+        ];
     }
 
     private function riskSummary(float $overdueInflows, float $overdueOutflows, float $expectedInflows, float $expectedOutflows): array
