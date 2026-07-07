@@ -115,6 +115,17 @@
         <div class="meta">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</div>
     </div>
 
+    <div class="summary" data-testid="aging-dashboard-print-filter-context">
+        <div class="card">
+            <div class="label">الفرع</div>
+            <div class="value">{{ $selectedBranchName ?? 'كل الفروع' }}</div>
+        </div>
+        <div class="card">
+            <div class="label">تاريخ التقرير المحدد</div>
+            <div class="value">{{ $selectedAsOfDate }}</div>
+        </div>
+    </div>
+
     <h2>ملخص ذمم العملاء</h2>
     <div class="summary" data-testid="aging-dashboard-print-customer-summary">
         <div class="card">

@@ -54,6 +54,8 @@ class ReceivablePayableAgingDashboardController extends Controller
             fputcsv($handle, ['لوحة أعمار الذمم']);
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
             fputcsv($handle, ['تاريخ التقرير', $data['reportDate']->format('Y-m-d')]);
+            fputcsv($handle, ['الفرع', $data['selectedBranchName'] ?? 'كل الفروع']);
+            fputcsv($handle, ['تاريخ التقرير المحدد', $data['selectedAsOfDate']]);
             fputcsv($handle, []);
 
             fputcsv($handle, ['ملخص ذمم العملاء']);
