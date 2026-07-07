@@ -86,6 +86,7 @@
                         <p>أعلى العملاء حسب إجمالي فواتير البيع المتأخرة المفتوحة.</p>
                     </div>
 
+                    <a href="{{ route('dashboard.top-overdue-customers.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-customers-export-link">تصدير العملاء CSV</a>
                     <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-customers-more-link">عرض تفاصيل المتأخرات</a>
                 </div>
 
@@ -139,6 +140,7 @@
                         <p>أعلى الموردين حسب إجمالي فواتير الشراء المتأخرة المفتوحة.</p>
                     </div>
 
+                    <a href="{{ route('dashboard.top-overdue-suppliers.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-suppliers-export-link">تصدير الموردين CSV</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-suppliers-more-link">عرض تفاصيل المتأخرات</a>
                 </div>
 
