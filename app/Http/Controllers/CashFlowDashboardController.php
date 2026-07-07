@@ -2,45 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CustomerSalesInvoiceAgingReportBuilder;
-use App\Services\SupplierPurchaseInvoiceAgingReportBuilder;
+use App\Models\PurchaseInvoice;
+use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CashFlowDashboardController extends Controller
 {
-    public function index(
-        Request $request,
-        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
-    ): View {
-        $customerAging = $customerAgingBuilder->build($request);
-        $supplierAging = $supplierAgingBuilder->build($request);
-
-        return view('reports.cash-flow-dashboard', $this->dashboardData($customerAging, $supplierAging));
+    public function index(Request $request): View
+    {
+        return view('reports.cash-flow-dashboard', $this->dashboardData($request));
     }
 
-    public function print(
-        Request $request,
-        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
-    ): View {
-        $customerAging = $customerAgingBuilder->build($request);
-        $supplierAging = $supplierAgingBuilder->build($request);
-
-        return view('reports.cash-flow-dashboard-print', $this->dashboardData($customerAging, $supplierAging));
+    public function print(Request $request): View
+    {
+        return view('reports.cash-flow-dashboard-print', $this->dashboardData($request));
     }
 
-    public function export(
-        Request $request,
-        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
-    ) {
-        $customerAging = $customerAgingBuilder->build($request);
-        $supplierAging = $supplierAgingBuilder->build($request);
-
-        $data = $this->dashboardData($customerAging, $supplierAging);
+    public function export(Request $request)
+    {
+        $data = $this->dashboardData($request);
 
         $fileName = 'cash-flow-dashboard-' . now()->format('Ymd-His') . '.csv';
 
@@ -100,25 +84,57 @@ class CashFlowDashboardController extends Controller
         ]);
     }
 
-    private function dashboardData(array $customerAging, array $supplierAging): array
+    private function dashboardData(Request $request): array
     {
-        $expectedInflows = round((float) $customerAging['summary']['remaining_total'], 2);
-        $expectedOutflows = round((float) $supplierAging['summary']['remaining_total'], 2);
-        $overdueInflows = round((float) $customerAging['summary']['overdue_total'], 2);
-        $overdueOutflows = round((float) $supplierAging['summary']['overdue_total'], 2);
+        $reportDate = $this->reportDate($request);
+
+        $customerInvoices = $this->filteredSalesInvoices($request);
+        $supplierInvoices = $this->filteredPurchaseInvoices($request);
+
+        $customerRows = $this->groupSalesInvoicesByCustomer($customerInvoices, $reportDate);
+        $supplierRows = $this->groupPurchaseInvoicesBySupplier($supplierInvoices, $reportDate);
+
+        $expectedInflows = round((float) $customerInvoices->sum('remaining_amount'), 2);
+        $expectedOutflows = round((float) $supplierInvoices->sum('remaining_amount'), 2);
+
+        $overdueInflows = round((float) $customerInvoices
+            ->filter(fn ($invoice) => $invoice->due_at && Carbon::parse($invoice->due_at)->startOfDay()->lt($reportDate))
+            ->sum('remaining_amount'), 2);
+
+        $overdueOutflows = round((float) $supplierInvoices
+            ->filter(fn ($invoice) => $invoice->due_at && Carbon::parse($invoice->due_at)->startOfDay()->lt($reportDate))
+            ->sum('remaining_amount'), 2);
+
         $netExpectedCash = round($expectedInflows - $expectedOutflows, 2);
 
+        $selectedBranchId = $request->integer('branch_id') ?: null;
+        $selectedDateFrom = $this->dateInput($request, 'date_from');
+        $selectedDateTo = $this->dateInput($request, 'date_to');
+
         return [
-            'reportDate' => now()->startOfDay(),
+            'reportDate' => $reportDate,
+            'branches' => DB::table('branches')->orderBy('name')->get(['id', 'name']),
+            'selectedBranchId' => $selectedBranchId,
+            'selectedDateFrom' => $selectedDateFrom,
+            'selectedDateTo' => $selectedDateTo,
+            'filterParams' => array_filter([
+                'branch_id' => $selectedBranchId,
+                'date_from' => $selectedDateFrom,
+                'date_to' => $selectedDateTo,
+            ]),
+            'drilldownParams' => array_filter([
+                'branch_id' => $selectedBranchId,
+                'as_of_date' => $selectedDateTo,
+            ]),
             'inflowSummary' => [
-                'customers_count' => $customerAging['summary']['customers_count'],
-                'open_invoice_count' => $customerAging['summary']['invoice_count'],
+                'customers_count' => $customerInvoices->pluck('customer_id')->filter()->unique()->count(),
+                'open_invoice_count' => $customerInvoices->count(),
                 'expected_inflows' => $expectedInflows,
                 'overdue_inflows' => $overdueInflows,
             ],
             'outflowSummary' => [
-                'suppliers_count' => $supplierAging['summary']['suppliers_count'],
-                'open_invoice_count' => $supplierAging['summary']['invoice_count'],
+                'suppliers_count' => $supplierInvoices->pluck('supplier_id')->filter()->unique()->count(),
+                'open_invoice_count' => $supplierInvoices->count(),
                 'expected_outflows' => $expectedOutflows,
                 'overdue_outflows' => $overdueOutflows,
             ],
@@ -129,8 +145,156 @@ class CashFlowDashboardController extends Controller
                     : 'صافي التزامات نقدية متوقعة على الشركة',
             ],
             'riskSummary' => $this->riskSummary($overdueInflows, $overdueOutflows, $expectedInflows, $expectedOutflows),
-            'bucketCashFlow' => $this->bucketCashFlow($customerAging['rows'], $supplierAging['rows']),
+            'bucketCashFlow' => $this->bucketCashFlow($customerRows, $supplierRows),
         ];
+    }
+
+    private function filteredSalesInvoices(Request $request): Collection
+    {
+        $query = SalesInvoice::query()
+            ->where('remaining_amount', '>', 0);
+
+        $this->applyCommonFilters($query, $request);
+
+        return $query->get([
+            'id',
+            'customer_id',
+            'branch_id',
+            'invoice_number',
+            'remaining_amount',
+            'due_at',
+        ]);
+    }
+
+    private function filteredPurchaseInvoices(Request $request): Collection
+    {
+        $query = PurchaseInvoice::query()
+            ->where('remaining_amount', '>', 0);
+
+        $this->applyCommonFilters($query, $request);
+
+        return $query->get([
+            'id',
+            'supplier_id',
+            'branch_id',
+            'invoice_number',
+            'remaining_amount',
+            'due_at',
+        ]);
+    }
+
+    private function applyCommonFilters($query, Request $request): void
+    {
+        $branchId = $request->integer('branch_id') ?: null;
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        $dateFrom = $this->dateInput($request, 'date_from');
+        $dateTo = $this->dateInput($request, 'date_to');
+
+        if ($dateFrom) {
+            $query->whereNotNull('due_at')
+                ->whereDate('due_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereNotNull('due_at')
+                ->whereDate('due_at', '<=', $dateTo);
+        }
+    }
+
+    private function groupSalesInvoicesByCustomer(Collection $invoices, Carbon $reportDate): Collection
+    {
+        return $invoices
+            ->groupBy(fn ($invoice) => $invoice->customer_id ?: 'without_customer')
+            ->map(fn (Collection $group) => $this->bucketTotalsForInvoices($group, $reportDate))
+            ->values();
+    }
+
+    private function groupPurchaseInvoicesBySupplier(Collection $invoices, Carbon $reportDate): Collection
+    {
+        return $invoices
+            ->groupBy(fn ($invoice) => $invoice->supplier_id ?: 'without_supplier')
+            ->map(fn (Collection $group) => $this->bucketTotalsForInvoices($group, $reportDate))
+            ->values();
+    }
+
+    private function bucketTotalsForInvoices(Collection $invoices, Carbon $reportDate): array
+    {
+        $totals = [
+            'not_due_total' => 0.0,
+            'overdue_1_30_total' => 0.0,
+            'overdue_31_60_total' => 0.0,
+            'overdue_61_90_total' => 0.0,
+            'overdue_more_than_90_total' => 0.0,
+            'without_due_date_total' => 0.0,
+        ];
+
+        foreach ($invoices as $invoice) {
+            $key = $this->bucketKey($invoice->due_at, $reportDate);
+            $totals[$key] += (float) $invoice->remaining_amount;
+        }
+
+        return collect($totals)
+            ->map(fn ($value) => round((float) $value, 2))
+            ->all();
+    }
+
+    private function bucketKey($dueAt, Carbon $reportDate): string
+    {
+        if (! $dueAt) {
+            return 'without_due_date_total';
+        }
+
+        $dueDate = Carbon::parse($dueAt)->startOfDay();
+
+        if ($dueDate->gte($reportDate)) {
+            return 'not_due_total';
+        }
+
+        $daysOverdue = (int) $dueDate->diffInDays($reportDate);
+
+        if ($daysOverdue <= 30) {
+            return 'overdue_1_30_total';
+        }
+
+        if ($daysOverdue <= 60) {
+            return 'overdue_31_60_total';
+        }
+
+        if ($daysOverdue <= 90) {
+            return 'overdue_61_90_total';
+        }
+
+        return 'overdue_more_than_90_total';
+    }
+
+    private function reportDate(Request $request): Carbon
+    {
+        $dateTo = $this->dateInput($request, 'date_to');
+
+        if ($dateTo) {
+            return Carbon::parse($dateTo)->startOfDay();
+        }
+
+        return now()->startOfDay();
+    }
+
+    private function dateInput(Request $request, string $key): ?string
+    {
+        $value = $request->input($key);
+
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function riskSummary(float $overdueInflows, float $overdueOutflows, float $expectedInflows, float $expectedOutflows): array

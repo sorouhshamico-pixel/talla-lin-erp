@@ -13,6 +13,35 @@
 
         <div class="card" data-testid="cash-flow-dashboard">
             <div class="card-body">
+                <form method="GET" action="{{ route('reports.cash-flow-dashboard.index') }}" class="filters" data-testid="cash-flow-dashboard-filters">
+                    <div class="filter-row">
+                        <label for="branch_id">الفرع</label>
+                        <select name="branch_id" id="branch_id" data-testid="cash-flow-branch-select">
+                            <option value="">كل الفروع</option>
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}" @selected((string) $selectedBranchId === (string) $branch->id)>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="date_from">من تاريخ الاستحقاق</label>
+                        <input type="date" name="date_from" id="date_from" value="{{ $selectedDateFrom }}" data-testid="cash-flow-date-from-input">
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="date_to">إلى تاريخ الاستحقاق</label>
+                        <input type="date" name="date_to" id="date_to" value="{{ $selectedDateTo }}" data-testid="cash-flow-date-to-input">
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-primary" data-testid="cash-flow-apply-filters">تطبيق الفلاتر</button>
+                        <a href="{{ route('reports.cash-flow-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="cash-flow-reset-filters">إعادة تعيين</a>
+                    </div>
+                </form>
+
                 <p data-testid="cash-flow-dashboard-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
 
                 <div class="summary-grid" data-testid="cash-flow-inflow-summary">
@@ -71,7 +100,6 @@
                     </div>
                 </div>
 
-
                 <div class="summary-grid" data-testid="cash-flow-risk-summary">
                     <div class="summary-card">
                         <span>إجمالي التدفقات الداخلة المتأخرة</span>
@@ -118,15 +146,16 @@
                         </thead>
                         <tbody>
                             @foreach ($bucketCashFlow as $bucket)
+                                @php($bucketKey = str_replace('_total', '', $bucket['key']))
                                 <tr>
                                     <td>{{ $bucket['label'] }}</td>
                                     <td>
-                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="cash-flow-customer-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', array_merge($drilldownParams, ['aging_bucket' => $bucketKey])) }}" data-testid="cash-flow-customer-bucket-drilldown-{{ $bucketKey }}">
                                             {{ number_format((float) $bucket['expected_inflows'], 2) }} ريال
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="cash-flow-supplier-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', array_merge($drilldownParams, ['aging_bucket' => $bucketKey])) }}" data-testid="cash-flow-supplier-bucket-drilldown-{{ $bucketKey }}">
                                             {{ number_format((float) $bucket['expected_outflows'], 2) }} ريال
                                         </a>
                                     </td>
@@ -138,8 +167,8 @@
                 </div>
 
                 <div class="report-actions">
-                    <a href="{{ route('reports.cash-flow-dashboard.print') }}" class="btn btn-outline-secondary" data-testid="cash-flow-print-link">طباعة اللوحة</a>
-                    <a href="{{ route('reports.cash-flow-dashboard.export') }}" class="btn btn-outline-primary" data-testid="cash-flow-export-link">تصدير CSV</a>
+                    <a href="{{ route('reports.cash-flow-dashboard.print', $filterParams) }}" class="btn btn-outline-secondary" data-testid="cash-flow-print-link">طباعة اللوحة</a>
+                    <a href="{{ route('reports.cash-flow-dashboard.export', $filterParams) }}" class="btn btn-outline-primary" data-testid="cash-flow-export-link">تصدير CSV</a>
                     <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-customer-aging-link">تقرير أعمار ذمم العملاء</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-supplier-aging-link">تقرير أعمار ذمم الموردين</a>
                     <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-primary" data-testid="cash-flow-aging-dashboard-link">لوحة أعمار الذمم</a>
