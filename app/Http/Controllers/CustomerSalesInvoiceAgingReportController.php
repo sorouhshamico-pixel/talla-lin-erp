@@ -226,7 +226,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
 
         $fileName = 'customer-sales-invoice-aging-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($summary, $reportDate, $customerFilterLabel, $agingBucketFilterLabel) {
+        return response()->streamDownload(function () use ($rows, $summary, $reportDate, $customerFilterLabel, $agingBucketFilterLabel) {
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, chr(239) . chr(187) . chr(191));
@@ -243,12 +243,43 @@ class CustomerSalesInvoiceAgingReportController extends Controller
             fputcsv($handle, ['عدد الفواتير المفتوحة', $summary['invoice_count']]);
             fputcsv($handle, ['إجمالي الذمم المفتوحة', number_format((float) $summary['remaining_total'], 2, '.', '')]);
             fputcsv($handle, ['إجمالي المتأخر', number_format((float) $summary['overdue_total'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, [
+                'العميل',
+                'عدد الفواتير',
+                'إجمالي المتبقي',
+                'غير مستحقة بعد',
+                'متأخرة 1 إلى 30',
+                'متأخرة 31 إلى 60',
+                'متأخرة 61 إلى 90',
+                'أكثر من 90',
+                'بدون تاريخ استحقاق',
+                'أقدم استحقاق',
+            ]);
+
+            foreach ($rows as $row) {
+                fputcsv($handle, [
+                    $row['customer'] ? $row['customer']->name : '',
+                    $row['invoice_count'],
+                    number_format((float) $row['remaining_total'], 2, '.', ''),
+                    number_format((float) $row['not_due_total'], 2, '.', ''),
+                    number_format((float) $row['overdue_1_30_total'], 2, '.', ''),
+                    number_format((float) $row['overdue_31_60_total'], 2, '.', ''),
+                    number_format((float) $row['overdue_61_90_total'], 2, '.', ''),
+                    number_format((float) $row['overdue_more_than_90_total'], 2, '.', ''),
+                    number_format((float) $row['without_due_date_total'], 2, '.', ''),
+                    $row['oldest_due_at'] ? $row['oldest_due_at']->format('Y-m-d') : '',
+                ]);
+            }
 
             fclose($handle);
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
+
+
 
 
 
