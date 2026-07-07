@@ -354,6 +354,10 @@
 
         <a href="{{ route('reports.customer-sales-invoice-aging.index') }}"
            class="card"
+<a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="report-card" data-testid="receivable-payable-aging-dashboard-link">
+    <strong>لوحة أعمار الذمم</strong>
+    <span>ملخص سريع لأعمار ذمم العملاء والموردين.</span>
+</a>
 <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="report-card" data-testid="supplier-purchase-invoice-aging-report-link">
     <strong>تقرير أعمار ذمم الموردين</strong>
     <span>متابعة فواتير المشتريات المفتوحة حسب المورد وشرائح العمر.</span>
