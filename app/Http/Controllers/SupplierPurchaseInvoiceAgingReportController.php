@@ -8,6 +8,19 @@ use Illuminate\View\View;
 
 class SupplierPurchaseInvoiceAgingReportController extends Controller
 {
+    public function print(Request $request, \App\Services\SupplierPurchaseInvoiceAgingReportBuilder $builder)
+    {
+        $report = $builder->build($request);
+
+        return view('reports.supplier-purchase-invoice-aging-print', [
+            'reportDate' => $report['reportDate'],
+            'rows' => $report['rows'],
+            'summary' => $report['summary'],
+            'supplierFilterLabel' => $report['supplierFilterLabel'],
+            'agingBucketFilterLabel' => $report['agingBucketFilterLabel'],
+        ]);
+    }
+
     public function export(Request $request, \App\Services\SupplierPurchaseInvoiceAgingReportBuilder $builder)
     {
         $report = $builder->build($request);
