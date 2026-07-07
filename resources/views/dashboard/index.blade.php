@@ -54,4 +54,7 @@
             {{ $user->branches->pluck('name')->join('، ') }}
         </p>
     </div>
+
+    @include('dashboard._financial-summary')
+
 @endsection
