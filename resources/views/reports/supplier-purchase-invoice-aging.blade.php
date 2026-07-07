@@ -42,6 +42,7 @@
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="supplier-aging-apply-filters">تطبيق الفلاتر</button>
                         <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-secondary" data-testid="supplier-aging-reset-filters">إعادة تعيين</a>
+                        <a href="{{ route('reports.supplier-purchase-invoice-aging.export', request()->only(['supplier_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="supplier-aging-export-button">تصدير CSV</a>
                     </div>
                 </form>
 
