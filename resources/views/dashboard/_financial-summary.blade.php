@@ -32,6 +32,12 @@
             <div class="filter-row">
                 <label for="as_of_date">تاريخ التقرير</label>
                 <input type="date" name="as_of_date" id="as_of_date" value="{{ $dashboardAsOfDate }}" data-testid="main-dashboard-financial-as-of-date-input">
+                <div class="report-actions" data-testid="main-dashboard-financial-date-presets">
+                    <a href="{{ route('dashboard', array_filter(['branch_id' => $dashboardBranchId, 'as_of_date' => now()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-date-preset-today">اليوم</a>
+                    <a href="{{ route('dashboard', array_filter(['branch_id' => $dashboardBranchId, 'as_of_date' => now()->copy()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-date-preset-month-end">نهاية الشهر</a>
+                    <a href="{{ route('dashboard', array_filter(['branch_id' => $dashboardBranchId, 'as_of_date' => now()->copy()->subMonthNoOverflow()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-date-preset-previous-month-end">نهاية الشهر السابق</a>
+                    <a href="{{ route('dashboard', array_filter(['branch_id' => $dashboardBranchId, 'as_of_date' => now()->copy()->endOfQuarter()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-date-preset-quarter-end">نهاية الربع</a>
+                </div>
             </div>
 
             <div class="filter-actions">
