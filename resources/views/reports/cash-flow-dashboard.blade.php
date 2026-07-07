@@ -36,6 +36,13 @@
                         <input type="date" name="date_to" id="date_to" value="{{ $selectedDateTo }}" data-testid="cash-flow-date-to-input">
                     </div>
 
+                    <div class="report-actions" data-testid="cash-flow-date-range-presets">
+                        <a href="{{ route('reports.cash-flow-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'date_from' => now()->copy()->startOfMonth()->format('Y-m-d'), 'date_to' => now()->copy()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="cash-flow-date-range-preset-current-month">الشهر الحالي</a>
+                        <a href="{{ route('reports.cash-flow-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'date_from' => now()->format('Y-m-d'), 'date_to' => now()->copy()->addDays(30)->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="cash-flow-date-range-preset-next-30-days">الثلاثون يومًا القادمة</a>
+                        <a href="{{ route('reports.cash-flow-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'date_from' => now()->copy()->addMonthNoOverflow()->startOfMonth()->format('Y-m-d'), 'date_to' => now()->copy()->addMonthNoOverflow()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="cash-flow-date-range-preset-next-month">الشهر القادم</a>
+                        <a href="{{ route('reports.cash-flow-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'date_to' => now()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="cash-flow-date-range-preset-until-today">حتى اليوم</a>
+                    </div>
+
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="cash-flow-apply-filters">تطبيق الفلاتر</button>
                         <a href="{{ route('reports.cash-flow-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="cash-flow-reset-filters">إعادة تعيين</a>
