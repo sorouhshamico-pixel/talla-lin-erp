@@ -98,8 +98,16 @@
                             @foreach ($bucketComparison as $bucket)
                                 <tr>
                                     <td>{{ $bucket['label'] }}</td>
-                                    <td>{{ number_format((float) $bucket['customer_total'], 2) }} ريال</td>
-                                    <td>{{ number_format((float) $bucket['supplier_total'], 2) }} ريال</td>
+                                    <td>
+                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="aging-dashboard-customer-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                            {{ number_format((float) $bucket['customer_total'], 2) }} ريال
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => str_replace('_total', '', $bucket['key'])]) }}" data-testid="aging-dashboard-supplier-bucket-drilldown-{{ str_replace('_total', '', $bucket['key']) }}">
+                                            {{ number_format((float) $bucket['supplier_total'], 2) }} ريال
+                                        </a>
+                                    </td>
                                     <td>{{ number_format((float) $bucket['net_total'], 2) }} ريال</td>
                                 </tr>
                             @endforeach

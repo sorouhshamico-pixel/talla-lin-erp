@@ -148,6 +148,19 @@ class ReceivablePayableAgingDashboardTest extends TestCase
         $response->assertSee('3,200.00 ريال');
     }
 
+    public function test_receivable_payable_aging_dashboard_bucket_rows_link_to_drilldown_pages(): void
+    {
+        $user = User::query()->firstOrFail();
+
+        $response = $this->actingAs($user)->get(route('reports.receivable-payable-aging-dashboard.index'));
+
+        $response->assertOk();
+        $response->assertSee('data-testid="aging-dashboard-customer-bucket-drilldown-overdue_31_60"', false);
+        $response->assertSee('data-testid="aging-dashboard-supplier-bucket-drilldown-overdue_31_60"', false);
+        $response->assertSee(route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => 'overdue_31_60']), false);
+        $response->assertSee(route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => 'overdue_31_60']), false);
+    }
+
     public function test_reports_index_displays_receivable_payable_aging_dashboard_link(): void
     {
         if (! view()->exists('reports.index')) {
