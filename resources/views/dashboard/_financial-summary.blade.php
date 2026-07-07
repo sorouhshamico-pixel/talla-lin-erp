@@ -2,6 +2,9 @@
 @php($financialDashboardSummary = $financialDashboardSummaryService->summary(request()))
 @php($topOverdueCustomers = $financialDashboardSummaryService->topOverdueCustomers(request(), 5))
 @php($topOverdueSuppliers = $financialDashboardSummaryService->topOverdueSuppliers(request(), 5))
+@php($dashboardBranchId = request()->integer('branch_id') ?: null)
+@php($dashboardBranches = \Illuminate\Support\Facades\DB::table('branches')->orderBy('name')->get(['id', 'name']))
+@php($dashboardFilterParams = request()->only(['branch_id']))
 
 <div class="card" data-testid="main-dashboard-financial-summary">
     <div class="card-body">
@@ -12,6 +15,24 @@
             </div>
         </div>
 
+        <form method="GET" action="{{ route('dashboard') }}" class="filters" data-testid="main-dashboard-financial-branch-filter">
+            <div class="filter-row">
+                <label for="branch_id">الفرع</label>
+                <select name="branch_id" id="branch_id" data-testid="main-dashboard-financial-branch-select">
+                    <option value="">كل الفروع</option>
+                    @foreach ($dashboardBranches as $branch)
+                        <option value="{{ $branch->id }}" @selected((string) $dashboardBranchId === (string) $branch->id)>
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary" data-testid="main-dashboard-financial-branch-apply">تطبيق الفلتر</button>
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-branch-reset">إعادة تعيين</a>
+            </div>
+        </form>
         <div class="summary-grid" data-testid="main-dashboard-financial-cards">
             <div class="summary-card">
                 <span>ذمم العملاء المفتوحة</span>
@@ -86,8 +107,8 @@
                         <p>أعلى العملاء حسب إجمالي فواتير البيع المتأخرة المفتوحة.</p>
                     </div>
 
-                    <a href="{{ route('dashboard.top-overdue.print') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-print-link">طباعة المتأخرات</a>
-                    <a href="{{ route('dashboard.top-overdue-customers.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-customers-export-link">تصدير العملاء CSV</a>
+                    <a href="{{ route('dashboard.top-overdue.print', $dashboardFilterParams) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-print-link">طباعة المتأخرات</a>
+                    <a href="{{ route('dashboard.top-overdue-customers.export', $dashboardFilterParams) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-customers-export-link">تصدير العملاء CSV</a>
                     <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-customers-more-link">عرض تفاصيل المتأخرات</a>
                 </div>
 
@@ -141,7 +162,7 @@
                         <p>أعلى الموردين حسب إجمالي فواتير الشراء المتأخرة المفتوحة.</p>
                     </div>
 
-                    <a href="{{ route('dashboard.top-overdue-suppliers.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-suppliers-export-link">تصدير الموردين CSV</a>
+                    <a href="{{ route('dashboard.top-overdue-suppliers.export', $dashboardFilterParams) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-top-overdue-suppliers-export-link">تصدير الموردين CSV</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-suppliers-more-link">عرض تفاصيل المتأخرات</a>
                 </div>
 
@@ -192,8 +213,8 @@
             <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-aging-link">لوحة أعمار الذمم</a>
             <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-customer-drilldown-link">تفاصيل فواتير العملاء</a>
             <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-supplier-drilldown-link">تفاصيل فواتير الموردين</a>
-            <a href="{{ route('dashboard.financial-summary.print') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-print-link">طباعة الملخص</a>
-            <a href="{{ route('dashboard.financial-summary.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-export-link">تصدير الملخص CSV</a>
+            <a href="{{ route('dashboard.financial-summary.print', $dashboardFilterParams) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-print-link">طباعة الملخص</a>
+            <a href="{{ route('dashboard.financial-summary.export', $dashboardFilterParams) }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-export-link">تصدير الملخص CSV</a>
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-reports-link">مركز التقارير</a>
         </div>
     </div>

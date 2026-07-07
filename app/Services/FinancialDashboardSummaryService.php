@@ -21,13 +21,30 @@ class FinancialDashboardSummaryService
     {
         $request ??= request();
 
-        $customerAging = $this->customerAgingBuilder->build($request);
-        $supplierAging = $this->supplierAgingBuilder->build($request);
+        $customerQuery = SalesInvoice::query()
+            ->where('remaining_amount', '>', 0);
 
-        $expectedInflows = round((float) $customerAging['summary']['remaining_total'], 2);
-        $expectedOutflows = round((float) $supplierAging['summary']['remaining_total'], 2);
-        $overdueInflows = round((float) $customerAging['summary']['overdue_total'], 2);
-        $overdueOutflows = round((float) $supplierAging['summary']['overdue_total'], 2);
+        $supplierQuery = PurchaseInvoice::query()
+            ->where('remaining_amount', '>', 0);
+
+        $this->applyBranchFilter($customerQuery, $request);
+        $this->applyBranchFilter($supplierQuery, $request);
+
+        $reportDate = now()->startOfDay();
+
+        $expectedInflows = round((float) (clone $customerQuery)->sum('remaining_amount'), 2);
+        $expectedOutflows = round((float) (clone $supplierQuery)->sum('remaining_amount'), 2);
+
+        $overdueInflows = round((float) (clone $customerQuery)
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', '<', $reportDate->toDateString())
+            ->sum('remaining_amount'), 2);
+
+        $overdueOutflows = round((float) (clone $supplierQuery)
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', '<', $reportDate->toDateString())
+            ->sum('remaining_amount'), 2);
+
         $netExpectedCash = round($expectedInflows - $expectedOutflows, 2);
         $netOverduePressure = round($overdueOutflows - $overdueInflows, 2);
 
@@ -36,13 +53,13 @@ class FinancialDashboardSummaryService
             : null;
 
         return [
-            'customers_count' => $customerAging['summary']['customers_count'],
-            'customer_open_invoice_count' => $customerAging['summary']['invoice_count'],
+            'customers_count' => (clone $customerQuery)->whereNotNull('customer_id')->distinct()->count('customer_id'),
+            'customer_open_invoice_count' => (clone $customerQuery)->count(),
             'expected_inflows' => $expectedInflows,
             'overdue_inflows' => $overdueInflows,
 
-            'suppliers_count' => $supplierAging['summary']['suppliers_count'],
-            'supplier_open_invoice_count' => $supplierAging['summary']['invoice_count'],
+            'suppliers_count' => (clone $supplierQuery)->whereNotNull('supplier_id')->distinct()->count('supplier_id'),
+            'supplier_open_invoice_count' => (clone $supplierQuery)->count(),
             'expected_outflows' => $expectedOutflows,
             'overdue_outflows' => $overdueOutflows,
 
@@ -66,17 +83,20 @@ class FinancialDashboardSummaryService
 
         $reportDate = now()->startOfDay();
 
-        $invoices = SalesInvoice::query()
+        $query = SalesInvoice::query()
             ->where('remaining_amount', '>', 0)
             ->whereNotNull('due_at')
-            ->whereDate('due_at', '<', $reportDate->toDateString())
-            ->get([
-                'id',
-                'customer_id',
-                'invoice_number',
-                'remaining_amount',
-                'due_at',
-            ]);
+            ->whereDate('due_at', '<', $reportDate->toDateString());
+
+        $this->applyBranchFilter($query, $request);
+
+        $invoices = $query->get([
+            'id',
+            'customer_id',
+            'invoice_number',
+            'remaining_amount',
+            'due_at',
+        ]);
 
         if ($invoices->isEmpty()) {
             return [];
@@ -121,17 +141,20 @@ class FinancialDashboardSummaryService
 
         $reportDate = now()->startOfDay();
 
-        $invoices = PurchaseInvoice::query()
+        $query = PurchaseInvoice::query()
             ->where('remaining_amount', '>', 0)
             ->whereNotNull('due_at')
-            ->whereDate('due_at', '<', $reportDate->toDateString())
-            ->get([
-                'id',
-                'supplier_id',
-                'invoice_number',
-                'remaining_amount',
-                'due_at',
-            ]);
+            ->whereDate('due_at', '<', $reportDate->toDateString());
+
+        $this->applyBranchFilter($query, $request);
+
+        $invoices = $query->get([
+            'id',
+            'supplier_id',
+            'invoice_number',
+            'remaining_amount',
+            'due_at',
+        ]);
 
         if ($invoices->isEmpty()) {
             return [];
@@ -168,6 +191,15 @@ class FinancialDashboardSummaryService
             ->values()
             ->take($limit)
             ->all();
+    }
+
+    private function applyBranchFilter($query, Request $request): void
+    {
+        $branchId = $request->integer('branch_id') ?: null;
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
     }
 
     private function riskLabel(float $netOverduePressure, ?float $cashCoverageRatio, float $expectedOutflows): string
