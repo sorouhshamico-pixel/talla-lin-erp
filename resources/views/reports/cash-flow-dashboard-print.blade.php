@@ -115,6 +115,21 @@
         <div class="meta">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</div>
     </div>
 
+    <div class="summary" data-testid="cash-flow-print-filter-context">
+        <div class="card">
+            <div class="label">الفرع</div>
+            <div class="value">{{ $selectedBranchName ?? 'كل الفروع' }}</div>
+        </div>
+        <div class="card">
+            <div class="label">من تاريخ الاستحقاق</div>
+            <div class="value">{{ $selectedDateFrom ?? 'غير محدد' }}</div>
+        </div>
+        <div class="card">
+            <div class="label">إلى تاريخ الاستحقاق</div>
+            <div class="value">{{ $selectedDateTo ?? 'غير محدد' }}</div>
+        </div>
+    </div>
+
     <h2>ملخص التدفقات الداخلة</h2>
     <div class="summary" data-testid="cash-flow-print-inflow-summary">
         <div class="card">

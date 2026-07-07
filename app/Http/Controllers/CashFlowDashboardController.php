@@ -36,6 +36,9 @@ class CashFlowDashboardController extends Controller
             fputcsv($handle, ['لوحة التدفق النقدي المتوقع']);
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
             fputcsv($handle, ['تاريخ التقرير', $data['reportDate']->format('Y-m-d')]);
+            fputcsv($handle, ['الفرع', $data['selectedBranchName'] ?? 'كل الفروع']);
+            fputcsv($handle, ['من تاريخ الاستحقاق', $data['selectedDateFrom'] ?? 'غير محدد']);
+            fputcsv($handle, ['إلى تاريخ الاستحقاق', $data['selectedDateTo'] ?? 'غير محدد']);
             fputcsv($handle, []);
 
             fputcsv($handle, ['ملخص التدفقات الداخلة']);
@@ -111,10 +114,16 @@ class CashFlowDashboardController extends Controller
         $selectedDateFrom = $this->dateInput($request, 'date_from');
         $selectedDateTo = $this->dateInput($request, 'date_to');
 
+        $branches = DB::table('branches')->orderBy('name')->get(['id', 'name']);
+        $selectedBranchName = $selectedBranchId
+            ? optional($branches->firstWhere('id', $selectedBranchId))->name
+            : null;
+
         return [
             'reportDate' => $reportDate,
-            'branches' => DB::table('branches')->orderBy('name')->get(['id', 'name']),
+            'branches' => $branches,
             'selectedBranchId' => $selectedBranchId,
+            'selectedBranchName' => $selectedBranchName,
             'selectedDateFrom' => $selectedDateFrom,
             'selectedDateTo' => $selectedDateTo,
             'filterParams' => array_filter([
