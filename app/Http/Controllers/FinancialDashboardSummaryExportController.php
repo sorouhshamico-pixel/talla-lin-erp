@@ -4,22 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Services\FinancialDashboardSummaryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FinancialDashboardSummaryExportController extends Controller
 {
     public function __invoke(Request $request, FinancialDashboardSummaryService $summaryService)
     {
         $summary = $summaryService->summary($request);
+        $branchLabel = $this->branchLabel($request);
 
         $fileName = 'main-dashboard-financial-summary-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($summary) {
+        return response()->streamDownload(function () use ($summary, $branchLabel) {
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, chr(239) . chr(187) . chr(191));
 
             fputcsv($handle, ['الملخص المالي السريع للوحة التحكم']);
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['فلتر الفرع', $branchLabel]);
             fputcsv($handle, []);
 
             fputcsv($handle, ['ذمم العملاء']);
@@ -51,5 +54,18 @@ class FinancialDashboardSummaryExportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function branchLabel(Request $request): string
+    {
+        $branchId = $request->integer('branch_id') ?: null;
+
+        if (! $branchId) {
+            return 'كل الفروع';
+        }
+
+        $name = DB::table('branches')->where('id', $branchId)->value('name');
+
+        return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
     }
 }

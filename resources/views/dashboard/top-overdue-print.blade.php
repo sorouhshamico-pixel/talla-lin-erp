@@ -92,6 +92,7 @@
     <div class="header">
         <h1>أكبر المتأخرات في لوحة التحكم</h1>
         <div class="meta">تاريخ التقرير: {{ $reportDate->format('Y-m-d H:i:s') }}</div>
+        <div class="meta" data-testid="main-dashboard-top-overdue-print-branch-label">فلتر الفرع: {{ $branchLabel }}</div>
     </div>
 
     <h2>أكبر العملاء المتأخرين</h2>

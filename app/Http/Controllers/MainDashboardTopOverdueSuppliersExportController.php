@@ -4,22 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Services\FinancialDashboardSummaryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MainDashboardTopOverdueSuppliersExportController extends Controller
 {
     public function __invoke(Request $request, FinancialDashboardSummaryService $summaryService)
     {
         $rows = $summaryService->topOverdueSuppliers($request, 50);
+        $branchLabel = $this->branchLabel($request);
 
         $fileName = 'main-dashboard-top-overdue-suppliers-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($rows) {
+        return response()->streamDownload(function () use ($rows, $branchLabel) {
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, chr(239) . chr(187) . chr(191));
 
             fputcsv($handle, ['أكبر الموردين المتأخرين']);
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['فلتر الفرع', $branchLabel]);
             fputcsv($handle, []);
 
             fputcsv($handle, [
@@ -44,5 +47,18 @@ class MainDashboardTopOverdueSuppliersExportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function branchLabel(Request $request): string
+    {
+        $branchId = $request->integer('branch_id') ?: null;
+
+        if (! $branchId) {
+            return 'كل الفروع';
+        }
+
+        $name = DB::table('branches')->where('id', $branchId)->value('name');
+
+        return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
     }
 }
