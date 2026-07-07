@@ -80,6 +80,7 @@
             <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-aging-link">لوحة أعمار الذمم</a>
             <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-customer-drilldown-link">تفاصيل فواتير العملاء</a>
             <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown') }}" class="btn btn-outline-primary" data-testid="main-dashboard-supplier-drilldown-link">تفاصيل فواتير الموردين</a>
+            <a href="{{ route('dashboard.financial-summary.print') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-print-link">طباعة الملخص</a>
             <a href="{{ route('dashboard.financial-summary.export') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-financial-export-link">تصدير الملخص CSV</a>
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary" data-testid="main-dashboard-reports-link">مركز التقارير</a>
         </div>

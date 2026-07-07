@@ -46,6 +46,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+Route::get('/dashboard/financial-summary/print', \App\Http\Controllers\FinancialDashboardSummaryPrintController::class)->name('dashboard.financial-summary.print');
 Route::get('/dashboard/financial-summary/export', \App\Http\Controllers\FinancialDashboardSummaryExportController::class)->name('dashboard.financial-summary.export');
 
     Route::get('/branches', [BranchController::class, 'index'])->name('branches.index');
