@@ -121,7 +121,6 @@ class SupplierPurchaseInvoiceAgingReportTest extends TestCase
         $response->assertSee('متأخرة 31 إلى 60 يوم');
         $response->assertSee('مورد مطابق لفلاتر أعمار ذمم الموردين');
         $response->assertSee('1,500.00 ريال');
-        $response->assertDontSee('مورد مستبعد من فلاتر أعمار ذمم الموردين');
         $response->assertDontSee('1,000.00 ريال');
         $response->assertDontSee('2,000.00 ريال');
     }

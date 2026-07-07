@@ -13,6 +13,38 @@
 
         <div class="card" data-testid="supplier-purchase-invoice-aging-report">
             <div class="card-body">
+
+                <form method="GET" action="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="filters" data-testid="supplier-aging-filters">
+                    <div class="filter-row">
+                        <label for="supplier_id">المورد</label>
+                        <select name="supplier_id" id="supplier_id" data-testid="supplier-aging-supplier-select">
+                            <option value="">كل الموردين</option>
+                            @foreach ($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}" @selected((string) request('supplier_id') === (string) $supplier->id)>
+                                    {{ $supplier->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="aging_bucket">شريحة العمر</label>
+                        <select name="aging_bucket" id="aging_bucket" data-testid="supplier-aging-bucket-select">
+                            <option value="">كل الشرائح</option>
+                            @foreach ($agingBuckets as $value => $label)
+                                <option value="{{ $value }}" @selected(request('aging_bucket') === $value)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-primary" data-testid="supplier-aging-apply-filters">تطبيق الفلاتر</button>
+                        <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-secondary" data-testid="supplier-aging-reset-filters">إعادة تعيين</a>
+                    </div>
+                </form>
+
                 <div class="report-meta">
                     <p data-testid="supplier-aging-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
                     <p data-testid="supplier-aging-supplier-filter">فلتر المورد: {{ $supplierFilterLabel }}</p>
