@@ -1,4 +1,6 @@
-@php($financialDashboardSummary = app(\App\Services\FinancialDashboardSummaryService::class)->summary(request()))
+@php($financialDashboardSummaryService = app(\App\Services\FinancialDashboardSummaryService::class))
+@php($financialDashboardSummary = $financialDashboardSummaryService->summary(request()))
+@php($topOverdueCustomers = $financialDashboardSummaryService->topOverdueCustomers(request(), 5))
 
 <div class="card" data-testid="main-dashboard-financial-summary">
     <div class="card-body">
@@ -75,6 +77,59 @@
             </div>
         </div>
 
+        <div class="card" data-testid="main-dashboard-top-overdue-customers" style="margin-top: 20px;">
+            <div class="card-body">
+                <div class="page-header">
+                    <div>
+                        <h3>أكبر العملاء المتأخرين</h3>
+                        <p>أعلى العملاء حسب إجمالي فواتير البيع المتأخرة المفتوحة.</p>
+                    </div>
+
+                    <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-customers-more-link">عرض تفاصيل المتأخرات</a>
+                </div>
+
+                @if (empty($topOverdueCustomers))
+                    <div class="empty-state" data-testid="main-dashboard-top-overdue-customers-empty">
+                        لا توجد فواتير عملاء متأخرة حاليًا.
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table" data-testid="main-dashboard-top-overdue-customers-table">
+                            <thead>
+                                <tr>
+                                    <th>العميل</th>
+                                    <th>عدد الفواتير</th>
+                                    <th>إجمالي المتأخر</th>
+                                    <th>أقدم استحقاق</th>
+                                    <th>أقصى تأخير</th>
+                                    <th>التفاصيل</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($topOverdueCustomers as $row)
+                                    <tr>
+                                        <td>{{ $row['customer_name'] }}</td>
+                                        <td>{{ $row['invoice_count'] }}</td>
+                                        <td>{{ number_format((float) $row['overdue_total'], 2) }} ريال</td>
+                                        <td>{{ $row['oldest_due_at'] ?? '' }}</td>
+                                        <td>{{ $row['max_days_overdue'] === null ? '' : $row['max_days_overdue'] . ' يوم' }}</td>
+                                        <td>
+                                            @if ($row['customer_id'])
+                                                <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['customer_id' => $row['customer_id']]) }}" data-testid="main-dashboard-top-overdue-customer-link-{{ $row['customer_id'] }}">
+                                                    عرض الفواتير
+                                                </a>
+                                            @else
+                                                غير متاح
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
         <div class="report-actions">
             <a href="{{ route('reports.cash-flow-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-cash-flow-link">لوحة التدفق النقدي</a>
             <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-primary" data-testid="main-dashboard-aging-link">لوحة أعمار الذمم</a>
