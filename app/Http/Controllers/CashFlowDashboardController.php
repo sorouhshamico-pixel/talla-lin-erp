@@ -20,6 +20,8 @@ class CashFlowDashboardController extends Controller
 
         $expectedInflows = round((float) $customerAging['summary']['remaining_total'], 2);
         $expectedOutflows = round((float) $supplierAging['summary']['remaining_total'], 2);
+        $overdueInflows = round((float) $customerAging['summary']['overdue_total'], 2);
+        $overdueOutflows = round((float) $supplierAging['summary']['overdue_total'], 2);
         $netExpectedCash = round($expectedInflows - $expectedOutflows, 2);
 
         return view('reports.cash-flow-dashboard', [
@@ -28,13 +30,13 @@ class CashFlowDashboardController extends Controller
                 'customers_count' => $customerAging['summary']['customers_count'],
                 'open_invoice_count' => $customerAging['summary']['invoice_count'],
                 'expected_inflows' => $expectedInflows,
-                'overdue_inflows' => round((float) $customerAging['summary']['overdue_total'], 2),
+                'overdue_inflows' => $overdueInflows,
             ],
             'outflowSummary' => [
                 'suppliers_count' => $supplierAging['summary']['suppliers_count'],
                 'open_invoice_count' => $supplierAging['summary']['invoice_count'],
                 'expected_outflows' => $expectedOutflows,
-                'overdue_outflows' => round((float) $supplierAging['summary']['overdue_total'], 2),
+                'overdue_outflows' => $overdueOutflows,
             ],
             'netCashSummary' => [
                 'net_expected_cash' => $netExpectedCash,
@@ -42,8 +44,30 @@ class CashFlowDashboardController extends Controller
                     ? 'صافي تدفق نقدي متوقع لصالح الشركة'
                     : 'صافي التزامات نقدية متوقعة على الشركة',
             ],
+            'riskSummary' => $this->riskSummary($overdueInflows, $overdueOutflows, $expectedInflows, $expectedOutflows),
             'bucketCashFlow' => $this->bucketCashFlow($customerAging['rows'], $supplierAging['rows']),
         ]);
+    }
+
+    private function riskSummary(float $overdueInflows, float $overdueOutflows, float $expectedInflows, float $expectedOutflows): array
+    {
+        $netOverduePressure = round($overdueOutflows - $overdueInflows, 2);
+        $cashCoverageRatio = $expectedOutflows > 0
+            ? round(($expectedInflows / $expectedOutflows) * 100, 2)
+            : null;
+
+        return [
+            'overdue_inflows' => $overdueInflows,
+            'overdue_outflows' => $overdueOutflows,
+            'net_overdue_pressure' => $netOverduePressure,
+            'cash_coverage_ratio' => $cashCoverageRatio,
+            'pressure_label' => $netOverduePressure > 0
+                ? 'ضغط نقدي متأخر على الشركة'
+                : 'المتأخرات الداخلة تغطي الالتزامات المتأخرة',
+            'coverage_label' => $cashCoverageRatio === null
+                ? 'لا توجد التزامات خارجة مفتوحة'
+                : ($cashCoverageRatio >= 100 ? 'تغطية نقدية متوقعة كافية' : 'تغطية نقدية متوقعة غير كافية'),
+        ];
     }
 
     private function bucketCashFlow(Collection $customerRows, Collection $supplierRows): array

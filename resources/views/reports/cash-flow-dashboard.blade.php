@@ -71,6 +71,39 @@
                     </div>
                 </div>
 
+
+                <div class="summary-grid" data-testid="cash-flow-risk-summary">
+                    <div class="summary-card">
+                        <span>إجمالي التدفقات الداخلة المتأخرة</span>
+                        <strong>{{ number_format((float) $riskSummary['overdue_inflows'], 2) }} ريال</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>إجمالي التدفقات الخارجة المتأخرة</span>
+                        <strong>{{ number_format((float) $riskSummary['overdue_outflows'], 2) }} ريال</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>صافي الضغط النقدي المتأخر</span>
+                        <strong>{{ number_format((float) $riskSummary['net_overdue_pressure'], 2) }} ريال</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>حالة الضغط النقدي</span>
+                        <strong>{{ $riskSummary['pressure_label'] }}</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>نسبة تغطية الالتزامات المتوقعة</span>
+                        <strong>{{ $riskSummary['cash_coverage_ratio'] === null ? 'غير مطبق' : number_format((float) $riskSummary['cash_coverage_ratio'], 2) . '%' }}</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>حالة التغطية النقدية</span>
+                        <strong>{{ $riskSummary['coverage_label'] }}</strong>
+                    </div>
+                </div>
+
                 <div class="table-responsive" data-testid="cash-flow-bucket-comparison">
                     <h2>التدفق النقدي حسب شرائح الأعمار</h2>
 

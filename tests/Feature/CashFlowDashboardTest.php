@@ -47,10 +47,13 @@ class CashFlowDashboardTest extends TestCase
         $response->assertSee('data-testid="cash-flow-inflow-summary"', false);
         $response->assertSee('data-testid="cash-flow-outflow-summary"', false);
         $response->assertSee('data-testid="cash-flow-net-summary"', false);
+        $response->assertSee('data-testid="cash-flow-risk-summary"', false);
         $response->assertSee('data-testid="cash-flow-bucket-comparison"', false);
         $response->assertSee('التدفقات الداخلة المتوقعة');
         $response->assertSee('التدفقات الخارجة المتوقعة');
         $response->assertSee('صافي التدفق النقدي المتوقع');
+        $response->assertSee('صافي الضغط النقدي المتأخر');
+        $response->assertSee('نسبة تغطية الالتزامات المتوقعة');
         $response->assertSee('التدفق النقدي حسب شرائح الأعمار');
         $response->assertSee('data-testid="cash-flow-customer-aging-link"', false);
         $response->assertSee('data-testid="cash-flow-supplier-aging-link"', false);
@@ -100,6 +103,57 @@ class CashFlowDashboardTest extends TestCase
         $response->assertSee('4,500.00 ريال');
         $response->assertSee('1,700.00 ريال');
         $response->assertSee('2,800.00 ريال');
+    }
+
+    public function test_cash_flow_dashboard_displays_risk_cards(): void
+    {
+        $user = User::query()->firstOrFail();
+
+        SalesInvoice::query()->delete();
+        PurchaseInvoice::query()->delete();
+
+        $customer = $this->createCustomer([
+            'name' => 'عميل مخاطر التدفق النقدي',
+            'phone' => '0579852233',
+        ]);
+
+        $supplier = $this->createSupplier([
+            'name' => 'مورد مخاطر التدفق النقدي',
+            'phone' => '0579852234',
+        ]);
+
+        $this->createSalesInvoice([
+            'customer_id' => $customer->id,
+            'invoice_number' => 'SI-CASH-FLOW-RISK-001',
+            'remaining_amount' => 3000,
+            'grand_total' => 3000,
+            'subtotal' => 3000,
+            'due_at' => '2026-05-20 09:00:00',
+        ]);
+
+        $this->createPurchaseInvoice([
+            'supplier_id' => $supplier->id,
+            'invoice_number' => 'PI-CASH-FLOW-RISK-001',
+            'remaining_amount' => 5000,
+            'grand_total' => 5000,
+            'subtotal' => 5000,
+            'due_at' => '2026-05-20 09:00:00',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('reports.cash-flow-dashboard.index'));
+
+        $response->assertOk();
+        $response->assertSee('data-testid="cash-flow-risk-summary"', false);
+        $response->assertSee('إجمالي التدفقات الداخلة المتأخرة');
+        $response->assertSee('إجمالي التدفقات الخارجة المتأخرة');
+        $response->assertSee('صافي الضغط النقدي المتأخر');
+        $response->assertSee('ضغط نقدي متأخر على الشركة');
+        $response->assertSee('نسبة تغطية الالتزامات المتوقعة');
+        $response->assertSee('تغطية نقدية متوقعة غير كافية');
+        $response->assertSee('3,000.00 ريال');
+        $response->assertSee('5,000.00 ريال');
+        $response->assertSee('2,000.00 ريال');
+        $response->assertSee('60.00%');
     }
 
     public function test_reports_index_displays_cash_flow_dashboard_link(): void
