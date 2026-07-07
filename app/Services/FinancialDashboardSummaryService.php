@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -101,6 +103,61 @@ class FinancialDashboardSummaryService
                     'customer_name' => $normalizedCustomerId
                         ? ($customerNames[$normalizedCustomerId] ?? 'عميل غير معروف')
                         : 'بدون عميل محدد',
+                    'invoice_count' => $group->count(),
+                    'overdue_total' => round((float) $group->sum('remaining_amount'), 2),
+                    'oldest_due_at' => $oldestDueAt?->format('Y-m-d'),
+                    'max_days_overdue' => $oldestDueAt ? (int) $oldestDueAt->diffInDays($reportDate) : null,
+                ];
+            })
+            ->sortByDesc('overdue_total')
+            ->values()
+            ->take($limit)
+            ->all();
+    }
+
+    public function topOverdueSuppliers(?Request $request = null, int $limit = 5): array
+    {
+        $request ??= request();
+
+        $reportDate = now()->startOfDay();
+
+        $invoices = PurchaseInvoice::query()
+            ->where('remaining_amount', '>', 0)
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', '<', $reportDate->toDateString())
+            ->get([
+                'id',
+                'supplier_id',
+                'invoice_number',
+                'remaining_amount',
+                'due_at',
+            ]);
+
+        if ($invoices->isEmpty()) {
+            return [];
+        }
+
+        $supplierNames = Supplier::query()
+            ->whereIn('id', $invoices->pluck('supplier_id')->filter()->unique())
+            ->pluck('name', 'id');
+
+        return $invoices
+            ->groupBy(fn ($invoice) => $invoice->supplier_id ?: 'without_supplier')
+            ->map(function ($group, $supplierId) use ($supplierNames, $reportDate): array {
+                $oldestDueAt = $group
+                    ->pluck('due_at')
+                    ->filter()
+                    ->map(fn ($date) => Carbon::parse($date)->startOfDay())
+                    ->sort()
+                    ->first();
+
+                $normalizedSupplierId = $supplierId === 'without_supplier' ? null : (int) $supplierId;
+
+                return [
+                    'supplier_id' => $normalizedSupplierId,
+                    'supplier_name' => $normalizedSupplierId
+                        ? ($supplierNames[$normalizedSupplierId] ?? 'مورد غير معروف')
+                        : 'بدون مورد محدد',
                     'invoice_count' => $group->count(),
                     'overdue_total' => round((float) $group->sum('remaining_amount'), 2),
                     'oldest_due_at' => $oldestDueAt?->format('Y-m-d'),

@@ -1,6 +1,7 @@
 @php($financialDashboardSummaryService = app(\App\Services\FinancialDashboardSummaryService::class))
 @php($financialDashboardSummary = $financialDashboardSummaryService->summary(request()))
 @php($topOverdueCustomers = $financialDashboardSummaryService->topOverdueCustomers(request(), 5))
+@php($topOverdueSuppliers = $financialDashboardSummaryService->topOverdueSuppliers(request(), 5))
 
 <div class="card" data-testid="main-dashboard-financial-summary">
     <div class="card-body">
@@ -116,6 +117,59 @@
                                         <td>
                                             @if ($row['customer_id'])
                                                 <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['customer_id' => $row['customer_id']]) }}" data-testid="main-dashboard-top-overdue-customer-link-{{ $row['customer_id'] }}">
+                                                    عرض الفواتير
+                                                </a>
+                                            @else
+                                                غير متاح
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+        <div class="card" data-testid="main-dashboard-top-overdue-suppliers" style="margin-top: 20px;">
+            <div class="card-body">
+                <div class="page-header">
+                    <div>
+                        <h3>أكبر الموردين المتأخرين</h3>
+                        <p>أعلى الموردين حسب إجمالي فواتير الشراء المتأخرة المفتوحة.</p>
+                    </div>
+
+                    <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['aging_bucket' => 'overdue_more_than_90']) }}" class="btn btn-outline-primary" data-testid="main-dashboard-top-overdue-suppliers-more-link">عرض تفاصيل المتأخرات</a>
+                </div>
+
+                @if (empty($topOverdueSuppliers))
+                    <div class="empty-state" data-testid="main-dashboard-top-overdue-suppliers-empty">
+                        لا توجد فواتير موردين متأخرة حاليًا.
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table" data-testid="main-dashboard-top-overdue-suppliers-table">
+                            <thead>
+                                <tr>
+                                    <th>المورد</th>
+                                    <th>عدد الفواتير</th>
+                                    <th>إجمالي المتأخر</th>
+                                    <th>أقدم استحقاق</th>
+                                    <th>أقصى تأخير</th>
+                                    <th>التفاصيل</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($topOverdueSuppliers as $row)
+                                    <tr>
+                                        <td>{{ $row['supplier_name'] }}</td>
+                                        <td>{{ $row['invoice_count'] }}</td>
+                                        <td>{{ number_format((float) $row['overdue_total'], 2) }} ريال</td>
+                                        <td>{{ $row['oldest_due_at'] ?? '' }}</td>
+                                        <td>{{ $row['max_days_overdue'] === null ? '' : $row['max_days_overdue'] . ' يوم' }}</td>
+                                        <td>
+                                            @if ($row['supplier_id'])
+                                                <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['supplier_id' => $row['supplier_id']]) }}" data-testid="main-dashboard-top-overdue-supplier-link-{{ $row['supplier_id'] }}">
                                                     عرض الفواتير
                                                 </a>
                                             @else
