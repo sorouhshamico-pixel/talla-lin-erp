@@ -91,6 +91,7 @@
         <h1>الملخص المالي السريع للوحة التحكم</h1>
         <div class="meta">تاريخ التقرير: {{ $reportDate->format('Y-m-d H:i:s') }}</div>
         <div class="meta" data-testid="main-dashboard-financial-print-branch-label">فلتر الفرع: {{ $branchLabel }}</div>
+        <div class="meta" data-testid="main-dashboard-financial-print-as-of-date-label">تاريخ الاحتساب: {{ $asOfDateLabel }}</div>
     </div>
 
     <h2>ذمم العملاء</h2>

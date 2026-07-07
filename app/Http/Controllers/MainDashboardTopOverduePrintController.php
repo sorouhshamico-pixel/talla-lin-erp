@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\FinancialDashboardSummaryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -14,6 +15,7 @@ class MainDashboardTopOverduePrintController extends Controller
         return view('dashboard.top-overdue-print', [
             'reportDate' => now(),
             'branchLabel' => $this->branchLabel($request),
+            'asOfDateLabel' => $this->reportDateLabel($request),
             'topOverdueCustomers' => $summaryService->topOverdueCustomers($request, 50),
             'topOverdueSuppliers' => $summaryService->topOverdueSuppliers($request, 50),
         ]);
@@ -30,5 +32,20 @@ class MainDashboardTopOverduePrintController extends Controller
         $name = DB::table('branches')->where('id', $branchId)->value('name');
 
         return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
+    }
+
+    private function reportDateLabel(Request $request): string
+    {
+        $asOfDate = $request->input('as_of_date');
+
+        if ($asOfDate) {
+            try {
+                return Carbon::parse($asOfDate)->format('Y-m-d');
+            } catch (\Throwable) {
+                return now()->format('Y-m-d');
+            }
+        }
+
+        return now()->format('Y-m-d');
     }
 }

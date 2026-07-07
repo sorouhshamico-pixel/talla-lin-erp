@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\FinancialDashboardSummaryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FinancialDashboardSummaryExportController extends Controller
@@ -12,16 +13,18 @@ class FinancialDashboardSummaryExportController extends Controller
     {
         $summary = $summaryService->summary($request);
         $branchLabel = $this->branchLabel($request);
+        $reportDateLabel = $this->reportDateLabel($request);
 
         $fileName = 'main-dashboard-financial-summary-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($summary, $branchLabel) {
+        return response()->streamDownload(function () use ($summary, $branchLabel, $reportDateLabel) {
             $handle = fopen('php://output', 'w');
 
             fwrite($handle, chr(239) . chr(187) . chr(191));
 
             fputcsv($handle, ['الملخص المالي السريع للوحة التحكم']);
             fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['تاريخ الاحتساب', $reportDateLabel]);
             fputcsv($handle, ['فلتر الفرع', $branchLabel]);
             fputcsv($handle, []);
 
@@ -67,5 +70,20 @@ class FinancialDashboardSummaryExportController extends Controller
         $name = DB::table('branches')->where('id', $branchId)->value('name');
 
         return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
+    }
+
+    private function reportDateLabel(Request $request): string
+    {
+        $asOfDate = $request->input('as_of_date');
+
+        if ($asOfDate) {
+            try {
+                return Carbon::parse($asOfDate)->format('Y-m-d');
+            } catch (\Throwable) {
+                return now()->format('Y-m-d');
+            }
+        }
+
+        return now()->format('Y-m-d');
     }
 }
