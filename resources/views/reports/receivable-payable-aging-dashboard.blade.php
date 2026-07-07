@@ -31,6 +31,13 @@
                         <input type="date" name="as_of_date" id="as_of_date" value="{{ $selectedAsOfDate }}" data-testid="aging-dashboard-as-of-date-input">
                     </div>
 
+                    <div class="report-actions" data-testid="aging-dashboard-report-date-presets">
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'as_of_date' => now()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-preset-today">اليوم</a>
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-preset-current-month-end">نهاية الشهر الحالي</a>
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->addMonthNoOverflow()->endOfMonth()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-preset-next-month-end">نهاية الشهر القادم</a>
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index', array_filter(['branch_id' => $selectedBranchId, 'as_of_date' => now()->copy()->endOfQuarter()->format('Y-m-d')])) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-preset-current-quarter-end">نهاية الربع الحالي</a>
+                    </div>
+
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="aging-dashboard-apply-filters">تطبيق الفلاتر</button>
                         <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-reset-filters">إعادة تعيين</a>
