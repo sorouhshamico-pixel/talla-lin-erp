@@ -59,6 +59,31 @@
                     </div>
                 </div>
 
+                <div class="table-responsive" data-testid="aging-dashboard-bucket-comparison">
+                    <h2>مقارنة شرائح الأعمار</h2>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>شريحة العمر</th>
+                                <th>ذمم العملاء</th>
+                                <th>ذمم الموردين</th>
+                                <th>صافي الفرق</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($bucketComparison as $bucket)
+                                <tr>
+                                    <td>{{ $bucket['label'] }}</td>
+                                    <td>{{ number_format((float) $bucket['customer_total'], 2) }} ريال</td>
+                                    <td>{{ number_format((float) $bucket['supplier_total'], 2) }} ريال</td>
+                                    <td>{{ number_format((float) $bucket['net_total'], 2) }} ريال</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="report-actions">
                     <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-customer-report-link">تقرير أعمار ذمم العملاء</a>
                     <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-primary" data-testid="aging-dashboard-supplier-report-link">تقرير أعمار ذمم الموردين</a>
