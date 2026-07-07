@@ -27,6 +27,23 @@ class ReceivablePayableAgingDashboardController extends Controller
         ]);
     }
 
+    public function print(
+        Request $request,
+        CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+    ): View {
+        $customerAging = $customerAgingBuilder->build($request);
+        $supplierAging = $supplierAgingBuilder->build($request);
+
+        return view('reports.receivable-payable-aging-dashboard-print', [
+            'reportDate' => now()->startOfDay(),
+            'customerSummary' => $customerAging['summary'],
+            'supplierSummary' => $supplierAging['summary'],
+            'bucketComparison' => $this->bucketComparison($customerAging['rows'], $supplierAging['rows']),
+            'netSummary' => $this->netSummary($customerAging['summary'], $supplierAging['summary']),
+        ]);
+    }
+
     public function export(
         Request $request,
         CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
