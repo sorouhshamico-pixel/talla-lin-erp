@@ -40,6 +40,7 @@
 
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="customer-aging-drilldown-apply-filters">تطبيق الفلاتر</button>
+                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown.export', request()->only(['customer_id', 'supplier_id', 'aging_bucket'])) }}" class="btn btn-outline-primary" data-testid="customer-aging-drilldown-export-link">تصدير CSV</a>
                         <a href="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="btn btn-outline-secondary" data-testid="customer-aging-drilldown-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>

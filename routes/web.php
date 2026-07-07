@@ -188,9 +188,11 @@ Route::get('/reports/sales-invoice-collection-follow-ups', [\App\Http\Controller
 Route::get('/reports/sales-invoice-aging/export', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'export'])->name('reports.sales-invoice-aging.export');
 Route::get('/reports/sales-invoice-aging', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'index'])->name('reports.sales-invoice-aging.index');
 Route::get('/reports/customer-sales-invoice-aging/print', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'print'])->name('reports.customer-sales-invoice-aging.print');
+Route::get('/reports/customer-sales-invoice-aging/open-invoices/export', [\App\Http\Controllers\CustomerSalesInvoiceAgingDrilldownController::class, 'export'])->name('reports.customer-sales-invoice-aging.drilldown.export');
 Route::get('/reports/customer-sales-invoice-aging/open-invoices', [\App\Http\Controllers\CustomerSalesInvoiceAgingDrilldownController::class, 'index'])->name('reports.customer-sales-invoice-aging.drilldown');
 Route::get('/reports/customer-sales-invoice-aging/export', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'export'])->name('reports.customer-sales-invoice-aging.export');
 Route::get('/reports/supplier-purchase-invoice-aging/print', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'print'])->name('reports.supplier-purchase-invoice-aging.print');
+Route::get('/reports/supplier-purchase-invoice-aging/open-invoices/export', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingDrilldownController::class, 'export'])->name('reports.supplier-purchase-invoice-aging.drilldown.export');
 Route::get('/reports/supplier-purchase-invoice-aging/open-invoices', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingDrilldownController::class, 'index'])->name('reports.supplier-purchase-invoice-aging.drilldown');
 Route::get('/reports/supplier-purchase-invoice-aging/export', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'export'])->name('reports.supplier-purchase-invoice-aging.export');
 Route::get('/reports/receivable-payable-aging-dashboard/print', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'print'])->name('reports.receivable-payable-aging-dashboard.print');

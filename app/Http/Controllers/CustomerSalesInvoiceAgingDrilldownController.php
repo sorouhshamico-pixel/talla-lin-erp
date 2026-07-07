@@ -12,6 +12,66 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('reports.customer-sales-invoice-aging-drilldown', $this->drilldownData($request));
+    }
+
+    public function export(Request $request)
+    {
+        $data = $this->drilldownData($request);
+
+        $fileName = 'customer-sales-invoice-aging-drilldown-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($data) {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, chr(239) . chr(187) . chr(191));
+
+            fputcsv($handle, ['تفاصيل فواتير العملاء المفتوحة']);
+            fputcsv($handle, ['تاريخ إنشاء التقرير', now()->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['تاريخ التقرير', $data['reportDate']->format('Y-m-d')]);
+            fputcsv($handle, ['فلتر العميل', $data['selectedCustomerLabel']]);
+            fputcsv($handle, ['فلتر شريحة العمر', $data['selectedAgingBucketLabel']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['ملخص']);
+            fputcsv($handle, ['عدد الفواتير المفتوحة', $data['summary']['invoice_count']]);
+            fputcsv($handle, ['إجمالي الفواتير', number_format((float) $data['summary']['grand_total'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المدفوع', number_format((float) $data['summary']['paid_total'], 2, '.', '')]);
+            fputcsv($handle, ['إجمالي المتبقي', number_format((float) $data['summary']['remaining_total'], 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, [
+                'رقم الفاتورة',
+                'العميل',
+                'تاريخ الإصدار',
+                'تاريخ الاستحقاق',
+                'الإجمالي',
+                'المدفوع',
+                'المتبقي',
+                'حالة الدفع',
+            ]);
+
+            foreach ($data['invoices'] as $invoice) {
+                fputcsv($handle, [
+                    $invoice->invoice_number,
+                    $data['customerNames'][$invoice->customer_id] ?? '',
+                    $invoice->issued_at ? Carbon::parse($invoice->issued_at)->format('Y-m-d') : '',
+                    $invoice->due_at ? Carbon::parse($invoice->due_at)->format('Y-m-d') : '',
+                    number_format((float) $invoice->grand_total, 2, '.', ''),
+                    number_format((float) $invoice->paid_amount, 2, '.', ''),
+                    number_format((float) $invoice->remaining_amount, 2, '.', ''),
+                    $invoice->payment_status,
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    private function drilldownData(Request $request): array
+    {
         $reportDate = now()->startOfDay();
 
         $agingBuckets = [
@@ -49,17 +109,17 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $selectedCustomerLabel = $customerId
-            ? Customer::query()->whereKey($customerId)->value('name') . ' #' . $customerId
-            : 'كل العملاء';
+        $selectedCustomerName = $customerId
+            ? Customer::query()->whereKey($customerId)->value('name')
+            : null;
 
-        return view('reports.customer-sales-invoice-aging-drilldown', [
+        return [
             'reportDate' => $reportDate,
             'customers' => $customers,
             'agingBuckets' => $agingBuckets,
             'selectedCustomerId' => $customerId,
             'selectedAgingBucket' => $agingBucket,
-            'selectedCustomerLabel' => $selectedCustomerLabel,
+            'selectedCustomerLabel' => $customerId ? $selectedCustomerName . ' #' . $customerId : 'كل العملاء',
             'selectedAgingBucketLabel' => $agingBuckets[$agingBucket] ?? 'كل الشرائح',
             'invoices' => $invoices,
             'customerNames' => $customerNames,
@@ -69,7 +129,7 @@ class CustomerSalesInvoiceAgingDrilldownController extends Controller
                 'grand_total' => round((float) $invoices->sum('grand_total'), 2),
                 'paid_total' => round((float) $invoices->sum('paid_amount'), 2),
             ],
-        ]);
+        ];
     }
 
     private function applyAgingBucket($query, ?string $agingBucket, Carbon $reportDate): void
