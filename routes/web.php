@@ -273,3 +273,4 @@ Route::middleware('auth')->group(function () {
     Route::patch('/reports/saved-views/{savedView}/default', [\App\Http\Controllers\ReportSavedViewController::class, 'makeDefault'])->name('reports.saved-views.make-default');
     Route::delete('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'destroy'])->name('reports.saved-views.destroy');
 });
+Route::post('/reports/sales-invoice-aging/saved-views', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.sales-invoice-aging.saved-views.store');

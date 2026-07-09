@@ -44,6 +44,13 @@
         </div>
     </div>
 
+
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="sales-invoice-aging-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
     <div class="card" data-testid="sales-invoice-aging-report-filters-card">
         <h2>فلاتر التقرير</h2>
 
@@ -100,6 +107,48 @@
                        class="btn secondary"
                        data-testid="sales-invoice-aging-reset-filters-link"
                        style="margin-top:8px;">إعادة ضبط</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="card" data-testid="sales-invoice-aging-save-view-card">
+        <h2>حفظ عرض التقرير</h2>
+
+        <form method="POST" action="{{ route('reports.sales-invoice-aging.saved-views.store') }}" data-testid="sales-invoice-aging-save-view-form">
+            @csrf
+
+            <input type="hidden" name="customer_id" value="{{ $customerFilter }}">
+            <input type="hidden" name="payment_status" value="{{ $paymentStatusFilter }}">
+            <input type="hidden" name="aging_bucket" value="{{ $agingBucketFilter }}">
+
+            <div class="grid">
+                <div class="metric">
+                    <label class="metric-label" for="sales_invoice_aging_saved_view_name">اسم العرض المحفوظ</label>
+                    <input id="sales_invoice_aging_saved_view_name"
+                           type="text"
+                           name="name"
+                           placeholder="مثال: متابعة التحصيل الجزئي"
+                           required
+                           maxlength="120"
+                           style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;"
+                           data-testid="sales-invoice-aging-saved-view-name-input">
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">خيارات العرض</div>
+                    <label>
+                        <input type="checkbox" name="is_default" value="1" data-testid="sales-invoice-aging-saved-view-default-checkbox">
+                        تعيين كعرض افتراضي لهذا التقرير
+                    </label>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">الإجراء</div>
+                    <button type="submit" class="btn" data-testid="sales-invoice-aging-save-view-button">
+                        حفظ العرض
+                    </button>
                 </div>
             </div>
         </form>

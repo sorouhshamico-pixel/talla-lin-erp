@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\SalesInvoice;
 use App\Services\ReportFilterPreferenceService;
+use App\Services\ReportSavedViewService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -253,6 +255,36 @@ class SalesInvoiceAgingReportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'customer_id' => ['nullable', 'integer'],
+            'payment_status' => ['nullable', 'string', 'in:unpaid,partial,paid'],
+            'aging_bucket' => ['nullable', 'string', 'in:not_due,overdue_1_30,overdue_31_60,overdue_61_90,overdue_more_than_90,without_due_date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'customer_id' => $validated['customer_id'] ?? null,
+            'payment_status' => $validated['payment_status'] ?? null,
+            'aging_bucket' => $validated['aging_bucket'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.sales-invoice-aging.index', $filters)
+            ->with('status', 'تم حفظ عرض التقرير بنجاح.');
     }
 
     private function filteredInvoiceQuery(Request $request, string $today): Builder
