@@ -266,3 +266,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reports/filter-preferences', [\App\Http\Controllers\ReportFilterPreferenceController::class, 'destroyAll'])->name('reports.filter-preferences.destroy-all');
     Route::delete('/reports/filter-preferences/{reportKey}', [\App\Http\Controllers\ReportFilterPreferenceController::class, 'destroy'])->name('reports.filter-preferences.destroy');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'index'])->name('reports.saved-views.index');
+    Route::delete('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'destroyAll'])->name('reports.saved-views.destroy-all');
+    Route::patch('/reports/saved-views/{savedView}/default', [\App\Http\Controllers\ReportSavedViewController::class, 'makeDefault'])->name('reports.saved-views.make-default');
+    Route::delete('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'destroy'])->name('reports.saved-views.destroy');
+});

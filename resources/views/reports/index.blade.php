@@ -377,4 +377,8 @@
     <h3>تفضيلات فلاتر التقارير</h3>
     <p>عرض وحذف الفلاتر المحفوظة لحسابك في التقارير المالية.</p>
 </a>
+<a href="{{ route('reports.saved-views.index') }}" class="report-card" data-testid="report-saved-views-link">
+    <h3>العروض المحفوظة للتقارير</h3>
+    <p>عرض وحذف وإدارة عروض الفلاتر المسماة للتقارير المالية.</p>
+</a>
 @endsection
