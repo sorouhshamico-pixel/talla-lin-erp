@@ -11,6 +11,12 @@
             <a href="{{ route('reports.supplier-purchase-invoice-aging.index') }}" class="btn btn-outline-secondary">تقرير أعمار ذمم الموردين</a>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="supplier-aging-drilldown-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card" data-testid="supplier-purchase-invoice-aging-drilldown">
             <div class="card-body">
                 <form method="GET" action="{{ route('reports.supplier-purchase-invoice-aging.drilldown') }}" class="filters" data-testid="supplier-aging-drilldown-filters">
@@ -69,6 +75,45 @@
                         <a href="{{ route('reports.supplier-purchase-invoice-aging.drilldown', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-drilldown-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
+
+                <div class="card" data-testid="supplier-aging-drilldown-save-view-card" style="margin-bottom:16px;">
+                    <div class="card-body">
+                        <h2>حفظ عرض التفاصيل</h2>
+
+                        <form method="POST" action="{{ route('reports.supplier-purchase-invoice-aging.drilldown.saved-views.store') }}" data-testid="supplier-aging-drilldown-save-view-form">
+                            @csrf
+
+                            <input type="hidden" name="supplier_id" value="{{ $selectedSupplierId }}">
+                            <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
+                            <input type="hidden" name="as_of_date" value="{{ $selectedAsOfDate }}">
+                            <input type="hidden" name="aging_bucket" value="{{ $selectedAgingBucket }}">
+
+                            <div class="filter-row">
+                                <label for="supplier-aging-drilldown-save-view-form_name">اسم العرض المحفوظ</label>
+                                <input id="supplier-aging-drilldown-save-view-form_name"
+                                       type="text"
+                                       name="name"
+                                       placeholder="مثال: تفاصيل موردين نهاية الشهر"
+                                       required
+                                       maxlength="120"
+                                       data-testid="supplier-aging-drilldown-saved-view-name-input">
+                            </div>
+
+                            <div class="filter-row">
+                                <label>
+                                    <input type="checkbox" name="is_default" value="1" data-testid="supplier-aging-drilldown-saved-view-default-checkbox">
+                                    تعيين كعرض افتراضي لهذه التفاصيل
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" data-testid="supplier-aging-drilldown-save-view-button">
+                                حفظ العرض
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+
 
                 <div class="report-meta">
                     <p data-testid="supplier-aging-drilldown-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>

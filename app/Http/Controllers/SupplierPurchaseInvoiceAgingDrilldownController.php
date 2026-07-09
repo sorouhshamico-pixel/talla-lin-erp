@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseInvoice;
 use App\Models\Supplier;
 use App\Services\ReportFilterPreferenceService;
+use App\Services\ReportSavedViewService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +100,38 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'supplier_id' => ['nullable', 'integer'],
+            'branch_id' => ['nullable', 'integer'],
+            'as_of_date' => ['nullable', 'date'],
+            'aging_bucket' => ['nullable', 'string', 'in:not_due,overdue_1_30,overdue_31_60,overdue_61_90,overdue_more_than_90,without_due_date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'supplier_id' => $validated['supplier_id'] ?? null,
+            'branch_id' => $validated['branch_id'] ?? null,
+            'as_of_date' => $validated['as_of_date'] ?? null,
+            'aging_bucket' => $validated['aging_bucket'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.supplier-purchase-invoice-aging.drilldown', $filters)
+            ->with('status', 'تم حفظ عرض التقرير بنجاح.');
     }
 
     private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request

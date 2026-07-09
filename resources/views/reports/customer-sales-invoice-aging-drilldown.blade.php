@@ -11,6 +11,12 @@
             <a href="{{ route('reports.customer-sales-invoice-aging.index') }}" class="btn btn-outline-secondary">تقرير أعمار ذمم العملاء</a>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="customer-aging-drilldown-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card" data-testid="customer-sales-invoice-aging-drilldown">
             <div class="card-body">
                 <form method="GET" action="{{ route('reports.customer-sales-invoice-aging.drilldown') }}" class="filters" data-testid="customer-aging-drilldown-filters">
@@ -69,6 +75,45 @@
                         <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="customer-aging-drilldown-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
+
+                <div class="card" data-testid="customer-aging-drilldown-save-view-card" style="margin-bottom:16px;">
+                    <div class="card-body">
+                        <h2>حفظ عرض التفاصيل</h2>
+
+                        <form method="POST" action="{{ route('reports.customer-sales-invoice-aging.drilldown.saved-views.store') }}" data-testid="customer-aging-drilldown-save-view-form">
+                            @csrf
+
+                            <input type="hidden" name="customer_id" value="{{ $selectedCustomerId }}">
+                            <input type="hidden" name="branch_id" value="{{ $selectedBranchId }}">
+                            <input type="hidden" name="as_of_date" value="{{ $selectedAsOfDate }}">
+                            <input type="hidden" name="aging_bucket" value="{{ $selectedAgingBucket }}">
+
+                            <div class="filter-row">
+                                <label for="customer-aging-drilldown-save-view-form_name">اسم العرض المحفوظ</label>
+                                <input id="customer-aging-drilldown-save-view-form_name"
+                                       type="text"
+                                       name="name"
+                                       placeholder="مثال: تفاصيل عملاء نهاية الشهر"
+                                       required
+                                       maxlength="120"
+                                       data-testid="customer-aging-drilldown-saved-view-name-input">
+                            </div>
+
+                            <div class="filter-row">
+                                <label>
+                                    <input type="checkbox" name="is_default" value="1" data-testid="customer-aging-drilldown-saved-view-default-checkbox">
+                                    تعيين كعرض افتراضي لهذه التفاصيل
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" data-testid="customer-aging-drilldown-save-view-button">
+                                حفظ العرض
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+
 
                 <div class="report-meta">
                     <p data-testid="customer-aging-drilldown-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
