@@ -34,7 +34,7 @@ class ReportFilterPreferenceManagementTest extends TestCase
         $response->assertOk();
         $response->assertSee('data-testid="report-filter-preferences-page"', false);
         $response->assertSee('تقرير أعمار فواتير المبيعات');
-        $response->assertSee('payment_status');
+        $response->assertSee('حالة الدفع');
         $response->assertSee('partial');
     }
 
