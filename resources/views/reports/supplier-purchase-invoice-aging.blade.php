@@ -11,6 +11,12 @@
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">مركز التقارير</a>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="supplier-aging-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card" data-testid="supplier-purchase-invoice-aging-report">
             <div class="card-body">
 
@@ -47,6 +53,41 @@
                         <a href="{{ route('reports.supplier-purchase-invoice-aging.print', request()->only(['supplier_id', 'aging_bucket'])) }}" class="btn btn-outline-secondary" data-testid="supplier-aging-print-link">طباعة التقرير</a>
                     </div>
                 </form>
+
+                <div class="card" data-testid="supplier-aging-save-view-card" style="margin-bottom:16px;">
+                    <div class="card-body">
+                        <h2>حفظ عرض التقرير</h2>
+
+                        <form method="POST" action="{{ route('reports.supplier-purchase-invoice-aging.saved-views.store') }}" data-testid="supplier-aging-save-view-form">
+                            @csrf
+
+                            <input type="hidden" name="supplier_id" value="{{ request('supplier_id') }}">
+                            <input type="hidden" name="aging_bucket" value="{{ request('aging_bucket') }}">
+
+                            <div class="filter-row">
+                                <label for="supplier_aging_saved_view_name">اسم العرض المحفوظ</label>
+                                <input id="supplier_aging_saved_view_name"
+                                       type="text"
+                                       name="name"
+                                       placeholder="مثال: متابعة ذمم الموردين"
+                                       required
+                                       maxlength="120"
+                                       data-testid="supplier-aging-saved-view-name-input">
+                            </div>
+
+                            <div class="filter-row">
+                                <label>
+                                    <input type="checkbox" name="is_default" value="1" data-testid="supplier-aging-saved-view-default-checkbox">
+                                    تعيين كعرض افتراضي لهذا التقرير
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" data-testid="supplier-aging-save-view-button">حفظ العرض</button>
+                        </form>
+                    </div>
+                </div>
+
+
 
                 <div class="report-meta">
                     <p data-testid="supplier-aging-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>

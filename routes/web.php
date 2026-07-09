@@ -274,3 +274,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'destroy'])->name('reports.saved-views.destroy');
 });
 Route::post('/reports/sales-invoice-aging/saved-views', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.sales-invoice-aging.saved-views.store');
+Route::post('/reports/customer-sales-invoice-aging/saved-views', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.customer-sales-invoice-aging.saved-views.store');
+Route::post('/reports/supplier-purchase-invoice-aging/saved-views', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.supplier-purchase-invoice-aging.saved-views.store');

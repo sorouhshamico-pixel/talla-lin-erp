@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use App\Services\ReportFilterPreferenceService;
+use App\Services\ReportSavedViewService;
 use App\Services\SupplierPurchaseInvoiceAgingReportBuilder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -132,6 +134,34 @@ class SupplierPurchaseInvoiceAgingReportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'supplier_id' => ['nullable', 'integer'],
+            'aging_bucket' => ['nullable', 'string', 'in:not_due,overdue_1_30,overdue_31_60,overdue_61_90,overdue_more_than_90,without_due_date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'supplier_id' => $validated['supplier_id'] ?? null,
+            'aging_bucket' => $validated['aging_bucket'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.supplier-purchase-invoice-aging.index', $filters)
+            ->with('status', 'تم حفظ عرض التقرير بنجاح.');
     }
 
     private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
