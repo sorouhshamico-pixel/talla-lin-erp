@@ -40,7 +40,7 @@
 
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="aging-dashboard-apply-filters">تطبيق الفلاتر</button>
-                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-reset-filters">إعادة تعيين</a>
+                        <a href="{{ route('reports.receivable-payable-aging-dashboard.index', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
 

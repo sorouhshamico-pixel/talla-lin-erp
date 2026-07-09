@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\CustomerSalesInvoiceAgingReportBuilder;
+use App\Services\ReportFilterPreferenceService;
 use App\Services\SupplierPurchaseInvoiceAgingReportBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -12,11 +13,18 @@ use Illuminate\View\View;
 
 class ReceivablePayableAgingDashboardController extends Controller
 {
+    private const REPORT_KEY = 'receivable-payable-aging-dashboard';
+
+    private const FILTER_KEYS = ['branch_id', 'as_of_date'];
+
     public function index(
         Request $request,
         CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder,
+        ReportFilterPreferenceService $filterPreferences
     ): View {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
+
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
 
@@ -26,8 +34,11 @@ class ReceivablePayableAgingDashboardController extends Controller
     public function print(
         Request $request,
         CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder,
+        ReportFilterPreferenceService $filterPreferences
     ): View {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
 
@@ -37,8 +48,11 @@ class ReceivablePayableAgingDashboardController extends Controller
     public function export(
         Request $request,
         CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
-        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder
+        SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder,
+        ReportFilterPreferenceService $filterPreferences
     ) {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
 
@@ -95,6 +109,64 @@ class ReceivablePayableAgingDashboardController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        if ($request->query->has('reset_filters')) {
+            if ($persist) {
+                $filterPreferences->clear($user, self::REPORT_KEY);
+            }
+
+            foreach (self::FILTER_KEYS as $key) {
+                $request->query->remove($key);
+                $request->request->remove($key);
+            }
+
+            return $request;
+        }
+
+        if ($this->hasFilterInput($request)) {
+            if ($persist) {
+                $filterPreferences->save($user, self::REPORT_KEY, $this->filterInputs($request));
+            }
+
+            return $request;
+        }
+
+        $savedFilters = $filterPreferences->get($user, self::REPORT_KEY);
+
+        if ($savedFilters !== []) {
+            $request->query->add($savedFilters);
+            $request->merge($savedFilters);
+        }
+
+        return $request;
+    }
+
+    private function hasFilterInput(Request $request): bool
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->query->has($key) || $request->request->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function filterInputs(Request $request): array
+    {
+        return array_filter([
+            'branch_id' => $request->integer('branch_id') ?: null,
+            'as_of_date' => $this->dateInput($request, 'as_of_date'),
+        ], fn ($value) => $value !== null && $value !== '');
     }
 
     private function dashboardData(array $customerAging, array $supplierAging, Request $request): array
