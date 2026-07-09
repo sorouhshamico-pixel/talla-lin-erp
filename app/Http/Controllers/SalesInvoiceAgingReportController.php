@@ -44,8 +44,9 @@ class SalesInvoiceAgingReportController extends Controller
         'without_due_date' => 'بدون تاريخ استحقاق',
     ];
 
-    public function index(Request $request, ReportFilterPreferenceService $filterPreferences): View
+    public function index(Request $request, ReportFilterPreferenceService $filterPreferences, ReportSavedViewService $savedViews): View
     {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
 
         $today = now()->toDateString();
@@ -306,6 +307,43 @@ class SalesInvoiceAgingReportController extends Controller
         }
 
         return $baseQuery;
+    }
+
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        if ($request->boolean('reset_filters')) {
+            return $request;
+        }
+
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->filled($key)) {
+                return $request;
+            }
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        return $request->merge($filters);
     }
 
     private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
