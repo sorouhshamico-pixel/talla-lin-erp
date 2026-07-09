@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
 class ReportFilterPreferenceController extends Controller
@@ -17,6 +18,16 @@ class ReportFilterPreferenceController extends Controller
         'sales-invoice-aging' => 'تقرير أعمار فواتير المبيعات',
         'customer-sales-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير العملاء',
         'supplier-purchase-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير الموردين',
+    ];
+
+    private const REPORT_ROUTES = [
+        'cash-flow-dashboard' => 'reports.cash-flow-dashboard.index',
+        'receivable-payable-aging-dashboard' => 'reports.receivable-payable-aging-dashboard.index',
+        'customer-sales-invoice-aging' => 'reports.customer-sales-invoice-aging.index',
+        'supplier-purchase-invoice-aging' => 'reports.supplier-purchase-invoice-aging.index',
+        'sales-invoice-aging' => 'reports.sales-invoice-aging.index',
+        'customer-sales-invoice-aging-drilldown' => 'reports.customer-sales-invoice-aging.drilldown',
+        'supplier-purchase-invoice-aging-drilldown' => 'reports.supplier-purchase-invoice-aging.drilldown',
     ];
 
     private const FILTER_LABELS = [
@@ -97,10 +108,24 @@ class ReportFilterPreferenceController extends Controller
                     'display_value' => $this->displayFilterValue((string) $key, $value),
                 ])
                 ->values(),
+            'report_url' => $this->reportUrl($preference->report_key, $filters),
             'updated_at' => $preference->updated_at ?? null,
         ];
     }
 
+
+    private function reportUrl(string $reportKey, array $filters): ?string
+    {
+        $routeName = self::REPORT_ROUTES[$reportKey] ?? null;
+
+        if (! $routeName || ! Route::has($routeName)) {
+            return null;
+        }
+
+        $query = array_filter($filters, fn ($value) => $value !== null && $value !== '');
+
+        return route($routeName, $query);
+    }
 
     private function displayFilterValue(string $key, mixed $value): string
     {

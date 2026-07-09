@@ -73,6 +73,12 @@
                                         </td>
                                         <td dir="ltr">{{ $preference->updated_at ?: '-' }}</td>
                                         <td>
+                                            @if ($preference->report_url)
+                                                <a href="{{ $preference->report_url }}" class="btn btn-outline-primary" data-testid="report-filter-preference-open-link">
+                                                    فتح التقرير
+                                                </a>
+                                            @endif
+
                                             <form method="POST" action="{{ route('reports.filter-preferences.destroy', $preference->report_key) }}" onsubmit="return confirm('هل تريد حذف تفضيلات هذا التقرير؟');">
                                                 @csrf
                                                 @method('DELETE')

@@ -38,6 +38,9 @@ class ReportFilterPreferenceManagementTest extends TestCase
         $response->assertSee('مدفوعة جزئيًا');
         $response->assertSee('partial');
         $response->assertSee('بدون تاريخ استحقاق');
+        $response->assertSee('data-testid="report-filter-preference-open-link"', false);
+        $response->assertSee('reports/sales-invoice-aging', false);
+        $response->assertSee('payment_status=partial', false);
     }
 
     public function test_user_can_delete_a_single_report_filter_preference(): void
