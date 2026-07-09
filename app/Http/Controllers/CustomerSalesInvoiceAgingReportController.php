@@ -4,14 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\SalesInvoice;
+use App\Services\CustomerSalesInvoiceAgingReportBuilder;
+use App\Services\ReportFilterPreferenceService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class CustomerSalesInvoiceAgingReportController extends Controller
 {
-    public function index(Request $request): View
+    private const REPORT_KEY = 'customer-sales-invoice-aging';
+
+    private const FILTER_KEYS = ['customer_id', 'aging_bucket'];
+
+    private const AGING_BUCKETS = [
+        'not_due',
+        'overdue_1_30',
+        'overdue_31_60',
+        'overdue_61_90',
+        'overdue_more_than_90',
+        'without_due_date',
+    ];
+
+    public function index(Request $request, ReportFilterPreferenceService $filterPreferences): View
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
+
         $today = now()->toDateString();
 
         $customers = Customer::query()
@@ -31,7 +48,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         }
 
         $invoices = $invoicesQuery
-            ->orderByRaw('CASE WHEN due_at IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw('CASE WHEN due_at ISNULL THEN 1 ELSE 0 END')
             ->orderBy('due_at')
             ->latest('id')
             ->get();
@@ -59,6 +76,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
 
                     if (! $invoice->due_at) {
                         $summary['without_due_date_total'] += $remainingAmount;
+
                         continue;
                     }
 
@@ -68,6 +86,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
 
                     if ($invoice->due_at->toDateString() >= $today) {
                         $summary['not_due_total'] += $remainingAmount;
+
                         continue;
                     }
 
@@ -111,11 +130,11 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         ]);
     }
 
-
-
-    public function print(Request $request)
+    public function print(Request $request, ReportFilterPreferenceService $filterPreferences)
     {
-        $report = app(\App\Services\CustomerSalesInvoiceAgingReportBuilder::class)->build($request);
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
+        $report = app(CustomerSalesInvoiceAgingReportBuilder::class)->build($request);
 
         return view('reports.customer-sales-invoice-aging-print', [
             'reportDate' => $report['reportDate'],
@@ -126,13 +145,11 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         ]);
     }
 
-
-
-
-
-    public function export(Request $request)
+    public function export(Request $request, ReportFilterPreferenceService $filterPreferences)
     {
-        $report = app(\App\Services\CustomerSalesInvoiceAgingReportBuilder::class)->build($request);
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
+        $report = app(CustomerSalesInvoiceAgingReportBuilder::class)->build($request);
 
         $fileName = 'customer-sales-invoice-aging-' . now()->format('Ymd-His') . '.csv';
 
@@ -189,12 +206,74 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         ]);
     }
 
+    private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
+    {
+        $user = $request->user();
 
+        if (! $user) {
+            return $request;
+        }
 
+        if ($request->query->has('reset_filters')) {
+            if ($persist) {
+                $filterPreferences->clear($user, self::REPORT_KEY);
+            }
 
+            foreach (self::FILTER_KEYS as $key) {
+                $request->query->remove($key);
+                $request->request->remove($key);
+            }
 
+            return $request;
+        }
 
+        if ($this->hasFilterInput($request)) {
+            if ($persist) {
+                $filterPreferences->save($user, self::REPORT_KEY, $this->filterInputs($request));
+            }
 
+            return $request;
+        }
+
+        $savedFilters = $filterPreferences->get($user, self::REPORT_KEY);
+
+        if ($savedFilters !== []) {
+            $request->query->add($savedFilters);
+            $request->merge($savedFilters);
+        }
+
+        return $request;
+    }
+
+    private function hasFilterInput(Request $request): bool
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->query->has($key) || $request->request->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function filterInputs(Request $request): array
+    {
+        return array_filter([
+            'customer_id' => $request->integer('customer_id') ?: null,
+            'aging_bucket' => $this->agingBucketInput($request),
+        ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function agingBucketInput(Request $request): ?string
+    {
+        $bucket = $request->input('aging_bucket');
+
+        if (! is_string($bucket) || $bucket === '') {
+            return null;
+        }
+
+        return in_array($bucket, self::AGING_BUCKETS, true) ? $bucket : null;
+    }
 
     private function applyAgingBucketFilter(Builder $query, ?string $bucket, string $today): void
     {
@@ -208,5 +287,4 @@ class CustomerSalesInvoiceAgingReportController extends Controller
             default => null,
         };
     }
-
 }
