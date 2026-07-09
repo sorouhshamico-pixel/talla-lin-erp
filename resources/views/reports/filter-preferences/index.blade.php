@@ -64,7 +64,8 @@
                                                     @foreach ($preference->filters as $filter)
                                                         <li>
                                                             <strong>{{ $filter['label'] }}:</strong>
-                                                            <span dir="ltr">{{ $filter['value'] }}</span>
+                                                            <span>{{ $filter['display_value'] }}</span>
+                                                            <small class="text-muted" dir="ltr">({{ $filter['value'] }})</small>
                                                         </li>
                                                     @endforeach
                                                 </ul>

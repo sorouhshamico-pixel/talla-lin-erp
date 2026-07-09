@@ -35,7 +35,9 @@ class ReportFilterPreferenceManagementTest extends TestCase
         $response->assertSee('data-testid="report-filter-preferences-page"', false);
         $response->assertSee('تقرير أعمار فواتير المبيعات');
         $response->assertSee('حالة الدفع');
+        $response->assertSee('مدفوعة جزئيًا');
         $response->assertSee('partial');
+        $response->assertSee('بدون تاريخ استحقاق');
     }
 
     public function test_user_can_delete_a_single_report_filter_preference(): void

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -29,6 +28,21 @@ class ReportFilterPreferenceController extends Controller
         'as_of_date' => 'تاريخ التقرير',
         'payment_status' => 'حالة الدفع',
         'aging_bucket' => 'شريحة العمر',
+    ];
+
+    private const PAYMENT_STATUS_LABELS = [
+        'unpaid' => 'غير مدفوعة',
+        'partial' => 'مدفوعة جزئيًا',
+        'paid' => 'مدفوعة بالكامل',
+    ];
+
+    private const AGING_BUCKET_LABELS = [
+        'not_due' => 'غير مستحقة بعد',
+        'overdue_1_30' => 'متأخرة 1 إلى 30 يوم',
+        'overdue_31_60' => 'متأخرة 31 إلى 60 يوم',
+        'overdue_61_90' => 'متأخرة 61 إلى 90 يوم',
+        'overdue_more_than_90' => 'أكثر من 90 يوم',
+        'without_due_date' => 'بدون تاريخ استحقاق',
     ];
 
     public function index(Request $request): View
@@ -80,10 +94,39 @@ class ReportFilterPreferenceController extends Controller
                     'key' => $key,
                     'label' => self::FILTER_LABELS[$key] ?? $key,
                     'value' => $value,
+                    'display_value' => $this->displayFilterValue((string) $key, $value),
                 ])
                 ->values(),
             'updated_at' => $preference->updated_at ?? null,
         ];
+    }
+
+
+    private function displayFilterValue(string $key, mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        return match ($key) {
+            'customer_id' => $this->entityLabel('customers', (int) $value, 'عميل'),
+            'supplier_id' => $this->entityLabel('suppliers', (int) $value, 'مورد'),
+            'branch_id' => $this->entityLabel('branches', (int) $value, 'فرع'),
+            'payment_status' => self::PAYMENT_STATUS_LABELS[(string) $value] ?? (string) $value,
+            'aging_bucket' => self::AGING_BUCKET_LABELS[(string) $value] ?? (string) $value,
+            default => (string) $value,
+        };
+    }
+
+    private function entityLabel(string $table, int $id, string $fallbackLabel): string
+    {
+        if ($id <= 0) {
+            return '-';
+        }
+
+        $name = DB::table($table)->where('id', $id)->value('name');
+
+        return $name ? $name . ' #' . $id : $fallbackLabel . ' غير معروف #' . $id;
     }
 
     private function decodeFilters(?string $filters): array
