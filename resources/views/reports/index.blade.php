@@ -373,4 +373,8 @@
         </a>
 
 </div>
+<a href="{{ route('reports.filter-preferences.index') }}" class="report-card" data-testid="report-filter-preferences-link">
+    <h3>تفضيلات فلاتر التقارير</h3>
+    <p>عرض وحذف الفلاتر المحفوظة لحسابك في التقارير المالية.</p>
+</a>
 @endsection

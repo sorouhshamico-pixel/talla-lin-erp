@@ -260,3 +260,9 @@ Route::get('/reports/financial-dashboard', \App\Http\Controllers\FinancialDashbo
 Route::get('/reports/center', \App\Http\Controllers\ReportsCenterController::class)
     ->middleware('auth')
     ->name('reports.center');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/reports/filter-preferences', [\App\Http\Controllers\ReportFilterPreferenceController::class, 'index'])->name('reports.filter-preferences.index');
+    Route::delete('/reports/filter-preferences', [\App\Http\Controllers\ReportFilterPreferenceController::class, 'destroyAll'])->name('reports.filter-preferences.destroy-all');
+    Route::delete('/reports/filter-preferences/{reportKey}', [\App\Http\Controllers\ReportFilterPreferenceController::class, 'destroy'])->name('reports.filter-preferences.destroy');
+});
