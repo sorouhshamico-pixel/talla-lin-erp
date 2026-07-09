@@ -96,7 +96,7 @@
                 <div class="metric">
                     <div class="metric-label">الإجراء</div>
                     <button type="submit" class="btn" data-testid="sales-invoice-aging-apply-filters-button">تطبيق الفلتر</button>
-                    <a href="{{ route('reports.sales-invoice-aging.index') }}"
+                    <a href="{{ route('reports.sales-invoice-aging.index', ['reset_filters' => 1]) }}"
                        class="btn secondary"
                        data-testid="sales-invoice-aging-reset-filters-link"
                        style="margin-top:8px;">إعادة ضبط</a>
