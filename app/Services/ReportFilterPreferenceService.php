@@ -30,6 +30,14 @@ class ReportFilterPreferenceService
         );
     }
 
+    public function clear(User $user, string $reportKey): void
+    {
+        UserReportFilterPreference::query()
+            ->where('user_id', $user->id)
+            ->where('report_key', $reportKey)
+            ->delete();
+    }
+
     public function merge(User $user, string $reportKey, array $requestFilters): array
     {
         return array_merge(

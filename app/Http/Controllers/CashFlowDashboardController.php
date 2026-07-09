@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use App\Services\ReportFilterPreferenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -12,18 +13,28 @@ use Illuminate\View\View;
 
 class CashFlowDashboardController extends Controller
 {
-    public function index(Request $request): View
+    private const REPORT_KEY = 'cash-flow-dashboard';
+
+    private const FILTER_KEYS = ['branch_id', 'date_from', 'date_to'];
+
+    public function index(Request $request, ReportFilterPreferenceService $filterPreferences): View
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
+
         return view('reports.cash-flow-dashboard', $this->dashboardData($request));
     }
 
-    public function print(Request $request): View
+    public function print(Request $request, ReportFilterPreferenceService $filterPreferences): View
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
         return view('reports.cash-flow-dashboard-print', $this->dashboardData($request));
     }
 
-    public function export(Request $request)
+    public function export(Request $request, ReportFilterPreferenceService $filterPreferences)
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
         $data = $this->dashboardData($request);
 
         $fileName = 'cash-flow-dashboard-' . now()->format('Ymd-His') . '.csv';
@@ -85,6 +96,65 @@ class CashFlowDashboardController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        if ($request->query->has('reset_filters')) {
+            if ($persist) {
+                $filterPreferences->clear($user, self::REPORT_KEY);
+            }
+
+            foreach (self::FILTER_KEYS as $key) {
+                $request->query->remove($key);
+                $request->request->remove($key);
+            }
+
+            return $request;
+        }
+
+        if ($this->hasFilterInput($request)) {
+            if ($persist) {
+                $filterPreferences->save($user, self::REPORT_KEY, $this->filterInputs($request));
+            }
+
+            return $request;
+        }
+
+        $savedFilters = $filterPreferences->get($user, self::REPORT_KEY);
+
+        if ($savedFilters !== []) {
+            $request->query->add($savedFilters);
+            $request->merge($savedFilters);
+        }
+
+        return $request;
+    }
+
+    private function hasFilterInput(Request $request): bool
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->query->has($key) || $request->request->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function filterInputs(Request $request): array
+    {
+        return array_filter([
+            'branch_id' => $request->integer('branch_id') ?: null,
+            'date_from' => $this->dateInput($request, 'date_from'),
+            'date_to' => $this->dateInput($request, 'date_to'),
+        ], fn ($value) => $value !== null && $value !== '');
     }
 
     private function dashboardData(Request $request): array

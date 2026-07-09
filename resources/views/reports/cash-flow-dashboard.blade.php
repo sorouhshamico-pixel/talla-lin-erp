@@ -45,7 +45,7 @@
 
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-primary" data-testid="cash-flow-apply-filters">تطبيق الفلاتر</button>
-                        <a href="{{ route('reports.cash-flow-dashboard.index') }}" class="btn btn-outline-secondary" data-testid="cash-flow-reset-filters">إعادة تعيين</a>
+                        <a href="{{ route('reports.cash-flow-dashboard.index', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="cash-flow-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
 
