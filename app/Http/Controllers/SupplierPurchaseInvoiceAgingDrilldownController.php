@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseInvoice;
 use App\Models\Supplier;
+use App\Services\ReportFilterPreferenceService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -11,13 +13,39 @@ use Illuminate\View\View;
 
 class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
 {
-    public function index(Request $request): View
+    private const REPORT_KEY = 'supplier-purchase-invoice-aging-drilldown';
+
+    private const FILTER_KEYS = ['supplier_id', 'branch_id', 'as_of_date', 'aging_bucket'];
+
+    private const AGING_BUCKETS = [
+        'not_due',
+        'overdue_1_30',
+        'overdue_31_60',
+        'overdue_61_90',
+        'overdue_more_than_90',
+        'without_due_date',
+    ];
+
+    private const AGING_BUCKET_LABELS = [
+        'not_due' => 'غير مستحقة بعد',
+        'overdue_1_30' => 'متأخرة 1 إلى 30 يوم',
+        'overdue_31_60' => 'متأخرة 31 إلى 60 يوم',
+        'overdue_61_90' => 'متأخرة 61 إلى 90 يوم',
+        'overdue_more_than_90' => 'أكثر من 90 يوم',
+        'without_due_date' => 'بدون تاريخ استحقاق',
+    ];
+
+    public function index(Request $request, ReportFilterPreferenceService $filterPreferences): View
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
+
         return view('reports.supplier-purchase-invoice-aging-drilldown', $this->drilldownData($request));
     }
 
-    public function export(Request $request)
+    public function export(Request $request, ReportFilterPreferenceService $filterPreferences)
     {
+        $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
+
         $data = $this->drilldownData($request);
 
         $fileName = 'supplier-purchase-invoice-aging-drilldown-' . now()->format('Ymd-His') . '.csv';
@@ -72,22 +100,84 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
         ]);
     }
 
+    private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        if ($request->query->has('reset_filters')) {
+            if ($persist) {
+                $filterPreferences->clear($user, self::REPORT_KEY);
+            }
+
+            foreach (self::FILTER_KEYS as $key) {
+                $request->query->remove($key);
+                $request->request->remove($key);
+            }
+
+            return $request;
+        }
+
+        if ($this->hasFilterInput($request)) {
+            if ($persist) {
+                $filterPreferences->save($user, self::REPORT_KEY, $this->filterInputs($request));
+            }
+
+            return $request;
+        }
+
+        $savedFilters = $filterPreferences->get($user, self::REPORT_KEY);
+
+        if ($savedFilters !== []) {
+            $request->query->add($savedFilters);
+            $request->merge($savedFilters);
+        }
+
+        return $request;
+    }
+
+    private function hasFilterInput(Request $request): bool
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->query->has($key) || $request->request->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function filterInputs(Request $request): array
+    {
+        return array_filter([
+            'supplier_id' => $request->integer('supplier_id') ?: null,
+            'branch_id' => $request->integer('branch_id') ?: null,
+            'as_of_date' => $this->dateInput($request, 'as_of_date'),
+            'aging_bucket' => $this->agingBucketInput($request),
+        ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function agingBucketInput(Request $request): ?string
+    {
+        $bucket = $request->input('aging_bucket');
+
+        if (! is_string($bucket) || $bucket === '') {
+            return null;
+        }
+
+        return in_array($bucket, self::AGING_BUCKETS, true) ? $bucket : null;
+    }
+
     private function drilldownData(Request $request): array
     {
         $reportDate = $this->reportDate($request);
 
-        $agingBuckets = [
-            'not_due' => 'غير مستحقة بعد',
-            'overdue_1_30' => 'متأخرة 1 إلى 30 يوم',
-            'overdue_31_60' => 'متأخرة 31 إلى 60 يوم',
-            'overdue_61_90' => 'متأخرة 61 إلى 90 يوم',
-            'overdue_more_than_90' => 'أكثر من 90 يوم',
-            'without_due_date' => 'بدون تاريخ استحقاق',
-        ];
-
         $supplierId = $request->integer('supplier_id') ?: null;
         $branchId = $request->integer('branch_id') ?: null;
-        $agingBucket = $request->input('aging_bucket');
+        $agingBucket = $this->agingBucketInput($request);
 
         $query = PurchaseInvoice::query()
             ->where('remaining_amount', '>', 0);
@@ -128,14 +218,14 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
             'reportDate' => $reportDate,
             'suppliers' => $suppliers,
             'branches' => $branches,
-            'agingBuckets' => $agingBuckets,
+            'agingBuckets' => self::AGING_BUCKET_LABELS,
             'selectedSupplierId' => $supplierId,
             'selectedBranchId' => $branchId,
             'selectedAsOfDate' => $reportDate->format('Y-m-d'),
             'selectedAgingBucket' => $agingBucket,
             'selectedSupplierLabel' => $supplierId ? $selectedSupplierName . ' #' . $supplierId : 'كل الموردين',
             'selectedBranchLabel' => $this->branchLabel($request),
-            'selectedAgingBucketLabel' => $agingBuckets[$agingBucket] ?? 'كل الشرائح',
+            'selectedAgingBucketLabel' => self::AGING_BUCKET_LABELS[$agingBucket] ?? 'كل الشرائح',
             'invoices' => $invoices,
             'supplierNames' => $supplierNames,
             'summary' => [
@@ -149,18 +239,30 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
 
     private function reportDate(Request $request): Carbon
     {
-        $asOfDate = $request->input('as_of_date');
+        $asOfDate = $this->dateInput($request, 'as_of_date');
 
         if ($asOfDate) {
-            try {
-                return Carbon::parse($asOfDate)->startOfDay();
-            } catch (\Throwable) {
-                return now()->startOfDay();
-            }
+            return Carbon::parse($asOfDate)->startOfDay();
         }
 
         return now()->startOfDay();
     }
+
+    private function dateInput(Request $request, string $key): ?string
+    {
+        $value = $request->input($key);
+
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     private function branchLabel(Request $request): string
     {
         $branchId = $request->integer('branch_id') ?: null;
@@ -174,7 +276,7 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
         return $name ? $name . ' #' . $branchId : 'فرع غير معروف #' . $branchId;
     }
 
-    private function applyAgingBucket($query, ?string $agingBucket, Carbon $reportDate): void
+    private function applyAgingBucket(Builder $query, ?string $agingBucket, Carbon $reportDate): void
     {
         if (! $agingBucket) {
             return;
