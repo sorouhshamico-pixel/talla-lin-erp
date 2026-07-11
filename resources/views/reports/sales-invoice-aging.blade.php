@@ -120,6 +120,7 @@
 
     <div class="card" data-testid="sales-invoice-aging-saved-views-selector">
         <h2>العروض المحفوظة</h2>
+        @include('reports.partials.saved-view-list-styles')
         @include('reports.partials.active-saved-view-banner', ['savedViews' => $salesInvoiceAgingSavedViews])
 
         @if ($salesInvoiceAgingSavedViews->isEmpty())
@@ -144,17 +145,20 @@
 
                     <div class="saved-view-row{{ $isActiveSavedView ? ' active-saved-view-row' : '' }}" data-testid="sales-invoice-aging-saved-view-item">
                         <a href="{{ route('reports.sales-invoice-aging.index', $savedViewRouteFilters) }}"
+                                                      class="saved-view-link"
                            data-testid="sales-invoice-aging-saved-view-open-link">
                             {{ $savedView->name }}
                         </a>
 
-                        @if ($isActiveSavedView)
-                                            <span data-testid="sales-invoice-aging-saved-view-active-badge">نشط</span>
-                                        @endif
+                        <span class="saved-view-badges">
+                                                    @if ($isActiveSavedView)
+                                                                        <span class="saved-view-badge saved-view-badge-active" data-testid="sales-invoice-aging-saved-view-active-badge">نشط</span>
+                                                                    @endif
 
-                        @if ($savedView->is_default)
-                            <span data-testid="sales-invoice-aging-saved-view-default-badge">افتراضي</span>
-                        @endif
+                                                    @if ($savedView->is_default)
+                                                        <span class="saved-view-badge saved-view-badge-default" data-testid="sales-invoice-aging-saved-view-default-badge">افتراضي</span>
+                                                    @endif
+                        </span>
                     </div>
                 @endforeach
             </div>
