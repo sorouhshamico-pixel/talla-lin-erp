@@ -124,6 +124,7 @@ class CustomerSalesInvoiceAgingReportController extends Controller
         ];
 
         return view('reports.customer-sales-invoice-aging', [
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
             'rows' => $rows,
             'summary' => $summary,
             'today' => $today,

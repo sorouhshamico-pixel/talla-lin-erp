@@ -44,6 +44,7 @@ class SupplierPurchaseInvoiceAgingReportController extends Controller
         $report = $builder->build($request);
 
         return view('reports.supplier-purchase-invoice-aging', [
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
             'reportDate' => $report['reportDate'],
             'rows' => $report['rows'],
             'summary' => $report['summary'],
