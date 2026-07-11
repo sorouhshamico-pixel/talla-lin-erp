@@ -142,34 +142,13 @@
             <input type="hidden" name="payment_status" value="{{ $paymentStatusFilter }}">
             <input type="hidden" name="aging_bucket" value="{{ $agingBucketFilter }}">
 
-            <div class="grid">
-                <div class="metric">
-                    <label class="metric-label" for="sales_invoice_aging_saved_view_name">اسم العرض المحفوظ</label>
-                    <input id="sales_invoice_aging_saved_view_name"
-                           type="text"
-                           name="name"
-                           placeholder="مثال: متابعة التحصيل الجزئي"
-                           required
-                           maxlength="120"
-                           style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;"
-                           data-testid="sales-invoice-aging-saved-view-name-input">
-                </div>
-
-                <div class="metric">
-                    <div class="metric-label">خيارات العرض</div>
-                    <label>
-                        <input type="checkbox" name="is_default" value="1" data-testid="sales-invoice-aging-saved-view-default-checkbox">
-                        تعيين كعرض افتراضي لهذا التقرير
-                    </label>
-                </div>
-
-                <div class="metric">
-                    <div class="metric-label">الإجراء</div>
-                    <button type="submit" class="btn" data-testid="sales-invoice-aging-save-view-button">
-                        حفظ العرض
-                    </button>
-                </div>
-            </div>
+            @include('reports.partials.saved-view-form-fields', [
+                'nameInputId' => 'sales_invoice_aging_saved_view_name',
+                'namePlaceholder' => 'مثال: متابعة التحصيل الجزئي',
+                'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input',
+                'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
+                'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
+            ])
         </form>
     </div>
 
