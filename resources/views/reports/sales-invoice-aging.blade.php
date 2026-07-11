@@ -134,13 +134,23 @@
                             $savedView->filters ?? [],
                             fn ($value) => $value !== null && $value !== ''
                         );
+
+                        $savedViewRouteFilters = array_merge($savedViewFilters, [
+                            'saved_view_id' => $savedView->id,
+                        ]);
+
+                        $isActiveSavedView = (int) request('saved_view_id') === (int) $savedView->id;
                     @endphp
 
-                    <div class="saved-view-row" data-testid="sales-invoice-aging-saved-view-item">
-                        <a href="{{ route('reports.sales-invoice-aging.index', $savedViewFilters) }}"
+                    <div class="saved-view-row{{ $isActiveSavedView ? ' active-saved-view-row' : '' }}" data-testid="sales-invoice-aging-saved-view-item">
+                        <a href="{{ route('reports.sales-invoice-aging.index', $savedViewRouteFilters) }}"
                            data-testid="sales-invoice-aging-saved-view-open-link">
                             {{ $savedView->name }}
                         </a>
+
+                        @if ($isActiveSavedView)
+                                            <span data-testid="sales-invoice-aging-saved-view-active-badge">نشط</span>
+                                        @endif
 
                         @if ($savedView->is_default)
                             <span data-testid="sales-invoice-aging-saved-view-default-badge">افتراضي</span>
