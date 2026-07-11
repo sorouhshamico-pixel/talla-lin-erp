@@ -93,7 +93,11 @@ class ReportSavedViewController extends Controller
     {
         $this->authorizeSavedView($request, $savedView);
 
-        $reportUrl = $this->reportUrl($savedView->report_key, $savedView->filters ?? []);
+        $filters = array_merge($savedView->filters ?? [], [
+            'saved_view_id' => $savedView->id,
+        ]);
+
+        $reportUrl = $this->reportUrl($savedView->report_key, $filters);
 
         if ($reportUrl === null) {
             return redirect()

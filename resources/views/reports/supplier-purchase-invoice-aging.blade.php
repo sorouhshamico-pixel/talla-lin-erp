@@ -66,6 +66,7 @@
                 <div class="card" data-testid="supplier-aging-saved-views-selector" style="margin-bottom:16px;">
                     <div class="card-body">
                         <h2>العروض المحفوظة</h2>
+        @include('reports.partials.active-saved-view-banner', ['savedViews' => $supplierAgingSavedViews])
 
                         @if ($supplierAgingSavedViews->isEmpty())
                             <p data-testid="supplier-aging-saved-views-empty">
