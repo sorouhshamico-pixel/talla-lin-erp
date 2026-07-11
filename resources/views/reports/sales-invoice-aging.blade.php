@@ -132,25 +132,22 @@
         ])
     </div>
 
-    <div class="card" data-testid="sales-invoice-aging-save-view-card">
-        <h2>حفظ عرض التقرير</h2>
-
-        <form method="POST" action="{{ route('reports.sales-invoice-aging.saved-views.store') }}" data-testid="sales-invoice-aging-save-view-form">
-            @csrf
-
-            <input type="hidden" name="customer_id" value="{{ $customerFilter }}">
-            <input type="hidden" name="payment_status" value="{{ $paymentStatusFilter }}">
-            <input type="hidden" name="aging_bucket" value="{{ $agingBucketFilter }}">
-
-            @include('reports.partials.saved-view-form-fields', [
-                'nameInputId' => 'sales_invoice_aging_saved_view_name',
-                'namePlaceholder' => 'مثال: متابعة التحصيل الجزئي',
-                'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input',
-                'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
-                'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
-            ])
-        </form>
-    </div>
+    @include('reports.partials.saved-view-form-card', [
+        'cardTestId' => 'sales-invoice-aging-save-view-card',
+        'title' => 'حفظ عرض التقرير',
+        'storeRouteName' => 'reports.sales-invoice-aging.saved-views.store',
+        'formTestId' => 'sales-invoice-aging-save-view-form',
+        'hiddenFields' => [
+            'customer_id' => $customerFilter,
+            'payment_status' => $paymentStatusFilter,
+            'aging_bucket' => $agingBucketFilter,
+        ],
+        'nameInputId' => 'sales_invoice_aging_saved_view_name',
+        'namePlaceholder' => 'مثال: متابعة التحصيل الجزئي',
+        'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input',
+        'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
+        'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
+    ])
 
     <div class="card" data-testid="sales-invoice-aging-total-card">
         <h2>الإجمالي العام</h2>

@@ -6,36 +6,33 @@ use Tests\TestCase;
 
 class ReportSavedViewFormFieldsPartialTest extends TestCase
 {
-    public function test_sales_invoice_aging_report_uses_saved_view_form_fields_partial(): void
+    public function test_saved_view_form_fields_partial_is_nested_inside_form_card_partial(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
-        $partialView = resource_path('views/reports/partials/saved-view-form-fields.blade.php');
+        $formCardPartial = resource_path('views/reports/partials/saved-view-form-card.blade.php');
+        $formFieldsPartial = resource_path('views/reports/partials/saved-view-form-fields.blade.php');
 
-        $this->assertFileExists($partialView);
+        $this->assertFileExists($reportView);
+        $this->assertFileExists($formCardPartial);
+        $this->assertFileExists($formFieldsPartial);
 
         $reportContents = file_get_contents($reportView);
-        $partialContents = file_get_contents($partialView);
+        $formCardContents = file_get_contents($formCardPartial);
+        $formFieldsContents = file_get_contents($formFieldsPartial);
 
-        $this->assertStringContainsString("@include('reports.partials.saved-view-form-fields'", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-form-card'", $reportContents);
+        $this->assertStringNotContainsString("@include('reports.partials.saved-view-form-fields'", $reportContents);
 
-        $this->assertStringContainsString("'nameInputId' => 'sales_invoice_aging_saved_view_name'", $reportContents);
-        $this->assertStringContainsString("'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input'", $reportContents);
-        $this->assertStringContainsString("'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox'", $reportContents);
-        $this->assertStringContainsString("'saveButtonTestId' => 'sales-invoice-aging-save-view-button'", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-form-fields'", $formCardContents);
 
-        $this->assertStringNotContainsString('id="sales_invoice_aging_saved_view_name"', $reportContents);
-        $this->assertStringNotContainsString('data-testid="sales-invoice-aging-saved-view-name-input"', $reportContents);
-        $this->assertStringNotContainsString('data-testid="sales-invoice-aging-saved-view-default-checkbox"', $reportContents);
-        $this->assertStringNotContainsString('data-testid="sales-invoice-aging-save-view-button"', $reportContents);
+        $this->assertStringContainsString('name="name"', $formFieldsContents);
+        $this->assertStringContainsString('name="is_default"', $formFieldsContents);
+        $this->assertStringContainsString('type="submit"', $formFieldsContents);
 
-        $this->assertStringContainsString('name="name"', $partialContents);
-        $this->assertStringContainsString('name="is_default"', $partialContents);
-        $this->assertStringContainsString('type="submit"', $partialContents);
-
-        $this->assertStringContainsString('$nameInputId', $partialContents);
-        $this->assertStringContainsString('$namePlaceholder', $partialContents);
-        $this->assertStringContainsString('$nameInputTestId', $partialContents);
-        $this->assertStringContainsString('$defaultCheckboxTestId', $partialContents);
-        $this->assertStringContainsString('$saveButtonTestId', $partialContents);
+        $this->assertStringContainsString('$nameInputId', $formFieldsContents);
+        $this->assertStringContainsString('$namePlaceholder', $formFieldsContents);
+        $this->assertStringContainsString('$nameInputTestId', $formFieldsContents);
+        $this->assertStringContainsString('$defaultCheckboxTestId', $formFieldsContents);
+        $this->assertStringContainsString('$saveButtonTestId', $formFieldsContents);
     }
 }
