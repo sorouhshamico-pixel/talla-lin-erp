@@ -114,27 +114,20 @@
 
 
 
-    @php
-        $salesInvoiceAgingSavedViews = $savedViews ?? collect();
-    @endphp
-
-    @include('reports.partials.saved-view-section-card', [
-        'cardTestId' => 'sales-invoice-aging-saved-views-selector',
-        'savedViews' => $salesInvoiceAgingSavedViews,
-        'routeName' => 'reports.sales-invoice-aging.index',
-        'emptyTestId' => 'sales-invoice-aging-saved-views-empty',
-        'listTestId' => 'sales-invoice-aging-saved-views-list',
-        'itemTestId' => 'sales-invoice-aging-saved-view-item',
-        'openLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
-        'activeBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
-        'defaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
-        'manageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
-    ])
-
-    @include('reports.partials.saved-view-form-card', [
-        'cardTestId' => 'sales-invoice-aging-save-view-card',
-        'title' => 'حفظ عرض التقرير',
-        'storeRouteName' => 'reports.sales-invoice-aging.saved-views.store',
+    @include('reports.partials.saved-view-controls', [
+        'savedViews' => $savedViews ?? collect(),
+        'sectionCardTestId' => 'sales-invoice-aging-saved-views-selector',
+        'sectionRouteName' => 'reports.sales-invoice-aging.index',
+        'sectionEmptyTestId' => 'sales-invoice-aging-saved-views-empty',
+        'sectionListTestId' => 'sales-invoice-aging-saved-views-list',
+        'sectionItemTestId' => 'sales-invoice-aging-saved-view-item',
+        'sectionOpenLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
+        'sectionActiveBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
+        'sectionDefaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
+        'sectionManageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
+        'formCardTestId' => 'sales-invoice-aging-save-view-card',
+        'formTitle' => 'حفظ عرض التقرير',
+        'formStoreRouteName' => 'reports.sales-invoice-aging.saved-views.store',
         'formTestId' => 'sales-invoice-aging-save-view-form',
         'hiddenFields' => [
             'customer_id' => $customerFilter,
@@ -147,7 +140,6 @@
         'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
         'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
     ])
-
     <div class="card" data-testid="sales-invoice-aging-total-card">
         <h2>الإجمالي العام</h2>
         <div class="grid">
