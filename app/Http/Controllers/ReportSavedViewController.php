@@ -88,6 +88,22 @@ class ReportSavedViewController extends Controller
 
 
 
+
+    public function apply(Request $request, ReportSavedView $savedView): RedirectResponse
+    {
+        $this->authorizeSavedView($request, $savedView);
+
+        $reportUrl = $this->reportUrl($savedView->report_key, $savedView->filters ?? []);
+
+        if ($reportUrl === null) {
+            return redirect()
+                ->route('reports.saved-views.index')
+                ->with('status', 'لا يمكن تطبيق هذا العرض لأن مسار التقرير غير معروف.');
+        }
+
+        return redirect()->to($reportUrl);
+    }
+
     public function duplicate(Request $request, ReportSavedView $savedView): RedirectResponse
     {
         $this->authorizeSavedView($request, $savedView);
