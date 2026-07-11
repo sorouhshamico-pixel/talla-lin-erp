@@ -42,7 +42,10 @@ class SupplierPurchaseInvoiceAgingDrilldownController extends Controller
         $request = $this->requestWithDefaultSavedView($request, $savedViews);
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
 
-        return view('reports.supplier-purchase-invoice-aging-drilldown', $this->drilldownData($request));
+        $viewData = $this->drilldownData($request);
+        $viewData['savedViews'] = $savedViews->listForReport($request->user(), self::REPORT_KEY);
+
+        return view('reports.supplier-purchase-invoice-aging-drilldown', $viewData);
     }
 
     public function export(Request $request, ReportFilterPreferenceService $filterPreferences)

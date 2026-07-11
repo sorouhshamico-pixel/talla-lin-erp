@@ -80,6 +80,51 @@
                     <div class="card-body">
                         <h2>حفظ عرض التفاصيل</h2>
 
+
+                @php
+                    $customerAgingDrilldownSavedViews = $savedViews ?? collect();
+                @endphp
+
+                <div class="card" data-testid="customer-aging-drilldown-saved-views-selector" style="margin-bottom:16px;">
+                    <div class="card-body">
+                        <h2>العروض المحفوظة</h2>
+
+                        @if ($customerAgingDrilldownSavedViews->isEmpty())
+                            <p data-testid="customer-aging-drilldown-saved-views-empty">
+                                لا توجد عروض محفوظة لهذه التفاصيل حتى الآن.
+                            </p>
+                        @else
+                            <div class="saved-views-list" data-testid="customer-aging-drilldown-saved-views-list">
+                                @foreach ($customerAgingDrilldownSavedViews as $savedView)
+                                    @php
+                                        $savedViewFilters = array_filter(
+                                            $savedView->filters ?? [],
+                                            fn ($value) => $value !== null && $value !== ''
+                                        );
+                                    @endphp
+
+                                    <div class="saved-view-row" data-testid="customer-aging-drilldown-saved-view-item">
+                                        <a href="{{ route('reports.customer-sales-invoice-aging.drilldown', $savedViewFilters) }}"
+                                           data-testid="customer-aging-drilldown-saved-view-open-link">
+                                            {{ $savedView->name }}
+                                        </a>
+
+                                        @if ($savedView->is_default)
+                                            <span data-testid="customer-aging-drilldown-saved-view-default-badge">افتراضي</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div style="margin-top:12px;">
+                            <a href="{{ route('reports.saved-views.index') }}" data-testid="customer-aging-drilldown-manage-saved-views-link">
+                                إدارة العروض المحفوظة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                         <form method="POST" action="{{ route('reports.customer-sales-invoice-aging.drilldown.saved-views.store') }}" data-testid="customer-aging-drilldown-save-view-form">
                             @csrf
 
