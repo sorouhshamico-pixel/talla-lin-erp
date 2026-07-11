@@ -87,6 +87,26 @@ class ReportSavedViewController extends Controller
     }
 
 
+
+    public function duplicate(Request $request, ReportSavedView $savedView): RedirectResponse
+    {
+        $this->authorizeSavedView($request, $savedView);
+
+        $name = mb_substr($savedView->name . ' - نسخة', 0, 120);
+
+        ReportSavedView::query()->create([
+            'user_id' => $request->user()->id,
+            'report_key' => $savedView->report_key,
+            'name' => $name,
+            'filters' => $savedView->filters ?? [],
+            'is_default' => false,
+        ]);
+
+        return redirect()
+            ->route('reports.saved-views.index')
+            ->with('status', 'تم نسخ العرض المحفوظ بنجاح.');
+    }
+
     public function edit(Request $request, ReportSavedView $savedView): View
     {
         $this->authorizeSavedView($request, $savedView);

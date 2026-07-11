@@ -95,6 +95,13 @@
                                                 تعديل
                                             </a>
 
+                                            <form method="POST" action="{{ route('reports.saved-views.duplicate', $savedView->id) }}" class="d-inline" data-testid="report-saved-view-duplicate-form">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-duplicate-button">
+                                                    نسخ
+                                                </button>
+                                            </form>
+
                                             @unless ($savedView->is_default)
                                                 <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;">
                                                     @csrf
