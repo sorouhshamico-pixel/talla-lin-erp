@@ -113,6 +113,49 @@
     </div>
 
 
+
+    @php
+        $salesInvoiceAgingSavedViews = $savedViews ?? collect();
+    @endphp
+
+    <div class="card" data-testid="sales-invoice-aging-saved-views-selector">
+        <h2>العروض المحفوظة</h2>
+
+        @if ($salesInvoiceAgingSavedViews->isEmpty())
+            <p data-testid="sales-invoice-aging-saved-views-empty">
+                لا توجد عروض محفوظة لهذا التقرير حتى الآن.
+            </p>
+        @else
+            <div class="saved-views-list" data-testid="sales-invoice-aging-saved-views-list">
+                @foreach ($salesInvoiceAgingSavedViews as $savedView)
+                    @php
+                        $savedViewFilters = array_filter(
+                            $savedView->filters ?? [],
+                            fn ($value) => $value !== null && $value !== ''
+                        );
+                    @endphp
+
+                    <div class="saved-view-row" data-testid="sales-invoice-aging-saved-view-item">
+                        <a href="{{ route('reports.sales-invoice-aging.index', $savedViewFilters) }}"
+                           data-testid="sales-invoice-aging-saved-view-open-link">
+                            {{ $savedView->name }}
+                        </a>
+
+                        @if ($savedView->is_default)
+                            <span data-testid="sales-invoice-aging-saved-view-default-badge">افتراضي</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <div style="margin-top:12px;">
+            <a href="{{ route('reports.saved-views.index') }}" data-testid="sales-invoice-aging-manage-saved-views-link">
+                إدارة العروض المحفوظة
+            </a>
+        </div>
+    </div>
+
     <div class="card" data-testid="sales-invoice-aging-save-view-card">
         <h2>حفظ عرض التقرير</h2>
 

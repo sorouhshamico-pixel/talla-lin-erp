@@ -127,6 +127,7 @@ class SalesInvoiceAgingReportController extends Controller
             ->get();
 
         return view('reports.sales-invoice-aging', [
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
             'summary' => $summary,
             'invoices' => $invoices,
             'totalOutstanding' => $totalOutstanding,

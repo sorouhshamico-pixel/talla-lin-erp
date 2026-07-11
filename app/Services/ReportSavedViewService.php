@@ -55,6 +55,17 @@ class ReportSavedViewService
         });
     }
 
+
+    public function listForReport(User $user, string $reportKey)
+    {
+        return ReportSavedView::query()
+            ->where('user_id', $user->id)
+            ->where('report_key', $reportKey)
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function getDefault(User $user, string $reportKey): ?ReportSavedView
     {
         return ReportSavedView::query()
