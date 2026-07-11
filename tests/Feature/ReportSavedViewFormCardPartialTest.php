@@ -26,12 +26,12 @@ class ReportSavedViewFormCardPartialTest extends TestCase
         $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-form-card'", $reportContents);
 
-        $this->assertStringContainsString('$formConfig = $form ?? [];', $controlsContents);
+        $this->assertStringContainsString('$formConfig = array_replace([', $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-form-card'", $controlsContents);
-        $this->assertStringContainsString('$formConfig[\'cardTestId\'] ?? \'saved-view-form-card\'', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'cardTestId\']', $controlsContents);
         $this->assertStringContainsString('$formConfig[\'storeRouteName\']', $controlsContents);
-        $this->assertStringContainsString('$formConfig[\'testId\'] ?? \'saved-view-form\'', $controlsContents);
-        $this->assertStringContainsString('$formConfig[\'saveButtonTestId\'] ?? null', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'testId\']', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'saveButtonTestId\']', $controlsContents);
         $this->assertStringContainsString("'hiddenFields' => \$hiddenFields ?? []", $controlsContents);
 
         $this->assertStringContainsString('data-testid="{{ $cardTestId', $formCardContents);

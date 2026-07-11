@@ -25,9 +25,9 @@ class ReportSavedViewSectionCardPartialTest extends TestCase
         $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-section-card'", $reportContents);
 
-        $this->assertStringContainsString('$sectionConfig = $section ?? [];', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig = array_replace([', $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $controlsContents);
-        $this->assertStringContainsString('$sectionConfig[\'cardTestId\'] ?? \'saved-view-section-card\'', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig[\'cardTestId\']', $controlsContents);
         $this->assertStringContainsString('$sectionConfig[\'routeName\']', $controlsContents);
         $this->assertStringContainsString('$sectionConfig[\'manageLinkTestId\']', $controlsContents);
 

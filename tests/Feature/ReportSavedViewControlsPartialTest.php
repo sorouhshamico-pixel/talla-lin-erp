@@ -40,8 +40,8 @@ class ReportSavedViewControlsPartialTest extends TestCase
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-controls', [", $reportContents);
 
         $this->assertStringContainsString('$savedViewControlsCollection = $savedViews ?? collect();', $controlsContents);
-        $this->assertStringContainsString('$sectionConfig = $section ?? [];', $controlsContents);
-        $this->assertStringContainsString('$formConfig = $form ?? [];', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig = array_replace([', $controlsContents);
+        $this->assertStringContainsString('$formConfig = array_replace([', $controlsContents);
 
         $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-form-card'", $controlsContents);
