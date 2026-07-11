@@ -86,6 +86,56 @@ class ReportSavedViewController extends Controller
             ->with('status', 'تم تعيين العرض الافتراضي للتقرير.');
     }
 
+
+    public function edit(Request $request, ReportSavedView $savedView): View
+    {
+        $this->authorizeSavedView($request, $savedView);
+
+        $filters = $savedView->filters ?? [];
+
+        return view('reports.saved-views.edit', [
+            'savedView' => $savedView,
+            'reportName' => $this->formatReportName($savedView->report_key),
+            'filters' => collect($filters)
+                ->map(fn ($value, $key) => [
+                    'key' => $key,
+                    'value' => $this->formatFilterValue($value),
+                ])
+                ->values(),
+        ]);
+    }
+
+    public function update(Request $request, ReportSavedView $savedView): RedirectResponse
+    {
+        $this->authorizeSavedView($request, $savedView);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'is_default' => ['nullable'],
+        ]);
+
+        DB::transaction(function () use ($request, $savedView, $validated): void {
+            $isDefault = $request->boolean('is_default');
+
+            if ($isDefault) {
+                ReportSavedView::query()
+                    ->where('user_id', $request->user()->id)
+                    ->where('report_key', $savedView->report_key)
+                    ->where('id', '!=', $savedView->id)
+                    ->update(['is_default' => false]);
+            }
+
+            $savedView->forceFill([
+                'name' => $validated['name'],
+                'is_default' => $isDefault,
+            ])->save();
+        });
+
+        return redirect()
+            ->route('reports.saved-views.index')
+            ->with('status', 'تم تحديث العرض المحفوظ بنجاح.');
+    }
+
     public function destroy(Request $request, ReportSavedView $savedView, ReportSavedViewService $savedViewService): RedirectResponse
     {
         $this->authorizeSavedView($request, $savedView);
@@ -129,6 +179,38 @@ class ReportSavedViewController extends Controller
                 ->values(),
             'updated_at' => $savedView->updated_at,
         ];
+    }
+
+
+    private function formatReportName(string $reportKey): string
+    {
+        return [
+            'cash-flow-dashboard' => 'لوحة التدفق النقدي',
+            'receivable-payable-aging-dashboard' => 'لوحة أعمار الذمم',
+            'customer-sales-invoice-aging' => 'تقرير أعمار ذمم العملاء',
+            'supplier-purchase-invoice-aging' => 'تقرير أعمار ذمم الموردين',
+            'sales-invoice-aging' => 'تقرير أعمار فواتير المبيعات',
+            'customer-sales-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير العملاء',
+            'supplier-purchase-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير الموردين',
+        ][$reportKey] ?? $reportKey;
+    }
+
+
+    private function formatFilterValue(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'نعم' : 'لا';
+        }
+
+        if (is_array($value)) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
     }
 
     private function reportUrl(string $reportKey, array $filters): ?string

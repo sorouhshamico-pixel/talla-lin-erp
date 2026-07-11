@@ -269,6 +269,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'index'])->name('reports.saved-views.index');
+    Route::get('/reports/saved-views/{savedView}/edit', [\App\Http\Controllers\ReportSavedViewController::class, 'edit'])->name('reports.saved-views.edit');
+    Route::patch('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'update'])->name('reports.saved-views.update');
     Route::delete('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'destroyAll'])->name('reports.saved-views.destroy-all');
     Route::patch('/reports/saved-views/{savedView}/default', [\App\Http\Controllers\ReportSavedViewController::class, 'makeDefault'])->name('reports.saved-views.make-default');
     Route::delete('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'destroy'])->name('reports.saved-views.destroy');

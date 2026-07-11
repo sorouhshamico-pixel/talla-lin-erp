@@ -91,6 +91,10 @@
                                                 </a>
                                             @endif
 
+                                            <a href="{{ route('reports.saved-views.edit', $savedView->id) }}" class="btn btn-outline-secondary" data-testid="report-saved-view-edit-link">
+                                                تعديل
+                                            </a>
+
                                             @unless ($savedView->is_default)
                                                 <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;">
                                                     @csrf
