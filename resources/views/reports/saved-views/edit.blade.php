@@ -57,14 +57,26 @@
                     @if ($filters->isEmpty())
                         <p data-testid="report-saved-view-edit-empty-filters">لا توجد فلاتر محفوظة.</p>
                     @else
-                        <ul>
+                        <div data-testid="report-saved-view-edit-filter-inputs">
                             @foreach ($filters as $filter)
-                                <li data-testid="report-saved-view-edit-filter-item">
-                                    <span data-testid="report-saved-view-edit-filter-label">{{ $filter['label'] ?? $filter['key'] }}</span>:
-                                    <span data-testid="report-saved-view-edit-filter-value">{{ $filter['value'] }}</span>
-                                </li>
+                                <div class="form-group" data-testid="report-saved-view-edit-filter-item">
+                                    <label for="saved_view_filter_{{ $filter['key'] }}" data-testid="report-saved-view-edit-filter-label">
+                                        {{ $filter['label'] ?? $filter['key'] }}
+                                    </label>
+
+                                    <input id="saved_view_filter_{{ $filter['key'] }}"
+                                           type="text"
+                                           name="filters[{{ $filter['key'] }}]"
+                                           value="{{ old('filters.' . $filter['key'], $filter['raw_value'] ?? '') }}"
+                                           maxlength="255"
+                                           data-testid="report-saved-view-edit-filter-input">
+
+                                    <small data-testid="report-saved-view-edit-filter-value">
+                                        القيمة الحالية: {{ $filter['value'] }}
+                                    </small>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
                     @endif
                 </div>
 
