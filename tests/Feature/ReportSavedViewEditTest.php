@@ -64,10 +64,10 @@ class ReportSavedViewEditTest extends TestCase
         $response->assertSee(route('reports.saved-views.update', $savedView->id), false);
         $response->assertSee('value="عرض قابل للتعديل"', false);
         $response->assertSee('تقرير أعمار فواتير المبيعات');
-        $response->assertSee('customer_id');
+        $response->assertSee('العميل');
         $response->assertSee((string) $customer->id);
-        $response->assertSee('aging_bucket');
-        $response->assertSee('without_due_date');
+        $response->assertSee('شريحة العمر');
+        $response->assertSee('بدون تاريخ استحقاق');
     }
 
     public function test_user_can_update_saved_view_name_and_default_state(): void

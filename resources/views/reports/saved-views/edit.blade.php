@@ -60,8 +60,8 @@
                         <ul>
                             @foreach ($filters as $filter)
                                 <li data-testid="report-saved-view-edit-filter-item">
-                                    <span>{{ $filter['key'] }}</span>:
-                                    <span>{{ $filter['value'] }}</span>
+                                    <span data-testid="report-saved-view-edit-filter-label">{{ $filter['label'] ?? $filter['key'] }}</span>:
+                                    <span data-testid="report-saved-view-edit-filter-value">{{ $filter['value'] }}</span>
                                 </li>
                             @endforeach
                         </ul>

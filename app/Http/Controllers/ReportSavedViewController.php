@@ -99,7 +99,8 @@ class ReportSavedViewController extends Controller
             'filters' => collect($filters)
                 ->map(fn ($value, $key) => [
                     'key' => $key,
-                    'value' => $this->formatFilterValue($value),
+                    'label' => $this->formatFilterKey((string) $key),
+                    'value' => $this->formatFilterDisplayValue((string) $key, $value),
                 ])
                 ->values(),
         ]);
@@ -195,6 +196,86 @@ class ReportSavedViewController extends Controller
         ][$reportKey] ?? $reportKey;
     }
 
+
+
+    private function formatFilterKey(string $key): string
+    {
+        return [
+            'customer_id' => 'العميل',
+            'supplier_id' => 'المورد',
+            'branch_id' => 'الفرع',
+            'as_of_date' => 'حتى تاريخ',
+            'aging_bucket' => 'شريحة العمر',
+            'payment_status' => 'حالة الدفع',
+        ][$key] ?? $key;
+    }
+
+    private function formatFilterDisplayValue(string $key, mixed $value): string
+    {
+        return match ($key) {
+            'customer_id' => $this->lookupTableDisplayValue('customers', $value, ['name', 'customer_name', 'company_name'])
+                ?? $this->formatFilterValue($value),
+            'supplier_id' => $this->lookupTableDisplayValue('suppliers', $value, ['name', 'supplier_name', 'company_name'])
+                ?? $this->formatFilterValue($value),
+            'branch_id' => $this->lookupTableDisplayValue('branches', $value, ['name', 'branch_name'])
+                ?? $this->formatFilterValue($value),
+            'aging_bucket' => $this->formatAgingBucket((string) $value),
+            'payment_status' => $this->formatPaymentStatus((string) $value),
+            default => $this->formatFilterValue($value),
+        };
+    }
+
+    private function formatAgingBucket(string $bucket): string
+    {
+        return [
+            'not_due' => 'غير مستحق',
+            'overdue_1_30' => 'متأخر من 1 إلى 30 يوم',
+            'overdue_31_60' => 'متأخر من 31 إلى 60 يوم',
+            'overdue_61_90' => 'متأخر من 61 إلى 90 يوم',
+            'overdue_more_than_90' => 'متأخر أكثر من 90 يوم',
+            'without_due_date' => 'بدون تاريخ استحقاق',
+        ][$bucket] ?? $bucket;
+    }
+
+    private function formatPaymentStatus(string $status): string
+    {
+        return [
+            'all' => 'كل الحالات',
+            'paid' => 'مدفوعة',
+            'unpaid' => 'غير مدفوعة',
+            'partial' => 'مدفوعة جزئيًا',
+            'partially_paid' => 'مدفوعة جزئيًا',
+            'pending' => 'قيد المتابعة',
+            'overdue' => 'متأخرة',
+        ][$status] ?? $status;
+    }
+
+    private function lookupTableDisplayValue(string $table, mixed $id, array $columns): ?string
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        try {
+            foreach ($columns as $column) {
+                if (! DB::getSchemaBuilder()->hasColumn($table, $column)) {
+                    continue;
+                }
+
+                $value = DB::table($table)
+                    ->where('id', $id)
+                    ->value($column);
+
+                if ($value !== null && $value !== '') {
+                    return (string) $value;
+                }
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return null;
+    }
 
     private function formatFilterValue(mixed $value): string
     {
