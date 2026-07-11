@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class ReportSavedViewControlsPartialTest extends TestCase
 {
-    public function test_sales_invoice_aging_report_uses_saved_view_controls_partial(): void
+    public function test_sales_invoice_aging_report_uses_saved_view_controls_partial_with_config_array(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
         $controlsPartial = resource_path('views/reports/partials/saved-view-controls.blade.php');
@@ -21,7 +21,9 @@ class ReportSavedViewControlsPartialTest extends TestCase
         $reportContents = file_get_contents($reportView);
         $controlsContents = file_get_contents($controlsPartial);
 
-        $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
+        $this->assertStringContainsString('$salesInvoiceAgingSavedViewControlsConfig = [', $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-controls', \$salesInvoiceAgingSavedViewControlsConfig)", $reportContents);
+
         $this->assertStringContainsString("'savedViews' => \$savedViews ?? collect()", $reportContents);
         $this->assertStringContainsString("'sectionCardTestId' => 'sales-invoice-aging-saved-views-selector'", $reportContents);
         $this->assertStringContainsString("'sectionRouteName' => 'reports.sales-invoice-aging.index'", $reportContents);
@@ -31,7 +33,7 @@ class ReportSavedViewControlsPartialTest extends TestCase
         $this->assertStringContainsString("'payment_status' => \$paymentStatusFilter", $reportContents);
         $this->assertStringContainsString("'aging_bucket' => \$agingBucketFilter", $reportContents);
 
-        $this->assertStringNotContainsString('$salesInvoiceAgingSavedViews = $savedViews ?? collect();', $reportContents);
+        $this->assertStringNotContainsString("@include('reports.partials.saved-view-controls', [", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-section-card'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-form-card'", $reportContents);
 

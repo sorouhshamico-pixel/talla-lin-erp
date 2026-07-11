@@ -114,32 +114,36 @@
 
 
 
-    @include('reports.partials.saved-view-controls', [
-        'savedViews' => $savedViews ?? collect(),
-        'sectionCardTestId' => 'sales-invoice-aging-saved-views-selector',
-        'sectionRouteName' => 'reports.sales-invoice-aging.index',
-        'sectionEmptyTestId' => 'sales-invoice-aging-saved-views-empty',
-        'sectionListTestId' => 'sales-invoice-aging-saved-views-list',
-        'sectionItemTestId' => 'sales-invoice-aging-saved-view-item',
-        'sectionOpenLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
-        'sectionActiveBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
-        'sectionDefaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
-        'sectionManageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
-        'formCardTestId' => 'sales-invoice-aging-save-view-card',
-        'formTitle' => 'حفظ عرض التقرير',
-        'formStoreRouteName' => 'reports.sales-invoice-aging.saved-views.store',
-        'formTestId' => 'sales-invoice-aging-save-view-form',
-        'hiddenFields' => [
-            'customer_id' => $customerFilter,
-            'payment_status' => $paymentStatusFilter,
-            'aging_bucket' => $agingBucketFilter,
-        ],
-        'nameInputId' => 'sales_invoice_aging_saved_view_name',
-        'namePlaceholder' => 'مثال: متابعة التحصيل الجزئي',
-        'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input',
-        'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
-        'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
-    ])
+    @php
+        $salesInvoiceAgingSavedViewControlsConfig = [
+            'savedViews' => $savedViews ?? collect(),
+            'sectionCardTestId' => 'sales-invoice-aging-saved-views-selector',
+            'sectionRouteName' => 'reports.sales-invoice-aging.index',
+            'sectionEmptyTestId' => 'sales-invoice-aging-saved-views-empty',
+            'sectionListTestId' => 'sales-invoice-aging-saved-views-list',
+            'sectionItemTestId' => 'sales-invoice-aging-saved-view-item',
+            'sectionOpenLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
+            'sectionActiveBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
+            'sectionDefaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
+            'sectionManageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
+            'formCardTestId' => 'sales-invoice-aging-save-view-card',
+            'formTitle' => 'حفظ عرض التقرير',
+            'formStoreRouteName' => 'reports.sales-invoice-aging.saved-views.store',
+            'formTestId' => 'sales-invoice-aging-save-view-form',
+            'hiddenFields' => [
+                'customer_id' => $customerFilter,
+                'payment_status' => $paymentStatusFilter,
+                'aging_bucket' => $agingBucketFilter,
+            ],
+            'nameInputId' => 'sales_invoice_aging_saved_view_name',
+            'namePlaceholder' => 'مثال: متابعة التحصيل الجزئي',
+            'nameInputTestId' => 'sales-invoice-aging-saved-view-name-input',
+            'defaultCheckboxTestId' => 'sales-invoice-aging-saved-view-default-checkbox',
+            'saveButtonTestId' => 'sales-invoice-aging-save-view-button',
+        ];
+    @endphp
+
+    @include('reports.partials.saved-view-controls', $salesInvoiceAgingSavedViewControlsConfig)
     <div class="card" data-testid="sales-invoice-aging-total-card">
         <h2>الإجمالي العام</h2>
         <div class="grid">
