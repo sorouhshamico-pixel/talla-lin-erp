@@ -9,20 +9,24 @@ class ReportSavedViewSectionPartialTest extends TestCase
     public function test_saved_view_section_partial_contains_shared_saved_view_content_without_card_wrapper(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
+        $configPartial = resource_path('views/reports/partials/sales-invoice-aging-saved-view-controls-config.blade.php');
         $controlsPartial = resource_path('views/reports/partials/saved-view-controls.blade.php');
         $sectionCardPartial = resource_path('views/reports/partials/saved-view-section-card.blade.php');
         $sectionPartial = resource_path('views/reports/partials/saved-view-section.blade.php');
 
+        $this->assertFileExists($configPartial);
         $this->assertFileExists($controlsPartial);
         $this->assertFileExists($sectionCardPartial);
         $this->assertFileExists($sectionPartial);
 
         $reportContents = file_get_contents($reportView);
+        $configContents = file_get_contents($configPartial);
         $controlsContents = file_get_contents($controlsPartial);
         $sectionCardContents = file_get_contents($sectionCardPartial);
         $sectionContents = file_get_contents($sectionPartial);
 
-        $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.sales-invoice-aging-saved-view-controls-config')", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $configContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-section'", $sectionCardContents);
 

@@ -6,19 +6,27 @@ use Tests\TestCase;
 
 class ReportSavedViewControlsConfigTest extends TestCase
 {
-    public function test_sales_invoice_aging_saved_view_controls_config_uses_grouped_sections(): void
+    public function test_sales_invoice_aging_saved_view_controls_config_is_loaded_and_rendered_from_report_specific_partial(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
+        $configPartial = resource_path('views/reports/partials/sales-invoice-aging-saved-view-controls-config.blade.php');
 
         $this->assertFileExists($reportView);
+        $this->assertFileExists($configPartial);
 
         $reportContents = file_get_contents($reportView);
+        $configContents = file_get_contents($configPartial);
 
-        $this->assertStringContainsString('$salesInvoiceAgingSavedViewControlsConfig = [', $reportContents);
-        $this->assertStringContainsString("'savedViews' => \$savedViews ?? collect()", $reportContents);
-        $this->assertStringContainsString("'section' => [", $reportContents);
-        $this->assertStringContainsString("'form' => [", $reportContents);
-        $this->assertStringContainsString("'hiddenFields' => [", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.sales-invoice-aging-saved-view-controls-config')", $reportContents);
+        $this->assertStringNotContainsString('$salesInvoiceAgingSavedViewControlsConfig = [', $reportContents);
+        $this->assertStringNotContainsString("@include('reports.partials.saved-view-controls', \$salesInvoiceAgingSavedViewControlsConfig)", $reportContents);
+
+        $this->assertStringContainsString('$salesInvoiceAgingSavedViewControlsConfig = [', $configContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-controls', \$salesInvoiceAgingSavedViewControlsConfig)", $configContents);
+        $this->assertStringContainsString("'savedViews' => \$savedViews ?? collect()", $configContents);
+        $this->assertStringContainsString("'section' => [", $configContents);
+        $this->assertStringContainsString("'form' => [", $configContents);
+        $this->assertStringContainsString("'hiddenFields' => [", $configContents);
 
         $sectionKeys = [
             "'cardTestId' => 'sales-invoice-aging-saved-views-selector'",
@@ -33,7 +41,7 @@ class ReportSavedViewControlsConfigTest extends TestCase
         ];
 
         foreach ($sectionKeys as $sectionKey) {
-            $this->assertStringContainsString($sectionKey, $reportContents);
+            $this->assertStringContainsString($sectionKey, $configContents);
         }
 
         $formKeys = [
@@ -49,15 +57,14 @@ class ReportSavedViewControlsConfigTest extends TestCase
         ];
 
         foreach ($formKeys as $formKey) {
-            $this->assertStringContainsString($formKey, $reportContents);
+            $this->assertStringContainsString($formKey, $configContents);
         }
 
-        $this->assertStringContainsString("'customer_id' => \$customerFilter", $reportContents);
-        $this->assertStringContainsString("'payment_status' => \$paymentStatusFilter", $reportContents);
-        $this->assertStringContainsString("'aging_bucket' => \$agingBucketFilter", $reportContents);
+        $this->assertStringContainsString("'customer_id' => \$customerFilter", $configContents);
+        $this->assertStringContainsString("'payment_status' => \$paymentStatusFilter", $configContents);
+        $this->assertStringContainsString("'aging_bucket' => \$agingBucketFilter", $configContents);
 
-        $this->assertStringNotContainsString("'sectionRouteName'", $reportContents);
-        $this->assertStringNotContainsString("'formStoreRouteName'", $reportContents);
-        $this->assertStringContainsString("@include('reports.partials.saved-view-controls', \$salesInvoiceAgingSavedViewControlsConfig)", $reportContents);
+        $this->assertStringNotContainsString("'sectionRouteName'", $configContents);
+        $this->assertStringNotContainsString("'formStoreRouteName'", $configContents);
     }
 }
