@@ -89,12 +89,14 @@
                     <div class="card-body">
                         <h2>العروض المحفوظة</h2>
                         @include('reports.partials.saved-view-list-styles')
+        @include('reports.partials.saved-view-help-text')
         @include('reports.partials.active-saved-view-banner', ['savedViews' => $supplierAgingDrilldownSavedViews])
 
                         @if ($supplierAgingDrilldownSavedViews->isEmpty())
-                            <p data-testid="supplier-aging-drilldown-saved-views-empty">
-                                لا توجد عروض محفوظة لهذه التفاصيل حتى الآن.
-                            </p>
+                            @include('reports.partials.saved-view-empty-state', [
+                'testId' => 'supplier-aging-drilldown-saved-views-empty',
+                'message' => 'لا توجد عروض محفوظة لهذه التفاصيل حتى الآن. اضبط الفلاتر ثم استخدم نموذج حفظ العرض لإنشاء عرض سريع الاستخدام لاحقًا.',
+            ])
                         @else
                             <div class="saved-views-list" data-testid="supplier-aging-drilldown-saved-views-list">
                                 @foreach ($supplierAgingDrilldownSavedViews as $savedView)

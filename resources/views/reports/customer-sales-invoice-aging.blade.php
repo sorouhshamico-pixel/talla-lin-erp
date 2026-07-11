@@ -97,12 +97,13 @@
     <div class="card" data-testid="customer-aging-saved-views-selector">
         <h2>العروض المحفوظة</h2>
         @include('reports.partials.saved-view-list-styles')
+        @include('reports.partials.saved-view-help-text')
         @include('reports.partials.active-saved-view-banner', ['savedViews' => $customerAgingSavedViews])
 
         @if ($customerAgingSavedViews->isEmpty())
-            <p data-testid="customer-aging-saved-views-empty">
-                لا توجد عروض محفوظة لهذا التقرير حتى الآن.
-            </p>
+            @include('reports.partials.saved-view-empty-state', [
+                'testId' => 'customer-aging-saved-views-empty',
+            ])
         @else
             <div class="saved-views-list" data-testid="customer-aging-saved-views-list">
                 @foreach ($customerAgingSavedViews as $savedView)
