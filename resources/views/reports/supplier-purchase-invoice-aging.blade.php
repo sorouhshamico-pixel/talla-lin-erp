@@ -65,57 +65,17 @@
 
                 <div class="card" data-testid="supplier-aging-saved-views-selector" style="margin-bottom:16px;">
                     <div class="card-body">
-                        <h2>العروض المحفوظة</h2>
-                        @include('reports.partials.saved-view-list-styles')
-        @include('reports.partials.saved-view-help-text')
-        @include('reports.partials.active-saved-view-banner', ['savedViews' => $supplierAgingSavedViews])
-
-                        @if ($supplierAgingSavedViews->isEmpty())
-                            @include('reports.partials.saved-view-empty-state', [
-                'testId' => 'supplier-aging-saved-views-empty',
-            ])
-                        @else
-                            <div class="saved-views-list" data-testid="supplier-aging-saved-views-list">
-                                @foreach ($supplierAgingSavedViews as $savedView)
-                                    @php
-                                        $savedViewFilters = array_filter(
-                                            $savedView->filters ?? [],
-                                            fn ($value) => $value !== null && $value !== ''
-                                        );
-
-                                        $savedViewRouteFilters = array_merge($savedViewFilters, [
-                                            'saved_view_id' => $savedView->id,
-                                        ]);
-
-                                        $isActiveSavedView = (int) request('saved_view_id') === (int) $savedView->id;
-                                    @endphp
-
-                                    <div class="saved-view-row{{ $isActiveSavedView ? ' active-saved-view-row' : '' }}" data-testid="supplier-aging-saved-view-item">
-                                        <a href="{{ route('reports.supplier-purchase-invoice-aging.index', $savedViewRouteFilters) }}"
-                                                                                      class="saved-view-link"
-                                           data-testid="supplier-aging-saved-view-open-link">
-                                            {{ $savedView->name }}
-                                        </a>
-
-                                        <span class="saved-view-badges">
-                                                                                    @if ($isActiveSavedView)
-                                                                                        <span class="saved-view-badge saved-view-badge-active" data-testid="supplier-aging-saved-view-active-badge">نشط</span>
-                                                                                    @endif
-
-                                                                                    @if ($savedView->is_default)
-                                                                                        <span class="saved-view-badge saved-view-badge-default" data-testid="supplier-aging-saved-view-default-badge">افتراضي</span>
-                                                                                    @endif
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <div style="margin-top:12px;">
-                            <a href="{{ route('reports.saved-views.index') }}" data-testid="supplier-aging-manage-saved-views-link">
-                                إدارة العروض المحفوظة
-                            </a>
-                        </div>
+                        @include('reports.partials.saved-view-section', [
+                            'savedViews' => $supplierAgingSavedViews,
+                            'routeName' => 'reports.supplier-purchase-invoice-aging.index',
+                            'emptyTestId' => 'supplier-aging-saved-views-empty',
+                            'listTestId' => 'supplier-aging-saved-views-list',
+                            'itemTestId' => 'supplier-aging-saved-view-item',
+                            'openLinkTestId' => 'supplier-aging-saved-view-open-link',
+                            'activeBadgeTestId' => 'supplier-aging-saved-view-active-badge',
+                            'defaultBadgeTestId' => 'supplier-aging-saved-view-default-badge',
+                            'manageLinkTestId' => 'supplier-aging-manage-saved-views-link',
+                        ])
                     </div>
                 </div>
 
