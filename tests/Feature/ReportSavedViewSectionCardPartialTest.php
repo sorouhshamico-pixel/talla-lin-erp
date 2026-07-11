@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class ReportSavedViewSectionCardPartialTest extends TestCase
 {
-    public function test_saved_view_controls_partial_uses_saved_view_section_card_partial(): void
+    public function test_saved_view_controls_partial_uses_saved_view_section_card_partial_with_grouped_section_config(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
         $controlsPartial = resource_path('views/reports/partials/saved-view-controls.blade.php');
@@ -25,11 +25,11 @@ class ReportSavedViewSectionCardPartialTest extends TestCase
         $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-section-card'", $reportContents);
 
+        $this->assertStringContainsString('$sectionConfig = $section ?? [];', $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $controlsContents);
-        $this->assertStringContainsString("'cardTestId' => \$sectionCardTestId ?? 'saved-view-section-card'", $controlsContents);
-        $this->assertStringContainsString("'savedViews' => \$savedViewControlsCollection", $controlsContents);
-        $this->assertStringContainsString("'routeName' => \$sectionRouteName", $controlsContents);
-        $this->assertStringContainsString("'manageLinkTestId' => \$sectionManageLinkTestId", $controlsContents);
+        $this->assertStringContainsString('$sectionConfig[\'cardTestId\'] ?? \'saved-view-section-card\'', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig[\'routeName\']', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig[\'manageLinkTestId\']', $controlsContents);
 
         $this->assertStringContainsString('data-testid="{{ $cardTestId', $sectionCardContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-section'", $sectionCardContents);

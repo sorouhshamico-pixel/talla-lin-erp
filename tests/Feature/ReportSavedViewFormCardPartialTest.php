@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class ReportSavedViewFormCardPartialTest extends TestCase
 {
-    public function test_saved_view_controls_partial_uses_saved_view_form_card_partial(): void
+    public function test_saved_view_controls_partial_uses_saved_view_form_card_partial_with_grouped_form_config(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
         $controlsPartial = resource_path('views/reports/partials/saved-view-controls.blade.php');
@@ -26,12 +26,13 @@ class ReportSavedViewFormCardPartialTest extends TestCase
         $this->assertStringContainsString("@include('reports.partials.saved-view-controls'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-form-card'", $reportContents);
 
+        $this->assertStringContainsString('$formConfig = $form ?? [];', $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-form-card'", $controlsContents);
-        $this->assertStringContainsString("'cardTestId' => \$formCardTestId ?? 'saved-view-form-card'", $controlsContents);
-        $this->assertStringContainsString("'storeRouteName' => \$formStoreRouteName", $controlsContents);
-        $this->assertStringContainsString("'formTestId' => \$formTestId ?? 'saved-view-form'", $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'cardTestId\'] ?? \'saved-view-form-card\'', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'storeRouteName\']', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'testId\'] ?? \'saved-view-form\'', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'saveButtonTestId\'] ?? null', $controlsContents);
         $this->assertStringContainsString("'hiddenFields' => \$hiddenFields ?? []", $controlsContents);
-        $this->assertStringContainsString("'saveButtonTestId' => \$saveButtonTestId ?? null", $controlsContents);
 
         $this->assertStringContainsString('data-testid="{{ $cardTestId', $formCardContents);
         $this->assertStringContainsString('action="{{ route($storeRouteName) }}"', $formCardContents);

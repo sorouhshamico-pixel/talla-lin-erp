@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class ReportSavedViewControlsPartialTest extends TestCase
 {
-    public function test_sales_invoice_aging_report_uses_saved_view_controls_partial_with_config_array(): void
+    public function test_sales_invoice_aging_report_uses_saved_view_controls_partial_with_grouped_config(): void
     {
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
         $controlsPartial = resource_path('views/reports/partials/saved-view-controls.blade.php');
@@ -25,24 +25,28 @@ class ReportSavedViewControlsPartialTest extends TestCase
         $this->assertStringContainsString("@include('reports.partials.saved-view-controls', \$salesInvoiceAgingSavedViewControlsConfig)", $reportContents);
 
         $this->assertStringContainsString("'savedViews' => \$savedViews ?? collect()", $reportContents);
-        $this->assertStringContainsString("'sectionCardTestId' => 'sales-invoice-aging-saved-views-selector'", $reportContents);
-        $this->assertStringContainsString("'sectionRouteName' => 'reports.sales-invoice-aging.index'", $reportContents);
-        $this->assertStringContainsString("'formCardTestId' => 'sales-invoice-aging-save-view-card'", $reportContents);
-        $this->assertStringContainsString("'formStoreRouteName' => 'reports.sales-invoice-aging.saved-views.store'", $reportContents);
+        $this->assertStringContainsString("'section' => [", $reportContents);
+        $this->assertStringContainsString("'form' => [", $reportContents);
+        $this->assertStringContainsString("'hiddenFields' => [", $reportContents);
+
+        $this->assertStringContainsString("'routeName' => 'reports.sales-invoice-aging.index'", $reportContents);
+        $this->assertStringContainsString("'storeRouteName' => 'reports.sales-invoice-aging.saved-views.store'", $reportContents);
         $this->assertStringContainsString("'customer_id' => \$customerFilter", $reportContents);
         $this->assertStringContainsString("'payment_status' => \$paymentStatusFilter", $reportContents);
         $this->assertStringContainsString("'aging_bucket' => \$agingBucketFilter", $reportContents);
 
+        $this->assertStringNotContainsString("'sectionRouteName'", $reportContents);
+        $this->assertStringNotContainsString("'formStoreRouteName'", $reportContents);
         $this->assertStringNotContainsString("@include('reports.partials.saved-view-controls', [", $reportContents);
-        $this->assertStringNotContainsString("@include('reports.partials.saved-view-section-card'", $reportContents);
-        $this->assertStringNotContainsString("@include('reports.partials.saved-view-form-card'", $reportContents);
 
         $this->assertStringContainsString('$savedViewControlsCollection = $savedViews ?? collect();', $controlsContents);
+        $this->assertStringContainsString('$sectionConfig = $section ?? [];', $controlsContents);
+        $this->assertStringContainsString('$formConfig = $form ?? [];', $controlsContents);
+
         $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $controlsContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-form-card'", $controlsContents);
-        $this->assertStringContainsString("'savedViews' => \$savedViewControlsCollection", $controlsContents);
-        $this->assertStringContainsString("'routeName' => \$sectionRouteName", $controlsContents);
-        $this->assertStringContainsString("'storeRouteName' => \$formStoreRouteName", $controlsContents);
+        $this->assertStringContainsString('$sectionConfig[\'routeName\']', $controlsContents);
+        $this->assertStringContainsString('$formConfig[\'storeRouteName\']', $controlsContents);
         $this->assertStringContainsString("'hiddenFields' => \$hiddenFields ?? []", $controlsContents);
     }
 }
