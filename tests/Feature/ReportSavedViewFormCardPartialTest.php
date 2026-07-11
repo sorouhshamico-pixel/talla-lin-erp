@@ -11,9 +11,11 @@ class ReportSavedViewFormCardPartialTest extends TestCase
         $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
         $formCardPartial = resource_path('views/reports/partials/saved-view-form-card.blade.php');
         $formFieldsPartial = resource_path('views/reports/partials/saved-view-form-fields.blade.php');
+        $hiddenFieldsPartial = resource_path('views/reports/partials/saved-view-hidden-fields.blade.php');
 
         $this->assertFileExists($formCardPartial);
         $this->assertFileExists($formFieldsPartial);
+        $this->assertFileExists($hiddenFieldsPartial);
 
         $reportContents = file_get_contents($reportView);
         $formCardContents = file_get_contents($formCardPartial);
@@ -36,9 +38,11 @@ class ReportSavedViewFormCardPartialTest extends TestCase
         $this->assertStringContainsString('data-testid="{{ $cardTestId', $formCardContents);
         $this->assertStringContainsString('action="{{ route($storeRouteName) }}"', $formCardContents);
         $this->assertStringContainsString('data-testid="{{ $formTestId', $formCardContents);
-        $this->assertStringContainsString('@foreach (($hiddenFields ?? []) as $hiddenFieldName => $hiddenFieldValue)', $formCardContents);
-        $this->assertStringContainsString('name="{{ $hiddenFieldName }}"', $formCardContents);
-        $this->assertStringContainsString('value="{{ $hiddenFieldValue }}"', $formCardContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-hidden-fields'", $formCardContents);
         $this->assertStringContainsString("@include('reports.partials.saved-view-form-fields'", $formCardContents);
+
+        $this->assertStringNotContainsString('@foreach (($hiddenFields ?? []) as $hiddenFieldName => $hiddenFieldValue)', $formCardContents);
+        $this->assertStringNotContainsString('name="{{ $hiddenFieldName }}"', $formCardContents);
+        $this->assertStringNotContainsString('value="{{ $hiddenFieldValue }}"', $formCardContents);
     }
 }

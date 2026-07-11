@@ -5,11 +5,7 @@
           action="{{ route($storeRouteName) }}"
           data-testid="{{ $formTestId ?? 'saved-view-form' }}">
         @csrf
-
-        @foreach (($hiddenFields ?? []) as $hiddenFieldName => $hiddenFieldValue)
-            <input type="hidden" name="{{ $hiddenFieldName }}" value="{{ $hiddenFieldValue }}">
-        @endforeach
-
+        @include('reports.partials.saved-view-hidden-fields', ['hiddenFields' => $hiddenFields ?? []])
         @include('reports.partials.saved-view-form-fields', [
             'nameInputId' => $nameInputId ?? null,
             'namePlaceholder' => $namePlaceholder ?? null,
