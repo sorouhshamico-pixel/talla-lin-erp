@@ -118,19 +118,18 @@
         $salesInvoiceAgingSavedViews = $savedViews ?? collect();
     @endphp
 
-    <div class="card" data-testid="sales-invoice-aging-saved-views-selector">
-        @include('reports.partials.saved-view-section', [
-            'savedViews' => $salesInvoiceAgingSavedViews,
-            'routeName' => 'reports.sales-invoice-aging.index',
-            'emptyTestId' => 'sales-invoice-aging-saved-views-empty',
-            'listTestId' => 'sales-invoice-aging-saved-views-list',
-            'itemTestId' => 'sales-invoice-aging-saved-view-item',
-            'openLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
-            'activeBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
-            'defaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
-            'manageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
-        ])
-    </div>
+    @include('reports.partials.saved-view-section-card', [
+        'cardTestId' => 'sales-invoice-aging-saved-views-selector',
+        'savedViews' => $salesInvoiceAgingSavedViews,
+        'routeName' => 'reports.sales-invoice-aging.index',
+        'emptyTestId' => 'sales-invoice-aging-saved-views-empty',
+        'listTestId' => 'sales-invoice-aging-saved-views-list',
+        'itemTestId' => 'sales-invoice-aging-saved-view-item',
+        'openLinkTestId' => 'sales-invoice-aging-saved-view-open-link',
+        'activeBadgeTestId' => 'sales-invoice-aging-saved-view-active-badge',
+        'defaultBadgeTestId' => 'sales-invoice-aging-saved-view-default-badge',
+        'manageLinkTestId' => 'sales-invoice-aging-manage-saved-views-link',
+    ])
 
     @include('reports.partials.saved-view-form-card', [
         'cardTestId' => 'sales-invoice-aging-save-view-card',

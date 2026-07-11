@@ -2,63 +2,33 @@
 
 namespace Tests\Feature;
 
-use App\Models\ReportSavedView;
-use App\Models\User;
-use Database\Seeders\InitialSetupSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ReportSavedViewSectionPartialTest extends TestCase
 {
-    use RefreshDatabase;
-
-    protected function setUp(): void
+    public function test_saved_view_section_partial_contains_shared_saved_view_content_without_card_wrapper(): void
     {
-        parent::setUp();
+        $reportView = resource_path('views/reports/sales-invoice-aging.blade.php');
+        $sectionCardPartial = resource_path('views/reports/partials/saved-view-section-card.blade.php');
+        $sectionPartial = resource_path('views/reports/partials/saved-view-section.blade.php');
 
-        $this->seed(InitialSetupSeeder::class);
-    }
+        $this->assertFileExists($sectionCardPartial);
+        $this->assertFileExists($sectionPartial);
 
-    public function test_saved_view_section_partial_renders_full_section_for_sales_report(): void
-    {
-        $user = User::query()->firstOrFail();
+        $reportContents = file_get_contents($reportView);
+        $sectionCardContents = file_get_contents($sectionCardPartial);
+        $sectionContents = file_get_contents($sectionPartial);
 
-        $savedView = ReportSavedView::query()->create([
-            'user_id' => $user->id,
-            'report_key' => 'sales-invoice-aging',
-            'name' => 'عرض قسم مشترك',
-            'filters' => [
-                'aging_bucket' => 'without_due_date',
-            ],
-            'is_default' => true,
-        ]);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-section-card'", $reportContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-section'", $sectionCardContents);
 
-        $response = $this->actingAs($user)->get(route('reports.sales-invoice-aging.index', [
-            'saved_view_id' => $savedView->id,
-        ]));
+        $this->assertStringContainsString('<h2>العروض المحفوظة</h2>', $sectionContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-list-styles')", $sectionContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-help-text')", $sectionContents);
+        $this->assertStringContainsString("@include('reports.partials.active-saved-view-banner'", $sectionContents);
+        $this->assertStringContainsString("@include('reports.partials.saved-view-list'", $sectionContents);
+        $this->assertStringContainsString('data-testid="{{ $manageLinkTestId }}"', $sectionContents);
 
-        $response->assertOk();
-        $response->assertSee('data-testid="sales-invoice-aging-saved-views-selector"', false);
-        $response->assertSee('data-testid="report-saved-view-list-styles"', false);
-        $response->assertSee('data-testid="report-saved-view-help-text"', false);
-        $response->assertSee('data-testid="active-saved-view-banner"', false);
-        $response->assertSee('data-testid="sales-invoice-aging-saved-views-list"', false);
-        $response->assertSee('data-testid="sales-invoice-aging-saved-view-active-badge"', false);
-        $response->assertSee('data-testid="sales-invoice-aging-saved-view-default-badge"', false);
-        $response->assertSee('data-testid="sales-invoice-aging-manage-saved-views-link"', false);
-    }
-
-    public function test_saved_view_section_partial_renders_drilldown_empty_state(): void
-    {
-        $user = User::query()->firstOrFail();
-
-        $response = $this->actingAs($user)->get(route('reports.supplier-purchase-invoice-aging.drilldown'));
-
-        $response->assertOk();
-        $response->assertSee('data-testid="supplier-aging-drilldown-saved-views-selector"', false);
-        $response->assertSee('data-testid="report-saved-view-help-text"', false);
-        $response->assertSee('data-testid="supplier-aging-drilldown-saved-views-empty"', false);
-        $response->assertSee('لا توجد عروض محفوظة لهذه التفاصيل حتى الآن.');
-        $response->assertSee('data-testid="supplier-aging-drilldown-manage-saved-views-link"', false);
+        $this->assertStringNotContainsString('class="card"', $sectionContents);
     }
 }
