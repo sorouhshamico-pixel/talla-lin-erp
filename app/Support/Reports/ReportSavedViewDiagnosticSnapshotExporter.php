@@ -8,27 +8,21 @@ class ReportSavedViewDiagnosticSnapshotExporter
 {
     public const DIRECTORY = 'report-saved-view-diagnostics';
 
+    public const MANIFEST_FILENAME = 'manifest.json';
+
     /**
      * @return array<string, string>
      */
     public static function export(string $format = 'markdown', ?string $filename = null): array
     {
-        $format = strtolower(trim($format));
-
-        if (! in_array($format, ['markdown', 'json'], true)) {
-            throw new InvalidArgumentException('Unsupported report saved view diagnostic snapshot format ['.$format.'].');
-        }
-
+        $format = self::normalizeFormat($format);
         $extension = $format === 'json' ? 'json' : 'md';
         $filename ??= 'report-saved-view-diagnostics.'.$extension;
 
-        $relativePath = self::DIRECTORY.'/'.$filename;
-        $absoluteDirectory = storage_path('app/'.self::DIRECTORY);
-        $absolutePath = storage_path('app/'.$relativePath);
+        self::ensureDirectoryExists();
 
-        if (! is_dir($absoluteDirectory)) {
-            mkdir($absoluteDirectory, 0755, true);
-        }
+        $relativePath = self::DIRECTORY.'/'.$filename;
+        $absolutePath = storage_path('app/'.$relativePath);
 
         $contents = $format === 'json'
             ? ReportSavedViewRegistryDiagnosticReport::json()
@@ -36,12 +30,18 @@ class ReportSavedViewDiagnosticSnapshotExporter
 
         file_put_contents($absolutePath, $contents.PHP_EOL);
 
-        return [
+        $snapshot = [
             'format' => $format,
             'filename' => $filename,
             'relative_path' => $relativePath,
             'absolute_path' => $absolutePath,
+            'manifest_relative_path' => self::manifestRelativePath(),
+            'manifest_absolute_path' => self::manifestPath(),
         ];
+
+        self::writeManifest($snapshot);
+
+        return $snapshot;
     }
 
     /**
@@ -58,5 +58,100 @@ class ReportSavedViewDiagnosticSnapshotExporter
     public static function exportJson(?string $filename = null): array
     {
         return self::export('json', $filename);
+    }
+
+    public static function manifestPath(): string
+    {
+        return storage_path('app/'.self::manifestRelativePath());
+    }
+
+    public static function manifestRelativePath(): string
+    {
+        return self::DIRECTORY.'/'.self::MANIFEST_FILENAME;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function manifest(): array
+    {
+        $path = self::manifestPath();
+
+        if (! file_exists($path)) {
+            return self::emptyManifest();
+        }
+
+        $decoded = json_decode(file_get_contents($path) ?: '', true);
+
+        if (! is_array($decoded)) {
+            return self::emptyManifest();
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * @param  array<string, string>  $snapshot
+     */
+    private static function writeManifest(array $snapshot): void
+    {
+        self::ensureDirectoryExists();
+
+        $summary = ReportSavedViewRegistryDiagnosticReport::summary();
+
+        $manifest = self::manifest();
+
+        $entry = [
+            'format' => $snapshot['format'],
+            'filename' => $snapshot['filename'],
+            'relative_path' => $snapshot['relative_path'],
+            'exported_at' => now()->toIso8601String(),
+            'healthy' => (bool) $summary['valid'],
+            'report_count' => (int) $summary['report_count'],
+            'invalid_count' => (int) $summary['invalid_count'],
+        ];
+
+        $manifest['updated_at'] = $entry['exported_at'];
+        $manifest['latest'][$snapshot['format']] = $entry;
+        $manifest['history'][] = $entry;
+        $manifest['history'] = array_slice($manifest['history'], -50);
+
+        file_put_contents(
+            self::manifestPath(),
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE).PHP_EOL
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function emptyManifest(): array
+    {
+        return [
+            'directory' => self::DIRECTORY,
+            'updated_at' => null,
+            'latest' => [],
+            'history' => [],
+        ];
+    }
+
+    private static function ensureDirectoryExists(): void
+    {
+        $absoluteDirectory = storage_path('app/'.self::DIRECTORY);
+
+        if (! is_dir($absoluteDirectory)) {
+            mkdir($absoluteDirectory, 0755, true);
+        }
+    }
+
+    private static function normalizeFormat(string $format): string
+    {
+        $format = strtolower(trim($format));
+
+        if (! in_array($format, ['markdown', 'json'], true)) {
+            throw new InvalidArgumentException('Unsupported report saved view diagnostic snapshot format ['.$format.'].');
+        }
+
+        return $format;
     }
 }

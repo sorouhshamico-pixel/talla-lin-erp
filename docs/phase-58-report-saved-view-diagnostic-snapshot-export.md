@@ -62,3 +62,14 @@ The project now has a reusable diagnostics export surface for:
 This phase is protected by:
 
 ReportSavedViewDiagnosticSnapshotExportTest
+
+
+## Phase 58B manifest integration
+
+Phase 58B adds a manifest file for diagnostic snapshot exports.
+
+The manifest is written to:
+
+storage/app/report-saved-view-diagnostics/manifest.json
+
+It records the latest markdown and JSON snapshots, health summary values, and recent export history.
