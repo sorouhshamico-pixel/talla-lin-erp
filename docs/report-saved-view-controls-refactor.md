@@ -121,3 +121,12 @@ The refactor is covered by:
 Do not define a config variable in a child partial and then use it in the parent view.
 
 The config partial must render saved-view-controls inside the same partial where the config array is defined.
+
+
+## Phase 53 finalization
+
+Phase 53 is closed by docs/phase-53-report-saved-view-controls-refactor.md.
+
+Final guard coverage is provided by ReportSavedViewControlsFinalizationTest.
+
+Future reports should add a report-specific saved view controls config partial instead of copying saved view controls markup into the report page.
