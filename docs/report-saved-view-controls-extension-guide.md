@@ -117,3 +117,12 @@ This pattern is protected by:
 The report saved view controls rollout is finalized in docs/phase-54-report-saved-view-controls-finalization.md.
 
 Any future report adopting saved view controls should follow this guide and must pass the rollout guard tests.
+
+
+## Registry requirement
+
+After adding saved view controls to a future report, register the report in:
+
+app/Support/Reports/ReportSavedViewRegistry.php
+
+The registry entry should include the report key, routes, config partial, hidden fields, and key test IDs.

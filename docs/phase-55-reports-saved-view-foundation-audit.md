@@ -94,3 +94,12 @@ For any future report requiring saved views:
 ## Close condition
 
 This phase is complete when the audit document exists, all saved view controls foundation documents exist, the config partial contract is enforced, and the full test suite passes.
+
+
+## Registry integration
+
+Phase 55B added app/Support/Reports/ReportSavedViewRegistry.php as the central registry for saved-view-capable reports.
+
+Phase 55C finalized the registry foundation in docs/phase-55-report-saved-view-registry-foundation-finalization.md.
+
+Future reports that support saved views should be added to the registry after their report-specific config partial and routes exist.

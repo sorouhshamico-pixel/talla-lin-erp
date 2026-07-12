@@ -57,3 +57,10 @@ The registry allows tests, documentation, and future UI surfaces to discover sav
 This phase is protected by:
 
 ReportSavedViewRegistryTest
+
+
+## Phase 55C finalization
+
+The registry foundation is finalized by docs/phase-55-report-saved-view-registry-foundation-finalization.md.
+
+The registry is now part of the saved view controls foundation and should be updated whenever a new report adopts saved views.
