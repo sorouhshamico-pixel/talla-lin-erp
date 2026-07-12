@@ -49,6 +49,20 @@
             </div>
         </div>
 
+        <div class="card mb-4" data-testid="report-saved-view-diagnostics-export-actions">
+            <div class="card-header">
+                Export
+            </div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.markdown') }}">
+                    View Markdown
+                </a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.json') }}">
+                    View JSON
+                </a>
+            </div>
+        </div>
+
         <div class="card mb-4" data-testid="report-saved-view-diagnostics-valid-keys">
             <div class="card-header">
                 Valid Report Keys

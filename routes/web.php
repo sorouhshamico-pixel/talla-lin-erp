@@ -290,3 +290,13 @@ Route::get('/reports/saved-view-diagnostics', function () {
         'diagnosticMarkdown' => ReportSavedViewRegistryDiagnosticReport::markdown(),
     ]);
 })->middleware('auth')->name('reports.saved-view-diagnostics.index');
+
+Route::get('/reports/saved-view-diagnostics/markdown', function () {
+    return response(ReportSavedViewRegistryDiagnosticReport::markdown(), 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+    ]);
+})->middleware('auth')->name('reports.saved-view-diagnostics.markdown');
+
+Route::get('/reports/saved-view-diagnostics/json', function () {
+    return response()->json(ReportSavedViewRegistryDiagnosticReport::build());
+})->middleware('auth')->name('reports.saved-view-diagnostics.json');
