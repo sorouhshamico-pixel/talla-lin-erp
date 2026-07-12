@@ -58,6 +58,67 @@ class ReportSavedViewRegistry
         return array_keys(self::reports());
     }
 
+    public static function count(): int
+    {
+        return count(self::reports());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function labels(): array
+    {
+        return self::pluckStringField('label');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function viewPaths(): array
+    {
+        return self::pluckStringField('view_path');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function configPartials(): array
+    {
+        return self::pluckStringField('config_partial');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function configPartialPaths(): array
+    {
+        return self::pluckStringField('config_partial_path');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function indexRoutes(): array
+    {
+        return self::pluckStringField('index_route');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function exportRoutes(): array
+    {
+        return self::pluckStringField('export_route');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function savedViewStoreRoutes(): array
+    {
+        return self::pluckStringField('saved_view_store_route');
+    }
+
     /**
      * @return array<int, string>
      */
@@ -72,6 +133,28 @@ class ReportSavedViewRegistry
         return $report['hidden_fields'] ?? [];
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
+    public static function hiddenFieldMap(): array
+    {
+        return array_map(
+            fn (array $report): array => $report['hidden_fields'] ?? [],
+            self::reports()
+        );
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    public static function testIdMap(): array
+    {
+        return array_map(
+            fn (array $report): array => $report['test_ids'] ?? [],
+            self::reports()
+        );
+    }
+
     public static function configPartial(string $key): ?string
     {
         $report = self::find($key);
@@ -81,5 +164,73 @@ class ReportSavedViewRegistry
         }
 
         return $report['config_partial'] ?? null;
+    }
+
+    public static function configPartialPath(string $key): ?string
+    {
+        $report = self::find($key);
+
+        if (! $report) {
+            return null;
+        }
+
+        return $report['config_partial_path'] ?? null;
+    }
+
+    public static function indexRoute(string $key): ?string
+    {
+        $report = self::find($key);
+
+        if (! $report) {
+            return null;
+        }
+
+        return $report['index_route'] ?? null;
+    }
+
+    public static function savedViewStoreRoute(string $key): ?string
+    {
+        $report = self::find($key);
+
+        if (! $report) {
+            return null;
+        }
+
+        return $report['saved_view_store_route'] ?? null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function documentationRows(): array
+    {
+        return array_values(array_map(
+            fn (array $report): array => [
+                'key' => $report['key'],
+                'label' => $report['label'],
+                'view_path' => $report['view_path'],
+                'index_route' => $report['index_route'],
+                'saved_view_store_route' => $report['saved_view_store_route'],
+                'config_partial_path' => $report['config_partial_path'],
+                'hidden_fields' => $report['hidden_fields'],
+            ],
+            self::reports()
+        ));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function pluckStringField(string $field): array
+    {
+        $values = [];
+
+        foreach (self::reports() as $key => $report) {
+            if (isset($report[$field]) && is_string($report[$field])) {
+                $values[$key] = $report[$field];
+            }
+        }
+
+        return $values;
     }
 }
