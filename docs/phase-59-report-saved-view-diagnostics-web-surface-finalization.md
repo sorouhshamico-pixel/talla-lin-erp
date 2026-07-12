@@ -58,3 +58,17 @@ Finalized the web surface by adding centralized web link metadata and CLI comman
 ## Next step
 
 Phase 60 can move to the next reporting/accounting feature with diagnostics available through code, CLI, snapshots, and web.
+
+
+## Phase 60A navigation handoff
+
+Phase 60A adds navigation/discoverability coverage for the diagnostics web surface.
+
+The diagnostics route remains:
+
+reports.saved-view-diagnostics.index
+
+The export routes remain:
+
+reports.saved-view-diagnostics.markdown
+reports.saved-view-diagnostics.json

@@ -6,7 +6,12 @@
             <h1 class="page-title">التقارير المالية الأساسية</h1>
             <div class="muted">
                 ملخص أولي للمبيعات والمشتريات والمدفوعات والمستحقات والمخزون والمصاريف التشغيلية مع إمكانية التصفية حسب الفترة والفرع وتصنيف المصروف وطريقة الدفع.
-            </div>
+
+            <a href="{{ route('reports.saved-view-diagnostics.index') }}" class="btn btn-outline-secondary btn-sm" data-testid="report-saved-view-diagnostics-nav-link">
+                Report Saved View Diagnostics
+            </a>
+
+        </div>
         </div>
     </div>
 
