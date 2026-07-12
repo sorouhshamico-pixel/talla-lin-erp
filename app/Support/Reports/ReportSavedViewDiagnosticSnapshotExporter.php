@@ -60,6 +60,48 @@ class ReportSavedViewDiagnosticSnapshotExporter
         return self::export('json', $filename);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public static function pruneSnapshots(bool $includeManifest = false): array
+    {
+        $directory = storage_path('app/'.self::DIRECTORY);
+
+        if (! is_dir($directory)) {
+            return [
+                'directory' => self::DIRECTORY,
+                'deleted_count' => 0,
+                'deleted_files' => [],
+                'manifest_preserved' => ! $includeManifest,
+            ];
+        }
+
+        $deletedFiles = [];
+
+        foreach (glob($directory.'/*') ?: [] as $path) {
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $filename = basename($path);
+
+            if ($filename === self::MANIFEST_FILENAME && ! $includeManifest) {
+                continue;
+            }
+
+            unlink($path);
+
+            $deletedFiles[] = self::DIRECTORY.'/'.$filename;
+        }
+
+        return [
+            'directory' => self::DIRECTORY,
+            'deleted_count' => count($deletedFiles),
+            'deleted_files' => $deletedFiles,
+            'manifest_preserved' => ! $includeManifest,
+        ];
+    }
+
     public static function manifestPath(): string
     {
         return storage_path('app/'.self::manifestRelativePath());

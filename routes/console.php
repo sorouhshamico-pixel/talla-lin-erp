@@ -9,8 +9,17 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('reports:saved-view-diagnostics {--json : Output the report saved view registry diagnostics as JSON} {--write : Write the diagnostics snapshot to storage/app/report-saved-view-diagnostics} {--format=markdown : Snapshot format when using --write: markdown or json}', function (): int {
+Artisan::command('reports:saved-view-diagnostics {--json : Output the report saved view registry diagnostics as JSON} {--write : Write the diagnostics snapshot to storage/app/report-saved-view-diagnostics} {--format=markdown : Snapshot format when using --write: markdown or json} {--prune : Delete generated diagnostic snapshot files} {--include-manifest : Include manifest.json when pruning diagnostic snapshots}', function (): int {
     $payload = ReportSavedViewRegistryDiagnosticReport::build();
+
+    if ($this->option('prune')) {
+        $result = ReportSavedViewDiagnosticSnapshotExporter::pruneSnapshots((bool) $this->option('include-manifest'));
+
+        $this->line('Report saved view diagnostic snapshots pruned: '.$result['deleted_count']);
+        $this->line('Manifest preserved: '.($result['manifest_preserved'] ? 'yes' : 'no'));
+
+        return 0;
+    }
 
     if ($this->option('write')) {
         $format = $this->option('json') ? 'json' : $this->option('format');

@@ -55,3 +55,10 @@ The diagnostic export feature is now ready for future admin pages, deployment ch
 This phase is protected by:
 
 ReportSavedViewDiagnosticSnapshotManifestTest
+
+
+## Manifest preservation during pruning
+
+Phase 58C keeps manifest.json when pruning snapshots by default.
+
+Use --include-manifest when a full cleanup is required.
