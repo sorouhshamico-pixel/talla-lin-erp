@@ -62,3 +62,10 @@ The invalid report list should be empty.
 This phase is protected by:
 
 ReportSavedViewRegistryDiagnosticReportTest
+
+
+## Phase 57C finalization
+
+Phase 57C added markdownLines and json helpers to ReportSavedViewRegistryDiagnosticReport.
+
+The diagnostic report can now be consumed as an array payload, markdown string, markdown line list, or JSON string.

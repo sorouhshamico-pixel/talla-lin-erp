@@ -48,3 +48,10 @@ The current registry should show:
 This phase is protected by:
 
 ReportSavedViewDiagnosticsArtisanCommandTest
+
+
+## Phase 57C command finalization
+
+The JSON command output now uses ReportSavedViewRegistryDiagnosticReport::json.
+
+This keeps command output logic centralized in the diagnostic report class.

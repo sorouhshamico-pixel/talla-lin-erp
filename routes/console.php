@@ -12,7 +12,7 @@ Artisan::command('reports:saved-view-diagnostics {--json : Output the report sav
     $payload = ReportSavedViewRegistryDiagnosticReport::build();
 
     if ($this->option('json')) {
-        $this->line(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->line(ReportSavedViewRegistryDiagnosticReport::json());
 
         return $payload['summary']['valid'] ? 0 : 1;
     }

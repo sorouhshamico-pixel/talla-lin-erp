@@ -62,7 +62,10 @@ class ReportSavedViewRegistryDiagnosticReport
         return self::build()['invalid_reports'];
     }
 
-    public static function markdown(): string
+    /**
+     * @return array<int, string>
+     */
+    public static function markdownLines(): array
     {
         $report = self::build();
         $summary = $report['summary'];
@@ -105,6 +108,16 @@ class ReportSavedViewRegistryDiagnosticReport
             }
         }
 
-        return implode("\n", $lines);
+        return $lines;
+    }
+
+    public static function markdown(): string
+    {
+        return implode("\n", self::markdownLines());
+    }
+
+    public static function json(): string
+    {
+        return json_encode(self::build(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }
