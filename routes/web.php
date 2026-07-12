@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use App\Http\Middleware\EnsurePartyPermission;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -282,3 +283,10 @@ Route::post('/reports/customer-sales-invoice-aging/saved-views', [\App\Http\Cont
 Route::post('/reports/supplier-purchase-invoice-aging/saved-views', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.supplier-purchase-invoice-aging.saved-views.store');
 Route::post('/reports/customer-sales-invoice-aging/open-invoices/saved-views', [\App\Http\Controllers\CustomerSalesInvoiceAgingDrilldownController::class, 'storeSavedView'])->middleware('auth')->name('reports.customer-sales-invoice-aging.drilldown.saved-views.store');
 Route::post('/reports/supplier-purchase-invoice-aging/open-invoices/saved-views', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingDrilldownController::class, 'storeSavedView'])->middleware('auth')->name('reports.supplier-purchase-invoice-aging.drilldown.saved-views.store');
+
+Route::get('/reports/saved-view-diagnostics', function () {
+    return view('reports.saved-view-diagnostics', [
+        'diagnosticReport' => ReportSavedViewRegistryDiagnosticReport::build(),
+        'diagnosticMarkdown' => ReportSavedViewRegistryDiagnosticReport::markdown(),
+    ]);
+})->middleware('auth')->name('reports.saved-view-diagnostics.index');
