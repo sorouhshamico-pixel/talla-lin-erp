@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewDiagnosticsWebLinks;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use App\Http\Middleware\EnsurePartyPermission;
 
@@ -288,6 +289,8 @@ Route::get('/reports/saved-view-diagnostics', function () {
     return view('reports.saved-view-diagnostics', [
         'diagnosticReport' => ReportSavedViewRegistryDiagnosticReport::build(),
         'diagnosticMarkdown' => ReportSavedViewRegistryDiagnosticReport::markdown(),
+        'diagnosticWebLinks' => ReportSavedViewDiagnosticsWebLinks::items(),
+        'diagnosticCommandExamples' => ReportSavedViewDiagnosticsWebLinks::commandExamples(),
     ]);
 })->middleware('auth')->name('reports.saved-view-diagnostics.index');
 

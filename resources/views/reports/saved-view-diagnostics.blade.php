@@ -8,6 +8,8 @@
         $isHealthy = (bool) ($summary['valid'] ?? false);
         $validReportKeys = $diagnosticReport['valid_report_keys'] ?? [];
         $rows = $diagnosticReport['rows'] ?? [];
+        $diagnosticWebLinks = $diagnosticWebLinks ?? [];
+        $diagnosticCommandExamples = $diagnosticCommandExamples ?? [];
     @endphp
 
     <div class="container py-4" data-testid="report-saved-view-diagnostics-page">
@@ -60,6 +62,22 @@
                 <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.json') }}">
                     View JSON
                 </a>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-diagnostics-web-links">
+            <div class="card-header">
+                Web Links
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($diagnosticWebLinks as $diagnosticWebLink)
+                        <li>
+                            <span class="fw-semibold">{{ $diagnosticWebLink['label'] }}</span>:
+                            <code>{{ $diagnosticWebLink['route'] }}</code>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </div>
 
@@ -124,6 +142,19 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-diagnostics-cli-commands">
+            <div class="card-header">
+                CLI Commands
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($diagnosticCommandExamples as $diagnosticCommandExample)
+                        <li><code>{{ $diagnosticCommandExample }}</code></li>
+                    @endforeach
+                </ul>
             </div>
         </div>
 

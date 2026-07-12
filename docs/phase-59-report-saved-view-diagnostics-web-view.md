@@ -54,3 +54,10 @@ The current page should show:
 This phase is protected by:
 
 ReportSavedViewDiagnosticsWebViewTest
+
+
+## Phase 59C web surface finalization
+
+Phase 59C adds ReportSavedViewDiagnosticsWebLinks.
+
+The diagnostics page now receives centralized web link metadata and CLI command examples.

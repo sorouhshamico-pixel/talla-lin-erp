@@ -60,3 +60,10 @@ JSON output should include:
 This phase is protected by:
 
 ReportSavedViewDiagnosticsWebExportEndpointsTest
+
+
+## Phase 59C link integration
+
+Phase 59C centralizes the diagnostics web route names in ReportSavedViewDiagnosticsWebLinks.
+
+The page displays the registered diagnostics route names and CLI command examples.
