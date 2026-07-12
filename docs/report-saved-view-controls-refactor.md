@@ -81,6 +81,25 @@ It includes:
 - form input test IDs
 - hidden filter fields
 
+## Partial inventory
+
+The final saved view controls chain is:
+
+1. sales-invoice-aging.blade.php
+2. sales-invoice-aging-saved-view-controls-config.blade.php
+3. saved-view-controls.blade.php
+4. saved-view-section-card.blade.php
+5. saved-view-section.blade.php
+6. saved-view-list-styles.blade.php
+7. saved-view-help-text.blade.php
+8. active-saved-view-banner.blade.php
+9. saved-view-list.blade.php
+10. saved-view-form-card.blade.php
+11. saved-view-hidden-fields.blade.php
+12. saved-view-form-fields.blade.php
+
+The inventory is protected by ReportSavedViewControlsPartialInventoryTest.
+
 ## Test coverage
 
 The refactor is covered by:
@@ -95,6 +114,7 @@ The refactor is covered by:
 - ReportSavedViewFormCardPartialTest
 - ReportSavedViewHiddenFieldsPartialTest
 - SalesInvoiceAgingSavedViewControlsRenderTest
+- ReportSavedViewControlsPartialInventoryTest
 
 ## Safety rule
 

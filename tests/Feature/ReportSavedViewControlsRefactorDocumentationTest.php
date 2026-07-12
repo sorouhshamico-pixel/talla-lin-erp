@@ -27,6 +27,10 @@ class ReportSavedViewControlsRefactorDocumentationTest extends TestCase
         $this->assertStringContainsString('payment_status', $contents);
         $this->assertStringContainsString('aging_bucket', $contents);
 
+        $this->assertStringContainsString('Partial inventory', $contents);
+        $this->assertStringContainsString('The final saved view controls chain is:', $contents);
+        $this->assertStringContainsString('ReportSavedViewControlsPartialInventoryTest', $contents);
+
         $this->assertStringContainsString('Do not define a config variable in a child partial and then use it in the parent view.', $contents);
         $this->assertStringContainsString('The config partial must render saved-view-controls inside the same partial where the config array is defined.', $contents);
     }
