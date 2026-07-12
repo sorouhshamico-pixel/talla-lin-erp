@@ -5,6 +5,8 @@
         $candidateSummary = $candidateSummary ?? [];
         $candidates = $candidates ?? [];
         $candidateMarkdown = $candidateMarkdown ?? '';
+        $candidateWebLinks = $candidateWebLinks ?? [];
+        $candidateCommandExamples = $candidateCommandExamples ?? [];
 
         $candidateCount = $candidateSummary['candidate_count'] ?? 0;
         $registeredCount = $candidateSummary['registered_count'] ?? 0;
@@ -45,6 +47,35 @@
                         <div class="fs-4 fw-bold">{{ $unregisteredCount }}</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-candidates-web-links">
+            <div class="card-header">
+                Web Links
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($candidateWebLinks as $candidateWebLink)
+                        <li>
+                            <span class="fw-semibold">{{ $candidateWebLink['label'] }}</span>:
+                            <code>{{ $candidateWebLink['route'] }}</code>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-candidates-cli-commands">
+            <div class="card-header">
+                CLI Commands
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($candidateCommandExamples as $candidateCommandExample)
+                        <li><code>{{ $candidateCommandExample }}</code></li>
+                    @endforeach
+                </ul>
             </div>
         </div>
 

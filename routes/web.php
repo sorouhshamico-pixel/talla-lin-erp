@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewCandidateScannerWebLinks;
 use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewDiagnosticsWebLinks;
@@ -336,6 +337,8 @@ Route::get('/reports/saved-view-candidates', function () {
         'candidateSummary' => ReportSavedViewCandidateScanner::summary(),
         'candidates' => ReportSavedViewCandidateScanner::candidates(),
         'candidateMarkdown' => ReportSavedViewCandidateScanner::markdown(),
+        'candidateWebLinks' => ReportSavedViewCandidateScannerWebLinks::items(),
+        'candidateCommandExamples' => ReportSavedViewCandidateScannerWebLinks::commandExamples(),
     ]);
 })->middleware('auth')->name('reports.saved-view-candidates.index');
 

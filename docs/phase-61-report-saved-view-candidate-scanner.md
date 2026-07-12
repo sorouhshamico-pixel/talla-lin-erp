@@ -73,3 +73,10 @@ reports.saved-view-candidates.markdown
 JSON export:
 
 reports.saved-view-candidates.json
+
+
+## Phase 61C candidate scanner finalization
+
+Phase 61C centralizes the candidate scanner web route names and command examples in ReportSavedViewCandidateScannerWebLinks.
+
+The candidate scanner page now displays route metadata and CLI command examples.

@@ -54,3 +54,15 @@ ReportSavedViewCandidateScannerWebSurfaceTest
 ## Next step
 
 Phase 61C can finalize candidate scanner discoverability and use the scanner output to select the next report rollout target.
+
+
+## Phase 61C web link metadata
+
+Phase 61C adds ReportSavedViewCandidateScannerWebLinks.
+
+The page displays:
+
+- web route metadata
+- CLI command examples
+- candidate table
+- markdown snapshot
