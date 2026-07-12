@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -8,8 +9,17 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('reports:saved-view-diagnostics {--json : Output the report saved view registry diagnostics as JSON}', function (): int {
+Artisan::command('reports:saved-view-diagnostics {--json : Output the report saved view registry diagnostics as JSON} {--write : Write the diagnostics snapshot to storage/app/report-saved-view-diagnostics} {--format=markdown : Snapshot format when using --write: markdown or json}', function (): int {
     $payload = ReportSavedViewRegistryDiagnosticReport::build();
+
+    if ($this->option('write')) {
+        $format = $this->option('json') ? 'json' : $this->option('format');
+        $snapshot = ReportSavedViewDiagnosticSnapshotExporter::export($format);
+
+        $this->line('Report saved view diagnostics snapshot written to: '.$snapshot['relative_path']);
+
+        return $payload['summary']['valid'] ? 0 : 1;
+    }
 
     if ($this->option('json')) {
         $this->line(ReportSavedViewRegistryDiagnosticReport::json());
