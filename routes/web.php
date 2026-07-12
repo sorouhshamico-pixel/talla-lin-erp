@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewDiagnosticsWebLinks;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
@@ -329,3 +330,24 @@ Route::post('/reports/saved-view-diagnostics/snapshots/prune', function () {
         ->route('reports.saved-view-diagnostics.index')
         ->with('status', 'Diagnostic snapshots pruned: '.$result['deleted_count']);
 })->middleware('auth')->name('reports.saved-view-diagnostics.snapshots.prune');
+
+Route::get('/reports/saved-view-candidates', function () {
+    return view('reports.saved-view-candidates', [
+        'candidateSummary' => ReportSavedViewCandidateScanner::summary(),
+        'candidates' => ReportSavedViewCandidateScanner::candidates(),
+        'candidateMarkdown' => ReportSavedViewCandidateScanner::markdown(),
+    ]);
+})->middleware('auth')->name('reports.saved-view-candidates.index');
+
+Route::get('/reports/saved-view-candidates/markdown', function () {
+    return response(ReportSavedViewCandidateScanner::markdown(), 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+    ]);
+})->middleware('auth')->name('reports.saved-view-candidates.markdown');
+
+Route::get('/reports/saved-view-candidates/json', function () {
+    return response()->json([
+        'summary' => ReportSavedViewCandidateScanner::summary(),
+        'candidates' => ReportSavedViewCandidateScanner::candidates(),
+    ]);
+})->middleware('auth')->name('reports.saved-view-candidates.json');

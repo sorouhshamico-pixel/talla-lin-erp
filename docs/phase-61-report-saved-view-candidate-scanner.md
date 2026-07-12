@@ -56,3 +56,20 @@ Phase 61B can use the scanner output to choose the next report for saved view ro
 This phase is protected by:
 
 ReportSavedViewCandidateScannerTest
+
+
+## Phase 61B web surface
+
+Phase 61B exposes the scanner results through authenticated web routes.
+
+Web page:
+
+reports.saved-view-candidates.index
+
+Markdown export:
+
+reports.saved-view-candidates.markdown
+
+JSON export:
+
+reports.saved-view-candidates.json
