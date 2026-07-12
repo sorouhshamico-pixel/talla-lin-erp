@@ -43,3 +43,10 @@ If the project does not currently use a single report center Blade file, this ph
 This phase is protected by:
 
 ReportSavedViewDiagnosticsNavigationEntryTest
+
+
+## Phase 60B web snapshot actions
+
+Phase 60B adds authenticated web actions for writing and pruning report saved view diagnostic snapshots.
+
+The diagnostics page now exposes snapshot action forms.

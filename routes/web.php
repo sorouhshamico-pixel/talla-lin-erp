@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewDiagnosticsWebLinks;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use App\Http\Middleware\EnsurePartyPermission;
@@ -303,3 +304,27 @@ Route::get('/reports/saved-view-diagnostics/markdown', function () {
 Route::get('/reports/saved-view-diagnostics/json', function () {
     return response()->json(ReportSavedViewRegistryDiagnosticReport::build());
 })->middleware('auth')->name('reports.saved-view-diagnostics.json');
+
+Route::post('/reports/saved-view-diagnostics/snapshots/markdown', function () {
+    $snapshot = ReportSavedViewDiagnosticSnapshotExporter::exportMarkdown();
+
+    return redirect()
+        ->route('reports.saved-view-diagnostics.index')
+        ->with('status', 'Markdown diagnostic snapshot written to '.$snapshot['relative_path']);
+})->middleware('auth')->name('reports.saved-view-diagnostics.snapshots.markdown');
+
+Route::post('/reports/saved-view-diagnostics/snapshots/json', function () {
+    $snapshot = ReportSavedViewDiagnosticSnapshotExporter::exportJson();
+
+    return redirect()
+        ->route('reports.saved-view-diagnostics.index')
+        ->with('status', 'JSON diagnostic snapshot written to '.$snapshot['relative_path']);
+})->middleware('auth')->name('reports.saved-view-diagnostics.snapshots.json');
+
+Route::post('/reports/saved-view-diagnostics/snapshots/prune', function () {
+    $result = ReportSavedViewDiagnosticSnapshotExporter::pruneSnapshots((bool) request()->boolean('include_manifest'));
+
+    return redirect()
+        ->route('reports.saved-view-diagnostics.index')
+        ->with('status', 'Diagnostic snapshots pruned: '.$result['deleted_count']);
+})->middleware('auth')->name('reports.saved-view-diagnostics.snapshots.prune');

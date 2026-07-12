@@ -20,6 +20,12 @@
             </p>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="report-saved-view-diagnostics-flash-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="row g-3 mb-4" data-testid="report-saved-view-diagnostics-summary">
             <div class="col-md-4">
                 <div class="card h-100">
@@ -62,6 +68,42 @@
                 <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.json') }}">
                     View JSON
                 </a>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-diagnostics-snapshot-actions">
+            <div class="card-header">
+                Snapshot Actions
+            </div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.markdown') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        Write Markdown Snapshot
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.json') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        Write JSON Snapshot
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        Prune Snapshots
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
+                    @csrf
+                    <input type="hidden" name="include_manifest" value="1">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        Prune Snapshots And Manifest
+                    </button>
+                </form>
             </div>
         </div>
 
