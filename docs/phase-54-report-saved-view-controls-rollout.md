@@ -28,3 +28,12 @@ This rollout is protected by ReportSavedViewControlsConfigRolloutTest.
 Future reports should follow docs/report-saved-view-controls-extension-guide.md.
 
 The extension guide defines the naming convention, required config keys, safety rules, and guard tests for adding saved view controls to additional reports.
+
+
+## Phase 54 finalization
+
+Phase 54 is finalized by docs/phase-54-report-saved-view-controls-finalization.md.
+
+The rollout is now covered by ReportSavedViewControlsRolloutFinalizationTest.
+
+Future saved view controls work should follow docs/report-saved-view-controls-extension-guide.md and avoid inline saved view controls markup in report pages.

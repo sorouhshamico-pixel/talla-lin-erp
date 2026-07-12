@@ -110,3 +110,10 @@ This pattern is protected by:
 - ReportSavedViewControlsExtensionGuideTest
 - ReportSavedViewControlsFinalizationTest
 - SalesInvoiceAgingSavedViewInlineMarkupGuardTest
+
+
+## Phase 54 rollout finalization
+
+The report saved view controls rollout is finalized in docs/phase-54-report-saved-view-controls-finalization.md.
+
+Any future report adopting saved view controls should follow this guide and must pass the rollout guard tests.
