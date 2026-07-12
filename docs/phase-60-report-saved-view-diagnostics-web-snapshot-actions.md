@@ -48,3 +48,10 @@ storage/app/report-saved-view-diagnostics
 This phase is protected by:
 
 ReportSavedViewDiagnosticsWebSnapshotActionsTest
+
+
+## Phase 60C snapshot action metadata
+
+Phase 60C adds snapshotActionRoutes and snapshotActionItems to ReportSavedViewDiagnosticsWebLinks.
+
+The diagnostics page displays route metadata for snapshot write and prune actions.

@@ -291,6 +291,7 @@ Route::get('/reports/saved-view-diagnostics', function () {
         'diagnosticReport' => ReportSavedViewRegistryDiagnosticReport::build(),
         'diagnosticMarkdown' => ReportSavedViewRegistryDiagnosticReport::markdown(),
         'diagnosticWebLinks' => ReportSavedViewDiagnosticsWebLinks::items(),
+        'diagnosticSnapshotActionLinks' => ReportSavedViewDiagnosticsWebLinks::snapshotActionItems(),
         'diagnosticCommandExamples' => ReportSavedViewDiagnosticsWebLinks::commandExamples(),
     ]);
 })->middleware('auth')->name('reports.saved-view-diagnostics.index');

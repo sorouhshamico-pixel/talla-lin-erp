@@ -9,6 +9,7 @@
         $validReportKeys = $diagnosticReport['valid_report_keys'] ?? [];
         $rows = $diagnosticReport['rows'] ?? [];
         $diagnosticWebLinks = $diagnosticWebLinks ?? [];
+        $diagnosticSnapshotActionLinks = $diagnosticSnapshotActionLinks ?? [];
         $diagnosticCommandExamples = $diagnosticCommandExamples ?? [];
     @endphp
 
@@ -57,53 +58,52 @@
             </div>
         </div>
 
-        <div class="card mb-4" data-testid="report-saved-view-diagnostics-export-actions">
-            <div class="card-header">
-                Export
-            </div>
-            <div class="card-body d-flex flex-wrap gap-2">
-                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.markdown') }}">
-                    View Markdown
-                </a>
-                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.json') }}">
-                    View JSON
-                </a>
-            </div>
-        </div>
-
         <div class="card mb-4" data-testid="report-saved-view-diagnostics-snapshot-actions">
             <div class="card-header">
                 Snapshot Actions
             </div>
-            <div class="card-body d-flex flex-wrap gap-2">
-                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.markdown') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                        Write Markdown Snapshot
-                    </button>
-                </form>
+            <div class="card-body">
+                <div class="mb-3" data-testid="report-saved-view-diagnostics-snapshot-action-links">
+                    <ul class="mb-0">
+                        @foreach ($diagnosticSnapshotActionLinks as $diagnosticSnapshotActionLink)
+                            <li>
+                                <span class="fw-semibold">{{ $diagnosticSnapshotActionLink['label'] }}</span>:
+                                <code>{{ $diagnosticSnapshotActionLink['route'] }}</code>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
 
-                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.json') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                        Write JSON Snapshot
-                    </button>
-                </form>
+                <div class="d-flex flex-wrap gap-2">
+                    <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.markdown') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            Write Markdown Snapshot
+                        </button>
+                    </form>
 
-                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        Prune Snapshots
-                    </button>
-                </form>
+                    <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.json') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            Write JSON Snapshot
+                        </button>
+                    </form>
 
-                <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
-                    @csrf
-                    <input type="hidden" name="include_manifest" value="1">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        Prune Snapshots And Manifest
-                    </button>
-                </form>
+                    <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            Prune Snapshots
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('reports.saved-view-diagnostics.snapshots.prune') }}">
+                        @csrf
+                        <input type="hidden" name="include_manifest" value="1">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            Prune Snapshots And Manifest
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -120,6 +120,20 @@
                         </li>
                     @endforeach
                 </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-diagnostics-export-actions">
+            <div class="card-header">
+                Export
+            </div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.markdown') }}">
+                    View Markdown
+                </a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.json') }}">
+                    View JSON
+                </a>
             </div>
         </div>
 

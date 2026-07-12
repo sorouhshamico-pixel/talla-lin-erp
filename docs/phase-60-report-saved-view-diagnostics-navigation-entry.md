@@ -50,3 +50,10 @@ ReportSavedViewDiagnosticsNavigationEntryTest
 Phase 60B adds authenticated web actions for writing and pruning report saved view diagnostic snapshots.
 
 The diagnostics page now exposes snapshot action forms.
+
+
+## Phase 60C operational finalization
+
+Phase 60C centralizes diagnostics web and snapshot action route metadata in ReportSavedViewDiagnosticsWebLinks.
+
+The diagnostics page now displays both web route metadata and snapshot action route metadata.

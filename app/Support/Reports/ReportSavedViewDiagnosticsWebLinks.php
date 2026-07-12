@@ -4,9 +4,6 @@ namespace App\Support\Reports;
 
 class ReportSavedViewDiagnosticsWebLinks
 {
-    /**
-     * @return array<string, string>
-     */
     public static function routes(): array
     {
         return [
@@ -16,9 +13,15 @@ class ReportSavedViewDiagnosticsWebLinks
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
+    public static function snapshotActionRoutes(): array
+    {
+        return [
+            'write_markdown' => 'reports.saved-view-diagnostics.snapshots.markdown',
+            'write_json' => 'reports.saved-view-diagnostics.snapshots.json',
+            'prune' => 'reports.saved-view-diagnostics.snapshots.prune',
+        ];
+    }
+
     public static function labels(): array
     {
         return [
@@ -28,9 +31,15 @@ class ReportSavedViewDiagnosticsWebLinks
         ];
     }
 
-    /**
-     * @return array<int, array<string, string>>
-     */
+    public static function snapshotActionLabels(): array
+    {
+        return [
+            'write_markdown' => 'Write Markdown Snapshot',
+            'write_json' => 'Write JSON Snapshot',
+            'prune' => 'Prune Snapshots',
+        ];
+    }
+
     public static function items(): array
     {
         $labels = self::labels();
@@ -46,9 +55,26 @@ class ReportSavedViewDiagnosticsWebLinks
         );
     }
 
-    /**
-     * @return array<int, string>
-     */
+    public static function snapshotActionItems(): array
+    {
+        $labels = self::snapshotActionLabels();
+
+        return array_map(
+            fn (string $key, string $route): array => [
+                'key' => $key,
+                'label' => $labels[$key],
+                'route' => $route,
+            ],
+            array_keys(self::snapshotActionRoutes()),
+            self::snapshotActionRoutes()
+        );
+    }
+
+    public static function allRoutes(): array
+    {
+        return array_merge(self::routes(), self::snapshotActionRoutes());
+    }
+
     public static function commandExamples(): array
     {
         return [
