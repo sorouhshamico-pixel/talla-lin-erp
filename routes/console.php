@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRolloutSelector;
 use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
@@ -58,3 +59,17 @@ Artisan::command('reports:saved-view-candidates {--json : Output the candidate s
 
     return self::SUCCESS;
 })->purpose('Scan report views and list saved view rollout candidates.');
+
+Artisan::command('reports:saved-view-rollout-selector {--json : Output the rollout selector plan as JSON}', function () {
+    $payload = ReportSavedViewRolloutSelector::plan();
+
+    if ($this->option('json')) {
+        $this->line(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return self::SUCCESS;
+    }
+
+    $this->line(ReportSavedViewRolloutSelector::markdown());
+
+    return self::SUCCESS;
+})->purpose('Select the next report saved view rollout candidate.');

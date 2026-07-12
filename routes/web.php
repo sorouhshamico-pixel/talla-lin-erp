@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRolloutSelector;
 use App\Support\Reports\ReportSavedViewCandidateScannerWebLinks;
 use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
@@ -354,3 +355,20 @@ Route::get('/reports/saved-view-candidates/json', function () {
         'candidates' => ReportSavedViewCandidateScanner::candidates(),
     ]);
 })->middleware('auth')->name('reports.saved-view-candidates.json');
+
+Route::get('/reports/saved-view-rollout-selector', function () {
+    return view('reports.saved-view-rollout-selector', [
+        'rolloutPlan' => ReportSavedViewRolloutSelector::plan(),
+        'rolloutMarkdown' => ReportSavedViewRolloutSelector::markdown(),
+    ]);
+})->middleware('auth')->name('reports.saved-view-rollout-selector.index');
+
+Route::get('/reports/saved-view-rollout-selector/markdown', function () {
+    return response(ReportSavedViewRolloutSelector::markdown(), 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+    ]);
+})->middleware('auth')->name('reports.saved-view-rollout-selector.markdown');
+
+Route::get('/reports/saved-view-rollout-selector/json', function () {
+    return response()->json(ReportSavedViewRolloutSelector::plan());
+})->middleware('auth')->name('reports.saved-view-rollout-selector.json');
