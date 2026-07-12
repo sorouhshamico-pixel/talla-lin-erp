@@ -48,3 +48,12 @@ The validator turns saved view registry drift into test failures instead of runt
 This phase is protected by:
 
 ReportSavedViewRegistryValidatorTest
+
+
+## Phase 56C diagnostics finalization
+
+Phase 56C added diagnostics helpers to ReportSavedViewRegistryValidator.
+
+The validator now exposes diagnostics, invalidReports, and validReportKeys.
+
+The phase is finalized by docs/phase-56-report-saved-view-registry-diagnostics-finalization.md.

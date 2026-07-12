@@ -52,3 +52,10 @@ sales-invoice-aging
 This phase is protected by:
 
 ReportSavedViewRegistryMetadataHelpersTest
+
+
+## Diagnostics integration
+
+Phase 56C builds on the metadata helpers by adding diagnostics to ReportSavedViewRegistryValidator.
+
+Diagnostics use registry metadata to produce valid report keys, invalid report rows, and report-level error summaries.

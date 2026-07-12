@@ -70,6 +70,65 @@ class ReportSavedViewRegistryValidator
     }
 
     /**
+     * @param  array<string, array<string, mixed>>|null  $reports
+     * @return array<int, array<string, mixed>>
+     */
+    public static function diagnostics(?array $reports = null): array
+    {
+        $reports ??= ReportSavedViewRegistry::reports();
+
+        $errors = self::validate($reports);
+        $rows = [];
+
+        foreach ($reports as $registryKey => $report) {
+            $reportKey = is_string($registryKey) ? $registryKey : (string) $registryKey;
+            $reportErrors = $errors[$reportKey] ?? [];
+
+            $rows[] = [
+                'key' => $reportKey,
+                'label' => is_string($report['label'] ?? null) ? $report['label'] : null,
+                'valid' => $reportErrors === [],
+                'error_count' => count($reportErrors),
+                'errors' => $reportErrors,
+                'view_path' => is_string($report['view_path'] ?? null) ? $report['view_path'] : null,
+                'config_partial_path' => is_string($report['config_partial_path'] ?? null) ? $report['config_partial_path'] : null,
+                'index_route' => is_string($report['index_route'] ?? null) ? $report['index_route'] : null,
+                'saved_view_store_route' => is_string($report['saved_view_store_route'] ?? null) ? $report['saved_view_store_route'] : null,
+                'hidden_fields' => is_array($report['hidden_fields'] ?? null) ? $report['hidden_fields'] : [],
+                'test_ids' => is_array($report['test_ids'] ?? null) ? $report['test_ids'] : [],
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>|null  $reports
+     * @return array<int, array<string, mixed>>
+     */
+    public static function invalidReports(?array $reports = null): array
+    {
+        return array_values(array_filter(
+            self::diagnostics($reports),
+            fn (array $row): bool => $row['valid'] === false
+        ));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function validReportKeys(): array
+    {
+        return array_values(array_map(
+            fn (array $row): string => $row['key'],
+            array_filter(
+                self::diagnostics(),
+                fn (array $row): bool => $row['valid'] === true
+            )
+        ));
+    }
+
+    /**
      * @param  array<string, mixed>  $report
      * @return array<int, string>
      */
