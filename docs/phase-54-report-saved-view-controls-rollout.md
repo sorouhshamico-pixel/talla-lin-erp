@@ -21,3 +21,10 @@ Report-specific config partials ending with -saved-view-controls-config.blade.ph
 ## Test coverage
 
 This rollout is protected by ReportSavedViewControlsConfigRolloutTest.
+
+
+## Extension guide
+
+Future reports should follow docs/report-saved-view-controls-extension-guide.md.
+
+The extension guide defines the naming convention, required config keys, safety rules, and guard tests for adding saved view controls to additional reports.
