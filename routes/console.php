@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use Illuminate\Foundation\Inspiring;
@@ -40,3 +41,20 @@ Artisan::command('reports:saved-view-diagnostics {--json : Output the report sav
 
     return $payload['summary']['valid'] ? 0 : 1;
 })->purpose('Show report saved view registry diagnostics');
+
+Artisan::command('reports:saved-view-candidates {--json : Output the candidate scan as JSON}', function () {
+    $payload = [
+        'summary' => ReportSavedViewCandidateScanner::summary(),
+        'candidates' => ReportSavedViewCandidateScanner::candidates(),
+    ];
+
+    if ($this->option('json')) {
+        $this->line(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return self::SUCCESS;
+    }
+
+    $this->line(ReportSavedViewCandidateScanner::markdown());
+
+    return self::SUCCESS;
+})->purpose('Scan report views and list saved view rollout candidates.');
