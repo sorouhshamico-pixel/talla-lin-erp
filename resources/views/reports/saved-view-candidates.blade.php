@@ -93,6 +93,9 @@
                 <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.index') }}">
                     Diagnostics
                 </a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-rollout-selector.index') }}">
+                    Rollout Selector
+                </a>
             </div>
         </div>
 

@@ -4,6 +4,8 @@
     @php
         $rolloutPlan = $rolloutPlan ?? [];
         $rolloutMarkdown = $rolloutMarkdown ?? '';
+        $rolloutWebLinks = $rolloutWebLinks ?? [];
+        $rolloutCommandExamples = $rolloutCommandExamples ?? [];
         $nextCandidate = $rolloutPlan['next_candidate'] ?? null;
         $prioritizedCandidates = $rolloutPlan['prioritized_candidates'] ?? [];
         $recommendedSteps = $rolloutPlan['recommended_steps'] ?? [];
@@ -43,6 +45,35 @@
                         <div class="fs-4 fw-bold">{{ ($rolloutPlan['has_next_candidate'] ?? false) ? 'yes' : 'no' }}</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-rollout-selector-web-links">
+            <div class="card-header">
+                Web Links
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($rolloutWebLinks as $rolloutWebLink)
+                        <li>
+                            <span class="fw-semibold">{{ $rolloutWebLink['label'] }}</span>:
+                            <code>{{ $rolloutWebLink['route'] }}</code>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-rollout-selector-cli-commands">
+            <div class="card-header">
+                CLI Commands
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    @foreach ($rolloutCommandExamples as $rolloutCommandExample)
+                        <li><code>{{ $rolloutCommandExample }}</code></li>
+                    @endforeach
+                </ul>
             </div>
         </div>
 
@@ -94,6 +125,9 @@
                 </a>
                 <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-candidates.index') }}">
                     Candidates
+                </a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ route('reports.saved-view-diagnostics.index') }}">
+                    Diagnostics
                 </a>
             </div>
         </div>

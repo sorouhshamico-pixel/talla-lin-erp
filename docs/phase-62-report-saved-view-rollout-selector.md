@@ -51,3 +51,9 @@ ReportSavedViewRolloutSelectorTest
 ## Next step
 
 Phase 62B can use the selected next candidate to start a concrete saved view rollout for that report.
+
+## Phase 62B web links and navigation
+
+Phase 62B adds ReportSavedViewRolloutSelectorWebLinks and exposes route metadata plus CLI command examples on the rollout selector page.
+
+The candidate scanner page also links back to the rollout selector when the view exists.

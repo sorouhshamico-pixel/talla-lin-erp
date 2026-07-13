@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRolloutSelectorWebLinks;
 use App\Support\Reports\ReportSavedViewRolloutSelector;
 use App\Support\Reports\ReportSavedViewCandidateScannerWebLinks;
 use App\Support\Reports\ReportSavedViewCandidateScanner;
@@ -360,6 +361,8 @@ Route::get('/reports/saved-view-rollout-selector', function () {
     return view('reports.saved-view-rollout-selector', [
         'rolloutPlan' => ReportSavedViewRolloutSelector::plan(),
         'rolloutMarkdown' => ReportSavedViewRolloutSelector::markdown(),
+        'rolloutWebLinks' => ReportSavedViewRolloutSelectorWebLinks::items(),
+        'rolloutCommandExamples' => ReportSavedViewRolloutSelectorWebLinks::commandExamples(),
     ]);
 })->middleware('auth')->name('reports.saved-view-rollout-selector.index');
 
