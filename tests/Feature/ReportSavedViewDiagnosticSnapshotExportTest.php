@@ -21,8 +21,10 @@ class ReportSavedViewDiagnosticSnapshotExportTest extends TestCase
         $contents = file_get_contents($snapshot['absolute_path']);
 
         $this->assertStringContainsString('# Report Saved View Registry Diagnostic Report', $contents);
-        $this->assertStringContainsString('- Report count: 1', $contents);
+        $this->assertStringContainsString('- Report count: 2', $contents);
         $this->assertStringContainsString('### sales-invoice-aging', $contents);
+        $this->assertStringContainsString('### customer-sales-invoice-aging', $contents);
+        $this->assertStringContainsString('### customer-sales-invoice-aging', $contents);
     }
 
     public function test_snapshot_exporter_writes_json_snapshot(): void
@@ -38,10 +40,11 @@ class ReportSavedViewDiagnosticSnapshotExportTest extends TestCase
 
         $this->assertIsArray($decoded);
         $this->assertSame('Report Saved View Registry Diagnostic Report', $decoded['title']);
-        $this->assertSame(1, $decoded['summary']['report_count']);
+        $this->assertSame(2, $decoded['summary']['report_count']);
         $this->assertSame(0, $decoded['summary']['invalid_count']);
         $this->assertTrue($decoded['summary']['valid']);
-        $this->assertSame(['sales-invoice-aging'], $decoded['valid_report_keys']);
+        $this->assertContains('sales-invoice-aging', $decoded['valid_report_keys']);
+        $this->assertContains('customer-sales-invoice-aging', $decoded['valid_report_keys']);
     }
 
     public function test_snapshot_exporter_rejects_invalid_format(): void

@@ -96,7 +96,7 @@ class ReportSavedViewCandidateScannerWebSurfaceTest extends TestCase
             'id' => 1,
         ]);
 
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->get(route('reports.saved-view-candidates.json'))
             ->assertOk()
             ->assertJsonStructure([
@@ -118,8 +118,12 @@ class ReportSavedViewCandidateScannerWebSurfaceTest extends TestCase
                         'priority_score',
                     ],
                 ],
-            ])
-            ->assertJsonPath('summary.registered_keys.0', 'sales-invoice-aging');
+            ]);
+
+        $registeredKeys = $response->json('summary.registered_keys');
+
+        $this->assertContains('sales-invoice-aging', $registeredKeys);
+        $this->assertContains('customer-sales-invoice-aging', $registeredKeys);
     }
 
     public function test_candidate_scanner_web_view_contains_expected_test_ids(): void

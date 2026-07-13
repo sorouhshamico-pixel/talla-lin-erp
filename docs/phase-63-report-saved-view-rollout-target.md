@@ -56,3 +56,14 @@ customer-sales-invoice-aging
 This phase is protected by:
 
 ReportSavedViewRolloutTargetLockTest
+
+
+## Phase 63D rollout implementation
+
+The locked target customer-sales-invoice-aging has been rolled out to the shared saved view controls system.
+
+Implementation files:
+
+- resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php
+- resources/views/reports/customer-sales-invoice-aging.blade.php
+- app/Support/Reports/ReportSavedViewRegistry.php

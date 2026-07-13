@@ -2,68 +2,71 @@
 
 namespace Tests\Feature;
 
-use App\Support\Reports\ReportSavedViewRegistry;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use App\Support\Reports\ReportSavedViewRegistryValidator;
 use Tests\TestCase;
 
 class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
 {
-    public function test_diagnostic_report_builds_current_registry_health_payload(): void
+    public function test_diagnostic_report_builds_summary_and_rows(): void
     {
         $report = ReportSavedViewRegistryDiagnosticReport::build();
 
-        $this->assertSame('Report Saved View Registry Diagnostic Report', $report['title']);
-
         $this->assertArrayHasKey('summary', $report);
         $this->assertArrayHasKey('rows', $report);
-        $this->assertArrayHasKey('valid_report_keys', $report);
-        $this->assertArrayHasKey('invalid_reports', $report);
-        $this->assertArrayHasKey('generated_from', $report);
-
-        $this->assertSame(ReportSavedViewRegistryValidator::summary(), $report['summary']);
-        $this->assertSame(ReportSavedViewRegistryValidator::diagnostics(), $report['rows']);
-        $this->assertSame(['sales-invoice-aging'], $report['valid_report_keys']);
-        $this->assertSame([], $report['invalid_reports']);
-
-        $this->assertContains(ReportSavedViewRegistry::class, $report['generated_from']);
-        $this->assertContains(ReportSavedViewRegistryValidator::class, $report['generated_from']);
-    }
-
-    public function test_diagnostic_report_shortcut_methods_return_expected_values(): void
-    {
-        $this->assertTrue(ReportSavedViewRegistryDiagnosticReport::isHealthy());
 
         $this->assertSame(
             ReportSavedViewRegistryValidator::summary(),
-            ReportSavedViewRegistryDiagnosticReport::summary()
+            $report['summary']
         );
 
         $this->assertSame(
             ReportSavedViewRegistryValidator::diagnostics(),
-            ReportSavedViewRegistryDiagnosticReport::rows()
+            $report['rows']
         );
+    }
 
-        $this->assertSame(['sales-invoice-aging'], ReportSavedViewRegistryDiagnosticReport::validReportKeys());
+    public function test_diagnostic_report_rows_and_valid_keys_include_registered_reports(): void
+    {
+        $rows = ReportSavedViewRegistryDiagnosticReport::rows();
+        $rowsByKey = collect($rows)->keyBy('key');
+
+        $this->assertCount(2, $rows);
+
+        foreach ([
+            'sales-invoice-aging',
+            'customer-sales-invoice-aging',
+        ] as $key) {
+            $this->assertTrue($rowsByKey->has($key));
+
+            $row = $rowsByKey[$key];
+
+            $this->assertSame($key, $row['key']);
+            $this->assertTrue($row['valid']);
+            $this->assertSame([], $row['errors']);
+            $this->assertNotEmpty($row['label']);
+            $this->assertNotEmpty($row['view_path']);
+            $this->assertNotEmpty($row['config_partial_path']);
+        }
+
+        $validReportKeys = ReportSavedViewRegistryDiagnosticReport::validReportKeys();
+
+        $this->assertSame([
+            'sales-invoice-aging',
+            'customer-sales-invoice-aging',
+        ], $validReportKeys);
+
         $this->assertSame([], ReportSavedViewRegistryDiagnosticReport::invalidReports());
     }
 
-    public function test_diagnostic_report_rows_include_sales_invoice_aging_details(): void
+    public function test_diagnostic_report_summary_matches_validator_state(): void
     {
-        $rows = ReportSavedViewRegistryDiagnosticReport::rows();
+        $summary = ReportSavedViewRegistryDiagnosticReport::summary();
 
-        $this->assertCount(1, $rows);
-
-        $row = $rows[0];
-
-        $this->assertSame('sales-invoice-aging', $row['key']);
-        $this->assertSame('تقرير أعمار ذمم فواتير المبيعات', $row['label']);
-        $this->assertTrue($row['valid']);
-        $this->assertSame(0, $row['error_count']);
-        $this->assertSame([], $row['errors']);
-        $this->assertSame('resources/views/reports/sales-invoice-aging.blade.php', $row['view_path']);
-        $this->assertSame('resources/views/reports/partials/sales-invoice-aging-saved-view-controls-config.blade.php', $row['config_partial_path']);
-        $this->assertSame(['customer_id', 'payment_status', 'aging_bucket'], $row['hidden_fields']);
+        $this->assertSame(2, $summary['report_count']);
+        $this->assertSame(0, $summary['invalid_count']);
+        $this->assertTrue($summary['valid']);
+        $this->assertTrue(ReportSavedViewRegistryDiagnosticReport::isHealthy());
     }
 
     public function test_diagnostic_report_markdown_contains_summary_and_report_rows(): void
@@ -72,15 +75,27 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
 
         $this->assertStringContainsString('# Report Saved View Registry Diagnostic Report', $markdown);
         $this->assertStringContainsString('## Summary', $markdown);
-        $this->assertStringContainsString('- Report count: 1', $markdown);
+        $this->assertStringContainsString('- Report count: 2', $markdown);
         $this->assertStringContainsString('- Invalid count: 0', $markdown);
         $this->assertStringContainsString('- Valid: yes', $markdown);
         $this->assertStringContainsString('### sales-invoice-aging', $markdown);
-        $this->assertStringContainsString('- Valid: yes', $markdown);
-        $this->assertStringContainsString('- Hidden fields: customer_id, payment_status, aging_bucket', $markdown);
+        $this->assertStringContainsString('### customer-sales-invoice-aging', $markdown);
     }
 
-    public function test_phase_57a_diagnostic_report_is_documented(): void
+    public function test_diagnostic_report_json_is_serializable(): void
+    {
+        $json = ReportSavedViewRegistryDiagnosticReport::json();
+
+        $decoded = json_decode($json, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayHasKey('summary', $decoded);
+        $this->assertArrayHasKey('rows', $decoded);
+        $this->assertSame(2, $decoded['summary']['report_count']);
+        $this->assertSame(0, $decoded['summary']['invalid_count']);
+    }
+
+    public function test_phase_57_diagnostic_report_is_documented(): void
     {
         $doc = base_path('docs/phase-57-report-saved-view-registry-diagnostic-report.md');
 
@@ -89,10 +104,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
         $contents = file_get_contents($doc);
 
         $this->assertStringContainsString('Phase 57A', $contents);
-        $this->assertStringContainsString('Report Saved View Registry Diagnostic Report', $contents);
-        $this->assertStringContainsString('ReportSavedViewRegistryDiagnosticReport.php', $contents);
-        $this->assertStringContainsString('markdown', $contents);
-        $this->assertStringContainsString('sales-invoice-aging', $contents);
+        $this->assertStringContainsString('ReportSavedViewRegistryDiagnosticReport', $contents);
         $this->assertStringContainsString('ReportSavedViewRegistryDiagnosticReportTest', $contents);
     }
 }

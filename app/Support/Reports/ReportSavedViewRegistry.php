@@ -34,6 +34,29 @@ class ReportSavedViewRegistry
                     'save_button' => 'sales-invoice-aging-save-view-button',
                 ],
             ],
+            'customer-sales-invoice-aging' => [
+                'key' => 'customer-sales-invoice-aging',
+                'label' => 'تقرير أعمار ذمم العملاء',
+                'view' => 'reports.customer-sales-invoice-aging',
+                'view_path' => 'resources/views/reports/customer-sales-invoice-aging.blade.php',
+                'index_route' => 'reports.customer-sales-invoice-aging.index',
+                'export_route' => 'reports.customer-sales-invoice-aging.export',
+                'saved_view_store_route' => 'reports.customer-sales-invoice-aging.saved-views.store',
+                'config_partial' => 'reports.partials.customer-sales-invoice-aging-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'customer_id',
+                    'aging_bucket',
+                ],
+                'test_ids' => [
+                    'section_card' => 'customer-aging-saved-views-selector',
+                    'form_card' => 'customer-aging-save-view-card',
+                    'form' => 'customer-aging-save-view-form',
+                    'name_input' => 'customer-aging-saved-view-name-input',
+                    'default_checkbox' => 'customer-aging-saved-view-default-checkbox',
+                    'save_button' => 'customer-aging-save-view-button',
+                ],
+            ],
         ];
     }
 

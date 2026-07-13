@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Support\Reports\ReportSavedViewCandidateScanner;
-use App\Support\Reports\ReportSavedViewRolloutSelector;
+use App\Support\Reports\ReportSavedViewRegistry;
 use Tests\TestCase;
 
 class ReportSavedViewRolloutTargetLockTest extends TestCase
@@ -14,37 +14,30 @@ class ReportSavedViewRolloutTargetLockTest extends TestCase
         $this->assertFileExists(base_path('docs/phase-63-report-saved-view-rollout-target.json'));
     }
 
-    public function test_locked_rollout_target_matches_selector_next_candidate(): void
+    public function test_locked_rollout_target_has_stable_identity(): void
     {
         $snapshot = json_decode(
             file_get_contents(base_path('docs/phase-63-report-saved-view-rollout-target.json')),
             true
         );
-
-        $nextCandidate = ReportSavedViewRolloutSelector::nextCandidate();
 
         $this->assertIsArray($snapshot);
-        $this->assertIsArray($nextCandidate);
-
-        $this->assertSame($nextCandidate['key'], $snapshot['selected_target']['key']);
-        $this->assertSame($nextCandidate['view_path'], $snapshot['selected_target']['view_path']);
-        $this->assertSame($nextCandidate['priority_score'], $snapshot['selected_target']['priority_score']);
+        $this->assertSame('customer-sales-invoice-aging', $snapshot['selected_target']['key']);
+        $this->assertSame(
+            'resources/views/reports/customer-sales-invoice-aging.blade.php',
+            $snapshot['selected_target']['view_path']
+        );
+        $this->assertSame(100, $snapshot['selected_target']['priority_score']);
     }
 
-    public function test_locked_rollout_target_is_unregistered_candidate(): void
+    public function test_locked_rollout_target_was_unregistered_at_lock_time(): void
     {
         $snapshot = json_decode(
             file_get_contents(base_path('docs/phase-63-report-saved-view-rollout-target.json')),
             true
         );
 
-        $target = $snapshot['selected_target'];
-
-        $this->assertFalse($target['registered']);
-        $this->assertContains(
-            $target['key'],
-            array_column(ReportSavedViewCandidateScanner::unregisteredCandidates(), 'key')
-        );
+        $this->assertFalse($snapshot['selected_target']['registered']);
     }
 
     public function test_locked_rollout_target_view_exists(): void
@@ -55,6 +48,21 @@ class ReportSavedViewRolloutTargetLockTest extends TestCase
         );
 
         $this->assertFileExists(base_path($snapshot['selected_target']['view_path']));
+    }
+
+    public function test_locked_rollout_target_can_progress_from_unregistered_to_registered(): void
+    {
+        $snapshot = json_decode(
+            file_get_contents(base_path('docs/phase-63-report-saved-view-rollout-target.json')),
+            true
+        );
+
+        $targetKey = $snapshot['selected_target']['key'];
+        $unregisteredKeys = array_column(ReportSavedViewCandidateScanner::unregisteredCandidates(), 'key');
+
+        $this->assertTrue(
+            ReportSavedViewRegistry::has($targetKey) || in_array($targetKey, $unregisteredKeys, true)
+        );
     }
 
     public function test_phase_63a_rollout_target_is_documented(): void
@@ -68,7 +76,7 @@ class ReportSavedViewRolloutTargetLockTest extends TestCase
         $this->assertStringContainsString('Phase 63A', $docContents);
         $this->assertStringContainsString('Lock Next Report Saved View Rollout Target', $docContents);
         $this->assertStringContainsString('ReportSavedViewRolloutTargetLockTest', $docContents);
-        $this->assertStringContainsString('"customer-sales-invoice-aging"', $jsonContents);
+        $this->assertStringContainsString('customer-sales-invoice-aging', $jsonContents);
         $this->assertStringContainsString('resources/views/reports/customer-sales-invoice-aging.blade.php', $docContents);
     }
 }

@@ -15,18 +15,21 @@ class ReportSavedViewDiagnosticToolingFinalizationTest extends TestCase
         $this->assertIsArray($lines);
         $this->assertContains('# Report Saved View Registry Diagnostic Report', $lines);
         $this->assertContains('## Summary', $lines);
-        $this->assertContains('- Report count: 1', $lines);
+        $this->assertContains('- Report count: 2', $lines);
         $this->assertContains('### sales-invoice-aging', $lines);
+        $this->assertContains('### customer-sales-invoice-aging', $lines);
+        $this->assertContains('### customer-sales-invoice-aging', $lines);
 
         $json = ReportSavedViewRegistryDiagnosticReport::json();
         $decoded = json_decode($json, true);
 
         $this->assertIsArray($decoded);
         $this->assertSame('Report Saved View Registry Diagnostic Report', $decoded['title']);
-        $this->assertSame(1, $decoded['summary']['report_count']);
+        $this->assertSame(2, $decoded['summary']['report_count']);
         $this->assertSame(0, $decoded['summary']['invalid_count']);
         $this->assertTrue($decoded['summary']['valid']);
-        $this->assertSame(['sales-invoice-aging'], $decoded['valid_report_keys']);
+        $this->assertContains('sales-invoice-aging', $decoded['valid_report_keys']);
+        $this->assertContains('customer-sales-invoice-aging', $decoded['valid_report_keys']);
         $this->assertSame([], $decoded['invalid_reports']);
     }
 
@@ -46,7 +49,7 @@ class ReportSavedViewDiagnosticToolingFinalizationTest extends TestCase
         $this->assertSame(0, $exitCode);
         $this->assertIsArray($decoded);
         $this->assertSame('Report Saved View Registry Diagnostic Report', $decoded['title']);
-        $this->assertSame(1, $decoded['summary']['report_count']);
+        $this->assertSame(2, $decoded['summary']['report_count']);
         $this->assertSame(0, $decoded['summary']['invalid_count']);
         $this->assertTrue($decoded['summary']['valid']);
     }

@@ -86,62 +86,7 @@
     </div>
 
 
-    <div class="card" data-testid="customer-aging-save-view-card">
-        <h2>حفظ عرض التقرير</h2>
-
-
-    @php
-        $customerAgingSavedViews = $savedViews ?? collect();
-    @endphp
-
-    <div class="card" data-testid="customer-aging-saved-views-selector">
-        @include('reports.partials.saved-view-section', [
-            'savedViews' => $customerAgingSavedViews,
-            'routeName' => 'reports.customer-sales-invoice-aging.index',
-            'emptyTestId' => 'customer-aging-saved-views-empty',
-            'listTestId' => 'customer-aging-saved-views-list',
-            'itemTestId' => 'customer-aging-saved-view-item',
-            'openLinkTestId' => 'customer-aging-saved-view-open-link',
-            'activeBadgeTestId' => 'customer-aging-saved-view-active-badge',
-            'defaultBadgeTestId' => 'customer-aging-saved-view-default-badge',
-            'manageLinkTestId' => 'customer-aging-manage-saved-views-link',
-        ])
-    </div>
-
-        <form method="POST" action="{{ route('reports.customer-sales-invoice-aging.saved-views.store') }}" data-testid="customer-aging-save-view-form">
-            @csrf
-
-            <input type="hidden" name="customer_id" value="{{ $customerFilter }}">
-            <input type="hidden" name="aging_bucket" value="{{ $agingBucketFilter }}">
-
-            <div class="grid">
-                <div class="metric">
-                    <label class="metric-label" for="customer_aging_saved_view_name">اسم العرض المحفوظ</label>
-                    <input id="customer_aging_saved_view_name"
-                           type="text"
-                           name="name"
-                           placeholder="مثال: متابعة ذمم العملاء"
-                           required
-                           maxlength="120"
-                           style="width:100%;padding:10px;border:1px solid #e7dcd2;border-radius:10px;"
-                           data-testid="customer-aging-saved-view-name-input">
-                </div>
-
-                <div class="metric">
-                    <div class="metric-label">خيارات العرض</div>
-                    <label>
-                        <input type="checkbox" name="is_default" value="1" data-testid="customer-aging-saved-view-default-checkbox">
-                        تعيين كعرض افتراضي لهذا التقرير
-                    </label>
-                </div>
-
-                <div class="metric">
-                    <div class="metric-label">الإجراء</div>
-                    <button type="submit" class="btn" data-testid="customer-aging-save-view-button">حفظ العرض</button>
-                </div>
-            </div>
-        </form>
-    </div>
+    @include('reports.partials.customer-sales-invoice-aging-saved-view-controls-config')
 
     <div class="card" data-testid="customer-aging-summary-card">
         <h2>ملخص عام</h2>
