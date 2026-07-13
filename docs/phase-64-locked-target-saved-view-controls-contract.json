@@ -1,0 +1,96 @@
+{
+    "phase": "Phase 64C",
+    "title": "Prepare Locked Target Saved View Controls Contract",
+    "source_lock": "docs/phase-64-next-saved-view-rollout-target.json",
+    "source_inspection": "docs/phase-64-locked-saved-view-rollout-target-inspection.json",
+    "target": {
+        "key": "customer-sales-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php",
+        "priority_score": 100,
+        "registered_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "customer-sales-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php",
+        "config_partial": "reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/customer-sales-invoice-aging-drilldown-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.customer-sales-invoice-aging.index",
+        "export_route": "reports.customer-sales-invoice-aging.drilldown.export",
+        "saved_view_store_route": "reports.customer-sales-invoice-aging.drilldown.saved-views.store",
+        "candidate_hidden_fields": [
+            "aging_bucket",
+            "as_of_date",
+            "branch_id",
+            "customer_id"
+        ],
+        "test_ids": {
+            "section_card": "customer-aging-drilldown-saved-views-selector",
+            "form_card": "customer-aging-drilldown-save-view-card",
+            "form": "customer-aging-drilldown-save-view-form",
+            "name_input": "customer-aging-drilldown-saved-view-name-input",
+            "default_checkbox": "customer-aging-drilldown-saved-view-default-checkbox",
+            "save_button": "customer-aging-drilldown-save-view-button"
+        }
+    },
+    "evidence": {
+        "blade_includes": [
+            "reports.partials.saved-view-section"
+        ],
+        "route_names": [
+            "reports.customer-sales-invoice-aging.drilldown",
+            "reports.customer-sales-invoice-aging.drilldown.export",
+            "reports.customer-sales-invoice-aging.drilldown.saved-views.store",
+            "reports.customer-sales-invoice-aging.index"
+        ],
+        "input_names": [
+            "aging_bucket",
+            "as_of_date",
+            "branch_id",
+            "customer_id",
+            "is_default",
+            "name"
+        ],
+        "data_test_ids": [
+            "customer-aging-drilldown-apply-filters",
+            "customer-aging-drilldown-as-of-date-filter",
+            "customer-aging-drilldown-as-of-date-input",
+            "customer-aging-drilldown-branch-filter",
+            "customer-aging-drilldown-branch-select",
+            "customer-aging-drilldown-bucket-filter",
+            "customer-aging-drilldown-bucket-select",
+            "customer-aging-drilldown-customer-filter",
+            "customer-aging-drilldown-customer-select",
+            "customer-aging-drilldown-date-preset-month-end",
+            "customer-aging-drilldown-date-preset-previous-month-end",
+            "customer-aging-drilldown-date-preset-quarter-end",
+            "customer-aging-drilldown-date-preset-today",
+            "customer-aging-drilldown-date-presets",
+            "customer-aging-drilldown-empty",
+            "customer-aging-drilldown-export-link",
+            "customer-aging-drilldown-filters",
+            "customer-aging-drilldown-report-date",
+            "customer-aging-drilldown-reset-filters",
+            "customer-aging-drilldown-save-view-button",
+            "customer-aging-drilldown-save-view-card",
+            "customer-aging-drilldown-save-view-form",
+            "customer-aging-drilldown-saved-view-default-checkbox",
+            "customer-aging-drilldown-saved-view-name-input",
+            "customer-aging-drilldown-saved-views-selector",
+            "customer-aging-drilldown-status",
+            "customer-aging-drilldown-summary",
+            "customer-aging-drilldown-table",
+            "customer-sales-invoice-aging-drilldown"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_shared_saved_view_controls": false,
+        "contains_report_specific_config_partial": false
+    },
+    "implementation_notes": [
+        "Phase 64C does not modify the report Blade view.",
+        "Phase 64C does not register the target report yet.",
+        "Phase 64D should create the config partial, update the registry, replace inline saved view controls if present, and validate diagnostics."
+    ]
+}
