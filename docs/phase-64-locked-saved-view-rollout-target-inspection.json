@@ -1,0 +1,100 @@
+{
+    "phase": "Phase 64B",
+    "title": "Inspect Locked Saved View Rollout Target",
+    "locked_target_source": "docs/phase-64-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "customer-sales-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php",
+        "priority_score": 100,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": true,
+        "has_filter_terms_at_lock_time": true,
+        "has_saved_view_controls_at_lock_time": true
+    },
+    "view_inspection": {
+        "view_exists": true,
+        "line_count": 209,
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_shared_saved_view_controls": false,
+        "contains_report_specific_config_partial": false,
+        "blade_includes": [
+            "reports.partials.saved-view-section"
+        ],
+        "route_names": [
+            "reports.customer-sales-invoice-aging.drilldown",
+            "reports.customer-sales-invoice-aging.drilldown.export",
+            "reports.customer-sales-invoice-aging.drilldown.saved-views.store",
+            "reports.customer-sales-invoice-aging.index"
+        ],
+        "input_names": [
+            "aging_bucket",
+            "as_of_date",
+            "branch_id",
+            "customer_id",
+            "is_default",
+            "name"
+        ],
+        "data_test_ids": [
+            "customer-aging-drilldown-apply-filters",
+            "customer-aging-drilldown-as-of-date-filter",
+            "customer-aging-drilldown-as-of-date-input",
+            "customer-aging-drilldown-branch-filter",
+            "customer-aging-drilldown-branch-select",
+            "customer-aging-drilldown-bucket-filter",
+            "customer-aging-drilldown-bucket-select",
+            "customer-aging-drilldown-customer-filter",
+            "customer-aging-drilldown-customer-select",
+            "customer-aging-drilldown-date-preset-month-end",
+            "customer-aging-drilldown-date-preset-previous-month-end",
+            "customer-aging-drilldown-date-preset-quarter-end",
+            "customer-aging-drilldown-date-preset-today",
+            "customer-aging-drilldown-date-presets",
+            "customer-aging-drilldown-empty",
+            "customer-aging-drilldown-export-link",
+            "customer-aging-drilldown-filters",
+            "customer-aging-drilldown-report-date",
+            "customer-aging-drilldown-reset-filters",
+            "customer-aging-drilldown-save-view-button",
+            "customer-aging-drilldown-save-view-card",
+            "customer-aging-drilldown-save-view-form",
+            "customer-aging-drilldown-saved-view-default-checkbox",
+            "customer-aging-drilldown-saved-view-name-input",
+            "customer-aging-drilldown-saved-views-selector",
+            "customer-aging-drilldown-status",
+            "customer-aging-drilldown-summary",
+            "customer-aging-drilldown-table",
+            "customer-sales-invoice-aging-drilldown"
+        ],
+        "variable_names": [
+            "$agingBuckets",
+            "$branch",
+            "$branches",
+            "$customer",
+            "$customerAgingDrilldownSavedViews",
+            "$customerNames",
+            "$customers",
+            "$invoice",
+            "$invoices",
+            "$key",
+            "$label",
+            "$reportDate",
+            "$savedViews",
+            "$selectedAgingBucket",
+            "$selectedAgingBucketLabel",
+            "$selectedAsOfDate",
+            "$selectedBranchId",
+            "$selectedBranchLabel",
+            "$selectedCustomerId",
+            "$selectedCustomerLabel",
+            "$summary"
+        ]
+    },
+    "recommended_rollout_contract": {
+        "registry_key": "customer-sales-invoice-aging-drilldown",
+        "config_partial": "reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/customer-sales-invoice-aging-drilldown-saved-view-controls-config.blade.php",
+        "view_should_include": "@include('reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    }
+}
