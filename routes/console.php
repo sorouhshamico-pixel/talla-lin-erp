@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRolloutTarget;
 use App\Support\Reports\ReportSavedViewRolloutSelector;
 use App\Support\Reports\ReportSavedViewCandidateScanner;
 use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
@@ -73,3 +74,17 @@ Artisan::command('reports:saved-view-rollout-selector {--json : Output the rollo
 
     return self::SUCCESS;
 })->purpose('Select the next report saved view rollout candidate.');
+
+Artisan::command('reports:saved-view-rollout-target {--json : Output the locked rollout target summary as JSON}', function () {
+    $payload = ReportSavedViewRolloutTarget::summary();
+
+    if ($this->option('json')) {
+        $this->line(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return self::SUCCESS;
+    }
+
+    $this->line(ReportSavedViewRolloutTarget::markdown());
+
+    return self::SUCCESS;
+})->purpose('Show the locked report saved view rollout target.');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Reports\ReportSavedViewRolloutTarget;
 use App\Support\Reports\ReportSavedViewRolloutSelectorWebLinks;
 use App\Support\Reports\ReportSavedViewRolloutSelector;
 use App\Support\Reports\ReportSavedViewCandidateScannerWebLinks;
@@ -376,3 +377,20 @@ Route::get('/reports/saved-view-rollout-selector/markdown', function () {
 Route::get('/reports/saved-view-rollout-selector/json', function () {
     return response()->json(ReportSavedViewRolloutSelector::plan());
 })->middleware('auth')->name('reports.saved-view-rollout-selector.json');
+
+Route::get('/reports/saved-view-rollout-target', function () {
+    return view('reports.saved-view-rollout-target', [
+        'rolloutTargetSummary' => ReportSavedViewRolloutTarget::summary(),
+        'rolloutTargetMarkdown' => ReportSavedViewRolloutTarget::markdown(),
+    ]);
+})->middleware('auth')->name('reports.saved-view-rollout-target.index');
+
+Route::get('/reports/saved-view-rollout-target/markdown', function () {
+    return response(ReportSavedViewRolloutTarget::markdown(), 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+    ]);
+})->middleware('auth')->name('reports.saved-view-rollout-target.markdown');
+
+Route::get('/reports/saved-view-rollout-target/json', function () {
+    return response()->json(ReportSavedViewRolloutTarget::summary());
+})->middleware('auth')->name('reports.saved-view-rollout-target.json');
