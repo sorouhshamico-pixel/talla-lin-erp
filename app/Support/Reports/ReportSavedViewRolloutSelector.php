@@ -4,9 +4,6 @@ namespace App\Support\Reports;
 
 class ReportSavedViewRolloutSelector
 {
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     public static function prioritizedCandidates(): array
     {
         $candidates = ReportSavedViewCandidateScanner::unregisteredCandidates();
@@ -19,17 +16,11 @@ class ReportSavedViewRolloutSelector
         return $candidates;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public static function nextCandidate(): ?array
     {
         return self::prioritizedCandidates()[0] ?? null;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public static function plan(): array
     {
         $nextCandidate = self::nextCandidate();
@@ -46,9 +37,6 @@ class ReportSavedViewRolloutSelector
         ];
     }
 
-    /**
-     * @return array<int, string>
-     */
     public static function recommendedSteps(?array $candidate = null): array
     {
         if ($candidate === null) {
@@ -68,9 +56,6 @@ class ReportSavedViewRolloutSelector
         ];
     }
 
-    /**
-     * @return array<int, string>
-     */
     public static function markdownLines(): array
     {
         $plan = self::plan();
