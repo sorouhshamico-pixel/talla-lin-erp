@@ -67,3 +67,12 @@ Implementation files:
 - resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php
 - resources/views/reports/customer-sales-invoice-aging.blade.php
 - app/Support/Reports/ReportSavedViewRegistry.php
+
+
+## Phase 63E final acceptance
+
+The locked rollout target has been fully implemented and finalized.
+
+Final registered target:
+
+customer-sales-invoice-aging

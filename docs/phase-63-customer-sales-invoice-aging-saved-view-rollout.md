@@ -53,3 +53,15 @@ CustomerSalesInvoiceAgingSavedViewRolloutTest
 ## Next step
 
 Phase 63E can finalize the customer sales invoice aging rollout with documentation and diagnostics confirmation.
+
+
+## Phase 63E finalization
+
+Phase 63E closes the customer sales invoice aging saved view rollout.
+
+The rollout is considered complete after:
+
+- registry diagnostics remain healthy
+- both saved view reports are registered
+- the customer aging report uses a report-specific config partial
+- full php artisan test passes
