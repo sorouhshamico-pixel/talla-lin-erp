@@ -57,3 +57,16 @@ Phase 62B can use the selected next candidate to start a concrete saved view rol
 Phase 62B adds ReportSavedViewRolloutSelectorWebLinks and exposes route metadata plus CLI command examples on the rollout selector page.
 
 The candidate scanner page also links back to the rollout selector when the view exists.
+
+
+## Phase 62C rollout selector finalization
+
+Phase 62C finalizes the rollout selector surface.
+
+The rollout selector now displays:
+
+- web route metadata
+- CLI command examples
+- rollout workflow steps
+- next candidate recommendation
+- prioritized candidate table

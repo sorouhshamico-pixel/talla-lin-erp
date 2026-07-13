@@ -37,3 +37,10 @@ ReportSavedViewRolloutSelectorWebLinksTest
 ## Next step
 
 Phase 62C can finalize the rollout selector surface before using the recommendation for the next saved view rollout.
+
+
+## Phase 62C workflow finalization
+
+Phase 62C adds workflowSteps to ReportSavedViewRolloutSelectorWebLinks.
+
+The rollout selector page now displays the operational workflow before starting the next report rollout.

@@ -50,4 +50,16 @@ class ReportSavedViewRolloutSelectorWebLinks
             'php artisan reports:saved-view-diagnostics',
         ];
     }
+
+    public static function workflowSteps(): array
+    {
+        return [
+            'Open the rollout selector page.',
+            'Review the next candidate and its priority score.',
+            'Open the candidate scanner for full candidate context.',
+            'Open diagnostics before implementation to confirm registry health.',
+            'Implement saved view controls for the selected report.',
+            'Run diagnostics again after the rollout.',
+        ];
+    }
 }

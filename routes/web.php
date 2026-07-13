@@ -363,6 +363,7 @@ Route::get('/reports/saved-view-rollout-selector', function () {
         'rolloutMarkdown' => ReportSavedViewRolloutSelector::markdown(),
         'rolloutWebLinks' => ReportSavedViewRolloutSelectorWebLinks::items(),
         'rolloutCommandExamples' => ReportSavedViewRolloutSelectorWebLinks::commandExamples(),
+        'rolloutWorkflowSteps' => ReportSavedViewRolloutSelectorWebLinks::workflowSteps(),
     ]);
 })->middleware('auth')->name('reports.saved-view-rollout-selector.index');
 

@@ -6,6 +6,7 @@
         $rolloutMarkdown = $rolloutMarkdown ?? '';
         $rolloutWebLinks = $rolloutWebLinks ?? [];
         $rolloutCommandExamples = $rolloutCommandExamples ?? [];
+        $rolloutWorkflowSteps = $rolloutWorkflowSteps ?? [];
         $nextCandidate = $rolloutPlan['next_candidate'] ?? null;
         $prioritizedCandidates = $rolloutPlan['prioritized_candidates'] ?? [];
         $recommendedSteps = $rolloutPlan['recommended_steps'] ?? [];
@@ -45,6 +46,19 @@
                         <div class="fs-4 fw-bold">{{ ($rolloutPlan['has_next_candidate'] ?? false) ? 'yes' : 'no' }}</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" data-testid="report-saved-view-rollout-selector-workflow">
+            <div class="card-header">
+                Rollout Workflow
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    @foreach ($rolloutWorkflowSteps as $rolloutWorkflowStep)
+                        <li>{{ $rolloutWorkflowStep }}</li>
+                    @endforeach
+                </ol>
             </div>
         </div>
 
