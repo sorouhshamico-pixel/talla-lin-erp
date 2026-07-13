@@ -1,0 +1,114 @@
+{
+    "phase": "Phase 64A",
+    "title": "Select Next Saved View Rollout Target",
+    "selected_by": "ReportSavedViewCandidateScanner unregistered candidates sorted by priority_score descending and key ascending",
+    "head": "eb191ad",
+    "registered_count": 2,
+    "registered_keys": [
+        "sales-invoice-aging",
+        "customer-sales-invoice-aging"
+    ],
+    "candidate_count": 20,
+    "unregistered_count": 18,
+    "selected_target": {
+        "key": "customer-sales-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php",
+        "registered": false,
+        "priority_score": 100,
+        "has_get_form": true,
+        "has_filter_terms": true,
+        "has_saved_view_controls": true
+    },
+    "top_unregistered_candidates": [
+        {
+            "key": "customer-sales-invoice-aging-drilldown",
+            "view_path": "resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php",
+            "registered": false,
+            "priority_score": 100,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": true
+        },
+        {
+            "key": "supplier-purchase-invoice-aging",
+            "view_path": "resources/views/reports/supplier-purchase-invoice-aging.blade.php",
+            "registered": false,
+            "priority_score": 100,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": true
+        },
+        {
+            "key": "supplier-purchase-invoice-aging-drilldown",
+            "view_path": "resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php",
+            "registered": false,
+            "priority_score": 100,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": true
+        },
+        {
+            "key": "cash-flow-dashboard",
+            "view_path": "resources/views/reports/cash-flow-dashboard.blade.php",
+            "registered": false,
+            "priority_score": 80,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        },
+        {
+            "key": "index",
+            "view_path": "resources/views/reports/index.blade.php",
+            "registered": false,
+            "priority_score": 80,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        },
+        {
+            "key": "profit-loss",
+            "view_path": "resources/views/reports/profit-loss.blade.php",
+            "registered": false,
+            "priority_score": 80,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        },
+        {
+            "key": "receivable-payable-aging-dashboard",
+            "view_path": "resources/views/reports/receivable-payable-aging-dashboard.blade.php",
+            "registered": false,
+            "priority_score": 80,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        },
+        {
+            "key": "sales-invoice-collection-follow-ups",
+            "view_path": "resources/views/reports/sales-invoice-collection-follow-ups.blade.php",
+            "registered": false,
+            "priority_score": 80,
+            "has_get_form": true,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        },
+        {
+            "key": "saved-view-candidates",
+            "view_path": "resources/views/reports/saved-view-candidates.blade.php",
+            "registered": false,
+            "priority_score": 60,
+            "has_get_form": false,
+            "has_filter_terms": true,
+            "has_saved_view_controls": true
+        },
+        {
+            "key": "cash-flow-dashboard-print",
+            "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+            "registered": false,
+            "priority_score": 40,
+            "has_get_form": false,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false
+        }
+    ]
+}
