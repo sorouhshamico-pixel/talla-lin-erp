@@ -1,0 +1,44 @@
+{
+  "phase": "63B",
+  "title": "Inspect Locked Report Saved View Rollout Target",
+  "locked_target": {
+    "key": "customer-sales-invoice-aging",
+    "view_path": "resources/views/reports/customer-sales-invoice-aging.blade.php",
+    "registered": false,
+    "has_get_form": true,
+    "has_filter_terms": true,
+    "has_saved_view_controls": true,
+    "priority_score": 100
+  },
+  "view": {
+    "path": "resources/views/reports/customer-sales-invoice-aging.blade.php",
+    "exists": true,
+    "line_count": 224,
+    "form_count": 2,
+    "get_form_count": 1,
+    "has_saved_view_controls": false,
+    "has_filters": true
+  },
+  "candidate_filter_fields": [
+    "customer_id",
+    "aging_bucket",
+    "name",
+    "is_default"
+  ],
+  "route_names": [
+    "reports.index",
+    "reports.customer-sales-invoice-aging.print",
+    "reports.customer-sales-invoice-aging.drilldown",
+    "reports.customer-sales-invoice-aging.export",
+    "reports.sales-invoice-aging.index",
+    "reports.customer-sales-invoice-aging.index",
+    "reports.customer-sales-invoice-aging.saved-views.store",
+    "sales-invoices.index"
+  ],
+  "include_names": [
+    "reports.partials.saved-view-section"
+  ],
+  "recommended_config_partial": "reports.partials.customer-sales-invoice-aging-saved-view-controls-config",
+  "recommended_config_partial_path": "resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php",
+  "recommended_registry_key": "customer-sales-invoice-aging"
+}
