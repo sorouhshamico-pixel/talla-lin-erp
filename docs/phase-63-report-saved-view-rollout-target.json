@@ -1,0 +1,26 @@
+{
+  "phase": "63A",
+  "title": "Lock Next Report Saved View Rollout Target",
+  "selected_target": {
+    "key": "customer-sales-invoice-aging",
+    "view_path": "resources/views/reports/customer-sales-invoice-aging.blade.php",
+    "registered": false,
+    "has_get_form": true,
+    "has_filter_terms": true,
+    "has_saved_view_controls": true,
+    "priority_score": 100
+  },
+  "selector_summary": {
+    "candidate_count": 19,
+    "registered_candidate_count": 1,
+    "unregistered_candidate_count": 18
+  },
+  "recommended_steps": [
+    "Review the Blade view: resources/views/reports/customer-sales-invoice-aging.blade.php",
+    "Identify GET filters and hidden fields required for saved views.",
+    "Create a report-specific saved view controls config partial.",
+    "Add the report to ReportSavedViewRegistry.",
+    "Add render, registry, and rollout guard tests.",
+    "Run php artisan reports:saved-view-diagnostics after rollout."
+  ]
+}
