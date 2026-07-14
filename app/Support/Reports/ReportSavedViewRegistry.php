@@ -117,6 +117,37 @@ class ReportSavedViewRegistry
                     'default_badge' => 'supplier-aging-saved-view-default-badge',
                 ],
             ],
+            'supplier-purchase-invoice-aging-drilldown' => [
+                'key' => 'supplier-purchase-invoice-aging-drilldown',
+                'label' => 'تفاصيل فواتير الموردين المفتوحة',
+                'view' => 'reports.supplier-purchase-invoice-aging-drilldown',
+                'view_path' => 'resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php',
+                'index_route' => 'reports.supplier-purchase-invoice-aging.drilldown',
+                'export_route' => 'reports.supplier-purchase-invoice-aging.drilldown.export',
+                'saved_view_store_route' => 'reports.supplier-purchase-invoice-aging.drilldown.saved-views.store',
+                'config_partial' => 'reports.partials.supplier-purchase-invoice-aging-drilldown-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/supplier-purchase-invoice-aging-drilldown-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'supplier_id',
+                    'branch_id',
+                    'as_of_date',
+                    'aging_bucket',
+                ],
+                'test_ids' => [
+                    'section_card' => 'supplier-aging-drilldown-saved-views-selector',
+                    'empty' => 'supplier-aging-drilldown-saved-views-empty',
+                    'form_card' => 'supplier-aging-drilldown-save-view-card',
+                    'form' => 'supplier-aging-drilldown-save-view-form',
+                    'name_input' => 'supplier-aging-drilldown-saved-view-name-input',
+                    'default_checkbox' => 'supplier-aging-drilldown-saved-view-default-checkbox',
+                    'save_button' => 'supplier-aging-drilldown-save-view-button',
+                    'list' => 'supplier-aging-drilldown-saved-views-list',
+                    'item' => 'supplier-aging-drilldown-saved-view-item',
+                    'open_link' => 'supplier-aging-drilldown-saved-view-open-link',
+                    'active_badge' => 'supplier-aging-drilldown-saved-view-active-badge',
+                    'default_badge' => 'supplier-aging-drilldown-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

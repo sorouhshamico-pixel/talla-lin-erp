@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(4, ReportSavedViewRegistry::count());
+        $this->assertSame(5, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -18,6 +18,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('customer-sales-invoice-aging', $keys);
         $this->assertContains('customer-sales-invoice-aging-drilldown', $keys);
         $this->assertContains('supplier-purchase-invoice-aging', $keys);
+        $this->assertContains('supplier-purchase-invoice-aging-drilldown', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -25,6 +26,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('تقرير أعمار ذمم العملاء', $labels['customer-sales-invoice-aging']);
         $this->assertSame('تفاصيل فواتير العملاء المفتوحة', $labels['customer-sales-invoice-aging-drilldown']);
         $this->assertSame('تقرير أعمار ذمم الموردين', $labels['supplier-purchase-invoice-aging']);
+        $this->assertSame('تفاصيل فواتير الموردين المفتوحة', $labels['supplier-purchase-invoice-aging-drilldown']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -46,6 +48,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/supplier-purchase-invoice-aging.blade.php',
             $viewPaths['supplier-purchase-invoice-aging']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php',
+            $viewPaths['supplier-purchase-invoice-aging-drilldown']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -96,6 +103,16 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.supplier-purchase-invoice-aging.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('supplier-purchase-invoice-aging')
         );
+
+        $this->assertSame(
+            'reports.supplier-purchase-invoice-aging.drilldown',
+            ReportSavedViewRegistry::indexRoute('supplier-purchase-invoice-aging-drilldown')
+        );
+
+        $this->assertSame(
+            'reports.supplier-purchase-invoice-aging.drilldown.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('supplier-purchase-invoice-aging-drilldown')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -125,6 +142,13 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'aging_bucket',
         ], $hiddenFieldMap['supplier-purchase-invoice-aging']);
 
+        $this->assertSame([
+            'supplier_id',
+            'branch_id',
+            'as_of_date',
+            'aging_bucket',
+        ], $hiddenFieldMap['supplier-purchase-invoice-aging-drilldown']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -145,6 +169,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'supplier-aging-save-view-form',
             $testIdMap['supplier-purchase-invoice-aging']['form']
+        );
+
+        $this->assertSame(
+            'supplier-aging-drilldown-save-view-form',
+            $testIdMap['supplier-purchase-invoice-aging-drilldown']['form']
         );
     }
 
@@ -174,6 +203,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.supplier-purchase-invoice-aging-drilldown-saved-view-controls-config',
+            $configPartials['supplier-purchase-invoice-aging-drilldown']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -188,6 +222,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['supplier-purchase-invoice-aging']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/supplier-purchase-invoice-aging-drilldown-saved-view-controls-config.blade.php',
+            $configPartialPaths['supplier-purchase-invoice-aging-drilldown']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -197,7 +236,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(4, $rows);
+        $this->assertCount(5, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -205,6 +244,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('customer-sales-invoice-aging'));
         $this->assertTrue($rowsByKey->has('customer-sales-invoice-aging-drilldown'));
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging'));
+        $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging-drilldown'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

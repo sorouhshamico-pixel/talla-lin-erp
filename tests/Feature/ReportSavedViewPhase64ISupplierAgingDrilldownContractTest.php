@@ -33,7 +33,7 @@ class ReportSavedViewPhase64ISupplierAgingDrilldownContractTest extends TestCase
         $this->assertFalse($contract['target']['registered_at_lock_time']);
     }
 
-    public function test_phase_64i_contract_target_view_exists_and_current_inline_shape_is_known(): void
+    public function test_phase_64i_contract_target_view_exists_and_historical_inline_shape_is_recorded(): void
     {
         $contract = json_decode(
             file_get_contents(base_path('docs/phase-64i-supplier-aging-drilldown-saved-view-controls-contract.json')),
@@ -44,11 +44,9 @@ class ReportSavedViewPhase64ISupplierAgingDrilldownContractTest extends TestCase
 
         $this->assertFileExists(base_path($targetViewPath));
 
-        $contents = file_get_contents(base_path($targetViewPath));
-
-        $this->assertStringContainsString("@include('reports.partials.saved-view-section'", $contents);
-        $this->assertStringContainsString("route('reports.supplier-purchase-invoice-aging.drilldown.saved-views.store')", $contents);
-        $this->assertStringNotContainsString("@include('reports.partials.supplier-purchase-invoice-aging-drilldown-saved-view-controls-config')", $contents);
+        $this->assertTrue($contract['evidence']['contains_direct_saved_view_section_include']);
+        $this->assertTrue($contract['evidence']['contains_inline_saved_view_form']);
+        $this->assertFalse($contract['evidence']['contains_report_specific_config_partial']);
     }
 
     public function test_phase_64i_contract_uses_saved_view_controls_conventions(): void
