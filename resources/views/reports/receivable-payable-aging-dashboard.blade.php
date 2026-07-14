@@ -11,6 +11,12 @@
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">مركز التقارير</a>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="receivable-payable-aging-dashboard-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card" data-testid="receivable-payable-aging-dashboard">
             <div class="card-body">
                 <form method="GET" action="{{ route('reports.receivable-payable-aging-dashboard.index') }}" class="filters" data-testid="aging-dashboard-filters">
@@ -43,6 +49,8 @@
                         <a href="{{ route('reports.receivable-payable-aging-dashboard.index', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="aging-dashboard-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
+
+                @include('reports.partials.receivable-payable-aging-dashboard-saved-view-controls-config')
 
                 <p data-testid="aging-dashboard-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
 

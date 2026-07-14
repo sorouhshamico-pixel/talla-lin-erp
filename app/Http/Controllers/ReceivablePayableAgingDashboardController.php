@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Services\CustomerSalesInvoiceAgingReportBuilder;
 use App\Services\ReportFilterPreferenceService;
+use App\Services\ReportSavedViewService;
 use App\Services\SupplierPurchaseInvoiceAgingReportBuilder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -21,14 +23,19 @@ class ReceivablePayableAgingDashboardController extends Controller
         Request $request,
         CustomerSalesInvoiceAgingReportBuilder $customerAgingBuilder,
         SupplierPurchaseInvoiceAgingReportBuilder $supplierAgingBuilder,
-        ReportFilterPreferenceService $filterPreferences
+        ReportFilterPreferenceService $filterPreferences,
+        ReportSavedViewService $savedViews
     ): View {
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
 
         $customerAging = $customerAgingBuilder->build($request);
         $supplierAging = $supplierAgingBuilder->build($request);
+        $dashboardData = $this->dashboardData($customerAging, $supplierAging, $request);
 
-        return view('reports.receivable-payable-aging-dashboard', $this->dashboardData($customerAging, $supplierAging, $request));
+        return view('reports.receivable-payable-aging-dashboard', array_merge($dashboardData, [
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
+        ]));
     }
 
     public function print(
@@ -109,6 +116,69 @@ class ReceivablePayableAgingDashboardController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'branch_id' => ['nullable', 'integer'],
+            'as_of_date' => ['nullable', 'date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'branch_id' => $validated['branch_id'] ?? null,
+            'as_of_date' => $validated['as_of_date'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.receivable-payable-aging-dashboard.index', $filters)
+            ->with('status', 'تم حفظ عرض لوحة أعمار الذمم بنجاح.');
+    }
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        if ($request->query->has('reset_filters')) {
+            return $request;
+        }
+
+        if ($this->hasFilterInput($request)) {
+            return $request;
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        $request->query->add($filters);
+
+        return $request->merge($filters);
     }
 
     private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request

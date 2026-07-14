@@ -29,7 +29,7 @@ class ReportSavedViewDiagnosticsArtisanCommandTest extends TestCase
         $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('# Report Saved View Registry Diagnostic Report', $output);
         $this->assertStringContainsString('## Summary', $output);
-        $this->assertStringContainsString('- Report count: 8', $output);
+        $this->assertStringContainsString('- Report count: 9', $output);
         $this->assertStringContainsString('- Invalid count: 0', $output);
         $this->assertStringContainsString('- Valid: yes', $output);
         $this->assertStringContainsString('### sales-invoice-aging', $output);
@@ -48,7 +48,7 @@ class ReportSavedViewDiagnosticsArtisanCommandTest extends TestCase
 
         $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('"title": "Report Saved View Registry Diagnostic Report"', $output);
-        $this->assertStringContainsString('"report_count": 8', $output);
+        $this->assertStringContainsString('"report_count": 9', $output);
         $this->assertStringContainsString('"invalid_count": 0', $output);
         $this->assertStringContainsString('"valid": true', $output);
         $this->assertStringContainsString('"sales-invoice-aging"', $output);

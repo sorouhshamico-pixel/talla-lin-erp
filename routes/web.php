@@ -211,6 +211,7 @@ Route::get('/reports/supplier-purchase-invoice-aging/open-invoices', [\App\Http\
 Route::get('/reports/supplier-purchase-invoice-aging/export', [\App\Http\Controllers\SupplierPurchaseInvoiceAgingReportController::class, 'export'])->name('reports.supplier-purchase-invoice-aging.export');
 Route::get('/reports/receivable-payable-aging-dashboard/print', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'print'])->name('reports.receivable-payable-aging-dashboard.print');
 Route::get('/reports/receivable-payable-aging-dashboard/export', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'export'])->name('reports.receivable-payable-aging-dashboard.export');
+Route::post('/reports/receivable-payable-aging-dashboard/saved-views', [\App\Http\Controllers\ReceivablePayableAgingDashboardController::class, 'storeSavedView'])->name('reports.receivable-payable-aging-dashboard.saved-views.store');
 Route::get('/reports/cash-flow-dashboard/print', [\App\Http\Controllers\CashFlowDashboardController::class, 'print'])->name('reports.cash-flow-dashboard.print');
 Route::get('/reports/cash-flow-dashboard/export', [\App\Http\Controllers\CashFlowDashboardController::class, 'export'])->name('reports.cash-flow-dashboard.export');
 Route::post('/reports/cash-flow-dashboard/saved-views', [\App\Http\Controllers\CashFlowDashboardController::class, 'storeSavedView'])->name('reports.cash-flow-dashboard.saved-views.store');

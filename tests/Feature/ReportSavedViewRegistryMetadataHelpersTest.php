@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(8, ReportSavedViewRegistry::count());
+        $this->assertSame(9, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -22,6 +22,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('cash-flow-dashboard', $keys);
         $this->assertContains('index', $keys);
         $this->assertContains('profit-loss', $keys);
+        $this->assertContains('receivable-payable-aging-dashboard', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -33,6 +34,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('لوحة التدفق النقدي المتوقع', $labels['cash-flow-dashboard']);
         $this->assertSame('التقارير المالية الأساسية', $labels['index']);
         $this->assertSame('تقرير الأرباح والخسائر', $labels['profit-loss']);
+        $this->assertSame('لوحة أعمار الذمم', $labels['receivable-payable-aging-dashboard']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -74,6 +76,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/profit-loss.blade.php',
             $viewPaths['profit-loss']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/receivable-payable-aging-dashboard.blade.php',
+            $viewPaths['receivable-payable-aging-dashboard']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -170,6 +177,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.profit-loss.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('profit-loss')
         );
+
+        $this->assertSame('reports.receivable-payable-aging-dashboard.export', $exportRoutes['receivable-payable-aging-dashboard']);
+
+        $this->assertSame(
+            'reports.receivable-payable-aging-dashboard.index',
+            ReportSavedViewRegistry::indexRoute('receivable-payable-aging-dashboard')
+        );
+
+        $this->assertSame(
+            'reports.receivable-payable-aging-dashboard.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('receivable-payable-aging-dashboard')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -226,6 +245,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'branch_id',
         ], $hiddenFieldMap['profit-loss']);
 
+        $this->assertSame([
+            'branch_id',
+            'as_of_date',
+        ], $hiddenFieldMap['receivable-payable-aging-dashboard']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -266,6 +290,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'profit-loss-save-view-form',
             $testIdMap['profit-loss']['form']
+        );
+
+        $this->assertSame(
+            'receivable-payable-aging-dashboard-save-view-form',
+            $testIdMap['receivable-payable-aging-dashboard']['form']
         );
     }
 
@@ -315,6 +344,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.receivable-payable-aging-dashboard-saved-view-controls-config',
+            $configPartials['receivable-payable-aging-dashboard']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -349,6 +383,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['profit-loss']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/receivable-payable-aging-dashboard-saved-view-controls-config.blade.php',
+            $configPartialPaths['receivable-payable-aging-dashboard']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -358,7 +397,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(8, $rows);
+        $this->assertCount(9, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -370,6 +409,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('cash-flow-dashboard'));
         $this->assertTrue($rowsByKey->has('index'));
         $this->assertTrue($rowsByKey->has('profit-loss'));
+        $this->assertTrue($rowsByKey->has('receivable-payable-aging-dashboard'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

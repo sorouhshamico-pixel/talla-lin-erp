@@ -240,6 +240,35 @@ class ReportSavedViewRegistry
                     'default_badge' => 'profit-loss-saved-view-default-badge',
                 ],
             ],
+            'receivable-payable-aging-dashboard' => [
+                'key' => 'receivable-payable-aging-dashboard',
+                'label' => 'لوحة أعمار الذمم',
+                'view' => 'reports.receivable-payable-aging-dashboard',
+                'view_path' => 'resources/views/reports/receivable-payable-aging-dashboard.blade.php',
+                'index_route' => 'reports.receivable-payable-aging-dashboard.index',
+                'export_route' => 'reports.receivable-payable-aging-dashboard.export',
+                'saved_view_store_route' => 'reports.receivable-payable-aging-dashboard.saved-views.store',
+                'config_partial' => 'reports.partials.receivable-payable-aging-dashboard-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/receivable-payable-aging-dashboard-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'branch_id',
+                    'as_of_date',
+                ],
+                'test_ids' => [
+                    'section_card' => 'receivable-payable-aging-dashboard-saved-views-selector',
+                    'empty' => 'receivable-payable-aging-dashboard-saved-views-empty',
+                    'form_card' => 'receivable-payable-aging-dashboard-save-view-card',
+                    'form' => 'receivable-payable-aging-dashboard-save-view-form',
+                    'name_input' => 'receivable-payable-aging-dashboard-saved-view-name-input',
+                    'default_checkbox' => 'receivable-payable-aging-dashboard-saved-view-default-checkbox',
+                    'save_button' => 'receivable-payable-aging-dashboard-save-view-button',
+                    'list' => 'receivable-payable-aging-dashboard-saved-views-list',
+                    'item' => 'receivable-payable-aging-dashboard-saved-view-item',
+                    'open_link' => 'receivable-payable-aging-dashboard-saved-view-open-link',
+                    'active_badge' => 'receivable-payable-aging-dashboard-saved-view-active-badge',
+                    'default_badge' => 'receivable-payable-aging-dashboard-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 
