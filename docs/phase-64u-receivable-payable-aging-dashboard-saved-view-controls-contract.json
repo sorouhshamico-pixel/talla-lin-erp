@@ -1,0 +1,115 @@
+{
+    "phase": "Phase 64U",
+    "title": "Prepare Receivable Payable Aging Dashboard Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64T clean",
+        "commit": "21b14af",
+        "tests": "1103 passed / 9260 assertions"
+    },
+    "source_lock": "docs/phase-64t-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "receivable-payable-aging-dashboard",
+        "view_path": "resources/views/reports/receivable-payable-aging-dashboard.blade.php",
+        "controller_path": "app/Http/Controllers/ReceivablePayableAgingDashboardController.php",
+        "priority_score": 80,
+        "registered_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "receivable-payable-aging-dashboard",
+        "view_path": "resources/views/reports/receivable-payable-aging-dashboard.blade.php",
+        "controller_path": "app/Http/Controllers/ReceivablePayableAgingDashboardController.php",
+        "config_partial": "reports.partials.receivable-payable-aging-dashboard-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/receivable-payable-aging-dashboard-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.receivable-payable-aging-dashboard-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.receivable-payable-aging-dashboard.index",
+        "export_route": "reports.receivable-payable-aging-dashboard.export",
+        "print_route": "reports.receivable-payable-aging-dashboard.print",
+        "saved_view_store_route": "reports.receivable-payable-aging-dashboard.saved-views.store",
+        "candidate_hidden_fields": [
+            "branch_id",
+            "as_of_date"
+        ],
+        "test_ids": {
+            "section_card": "receivable-payable-aging-dashboard-saved-views-selector",
+            "empty": "receivable-payable-aging-dashboard-saved-views-empty",
+            "form_card": "receivable-payable-aging-dashboard-save-view-card",
+            "form": "receivable-payable-aging-dashboard-save-view-form",
+            "name_input": "receivable-payable-aging-dashboard-saved-view-name-input",
+            "default_checkbox": "receivable-payable-aging-dashboard-saved-view-default-checkbox",
+            "save_button": "receivable-payable-aging-dashboard-save-view-button",
+            "list": "receivable-payable-aging-dashboard-saved-views-list",
+            "item": "receivable-payable-aging-dashboard-saved-view-item",
+            "open_link": "receivable-payable-aging-dashboard-saved-view-open-link",
+            "active_badge": "receivable-payable-aging-dashboard-saved-view-active-badge",
+            "default_badge": "receivable-payable-aging-dashboard-saved-view-default-badge"
+        }
+    },
+    "current_state_evidence": {
+        "route_names_in_view": [
+            "reports.customer-sales-invoice-aging.drilldown",
+            "reports.customer-sales-invoice-aging.index",
+            "reports.index",
+            "reports.receivable-payable-aging-dashboard.export",
+            "reports.receivable-payable-aging-dashboard.index",
+            "reports.receivable-payable-aging-dashboard.print",
+            "reports.supplier-purchase-invoice-aging.drilldown",
+            "reports.supplier-purchase-invoice-aging.index"
+        ],
+        "input_names_in_view": [
+            "as_of_date",
+            "branch_id"
+        ],
+        "data_test_ids_in_view": [
+            "aging-dashboard-apply-filters",
+            "aging-dashboard-as-of-date-input",
+            "aging-dashboard-branch-select",
+            "aging-dashboard-bucket-comparison",
+            "aging-dashboard-customer-bucket-drilldown-{{ $bucketKey }}",
+            "aging-dashboard-customer-report-link",
+            "aging-dashboard-customer-summary",
+            "aging-dashboard-export-link",
+            "aging-dashboard-filters",
+            "aging-dashboard-net-summary",
+            "aging-dashboard-preset-current-month-end",
+            "aging-dashboard-preset-current-quarter-end",
+            "aging-dashboard-preset-next-month-end",
+            "aging-dashboard-preset-today",
+            "aging-dashboard-print-link",
+            "aging-dashboard-report-date",
+            "aging-dashboard-report-date-presets",
+            "aging-dashboard-reset-filters",
+            "aging-dashboard-supplier-bucket-drilldown-{{ $bucketKey }}",
+            "aging-dashboard-supplier-report-link",
+            "aging-dashboard-supplier-summary",
+            "receivable-payable-aging-dashboard"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_saved_view_controls": false,
+        "contains_report_specific_config_partial": false,
+        "controller_has_report_key_constant": true,
+        "controller_has_filter_keys_constant": true,
+        "controller_uses_filter_preference_service": true,
+        "controller_uses_report_saved_view_service": false,
+        "controller_has_store_saved_view_method": false,
+        "controller_has_index_method": true,
+        "controller_has_print_method": true,
+        "controller_has_export_method": true,
+        "routes_have_index_route": true,
+        "routes_have_export_route": true,
+        "routes_have_print_route": true,
+        "routes_have_saved_view_store_route": false
+    },
+    "implementation_notes": [
+        "Phase 64U does not modify the receivable-payable aging dashboard Blade view.",
+        "Phase 64U does not register the target report yet.",
+        "Phase 64V should add ReportSavedViewService support while preserving existing ReportFilterPreferenceService behavior.",
+        "Phase 64V should add default saved view application only when no explicit filter input exists and no reset_filters request is present.",
+        "Phase 64V should add a POST saved-view store route named reports.receivable-payable-aging-dashboard.saved-views.store.",
+        "Phase 64V should create the report-specific config partial and insert the config include after the GET filters card, before dashboard summary metrics.",
+        "Phase 64V should register receivable-payable-aging-dashboard with export_route reports.receivable-payable-aging-dashboard.export because the registry validator requires export_route.",
+        "Do not modify shared saved view partials."
+    ]
+}
