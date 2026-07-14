@@ -197,6 +197,8 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
     Route::post('/reports/saved-views', [ReportController::class, 'storeSavedView'])->name('reports.index.saved-views.store');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/sales-invoice-collections', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'index'])->name('reports.sales-invoice-collections.index');
+Route::get('/reports/sales-invoice-collections/json', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'json'])->name('reports.sales-invoice-collections.json');
+Route::post('/reports/sales-invoice-collections/saved-views', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'storeSavedView'])->name('reports.sales-invoice-collections.saved-views.store');
 Route::get('/reports/sales-invoice-collection-follow-ups/export', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'export'])->name('reports.sales-invoice-collection-follow-ups.export');
 Route::post('/reports/sales-invoice-collection-follow-ups/saved-views', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'storeSavedView'])->name('reports.sales-invoice-collection-follow-ups.saved-views.store');
 Route::get('/reports/sales-invoice-collection-follow-ups', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'index'])->name('reports.sales-invoice-collection-follow-ups.index');

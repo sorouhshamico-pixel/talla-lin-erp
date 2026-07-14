@@ -77,8 +77,8 @@ class ReportSavedViewPhase65FSalesInvoiceCollectionsContractTest extends TestCas
         $this->assertSame('empty_filter_report_saved_views', $contract['eligibility_decision']['rollout_mode']);
 
         $this->assertTrue(Route::has($contract['route_contract']['existing_index_route']));
-        $this->assertFalse(Route::has($contract['route_contract']['json_export_route_to_add']));
-        $this->assertFalse(Route::has($contract['route_contract']['saved_view_store_route_to_add']));
+        $this->assertTrue(Route::has($contract['route_contract']['json_export_route_to_add']));
+        $this->assertTrue(Route::has($contract['route_contract']['saved_view_store_route_to_add']));
 
         $this->assertSame('reports.sales-invoice-collections.index', $contract['registry_contract']['index_route']);
         $this->assertSame('reports.sales-invoice-collections.json', $contract['registry_contract']['export_route']);

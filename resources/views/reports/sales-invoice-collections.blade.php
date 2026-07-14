@@ -27,6 +27,12 @@
 </head>
 <body>
 <div class="container" data-testid="sales-invoice-collection-report-page">
+    @if (session('status'))
+        <div class="card" data-testid="sales-invoice-collections-status">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <div class="card">
         <div class="header">
             <div>
@@ -40,6 +46,8 @@
             </div>
         </div>
     </div>
+
+    @include('reports.partials.sales-invoice-collections-saved-view-controls-config')
 
     <div class="card" data-testid="sales-invoice-collection-summary-card">
         <h2>ملخص التحصيل</h2>

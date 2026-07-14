@@ -21,7 +21,7 @@ class ReportSavedViewDiagnosticSnapshotExportTest extends TestCase
         $contents = file_get_contents($snapshot['absolute_path']);
 
         $this->assertStringContainsString('# Report Saved View Registry Diagnostic Report', $contents);
-        $this->assertStringContainsString('- Report count: 11', $contents);
+        $this->assertStringContainsString('- Report count: 12', $contents);
         $this->assertStringContainsString('### sales-invoice-aging', $contents);
         $this->assertStringContainsString('### customer-sales-invoice-aging', $contents);
         $this->assertStringContainsString('### customer-sales-invoice-aging', $contents);
@@ -40,7 +40,7 @@ class ReportSavedViewDiagnosticSnapshotExportTest extends TestCase
 
         $this->assertIsArray($decoded);
         $this->assertSame('Report Saved View Registry Diagnostic Report', $decoded['title']);
-        $this->assertSame(11, $decoded['summary']['report_count']);
+        $this->assertSame(12, $decoded['summary']['report_count']);
         $this->assertSame(0, $decoded['summary']['invalid_count']);
         $this->assertTrue($decoded['summary']['valid']);
         $this->assertContains('sales-invoice-aging', $decoded['valid_report_keys']);
