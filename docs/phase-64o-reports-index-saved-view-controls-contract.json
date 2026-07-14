@@ -1,0 +1,99 @@
+{
+    "phase": "Phase 64O",
+    "title": "Prepare Reports Index Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64N clean",
+        "commit": "f5032ad",
+        "tests": "1075 passed / 8780 assertions"
+    },
+    "source_lock": "docs/phase-64n-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "index",
+        "view_path": "resources/views/reports/index.blade.php",
+        "controller_path": "app/Http/Controllers/ReportController.php",
+        "priority_score": 80,
+        "registered_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "index",
+        "view_path": "resources/views/reports/index.blade.php",
+        "controller_path": "app/Http/Controllers/ReportController.php",
+        "config_partial": "reports.partials.index-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/index-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.index-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.index",
+        "saved_view_store_route": "reports.index.saved-views.store",
+        "candidate_hidden_fields": [
+            "from_date",
+            "to_date",
+            "branch_id",
+            "expense_category_id",
+            "payment_method"
+        ],
+        "test_ids": {
+            "section_card": "reports-index-saved-views-selector",
+            "empty": "reports-index-saved-views-empty",
+            "form_card": "reports-index-save-view-card",
+            "form": "reports-index-save-view-form",
+            "name_input": "reports-index-saved-view-name-input",
+            "default_checkbox": "reports-index-saved-view-default-checkbox",
+            "save_button": "reports-index-save-view-button",
+            "list": "reports-index-saved-views-list",
+            "item": "reports-index-saved-view-item",
+            "open_link": "reports-index-saved-view-open-link",
+            "active_badge": "reports-index-saved-view-active-badge",
+            "default_badge": "reports-index-saved-view-default-badge"
+        }
+    },
+    "current_state_evidence": {
+        "route_names_in_view": [
+            "reports.cash-flow-dashboard.index",
+            "reports.customer-sales-invoice-aging.index",
+            "reports.filter-preferences.index",
+            "reports.index",
+            "reports.receivable-payable-aging-dashboard.index",
+            "reports.sales-invoice-aging.index",
+            "reports.sales-invoice-collection-follow-ups.index",
+            "reports.sales-invoice-collections.index",
+            "reports.saved-view-diagnostics.index",
+            "reports.saved-views.index",
+            "reports.supplier-purchase-invoice-aging.index"
+        ],
+        "input_names_in_view": [
+            "branch_id",
+            "expense_category_id",
+            "from_date",
+            "payment_method",
+            "to_date"
+        ],
+        "data_test_ids_in_view": [
+            "cash-flow-dashboard-link",
+            "customer-sales-invoice-aging-report-link",
+            "receivable-payable-aging-dashboard-link",
+            "report-filter-preferences-link",
+            "report-saved-view-diagnostics-nav-link",
+            "report-saved-views-link",
+            "sales-invoice-aging-report-link",
+            "sales-invoice-collection-follow-up-report-link",
+            "sales-invoice-collection-report-link",
+            "supplier-purchase-invoice-aging-report-link"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_saved_view_controls": false,
+        "contains_report_specific_config_partial": false,
+        "controller_has_report_key_constant": false,
+        "controller_uses_report_saved_view_service": false,
+        "controller_has_store_saved_view_method": false,
+        "routes_have_saved_view_store_route": false
+    },
+    "implementation_notes": [
+        "Phase 64O does not modify the report Blade view.",
+        "Phase 64O does not register the target report yet.",
+        "The locked selector key is intentionally preserved as index because the scanner derives keys from report view basenames.",
+        "Phase 64P should add ReportSavedViewService support to ReportController, add the POST saved-view store route, create the config partial, insert the config include after the GET filters form, add the report to ReportSavedViewRegistry using key index, and validate focused tests before full suite.",
+        "Do not modify shared saved view partials."
+    ]
+}
