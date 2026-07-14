@@ -1,0 +1,57 @@
+{
+    "phase": "Phase 65D",
+    "title": "Prepare Cash Flow Dashboard Print Saved View Eligibility Contract",
+    "baseline": {
+        "phase": "Phase 65C clean",
+        "commit": "5adb9e7",
+        "previous_tests": "1145 passed / 9990 assertions"
+    },
+    "source_lock": "docs/phase-65c-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "cash-flow-dashboard-print",
+        "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+        "priority_score": 40,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": true,
+        "has_saved_view_controls_at_lock_time": false
+    },
+    "eligibility_decision": {
+        "status": "not_eligible_for_saved_view_controls_rollout",
+        "reason": "The target is a standalone print rendering surface. It should inherit/filter context from the parent cash-flow dashboard URL rather than own saved view controls.",
+        "recommended_next_phase": "Exclude print-only report views from the rollout selector before selecting the next interactive target.",
+        "do_not_register_report_saved_view_key": true,
+        "do_not_create_saved_view_controls_config_partial": true,
+        "do_not_add_store_route": true,
+        "do_not_modify_print_view": true
+    },
+    "current_state_evidence": {
+        "is_standalone_print_document": true,
+        "contains_interactive_form": false,
+        "contains_get_form": false,
+        "contains_print_button": true,
+        "contains_filter_context_display": true,
+        "contains_saved_view_controls_include_or_inline_config": false,
+        "data_test_ids_in_view": [
+            "cash-flow-print-bucket-comparison",
+            "cash-flow-print-button",
+            "cash-flow-print-filter-context",
+            "cash-flow-print-inflow-summary",
+            "cash-flow-print-net-summary",
+            "cash-flow-print-outflow-summary",
+            "cash-flow-print-risk-summary"
+        ]
+    },
+    "proposed_exclusion": {
+        "exclusion_rule": "ReportSavedViewRolloutSelector should ignore report candidates whose key ends with -print or whose view_path ends with -print.blade.php.",
+        "scope": "selector/prioritization only",
+        "expected_result_after_exclusion": "cash-flow-dashboard-print should no longer be the next rollout target."
+    },
+    "guardrails": [
+        "Do not add saved view controls to standalone print documents.",
+        "Do not register print-only views in ReportSavedViewRegistry.",
+        "Do not add saved view store routes for print-only views.",
+        "Do not modify shared saved view partials.",
+        "Implement exclusion in selector/prioritization before locking the next target."
+    ]
+}
