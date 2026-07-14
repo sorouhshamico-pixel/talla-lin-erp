@@ -54,61 +54,7 @@
                     </div>
                 </form>
 
-                <div class="card" data-testid="supplier-aging-save-view-card" style="margin-bottom:16px;">
-                    <div class="card-body">
-                        <h2>حفظ عرض التقرير</h2>
-
-
-                @php
-                    $supplierAgingSavedViews = $savedViews ?? collect();
-                @endphp
-
-                <div class="card" data-testid="supplier-aging-saved-views-selector" style="margin-bottom:16px;">
-                    <div class="card-body">
-                        @include('reports.partials.saved-view-section', [
-                            'savedViews' => $supplierAgingSavedViews,
-                            'routeName' => 'reports.supplier-purchase-invoice-aging.index',
-                            'emptyTestId' => 'supplier-aging-saved-views-empty',
-                            'listTestId' => 'supplier-aging-saved-views-list',
-                            'itemTestId' => 'supplier-aging-saved-view-item',
-                            'openLinkTestId' => 'supplier-aging-saved-view-open-link',
-                            'activeBadgeTestId' => 'supplier-aging-saved-view-active-badge',
-                            'defaultBadgeTestId' => 'supplier-aging-saved-view-default-badge',
-                            'manageLinkTestId' => 'supplier-aging-manage-saved-views-link',
-                        ])
-                    </div>
-                </div>
-
-                        <form method="POST" action="{{ route('reports.supplier-purchase-invoice-aging.saved-views.store') }}" data-testid="supplier-aging-save-view-form">
-                            @csrf
-
-                            <input type="hidden" name="supplier_id" value="{{ request('supplier_id') }}">
-                            <input type="hidden" name="aging_bucket" value="{{ request('aging_bucket') }}">
-
-                            <div class="filter-row">
-                                <label for="supplier_aging_saved_view_name">اسم العرض المحفوظ</label>
-                                <input id="supplier_aging_saved_view_name"
-                                       type="text"
-                                       name="name"
-                                       placeholder="مثال: متابعة ذمم الموردين"
-                                       required
-                                       maxlength="120"
-                                       data-testid="supplier-aging-saved-view-name-input">
-                            </div>
-
-                            <div class="filter-row">
-                                <label>
-                                    <input type="checkbox" name="is_default" value="1" data-testid="supplier-aging-saved-view-default-checkbox">
-                                    تعيين كعرض افتراضي لهذا التقرير
-                                </label>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary" data-testid="supplier-aging-save-view-button">حفظ العرض</button>
-                        </form>
-                    </div>
-                </div>
-
-
+                @include('reports.partials.supplier-purchase-invoice-aging-saved-view-controls-config')
 
                 <div class="report-meta">
                     <p data-testid="supplier-aging-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>

@@ -88,6 +88,35 @@ class ReportSavedViewRegistry
                     'default_badge' => 'customer-aging-drilldown-saved-view-default-badge',
                 ],
             ],
+            'supplier-purchase-invoice-aging' => [
+                'key' => 'supplier-purchase-invoice-aging',
+                'label' => 'تقرير أعمار ذمم الموردين',
+                'view' => 'reports.supplier-purchase-invoice-aging',
+                'view_path' => 'resources/views/reports/supplier-purchase-invoice-aging.blade.php',
+                'index_route' => 'reports.supplier-purchase-invoice-aging.index',
+                'export_route' => 'reports.supplier-purchase-invoice-aging.export',
+                'saved_view_store_route' => 'reports.supplier-purchase-invoice-aging.saved-views.store',
+                'config_partial' => 'reports.partials.supplier-purchase-invoice-aging-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/supplier-purchase-invoice-aging-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'supplier_id',
+                    'aging_bucket',
+                ],
+                'test_ids' => [
+                    'section_card' => 'supplier-aging-saved-views-selector',
+                    'empty' => 'supplier-aging-saved-views-empty',
+                    'form_card' => 'supplier-aging-save-view-card',
+                    'form' => 'supplier-aging-save-view-form',
+                    'name_input' => 'supplier-aging-saved-view-name-input',
+                    'default_checkbox' => 'supplier-aging-saved-view-default-checkbox',
+                    'save_button' => 'supplier-aging-save-view-button',
+                    'list' => 'supplier-aging-saved-views-list',
+                    'item' => 'supplier-aging-saved-view-item',
+                    'open_link' => 'supplier-aging-saved-view-open-link',
+                    'active_badge' => 'supplier-aging-saved-view-active-badge',
+                    'default_badge' => 'supplier-aging-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 
