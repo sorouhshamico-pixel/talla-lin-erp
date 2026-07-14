@@ -1,0 +1,97 @@
+{
+    "phase": "Phase 64F",
+    "title": "Prepare Supplier Purchase Invoice Aging Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64E clean",
+        "commit": "acee66e",
+        "tests": "1033 passed / 8098 assertions"
+    },
+    "source_lock": "docs/phase-64e-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "supplier-purchase-invoice-aging",
+        "view_path": "resources/views/reports/supplier-purchase-invoice-aging.blade.php",
+        "priority_score": 100,
+        "registered_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "supplier-purchase-invoice-aging",
+        "view_path": "resources/views/reports/supplier-purchase-invoice-aging.blade.php",
+        "config_partial": "reports.partials.supplier-purchase-invoice-aging-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/supplier-purchase-invoice-aging-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.supplier-purchase-invoice-aging-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.supplier-purchase-invoice-aging.index",
+        "export_route": "reports.supplier-purchase-invoice-aging.export",
+        "saved_view_store_route": "reports.supplier-purchase-invoice-aging.saved-views.store",
+        "candidate_hidden_fields": [
+            "supplier_id",
+            "aging_bucket"
+        ],
+        "test_ids": {
+            "section_card": "supplier-aging-saved-views-selector",
+            "empty": "supplier-aging-saved-views-empty",
+            "form_card": "supplier-aging-save-view-card",
+            "form": "supplier-aging-save-view-form",
+            "name_input": "supplier-aging-saved-view-name-input",
+            "default_checkbox": "supplier-aging-saved-view-default-checkbox",
+            "save_button": "supplier-aging-save-view-button",
+            "list": "supplier-aging-saved-views-list",
+            "item": "supplier-aging-saved-view-item",
+            "open_link": "supplier-aging-saved-view-open-link",
+            "active_badge": "supplier-aging-saved-view-active-badge",
+            "default_badge": "supplier-aging-saved-view-default-badge"
+        }
+    },
+    "evidence": {
+        "route_names": [
+            "reports.index",
+            "reports.supplier-purchase-invoice-aging.drilldown",
+            "reports.supplier-purchase-invoice-aging.export",
+            "reports.supplier-purchase-invoice-aging.index",
+            "reports.supplier-purchase-invoice-aging.print",
+            "reports.supplier-purchase-invoice-aging.saved-views.store"
+        ],
+        "input_names": [
+            "aging_bucket",
+            "is_default",
+            "name",
+            "supplier_id"
+        ],
+        "data_test_ids": [
+            "supplier-aging-apply-filters",
+            "supplier-aging-bucket-filter",
+            "supplier-aging-bucket-select",
+            "supplier-aging-drilldown-link",
+            "supplier-aging-empty",
+            "supplier-aging-export-button",
+            "supplier-aging-filters",
+            "supplier-aging-print-link",
+            "supplier-aging-report-date",
+            "supplier-aging-reset-filters",
+            "supplier-aging-save-view-button",
+            "supplier-aging-save-view-card",
+            "supplier-aging-save-view-form",
+            "supplier-aging-saved-view-default-checkbox",
+            "supplier-aging-saved-view-name-input",
+            "supplier-aging-saved-views-selector",
+            "supplier-aging-status",
+            "supplier-aging-summary",
+            "supplier-aging-supplier-filter",
+            "supplier-aging-supplier-select",
+            "supplier-aging-table",
+            "supplier-purchase-invoice-aging-report"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_shared_saved_view_controls": false,
+        "contains_direct_saved_view_section_include": true,
+        "contains_inline_saved_view_form": true,
+        "contains_report_specific_config_partial": false
+    },
+    "implementation_notes": [
+        "Phase 64F does not modify the report Blade view.",
+        "Phase 64F does not register the target report yet.",
+        "Phase 64G should create the config partial, update the registry, replace the inline saved view controls block only, and validate focused tests before full suite.",
+        "Do not modify shared saved view partials."
+    ]
+}
