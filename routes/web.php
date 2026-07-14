@@ -263,6 +263,10 @@ Route::get('/reports/profit-loss/export', [\App\Http\Controllers\ProfitLossRepor
     ->middleware('auth')
     ->name('reports.profit-loss.export');
 
+Route::post('/reports/profit-loss/saved-views', [\App\Http\Controllers\ProfitLossReportController::class, 'storeSavedView'])
+    ->middleware('auth')
+    ->name('reports.profit-loss.saved-views.store');
+
 Route::get('/reports/financial-dashboard', \App\Http\Controllers\FinancialDashboardController::class)
     ->middleware('auth')
     ->name('reports.financial-dashboard');

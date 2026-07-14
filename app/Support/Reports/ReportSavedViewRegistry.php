@@ -210,6 +210,36 @@ class ReportSavedViewRegistry
                     'default_badge' => 'reports-index-saved-view-default-badge',
                 ],
             ],
+            'profit-loss' => [
+                'key' => 'profit-loss',
+                'label' => 'تقرير الأرباح والخسائر',
+                'view' => 'reports.profit-loss',
+                'view_path' => 'resources/views/reports/profit-loss.blade.php',
+                'index_route' => 'reports.profit-loss',
+                'export_route' => 'reports.profit-loss.export',
+                'saved_view_store_route' => 'reports.profit-loss.saved-views.store',
+                'config_partial' => 'reports.partials.profit-loss-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/profit-loss-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'from_date',
+                    'to_date',
+                    'branch_id',
+                ],
+                'test_ids' => [
+                    'section_card' => 'profit-loss-saved-views-selector',
+                    'empty' => 'profit-loss-saved-views-empty',
+                    'form_card' => 'profit-loss-save-view-card',
+                    'form' => 'profit-loss-save-view-form',
+                    'name_input' => 'profit-loss-saved-view-name-input',
+                    'default_checkbox' => 'profit-loss-saved-view-default-checkbox',
+                    'save_button' => 'profit-loss-save-view-button',
+                    'list' => 'profit-loss-saved-views-list',
+                    'item' => 'profit-loss-saved-view-item',
+                    'open_link' => 'profit-loss-saved-view-open-link',
+                    'active_badge' => 'profit-loss-saved-view-active-badge',
+                    'default_badge' => 'profit-loss-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

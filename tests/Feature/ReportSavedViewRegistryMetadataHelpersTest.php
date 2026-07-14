@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(7, ReportSavedViewRegistry::count());
+        $this->assertSame(8, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -21,6 +21,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('supplier-purchase-invoice-aging-drilldown', $keys);
         $this->assertContains('cash-flow-dashboard', $keys);
         $this->assertContains('index', $keys);
+        $this->assertContains('profit-loss', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -31,6 +32,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('تفاصيل فواتير الموردين المفتوحة', $labels['supplier-purchase-invoice-aging-drilldown']);
         $this->assertSame('لوحة التدفق النقدي المتوقع', $labels['cash-flow-dashboard']);
         $this->assertSame('التقارير المالية الأساسية', $labels['index']);
+        $this->assertSame('تقرير الأرباح والخسائر', $labels['profit-loss']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -67,6 +69,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/index.blade.php',
             $viewPaths['index']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/profit-loss.blade.php',
+            $viewPaths['profit-loss']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -151,6 +158,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.index.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('index')
         );
+
+        $this->assertSame('reports.profit-loss.export', $exportRoutes['profit-loss']);
+
+        $this->assertSame(
+            'reports.profit-loss',
+            ReportSavedViewRegistry::indexRoute('profit-loss')
+        );
+
+        $this->assertSame(
+            'reports.profit-loss.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('profit-loss')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -201,6 +220,12 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'payment_method',
         ], $hiddenFieldMap['index']);
 
+        $this->assertSame([
+            'from_date',
+            'to_date',
+            'branch_id',
+        ], $hiddenFieldMap['profit-loss']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -236,6 +261,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'reports-index-save-view-form',
             $testIdMap['index']['form']
+        );
+
+        $this->assertSame(
+            'profit-loss-save-view-form',
+            $testIdMap['profit-loss']['form']
         );
     }
 
@@ -280,6 +310,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.profit-loss-saved-view-controls-config',
+            $configPartials['profit-loss']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -309,6 +344,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['index']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/profit-loss-saved-view-controls-config.blade.php',
+            $configPartialPaths['profit-loss']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -318,7 +358,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(7, $rows);
+        $this->assertCount(8, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -329,6 +369,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging-drilldown'));
         $this->assertTrue($rowsByKey->has('cash-flow-dashboard'));
         $this->assertTrue($rowsByKey->has('index'));
+        $this->assertTrue($rowsByKey->has('profit-loss'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

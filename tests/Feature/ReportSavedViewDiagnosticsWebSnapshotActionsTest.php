@@ -88,7 +88,7 @@ class ReportSavedViewDiagnosticsWebSnapshotActionsTest extends TestCase
         $decoded = json_decode(file_get_contents($path), true);
 
         $this->assertSame('Report Saved View Registry Diagnostic Report', $decoded['title']);
-        $this->assertSame(7, $decoded['summary']['report_count']);
+        $this->assertSame(8, $decoded['summary']['report_count']);
     }
 
     public function test_authenticated_user_can_prune_snapshots_from_web(): void

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Services\ReportSavedViewService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +14,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProfitLossReportController extends Controller
 {
-    public function __invoke(Request $request): View
+    private const REPORT_KEY = 'profit-loss';
+
+    private const FILTER_KEYS = [
+        'from_date',
+        'to_date',
+        'branch_id',
+    ];
+
+    public function __invoke(Request $request, ReportSavedViewService $savedViews): View
     {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
+
         $filters = $this->filters($request);
         $summary = $this->summary($filters);
 
@@ -26,6 +38,7 @@ class ProfitLossReportController extends Controller
         return view('reports.profit-loss', array_merge($summary, [
             'filters' => $filters,
             'branches' => $branches,
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
         ]));
     }
 
@@ -61,6 +74,67 @@ class ProfitLossReportController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date'],
+            'branch_id' => ['nullable', 'integer'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'from_date' => $validated['from_date'] ?? null,
+            'to_date' => $validated['to_date'] ?? null,
+            'branch_id' => $validated['branch_id'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.profit-loss', $filters)
+            ->with('status', 'تم حفظ عرض تقرير الأرباح والخسائر بنجاح.');
+    }
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->filled($key)) {
+                return $request;
+            }
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        return $request->merge($filters);
     }
 
     /**

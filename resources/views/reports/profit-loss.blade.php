@@ -136,6 +136,12 @@
 </head>
 <body>
 <div class="container" data-testid="profit-loss-report">
+    @if (session('status'))
+        <div class="card" data-testid="profit-loss-status">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <div class="card">
         <h1>تقرير الأرباح والخسائر</h1>
         <div class="muted">
@@ -182,6 +188,8 @@
             </a>
         </div>
     </div>
+
+    @include('reports.partials.profit-loss-saved-view-controls-config')
 
     <div class="metrics">
         <div class="metric" data-testid="profit-loss-total-revenues">
