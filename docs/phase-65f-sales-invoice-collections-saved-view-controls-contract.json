@@ -1,0 +1,111 @@
+{
+    "phase": "Phase 65F",
+    "title": "Prepare Sales Invoice Collections Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 65E clean",
+        "commit": "dd92db4",
+        "previous_tests": "1155 passed / 10046 assertions"
+    },
+    "source_lock": "docs/phase-65e-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "sales-invoice-collections",
+        "view_path": "resources/views/reports/sales-invoice-collections.blade.php",
+        "controller_path": "app/Http/Controllers/SalesInvoiceCollectionReportController.php",
+        "priority_score": 40,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": true,
+        "has_saved_view_controls_at_lock_time": false,
+        "print_only_candidate": false
+    },
+    "eligibility_decision": {
+        "status": "eligible_for_empty_filter_saved_view_controls_rollout",
+        "reason": "The target is a non-print production report surface. It currently has no GET filter form, so saved views should persist an empty filter set unless filters are added later.",
+        "rollout_mode": "empty_filter_report_saved_views",
+        "do_register_report_saved_view_key": true,
+        "do_create_saved_view_controls_config_partial": true,
+        "do_add_saved_view_store_route": true,
+        "do_add_json_export_route_for_registry_export_route": true,
+        "do_not_modify_shared_saved_view_partials": true
+    },
+    "current_state_evidence": {
+        "view_exists": true,
+        "controller_exists": true,
+        "is_standalone_html_document": true,
+        "contains_interactive_form": false,
+        "contains_get_form": false,
+        "contains_saved_view_controls_include_or_inline_config": false,
+        "index_route_exists": true,
+        "json_route_exists": false,
+        "saved_view_store_route_exists": false,
+        "controller_filters_remaining_amount_positive": true,
+        "controller_limits_to_50_rows": true,
+        "data_test_ids_in_view": [
+            "collection-invoice-row",
+            "collection-invoices-empty",
+            "collection-outstanding-count",
+            "collection-outstanding-total",
+            "collection-overdue-count",
+            "collection-overdue-total",
+            "collection-partial-count",
+            "collection-partial-total",
+            "collection-unpaid-count",
+            "collection-unpaid-total",
+            "sales-invoice-collection-invoices-card",
+            "sales-invoice-collection-report-back-link",
+            "sales-invoice-collection-report-overdue-link",
+            "sales-invoice-collection-report-page",
+            "sales-invoice-collection-summary-card"
+        ]
+    },
+    "route_contract": {
+        "existing_index_route": "reports.sales-invoice-collections.index",
+        "json_export_route_to_add": "reports.sales-invoice-collections.json",
+        "json_export_path_to_add": "/reports/sales-invoice-collections/json",
+        "saved_view_store_route_to_add": "reports.sales-invoice-collections.saved-views.store",
+        "saved_view_store_path_to_add": "/reports/sales-invoice-collections/saved-views"
+    },
+    "view_contract": {
+        "config_partial": "reports.partials.sales-invoice-collections-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/sales-invoice-collections-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "include_config_partial_in_view": true,
+        "status_alert_test_id": "sales-invoice-collections-status",
+        "hidden_fields": [],
+        "test_ids": {
+            "section_card": "sales-invoice-collections-saved-views-selector",
+            "empty": "sales-invoice-collections-saved-views-empty",
+            "form_card": "sales-invoice-collections-save-view-card",
+            "form": "sales-invoice-collections-save-view-form",
+            "name_input": "sales-invoice-collections-saved-view-name-input",
+            "default_checkbox": "sales-invoice-collections-saved-view-default-checkbox",
+            "save_button": "sales-invoice-collections-save-view-button",
+            "list": "sales-invoice-collections-saved-views-list",
+            "item": "sales-invoice-collections-saved-view-item",
+            "open_link": "sales-invoice-collections-saved-view-open-link",
+            "active_badge": "sales-invoice-collections-saved-view-active-badge",
+            "default_badge": "sales-invoice-collections-saved-view-default-badge"
+        }
+    },
+    "registry_contract": {
+        "key": "sales-invoice-collections",
+        "label": "تقرير تحصيل فواتير المبيعات",
+        "view": "reports.sales-invoice-collections",
+        "view_path": "resources/views/reports/sales-invoice-collections.blade.php",
+        "index_route": "reports.sales-invoice-collections.index",
+        "export_route": "reports.sales-invoice-collections.json",
+        "saved_view_store_route": "reports.sales-invoice-collections.saved-views.store",
+        "config_partial": "reports.partials.sales-invoice-collections-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/sales-invoice-collections-saved-view-controls-config.blade.php",
+        "hidden_fields": []
+    },
+    "guardrails": [
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite the whole report into layout inheritance.",
+        "Keep empty hidden_fields because the target has no GET filters.",
+        "Run focused tests before full suite."
+    ]
+}
