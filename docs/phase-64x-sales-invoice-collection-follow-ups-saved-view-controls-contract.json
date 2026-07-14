@@ -1,0 +1,106 @@
+{
+    "phase": "Phase 64X",
+    "title": "Prepare Sales Invoice Collection Follow Ups Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64W clean",
+        "commit": "ebc6079",
+        "tests": "1117 passed / 9509 assertions"
+    },
+    "source_lock": "docs/phase-64w-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "sales-invoice-collection-follow-ups",
+        "view_path": "resources/views/reports/sales-invoice-collection-follow-ups.blade.php",
+        "controller_path": "app/Http/Controllers/SalesInvoiceCollectionFollowUpReportController.php",
+        "priority_score": 80,
+        "registered_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "sales-invoice-collection-follow-ups",
+        "view_path": "resources/views/reports/sales-invoice-collection-follow-ups.blade.php",
+        "controller_path": "app/Http/Controllers/SalesInvoiceCollectionFollowUpReportController.php",
+        "config_partial": "reports.partials.sales-invoice-collection-follow-ups-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/sales-invoice-collection-follow-ups-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.sales-invoice-collection-follow-ups-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.sales-invoice-collection-follow-ups.index",
+        "export_route": "reports.sales-invoice-collection-follow-ups.export",
+        "saved_view_store_route": "reports.sales-invoice-collection-follow-ups.saved-views.store",
+        "candidate_hidden_fields": [
+            "customer_id",
+            "follow_up_from",
+            "follow_up_to"
+        ],
+        "test_ids": {
+            "section_card": "sales-invoice-collection-follow-ups-saved-views-selector",
+            "empty": "sales-invoice-collection-follow-ups-saved-views-empty",
+            "form_card": "sales-invoice-collection-follow-ups-save-view-card",
+            "form": "sales-invoice-collection-follow-ups-save-view-form",
+            "name_input": "sales-invoice-collection-follow-ups-saved-view-name-input",
+            "default_checkbox": "sales-invoice-collection-follow-ups-saved-view-default-checkbox",
+            "save_button": "sales-invoice-collection-follow-ups-save-view-button",
+            "list": "sales-invoice-collection-follow-ups-saved-views-list",
+            "item": "sales-invoice-collection-follow-ups-saved-view-item",
+            "open_link": "sales-invoice-collection-follow-ups-saved-view-open-link",
+            "active_badge": "sales-invoice-collection-follow-ups-saved-view-active-badge",
+            "default_badge": "sales-invoice-collection-follow-ups-saved-view-default-badge"
+        }
+    },
+    "current_state_evidence": {
+        "route_names_in_view": [
+            "reports.index",
+            "reports.sales-invoice-collection-follow-ups.export",
+            "reports.sales-invoice-collection-follow-ups.index",
+            "reports.sales-invoice-collections.index",
+            "sales-invoices.show"
+        ],
+        "input_names_in_view": [
+            "customer_id",
+            "follow_up_from",
+            "follow_up_to"
+        ],
+        "data_test_ids_in_view": [
+            "collection-follow-up-apply-filters-button",
+            "collection-follow-up-customer-filter",
+            "collection-follow-up-due-count",
+            "collection-follow-up-from-filter",
+            "collection-follow-up-invoices-count",
+            "collection-follow-up-note-row",
+            "collection-follow-up-notes-card",
+            "collection-follow-up-notes-empty",
+            "collection-follow-up-remaining-total",
+            "collection-follow-up-report-back-link",
+            "collection-follow-up-report-collection-report-link",
+            "collection-follow-up-report-export-link",
+            "collection-follow-up-report-filters-card",
+            "collection-follow-up-reset-filters-link",
+            "collection-follow-up-summary-card",
+            "collection-follow-up-to-filter",
+            "collection-follow-up-upcoming-count",
+            "sales-invoice-collection-follow-up-report-page"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_saved_view_controls": false,
+        "contains_report_specific_config_partial": false,
+        "controller_has_report_key_constant": false,
+        "controller_uses_report_saved_view_service": false,
+        "controller_has_store_saved_view_method": false,
+        "controller_has_index_method": true,
+        "controller_has_export_method": true,
+        "routes_have_index_route": true,
+        "routes_have_export_route": true,
+        "routes_have_saved_view_store_route": false
+    },
+    "implementation_notes": [
+        "Phase 64X does not modify the sales invoice collection follow ups Blade view.",
+        "Phase 64X does not register the target report yet.",
+        "Phase 64Y should add REPORT_KEY and FILTER_KEYS to SalesInvoiceCollectionFollowUpReportController.",
+        "Phase 64Y should add ReportSavedViewService support to the index method and preserve existing filtering behavior.",
+        "Phase 64Y should add default saved view application only when no explicit filter input exists.",
+        "Phase 64Y should add a POST saved-view store route named reports.sales-invoice-collection-follow-ups.saved-views.store.",
+        "Phase 64Y should create the report-specific config partial and insert the config include after the GET filters card, before the summary card.",
+        "Phase 64Y should register sales-invoice-collection-follow-ups with export_route reports.sales-invoice-collection-follow-ups.export because the registry validator requires export_route.",
+        "Do not modify shared saved view partials."
+    ]
+}
