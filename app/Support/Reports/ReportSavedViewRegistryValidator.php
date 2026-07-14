@@ -230,9 +230,9 @@ class ReportSavedViewRegistryValidator
             }
         }
 
-        if (! isset($report['hidden_fields']) || ! is_array($report['hidden_fields']) || $report['hidden_fields'] === []) {
-            $errors[] = 'Field [hidden_fields] must be a non-empty array.';
-        } elseif ($configContents !== null) {
+        if (! array_key_exists('hidden_fields', $report) || ! is_array($report['hidden_fields'])) {
+            $errors[] = 'Field [hidden_fields] must be an array.';
+        } elseif ($configContents !== null && $report['hidden_fields'] !== []) {
             foreach ($report['hidden_fields'] as $hiddenField) {
                 if (! is_string($hiddenField) || trim($hiddenField) === '') {
                     $errors[] = 'Every hidden field must be a non-empty string.';

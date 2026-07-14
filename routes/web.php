@@ -343,13 +343,18 @@ Route::post('/reports/saved-view-diagnostics/snapshots/prune', function () {
         ->with('status', 'Diagnostic snapshots pruned: '.$result['deleted_count']);
 })->middleware('auth')->name('reports.saved-view-diagnostics.snapshots.prune');
 
-Route::get('/reports/saved-view-candidates', function () {
+Route::get('/reports/saved-view-candidates', function (\App\Services\ReportSavedViewService $savedViews) {
+    $savedViewsForReport = \Illuminate\Support\Facades\Schema::hasTable('report_saved_views')
+        ? $savedViews->listForReport(request()->user(), 'saved-view-candidates')
+        : collect();
+
     return view('reports.saved-view-candidates', [
         'candidateSummary' => ReportSavedViewCandidateScanner::summary(),
         'candidates' => ReportSavedViewCandidateScanner::candidates(),
         'candidateMarkdown' => ReportSavedViewCandidateScanner::markdown(),
         'candidateWebLinks' => ReportSavedViewCandidateScannerWebLinks::items(),
         'candidateCommandExamples' => ReportSavedViewCandidateScannerWebLinks::commandExamples(),
+        'savedViews' => $savedViewsForReport,
     ]);
 })->middleware('auth')->name('reports.saved-view-candidates.index');
 
@@ -365,6 +370,25 @@ Route::get('/reports/saved-view-candidates/json', function () {
         'candidates' => ReportSavedViewCandidateScanner::candidates(),
     ]);
 })->middleware('auth')->name('reports.saved-view-candidates.json');
+
+Route::post('/reports/saved-view-candidates/saved-views', function (\Illuminate\Http\Request $request, \App\Services\ReportSavedViewService $savedViews) {
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:120'],
+        'is_default' => ['nullable'],
+    ]);
+
+    $savedViews->save(
+        $request->user(),
+        'saved-view-candidates',
+        $validated['name'],
+        [],
+        $request->boolean('is_default')
+    );
+
+    return redirect()
+        ->route('reports.saved-view-candidates.index')
+        ->with('status', 'تم حفظ عرض مرشحي Saved Views بنجاح.');
+})->middleware('auth')->name('reports.saved-view-candidates.saved-views.store');
 
 Route::get('/reports/saved-view-rollout-selector', function () {
     return view('reports.saved-view-rollout-selector', [

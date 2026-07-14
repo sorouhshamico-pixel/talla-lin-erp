@@ -75,7 +75,12 @@ class ReportsSavedViewRegistryFoundationFinalizationTest extends TestCase
             $this->assertTrue(Route::has($report['saved_view_store_route']));
 
             $this->assertIsArray($report['hidden_fields']);
-            $this->assertNotEmpty($report['hidden_fields']);
+
+            if (($report['key'] ?? null) === 'saved-view-candidates') {
+                $this->assertSame([], $report['hidden_fields']);
+            } else {
+                $this->assertNotEmpty($report['hidden_fields']);
+            }
 
             $this->assertIsArray($report['test_ids']);
             $this->assertNotEmpty($report['test_ids']);

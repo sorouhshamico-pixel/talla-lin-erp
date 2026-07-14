@@ -299,6 +299,32 @@ class ReportSavedViewRegistry
                     'default_badge' => 'sales-invoice-collection-follow-ups-saved-view-default-badge',
                 ],
             ],
+            'saved-view-candidates' => [
+                'key' => 'saved-view-candidates',
+                'label' => 'مرشحو عروض التقارير المحفوظة',
+                'view' => 'reports.saved-view-candidates',
+                'view_path' => 'resources/views/reports/saved-view-candidates.blade.php',
+                'index_route' => 'reports.saved-view-candidates.index',
+                'export_route' => 'reports.saved-view-candidates.json',
+                'saved_view_store_route' => 'reports.saved-view-candidates.saved-views.store',
+                'config_partial' => 'reports.partials.saved-view-candidates-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/saved-view-candidates-saved-view-controls-config.blade.php',
+                'hidden_fields' => [],
+                'test_ids' => [
+                    'section_card' => 'saved-view-candidates-saved-views-selector',
+                    'empty' => 'saved-view-candidates-saved-views-empty',
+                    'form_card' => 'saved-view-candidates-save-view-card',
+                    'form' => 'saved-view-candidates-save-view-form',
+                    'name_input' => 'saved-view-candidates-saved-view-name-input',
+                    'default_checkbox' => 'saved-view-candidates-saved-view-default-checkbox',
+                    'save_button' => 'saved-view-candidates-save-view-button',
+                    'list' => 'saved-view-candidates-saved-views-list',
+                    'item' => 'saved-view-candidates-saved-view-item',
+                    'open_link' => 'saved-view-candidates-saved-view-open-link',
+                    'active_badge' => 'saved-view-candidates-saved-view-active-badge',
+                    'default_badge' => 'saved-view-candidates-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

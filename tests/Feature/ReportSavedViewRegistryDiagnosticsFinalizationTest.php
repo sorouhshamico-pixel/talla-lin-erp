@@ -11,7 +11,7 @@ class ReportSavedViewRegistryDiagnosticsFinalizationTest extends TestCase
     {
         $diagnostics = ReportSavedViewRegistryValidator::diagnostics();
 
-        $this->assertCount(10, $diagnostics);
+        $this->assertCount(11, $diagnostics);
 
         $rowsByKey = collect($diagnostics)->keyBy('key');
 
@@ -26,6 +26,7 @@ class ReportSavedViewRegistryDiagnosticsFinalizationTest extends TestCase
             'profit-loss',
             'receivable-payable-aging-dashboard',
             'sales-invoice-collection-follow-ups',
+            'saved-view-candidates',
         ] as $key) {
             $this->assertTrue($rowsByKey->has($key));
 
@@ -65,6 +66,7 @@ class ReportSavedViewRegistryDiagnosticsFinalizationTest extends TestCase
             'profit-loss',
             'receivable-payable-aging-dashboard',
             'sales-invoice-collection-follow-ups',
+            'saved-view-candidates',
         ], $validReportKeys);
     }
 

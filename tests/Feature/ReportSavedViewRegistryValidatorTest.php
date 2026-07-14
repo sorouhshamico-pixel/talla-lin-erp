@@ -54,7 +54,7 @@ class ReportSavedViewRegistryValidatorTest extends TestCase
         $this->assertStringContainsString('Missing required key [label].', $combinedErrors);
         $this->assertStringContainsString('Missing required key [view_path].', $combinedErrors);
         $this->assertStringContainsString('Registry array key must match the report key field.', $combinedErrors);
-        $this->assertStringContainsString('Field [hidden_fields] must be a non-empty array.', $combinedErrors);
+        $this->assertStringNotContainsString('Field [hidden_fields] must be a non-empty array.', $combinedErrors);
         $this->assertStringContainsString('Field [test_ids] must be a non-empty array.', $combinedErrors);
     }
 

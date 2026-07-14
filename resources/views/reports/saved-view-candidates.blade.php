@@ -14,6 +14,12 @@
     @endphp
 
     <div class="container py-4" data-testid="report-saved-view-candidates-page">
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="saved-view-candidates-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="mb-4">
             <h1 class="h3 mb-2">Report Saved View Candidates</h1>
             <p class="text-muted mb-0">
@@ -49,6 +55,8 @@
                 </div>
             </div>
         </div>
+
+        @include('reports.partials.saved-view-candidates-saved-view-controls-config')
 
         <div class="card mb-4" data-testid="report-saved-view-candidates-web-links">
             <div class="card-header">

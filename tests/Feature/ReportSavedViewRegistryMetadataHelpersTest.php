@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(10, ReportSavedViewRegistry::count());
+        $this->assertSame(11, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -24,6 +24,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('profit-loss', $keys);
         $this->assertContains('receivable-payable-aging-dashboard', $keys);
         $this->assertContains('sales-invoice-collection-follow-ups', $keys);
+        $this->assertContains('saved-view-candidates', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -37,6 +38,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('تقرير الأرباح والخسائر', $labels['profit-loss']);
         $this->assertSame('لوحة أعمار الذمم', $labels['receivable-payable-aging-dashboard']);
         $this->assertSame('تقرير متابعات تحصيل فواتير المبيعات', $labels['sales-invoice-collection-follow-ups']);
+        $this->assertSame('مرشحو عروض التقارير المحفوظة', $labels['saved-view-candidates']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -88,6 +90,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/sales-invoice-collection-follow-ups.blade.php',
             $viewPaths['sales-invoice-collection-follow-ups']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/saved-view-candidates.blade.php',
+            $viewPaths['saved-view-candidates']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -208,6 +215,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.sales-invoice-collection-follow-ups.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('sales-invoice-collection-follow-ups')
         );
+
+        $this->assertSame('reports.saved-view-candidates.json', $exportRoutes['saved-view-candidates']);
+
+        $this->assertSame(
+            'reports.saved-view-candidates.index',
+            ReportSavedViewRegistry::indexRoute('saved-view-candidates')
+        );
+
+        $this->assertSame(
+            'reports.saved-view-candidates.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('saved-view-candidates')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -275,6 +294,8 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'follow_up_to',
         ], $hiddenFieldMap['sales-invoice-collection-follow-ups']);
 
+        $this->assertSame([], $hiddenFieldMap['saved-view-candidates']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -325,6 +346,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'sales-invoice-collection-follow-ups-save-view-form',
             $testIdMap['sales-invoice-collection-follow-ups']['form']
+        );
+
+        $this->assertSame(
+            'saved-view-candidates-save-view-form',
+            $testIdMap['saved-view-candidates']['form']
         );
     }
 
@@ -384,6 +410,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.saved-view-candidates-saved-view-controls-config',
+            $configPartials['saved-view-candidates']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -428,6 +459,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['sales-invoice-collection-follow-ups']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/saved-view-candidates-saved-view-controls-config.blade.php',
+            $configPartialPaths['saved-view-candidates']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -437,7 +473,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(10, $rows);
+        $this->assertCount(11, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -451,6 +487,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('profit-loss'));
         $this->assertTrue($rowsByKey->has('receivable-payable-aging-dashboard'));
         $this->assertTrue($rowsByKey->has('sales-invoice-collection-follow-ups'));
+        $this->assertTrue($rowsByKey->has('saved-view-candidates'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);
