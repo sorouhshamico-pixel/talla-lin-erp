@@ -57,6 +57,37 @@ class ReportSavedViewRegistry
                     'save_button' => 'customer-aging-save-view-button',
                 ],
             ],
+            'customer-sales-invoice-aging-drilldown' => [
+                'key' => 'customer-sales-invoice-aging-drilldown',
+                'label' => 'تفاصيل فواتير العملاء المفتوحة',
+                'view' => 'reports.customer-sales-invoice-aging-drilldown',
+                'view_path' => 'resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php',
+                'index_route' => 'reports.customer-sales-invoice-aging.drilldown',
+                'export_route' => 'reports.customer-sales-invoice-aging.drilldown.export',
+                'saved_view_store_route' => 'reports.customer-sales-invoice-aging.drilldown.saved-views.store',
+                'config_partial' => 'reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/customer-sales-invoice-aging-drilldown-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'customer_id',
+                    'branch_id',
+                    'as_of_date',
+                    'aging_bucket',
+                ],
+                'test_ids' => [
+                    'section_card' => 'customer-aging-drilldown-saved-views-selector',
+                    'empty' => 'customer-aging-drilldown-saved-views-empty',
+                    'form_card' => 'customer-aging-drilldown-save-view-card',
+                    'form' => 'customer-aging-drilldown-save-view-form',
+                    'name_input' => 'customer-aging-drilldown-saved-view-name-input',
+                    'default_checkbox' => 'customer-aging-drilldown-saved-view-default-checkbox',
+                    'save_button' => 'customer-aging-drilldown-save-view-button',
+                    'list' => 'customer-aging-drilldown-saved-views-list',
+                    'row' => 'customer-aging-drilldown-saved-view-row',
+                    'open_link' => 'customer-aging-drilldown-saved-view-open-link',
+                    'active_badge' => 'customer-aging-drilldown-saved-view-active-badge',
+                    'default_badge' => 'customer-aging-drilldown-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

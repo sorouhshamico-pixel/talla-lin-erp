@@ -11,13 +11,14 @@ class ReportSavedViewRegistryDiagnosticsFinalizationTest extends TestCase
     {
         $diagnostics = ReportSavedViewRegistryValidator::diagnostics();
 
-        $this->assertCount(2, $diagnostics);
+        $this->assertCount(3, $diagnostics);
 
         $rowsByKey = collect($diagnostics)->keyBy('key');
 
         foreach ([
             'sales-invoice-aging',
             'customer-sales-invoice-aging',
+            'customer-sales-invoice-aging-drilldown',
         ] as $key) {
             $this->assertTrue($rowsByKey->has($key));
 
@@ -49,6 +50,7 @@ class ReportSavedViewRegistryDiagnosticsFinalizationTest extends TestCase
         $this->assertSame([
             'sales-invoice-aging',
             'customer-sales-invoice-aging',
+            'customer-sales-invoice-aging-drilldown',
         ], $validReportKeys);
     }
 

@@ -10,17 +10,19 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(2, ReportSavedViewRegistry::count());
+        $this->assertSame(3, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
         $this->assertContains('sales-invoice-aging', $keys);
         $this->assertContains('customer-sales-invoice-aging', $keys);
+        $this->assertContains('customer-sales-invoice-aging-drilldown', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
         $this->assertSame('تقرير أعمار ذمم فواتير المبيعات', $labels['sales-invoice-aging']);
         $this->assertSame('تقرير أعمار ذمم العملاء', $labels['customer-sales-invoice-aging']);
+        $this->assertSame('تفاصيل فواتير العملاء المفتوحة', $labels['customer-sales-invoice-aging-drilldown']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -32,6 +34,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/customer-sales-invoice-aging.blade.php',
             $viewPaths['customer-sales-invoice-aging']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/customer-sales-invoice-aging-drilldown.blade.php',
+            $viewPaths['customer-sales-invoice-aging-drilldown']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -62,6 +69,16 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.customer-sales-invoice-aging.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('customer-sales-invoice-aging')
         );
+
+        $this->assertSame(
+            'reports.customer-sales-invoice-aging.drilldown',
+            ReportSavedViewRegistry::indexRoute('customer-sales-invoice-aging-drilldown')
+        );
+
+        $this->assertSame(
+            'reports.customer-sales-invoice-aging.drilldown.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('customer-sales-invoice-aging-drilldown')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -79,6 +96,13 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'aging_bucket',
         ], $hiddenFieldMap['customer-sales-invoice-aging']);
 
+        $this->assertSame([
+            'customer_id',
+            'branch_id',
+            'as_of_date',
+            'aging_bucket',
+        ], $hiddenFieldMap['customer-sales-invoice-aging-drilldown']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -89,6 +113,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'customer-aging-save-view-form',
             $testIdMap['customer-sales-invoice-aging']['form']
+        );
+
+        $this->assertSame(
+            'customer-aging-drilldown-save-view-form',
+            $testIdMap['customer-sales-invoice-aging-drilldown']['form']
         );
     }
 
@@ -108,8 +137,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.customer-sales-invoice-aging-drilldown-saved-view-controls-config',
+            $configPartials['customer-sales-invoice-aging-drilldown']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/partials/customer-sales-invoice-aging-drilldown-saved-view-controls-config.blade.php',
+            $configPartialPaths['customer-sales-invoice-aging-drilldown']
         );
 
         foreach ($configPartialPaths as $configPartialPath) {
@@ -121,12 +160,13 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(2, $rows);
+        $this->assertCount(3, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
         $this->assertTrue($rowsByKey->has('sales-invoice-aging'));
         $this->assertTrue($rowsByKey->has('customer-sales-invoice-aging'));
+        $this->assertTrue($rowsByKey->has('customer-sales-invoice-aging-drilldown'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);
