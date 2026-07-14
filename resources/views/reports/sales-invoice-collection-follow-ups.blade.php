@@ -27,6 +27,12 @@
 </head>
 <body>
 <div class="container" data-testid="sales-invoice-collection-follow-up-report-page">
+    @if (session('status'))
+        <div class="card" data-testid="sales-invoice-collection-follow-ups-status">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <div class="card">
         <div class="header">
             <div>
@@ -97,6 +103,8 @@
             </div>
         </form>
     </div>
+
+    @include('reports.partials.sales-invoice-collection-follow-ups-saved-view-controls-config')
 
     <div class="card" data-testid="collection-follow-up-summary-card">
         <h2>ملخص المتابعات</h2>

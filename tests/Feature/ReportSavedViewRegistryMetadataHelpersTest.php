@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(9, ReportSavedViewRegistry::count());
+        $this->assertSame(10, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -23,6 +23,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('index', $keys);
         $this->assertContains('profit-loss', $keys);
         $this->assertContains('receivable-payable-aging-dashboard', $keys);
+        $this->assertContains('sales-invoice-collection-follow-ups', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -35,6 +36,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('التقارير المالية الأساسية', $labels['index']);
         $this->assertSame('تقرير الأرباح والخسائر', $labels['profit-loss']);
         $this->assertSame('لوحة أعمار الذمم', $labels['receivable-payable-aging-dashboard']);
+        $this->assertSame('تقرير متابعات تحصيل فواتير المبيعات', $labels['sales-invoice-collection-follow-ups']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -81,6 +83,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/receivable-payable-aging-dashboard.blade.php',
             $viewPaths['receivable-payable-aging-dashboard']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/sales-invoice-collection-follow-ups.blade.php',
+            $viewPaths['sales-invoice-collection-follow-ups']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -189,6 +196,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.receivable-payable-aging-dashboard.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('receivable-payable-aging-dashboard')
         );
+
+        $this->assertSame('reports.sales-invoice-collection-follow-ups.export', $exportRoutes['sales-invoice-collection-follow-ups']);
+
+        $this->assertSame(
+            'reports.sales-invoice-collection-follow-ups.index',
+            ReportSavedViewRegistry::indexRoute('sales-invoice-collection-follow-ups')
+        );
+
+        $this->assertSame(
+            'reports.sales-invoice-collection-follow-ups.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('sales-invoice-collection-follow-ups')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -250,6 +269,12 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'as_of_date',
         ], $hiddenFieldMap['receivable-payable-aging-dashboard']);
 
+        $this->assertSame([
+            'customer_id',
+            'follow_up_from',
+            'follow_up_to',
+        ], $hiddenFieldMap['sales-invoice-collection-follow-ups']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -295,6 +320,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'receivable-payable-aging-dashboard-save-view-form',
             $testIdMap['receivable-payable-aging-dashboard']['form']
+        );
+
+        $this->assertSame(
+            'sales-invoice-collection-follow-ups-save-view-form',
+            $testIdMap['sales-invoice-collection-follow-ups']['form']
         );
     }
 
@@ -349,6 +379,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.sales-invoice-collection-follow-ups-saved-view-controls-config',
+            $configPartials['sales-invoice-collection-follow-ups']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -388,6 +423,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['receivable-payable-aging-dashboard']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/sales-invoice-collection-follow-ups-saved-view-controls-config.blade.php',
+            $configPartialPaths['sales-invoice-collection-follow-ups']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -397,7 +437,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(9, $rows);
+        $this->assertCount(10, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -410,6 +450,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('index'));
         $this->assertTrue($rowsByKey->has('profit-loss'));
         $this->assertTrue($rowsByKey->has('receivable-payable-aging-dashboard'));
+        $this->assertTrue($rowsByKey->has('sales-invoice-collection-follow-ups'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

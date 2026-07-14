@@ -4,13 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\SalesInvoiceCollectionNote;
+use App\Services\ReportSavedViewService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SalesInvoiceCollectionFollowUpReportController extends Controller
 {
-    public function index(Request $request): View
+    private const REPORT_KEY = 'sales-invoice-collection-follow-ups';
+
+    private const FILTER_KEYS = [
+        'customer_id',
+        'follow_up_from',
+        'follow_up_to',
+    ];
+
+    public function index(Request $request, ReportSavedViewService $savedViews): View
     {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
+
         $today = now()->toDateString();
 
         $customers = Customer::query()
@@ -73,8 +85,82 @@ class SalesInvoiceCollectionFollowUpReportController extends Controller
             'customerFilter' => $request->input('customer_id'),
             'followUpFromFilter' => $request->input('follow_up_from'),
             'followUpToFilter' => $request->input('follow_up_to'),
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
         ]);
     }
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'customer_id' => ['nullable', 'integer'],
+            'follow_up_from' => ['nullable', 'date'],
+            'follow_up_to' => ['nullable', 'date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'customer_id' => $validated['customer_id'] ?? null,
+            'follow_up_from' => $validated['follow_up_from'] ?? null,
+            'follow_up_to' => $validated['follow_up_to'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.sales-invoice-collection-follow-ups.index', $filters)
+            ->with('status', 'تم حفظ عرض تقرير متابعات التحصيل بنجاح.');
+    }
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        if ($this->hasFilterInput($request)) {
+            return $request;
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        $request->query->add($filters);
+
+        return $request->merge($filters);
+    }
+
+    private function hasFilterInput(Request $request): bool
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->query->has($key) || $request->request->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $today = now()->toDateString();

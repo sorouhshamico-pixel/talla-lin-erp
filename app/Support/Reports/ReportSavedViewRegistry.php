@@ -269,6 +269,36 @@ class ReportSavedViewRegistry
                     'default_badge' => 'receivable-payable-aging-dashboard-saved-view-default-badge',
                 ],
             ],
+            'sales-invoice-collection-follow-ups' => [
+                'key' => 'sales-invoice-collection-follow-ups',
+                'label' => 'تقرير متابعات تحصيل فواتير المبيعات',
+                'view' => 'reports.sales-invoice-collection-follow-ups',
+                'view_path' => 'resources/views/reports/sales-invoice-collection-follow-ups.blade.php',
+                'index_route' => 'reports.sales-invoice-collection-follow-ups.index',
+                'export_route' => 'reports.sales-invoice-collection-follow-ups.export',
+                'saved_view_store_route' => 'reports.sales-invoice-collection-follow-ups.saved-views.store',
+                'config_partial' => 'reports.partials.sales-invoice-collection-follow-ups-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/sales-invoice-collection-follow-ups-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'customer_id',
+                    'follow_up_from',
+                    'follow_up_to',
+                ],
+                'test_ids' => [
+                    'section_card' => 'sales-invoice-collection-follow-ups-saved-views-selector',
+                    'empty' => 'sales-invoice-collection-follow-ups-saved-views-empty',
+                    'form_card' => 'sales-invoice-collection-follow-ups-save-view-card',
+                    'form' => 'sales-invoice-collection-follow-ups-save-view-form',
+                    'name_input' => 'sales-invoice-collection-follow-ups-saved-view-name-input',
+                    'default_checkbox' => 'sales-invoice-collection-follow-ups-saved-view-default-checkbox',
+                    'save_button' => 'sales-invoice-collection-follow-ups-save-view-button',
+                    'list' => 'sales-invoice-collection-follow-ups-saved-views-list',
+                    'item' => 'sales-invoice-collection-follow-ups-saved-view-item',
+                    'open_link' => 'sales-invoice-collection-follow-ups-saved-view-open-link',
+                    'active_badge' => 'sales-invoice-collection-follow-ups-saved-view-active-badge',
+                    'default_badge' => 'sales-invoice-collection-follow-ups-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 
