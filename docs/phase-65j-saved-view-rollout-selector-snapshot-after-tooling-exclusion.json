@@ -1,0 +1,112 @@
+{
+    "phase": "Phase 65J",
+    "title": "Saved View Rollout Selector Snapshot After Internal Tooling Exclusion",
+    "baseline": {
+        "phase": "Phase 65I clean",
+        "commit": "f265104",
+        "tests": "1175 passed / 10324 assertions"
+    },
+    "selector_plan": {
+        "has_next_candidate": true,
+        "next_candidate": {
+            "key": "saved-view-rollout-target",
+            "view_path": "resources/views/reports/saved-view-rollout-target.blade.php",
+            "registered": false,
+            "has_get_form": false,
+            "has_filter_terms": true,
+            "has_saved_view_controls": false,
+            "priority_score": 40
+        },
+        "candidate_count": 20,
+        "unregistered_candidate_count": 3,
+        "registered_candidate_count": 12,
+        "excluded_print_candidate_count": 4,
+        "excluded_print_candidates": [
+            {
+                "key": "cash-flow-dashboard-print",
+                "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            },
+            {
+                "key": "customer-sales-invoice-aging-print",
+                "view_path": "resources/views/reports/customer-sales-invoice-aging-print.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            },
+            {
+                "key": "receivable-payable-aging-dashboard-print",
+                "view_path": "resources/views/reports/receivable-payable-aging-dashboard-print.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            },
+            {
+                "key": "supplier-purchase-invoice-aging-print",
+                "view_path": "resources/views/reports/supplier-purchase-invoice-aging-print.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            }
+        ],
+        "excluded_tooling_candidate_count": 1,
+        "excluded_tooling_candidates": [
+            {
+                "key": "saved-view-rollout-selector",
+                "view_path": "resources/views/reports/saved-view-rollout-selector.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            }
+        ],
+        "prioritized_candidates": [
+            {
+                "key": "saved-view-rollout-target",
+                "view_path": "resources/views/reports/saved-view-rollout-target.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": true,
+                "has_saved_view_controls": false,
+                "priority_score": 40
+            },
+            {
+                "key": "center",
+                "view_path": "resources/views/reports/center.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": false,
+                "has_saved_view_controls": false,
+                "priority_score": 10
+            },
+            {
+                "key": "financial-dashboard",
+                "view_path": "resources/views/reports/financial-dashboard.blade.php",
+                "registered": false,
+                "has_get_form": false,
+                "has_filter_terms": false,
+                "has_saved_view_controls": false,
+                "priority_score": 10
+            }
+        ],
+        "recommended_steps": [
+            "Review the Blade view: resources/views/reports/saved-view-rollout-target.blade.php",
+            "Identify GET filters and hidden fields required for saved views.",
+            "Create a report-specific saved view controls config partial.",
+            "Add the report to ReportSavedViewRegistry.",
+            "Add render, registry, and rollout guard tests.",
+            "Run php artisan reports:saved-view-diagnostics after rollout."
+        ]
+    }
+}

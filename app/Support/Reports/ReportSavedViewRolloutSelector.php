@@ -27,6 +27,7 @@ class ReportSavedViewRolloutSelector
         return array_values(array_filter(
             $candidates,
             fn (array $candidate): bool => ! self::isPrintOnlyCandidate($candidate)
+                && ! self::isInternalToolingCandidate($candidate)
         ));
     }
 
@@ -39,6 +40,30 @@ class ReportSavedViewRolloutSelector
             ReportSavedViewCandidateScanner::unregisteredCandidates(),
             fn (array $candidate): bool => self::isPrintOnlyCandidate($candidate)
         ));
+    }
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function excludedInternalToolingCandidates(): array
+    {
+        return array_values(array_filter(
+            ReportSavedViewCandidateScanner::unregisteredCandidates(),
+            fn (array $candidate): bool => self::isInternalToolingCandidate($candidate)
+        ));
+    }
+
+    /**
+     * @param  array<string, mixed>  $candidate
+     */
+    public static function isInternalToolingCandidate(array $candidate): bool
+    {
+        $key = is_string($candidate['key'] ?? null) ? $candidate['key'] : '';
+        $viewPath = is_string($candidate['view_path'] ?? null)
+            ? str_replace('\\', '/', $candidate['view_path'])
+            : '';
+
+        return $key === 'saved-view-rollout-selector'
+            || $viewPath === 'resources/views/reports/saved-view-rollout-selector.blade.php';
     }
 
     /**
@@ -73,6 +98,8 @@ class ReportSavedViewRolloutSelector
             'registered_candidate_count' => count(ReportSavedViewCandidateScanner::registeredCandidates()),
             'excluded_print_candidate_count' => count(self::excludedPrintCandidates()),
             'excluded_print_candidates' => self::excludedPrintCandidates(),
+            'excluded_tooling_candidate_count' => count(self::excludedInternalToolingCandidates()),
+            'excluded_tooling_candidates' => self::excludedInternalToolingCandidates(),
             'prioritized_candidates' => $prioritizedCandidates,
             'recommended_steps' => self::recommendedSteps($nextCandidate),
         ];
@@ -111,6 +138,7 @@ class ReportSavedViewRolloutSelector
             '- Registered candidate count: '.$plan['registered_candidate_count'],
             '- Unregistered candidate count: '.$plan['unregistered_candidate_count'],
             '- Print-only candidates excluded from rollout: '.$plan['excluded_print_candidate_count'],
+            '- Internal tooling candidates excluded from rollout: '.$plan['excluded_tooling_candidate_count'],
             '- Has next candidate: '.($plan['has_next_candidate'] ? 'yes' : 'no'),
             '',
             '## Next Candidate',
