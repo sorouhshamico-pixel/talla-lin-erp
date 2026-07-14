@@ -1,0 +1,58 @@
+{
+    "phase": "Phase 65E",
+    "title": "Lock Next Saved View Rollout Target After Print-Only Exclusion",
+    "baseline": {
+        "phase": "Phase 65D clean",
+        "commit": "7817b74",
+        "tests": "1150 passed / 10020 assertions"
+    },
+    "source_selector_snapshot": "docs/phase-65e-saved-view-rollout-selector-snapshot-after-print-exclusion.json",
+    "selected_target": {
+        "key": "sales-invoice-collections",
+        "view_path": "resources/views/reports/sales-invoice-collections.blade.php",
+        "priority_score": 40,
+        "registered_at_lock_time": false,
+        "has_get_form": false,
+        "has_filter_terms": true,
+        "has_saved_view_controls": false,
+        "print_only_candidate": false
+    },
+    "excluded_print_candidates": [
+        {
+            "key": "cash-flow-dashboard-print",
+            "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "customer-sales-invoice-aging-print",
+            "view_path": "resources/views/reports/customer-sales-invoice-aging-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "receivable-payable-aging-dashboard-print",
+            "view_path": "resources/views/reports/receivable-payable-aging-dashboard-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "supplier-purchase-invoice-aging-print",
+            "view_path": "resources/views/reports/supplier-purchase-invoice-aging-print.blade.php",
+            "priority_score": 40
+        }
+    ],
+    "proposed_contract_seed": {
+        "registry_key": "sales-invoice-collections",
+        "view_path": "resources/views/reports/sales-invoice-collections.blade.php",
+        "config_partial": "reports.partials.sales-invoice-collections-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/sales-invoice-collections-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    },
+    "guardrails": [
+        "Print-only views must remain excluded from rollout targets.",
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite full report partials.",
+        "Run focused tests before full suite."
+    ]
+}

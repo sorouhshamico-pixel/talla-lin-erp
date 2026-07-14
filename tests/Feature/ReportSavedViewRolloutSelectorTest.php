@@ -34,6 +34,8 @@ class ReportSavedViewRolloutSelectorTest extends TestCase
         $this->assertArrayHasKey('unregistered_candidate_count', $plan);
         $this->assertArrayHasKey('registered_candidate_count', $plan);
         $this->assertArrayHasKey('prioritized_candidates', $plan);
+        $this->assertArrayHasKey('excluded_print_candidate_count', $plan);
+        $this->assertArrayHasKey('excluded_print_candidates', $plan);
         $this->assertArrayHasKey('recommended_steps', $plan);
 
         $this->assertSame(count($plan['prioritized_candidates']), $plan['unregistered_candidate_count']);
@@ -123,6 +125,8 @@ class ReportSavedViewRolloutSelectorTest extends TestCase
                 'candidate_count',
                 'unregistered_candidate_count',
                 'registered_candidate_count',
+                'excluded_print_candidate_count',
+                'excluded_print_candidates',
                 'prioritized_candidates',
                 'recommended_steps',
             ]);

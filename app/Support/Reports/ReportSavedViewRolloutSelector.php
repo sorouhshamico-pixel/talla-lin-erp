@@ -6,7 +6,7 @@ class ReportSavedViewRolloutSelector
 {
     public static function prioritizedCandidates(): array
     {
-        $candidates = ReportSavedViewCandidateScanner::unregisteredCandidates();
+        $candidates = self::eligibleCandidates();
 
         usort($candidates, function (array $left, array $right): int {
             return [$right['priority_score'], $left['key']]
@@ -14,6 +14,45 @@ class ReportSavedViewRolloutSelector
         });
 
         return $candidates;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>|null  $candidates
+     * @return array<int, array<string, mixed>>
+     */
+    public static function eligibleCandidates(?array $candidates = null): array
+    {
+        $candidates ??= ReportSavedViewCandidateScanner::unregisteredCandidates();
+
+        return array_values(array_filter(
+            $candidates,
+            fn (array $candidate): bool => ! self::isPrintOnlyCandidate($candidate)
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function excludedPrintCandidates(): array
+    {
+        return array_values(array_filter(
+            ReportSavedViewCandidateScanner::unregisteredCandidates(),
+            fn (array $candidate): bool => self::isPrintOnlyCandidate($candidate)
+        ));
+    }
+
+    /**
+     * @param  array<string, mixed>  $candidate
+     */
+    public static function isPrintOnlyCandidate(array $candidate): bool
+    {
+        $key = is_string($candidate['key'] ?? null) ? $candidate['key'] : '';
+        $viewPath = is_string($candidate['view_path'] ?? null)
+            ? str_replace('\\', '/', $candidate['view_path'])
+            : '';
+
+        return str_ends_with($key, '-print')
+            || str_ends_with($viewPath, '-print.blade.php');
     }
 
     public static function nextCandidate(): ?array
@@ -32,6 +71,8 @@ class ReportSavedViewRolloutSelector
             'candidate_count' => count(ReportSavedViewCandidateScanner::candidates()),
             'unregistered_candidate_count' => count($prioritizedCandidates),
             'registered_candidate_count' => count(ReportSavedViewCandidateScanner::registeredCandidates()),
+            'excluded_print_candidate_count' => count(self::excludedPrintCandidates()),
+            'excluded_print_candidates' => self::excludedPrintCandidates(),
             'prioritized_candidates' => $prioritizedCandidates,
             'recommended_steps' => self::recommendedSteps($nextCandidate),
         ];
@@ -69,6 +110,7 @@ class ReportSavedViewRolloutSelector
             '- Candidate count: '.$plan['candidate_count'],
             '- Registered candidate count: '.$plan['registered_candidate_count'],
             '- Unregistered candidate count: '.$plan['unregistered_candidate_count'],
+            '- Print-only candidates excluded from rollout: '.$plan['excluded_print_candidate_count'],
             '- Has next candidate: '.($plan['has_next_candidate'] ? 'yes' : 'no'),
             '',
             '## Next Candidate',
