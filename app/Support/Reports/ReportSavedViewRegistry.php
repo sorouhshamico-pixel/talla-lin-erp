@@ -178,6 +178,38 @@ class ReportSavedViewRegistry
                     'default_badge' => 'cash-flow-dashboard-saved-view-default-badge',
                 ],
             ],
+            'index' => [
+                'key' => 'index',
+                'label' => 'التقارير المالية الأساسية',
+                'view' => 'reports.index',
+                'view_path' => 'resources/views/reports/index.blade.php',
+                'index_route' => 'reports.index',
+                'export_route' => 'reports.index',
+                'saved_view_store_route' => 'reports.index.saved-views.store',
+                'config_partial' => 'reports.partials.index-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/index-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'from_date',
+                    'to_date',
+                    'branch_id',
+                    'expense_category_id',
+                    'payment_method',
+                ],
+                'test_ids' => [
+                    'section_card' => 'reports-index-saved-views-selector',
+                    'empty' => 'reports-index-saved-views-empty',
+                    'form_card' => 'reports-index-save-view-card',
+                    'form' => 'reports-index-save-view-form',
+                    'name_input' => 'reports-index-saved-view-name-input',
+                    'default_checkbox' => 'reports-index-saved-view-default-checkbox',
+                    'save_button' => 'reports-index-save-view-button',
+                    'list' => 'reports-index-saved-views-list',
+                    'item' => 'reports-index-saved-view-item',
+                    'open_link' => 'reports-index-saved-view-open-link',
+                    'active_badge' => 'reports-index-saved-view-active-badge',
+                    'default_badge' => 'reports-index-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

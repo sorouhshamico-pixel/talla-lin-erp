@@ -194,6 +194,7 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
     Route::delete('/expenses/{expense}/attachment', [ExpenseController::class, 'destroyAttachment'])->name('expenses.attachment.destroy');
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
+    Route::post('/reports/saved-views', [ReportController::class, 'storeSavedView'])->name('reports.index.saved-views.store');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/sales-invoice-collections', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'index'])->name('reports.sales-invoice-collections.index');
 Route::get('/reports/sales-invoice-collection-follow-ups/export', [\App\Http\Controllers\SalesInvoiceCollectionFollowUpReportController::class, 'export'])->name('reports.sales-invoice-collection-follow-ups.export');

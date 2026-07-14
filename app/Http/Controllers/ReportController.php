@@ -8,15 +8,29 @@ use App\Models\ExpenseCategory;
 use App\Models\InventoryBalance;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use App\Services\ReportSavedViewService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ReportController extends Controller
 {
-    public function index(Request $request): View
+    private const REPORT_KEY = 'index';
+
+    private const FILTER_KEYS = [
+        'from_date',
+        'to_date',
+        'branch_id',
+        'expense_category_id',
+        'payment_method',
+    ];
+
+    public function index(Request $request, ReportSavedViewService $savedViews): View
     {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
+
         $filters = [
             'from_date' => $request->input('from_date'),
             'to_date' => $request->input('to_date'),
@@ -150,7 +164,73 @@ class ReportController extends Controller
             'expenseCategories' => $expenseCategories,
             'paymentMethods' => $paymentMethods,
             'filters' => $filters,
+            'savedViews' => $savedViews->listForReport($request->user(), self::REPORT_KEY),
         ]);
+    }
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date'],
+            'branch_id' => ['nullable', 'integer'],
+            'expense_category_id' => ['nullable', 'integer'],
+            'payment_method' => ['nullable', 'string', 'in:cash,card,bank_transfer,online,other'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'from_date' => $validated['from_date'] ?? null,
+            'to_date' => $validated['to_date'] ?? null,
+            'branch_id' => $validated['branch_id'] ?? null,
+            'expense_category_id' => $validated['expense_category_id'] ?? null,
+            'payment_method' => $validated['payment_method'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.index', $filters)
+            ->with('status', 'تم حفظ عرض مركز التقارير بنجاح.');
+    }
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->filled($key)) {
+                return $request;
+            }
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        return $request->merge($filters);
     }
 
     private function expenseCategoryBreakdown(Builder $query): Collection

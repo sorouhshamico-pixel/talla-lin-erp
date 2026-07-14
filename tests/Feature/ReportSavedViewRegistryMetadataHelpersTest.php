@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(6, ReportSavedViewRegistry::count());
+        $this->assertSame(7, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -20,6 +20,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('supplier-purchase-invoice-aging', $keys);
         $this->assertContains('supplier-purchase-invoice-aging-drilldown', $keys);
         $this->assertContains('cash-flow-dashboard', $keys);
+        $this->assertContains('index', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -29,6 +30,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('تقرير أعمار ذمم الموردين', $labels['supplier-purchase-invoice-aging']);
         $this->assertSame('تفاصيل فواتير الموردين المفتوحة', $labels['supplier-purchase-invoice-aging-drilldown']);
         $this->assertSame('لوحة التدفق النقدي المتوقع', $labels['cash-flow-dashboard']);
+        $this->assertSame('التقارير المالية الأساسية', $labels['index']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -60,6 +62,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/cash-flow-dashboard.blade.php',
             $viewPaths['cash-flow-dashboard']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/index.blade.php',
+            $viewPaths['index']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -130,6 +137,20 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.cash-flow-dashboard.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('cash-flow-dashboard')
         );
+
+        $exportRoutes = ReportSavedViewRegistry::exportRoutes();
+
+        $this->assertSame('reports.index', $exportRoutes['index']);
+
+        $this->assertSame(
+            'reports.index',
+            ReportSavedViewRegistry::indexRoute('index')
+        );
+
+        $this->assertSame(
+            'reports.index.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('index')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -172,6 +193,14 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'date_to',
         ], $hiddenFieldMap['cash-flow-dashboard']);
 
+        $this->assertSame([
+            'from_date',
+            'to_date',
+            'branch_id',
+            'expense_category_id',
+            'payment_method',
+        ], $hiddenFieldMap['index']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -202,6 +231,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'cash-flow-dashboard-save-view-form',
             $testIdMap['cash-flow-dashboard']['form']
+        );
+
+        $this->assertSame(
+            'reports-index-save-view-form',
+            $testIdMap['index']['form']
         );
     }
 
@@ -241,6 +275,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.index-saved-view-controls-config',
+            $configPartials['index']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -265,6 +304,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['cash-flow-dashboard']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/index-saved-view-controls-config.blade.php',
+            $configPartialPaths['index']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -274,7 +318,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(6, $rows);
+        $this->assertCount(7, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -284,6 +328,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging'));
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging-drilldown'));
         $this->assertTrue($rowsByKey->has('cash-flow-dashboard'));
+        $this->assertTrue($rowsByKey->has('index'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

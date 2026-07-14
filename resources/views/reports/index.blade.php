@@ -14,6 +14,11 @@
         </div>
         </div>
     </div>
+    @if (session('status'))
+        <div class="alert alert-success" data-testid="reports-index-status">
+            {{ session('status') }}
+        </div>
+    @endif
 
     <div class="card" style="margin-bottom:20px;">
         <form method="GET" action="{{ route('reports.index') }}">
@@ -80,6 +85,8 @@
             </div>
         </form>
     </div>
+
+    @include('reports.partials.index-saved-view-controls-config')
 
     <div class="grid" style="margin-bottom:20px;">
         <div class="metric">

@@ -43,7 +43,7 @@ class ReportSavedViewDiagnosticsWebExportEndpointsTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Type', 'text/markdown; charset=UTF-8')
             ->assertSee('# Report Saved View Registry Diagnostic Report', false)
-            ->assertSee('- Report count: 6', false)
+            ->assertSee('- Report count: 7', false)
             ->assertSee('### sales-invoice-aging', false)
             ->assertSee('### customer-sales-invoice-aging', false)
             ->assertSee('### customer-sales-invoice-aging', false)
@@ -60,7 +60,7 @@ class ReportSavedViewDiagnosticsWebExportEndpointsTest extends TestCase
             ->get(route('reports.saved-view-diagnostics.json'))
             ->assertOk()
             ->assertJsonPath('title', 'Report Saved View Registry Diagnostic Report')
-            ->assertJsonPath('summary.report_count', 6)
+            ->assertJsonPath('summary.report_count', 7)
             ->assertJsonPath('summary.invalid_count', 0)
             ->assertJsonPath('summary.valid', true)
 
