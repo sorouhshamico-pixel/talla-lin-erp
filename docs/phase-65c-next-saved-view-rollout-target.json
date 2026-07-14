@@ -1,0 +1,35 @@
+{
+    "phase": "Phase 65C",
+    "title": "Lock Next Saved View Rollout Target After Phase 65B",
+    "baseline": {
+        "phase": "Phase 65B clean",
+        "commit": "66315ee",
+        "tests": "1141 passed / 9966 assertions"
+    },
+    "source_selector_snapshot": "docs/phase-65c-saved-view-rollout-selector-snapshot.json",
+    "selected_target": {
+        "key": "cash-flow-dashboard-print",
+        "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+        "priority_score": 40,
+        "registered_at_lock_time": false,
+        "has_get_form": false,
+        "has_filter_terms": true,
+        "has_saved_view_controls": false
+    },
+    "proposed_contract_seed": {
+        "registry_key": "cash-flow-dashboard-print",
+        "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+        "config_partial": "reports.partials.cash-flow-dashboard-print-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/cash-flow-dashboard-print-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    },
+    "guardrails": [
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite full report partials.",
+        "Inspect target type before rollout because remaining candidates include print/tooling pages.",
+        "Run focused tests before full suite."
+    ]
+}
