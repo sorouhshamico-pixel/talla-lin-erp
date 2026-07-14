@@ -1,0 +1,34 @@
+{
+    "phase": "Phase 64Z",
+    "title": "Lock Next Saved View Rollout Target After Phase 64Y",
+    "baseline": {
+        "phase": "Phase 64Y clean",
+        "commit": "17b5d7e",
+        "tests": "1127 passed / 9732 assertions"
+    },
+    "source_selector_snapshot": "docs/phase-64z-saved-view-rollout-selector-snapshot.json",
+    "selected_target": {
+        "key": "saved-view-candidates",
+        "view_path": "resources/views/reports/saved-view-candidates.blade.php",
+        "priority_score": 60,
+        "registered_at_lock_time": false,
+        "has_get_form": false,
+        "has_filter_terms": true,
+        "has_saved_view_controls": true
+    },
+    "proposed_contract_seed": {
+        "registry_key": "saved-view-candidates",
+        "view_path": "resources/views/reports/saved-view-candidates.blade.php",
+        "config_partial": "reports.partials.saved-view-candidates-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/saved-view-candidates-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    },
+    "guardrails": [
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite full report partials.",
+        "Run focused tests before full suite."
+    ]
+}
