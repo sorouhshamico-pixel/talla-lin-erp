@@ -31,7 +31,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
         $rows = ReportSavedViewRegistryDiagnosticReport::rows();
         $rowsByKey = collect($rows)->keyBy('key');
 
-        $this->assertCount(5, $rows);
+        $this->assertCount(6, $rows);
 
         foreach ([
             'sales-invoice-aging',
@@ -39,6 +39,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
             'customer-sales-invoice-aging-drilldown',
             'supplier-purchase-invoice-aging',
             'supplier-purchase-invoice-aging-drilldown',
+            'cash-flow-dashboard',
         ] as $key) {
             $this->assertTrue($rowsByKey->has($key));
 
@@ -60,6 +61,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
             'customer-sales-invoice-aging-drilldown',
             'supplier-purchase-invoice-aging',
             'supplier-purchase-invoice-aging-drilldown',
+            'cash-flow-dashboard',
         ], $validReportKeys);
 
         $this->assertSame([], ReportSavedViewRegistryDiagnosticReport::invalidReports());
@@ -69,7 +71,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
     {
         $summary = ReportSavedViewRegistryDiagnosticReport::summary();
 
-        $this->assertSame(5, $summary['report_count']);
+        $this->assertSame(6, $summary['report_count']);
         $this->assertSame(0, $summary['invalid_count']);
         $this->assertTrue($summary['valid']);
         $this->assertTrue(ReportSavedViewRegistryDiagnosticReport::isHealthy());
@@ -81,7 +83,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
 
         $this->assertStringContainsString('# Report Saved View Registry Diagnostic Report', $markdown);
         $this->assertStringContainsString('## Summary', $markdown);
-        $this->assertStringContainsString('- Report count: 5', $markdown);
+        $this->assertStringContainsString('- Report count: 6', $markdown);
         $this->assertStringContainsString('- Invalid count: 0', $markdown);
         $this->assertStringContainsString('- Valid: yes', $markdown);
         $this->assertStringContainsString('### sales-invoice-aging', $markdown);
@@ -97,7 +99,7 @@ class ReportSavedViewRegistryDiagnosticReportTest extends TestCase
         $this->assertIsArray($decoded);
         $this->assertArrayHasKey('summary', $decoded);
         $this->assertArrayHasKey('rows', $decoded);
-        $this->assertSame(5, $decoded['summary']['report_count']);
+        $this->assertSame(6, $decoded['summary']['report_count']);
         $this->assertSame(0, $decoded['summary']['invalid_count']);
     }
 

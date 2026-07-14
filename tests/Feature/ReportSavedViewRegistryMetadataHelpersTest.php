@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(5, ReportSavedViewRegistry::count());
+        $this->assertSame(6, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -19,6 +19,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertContains('customer-sales-invoice-aging-drilldown', $keys);
         $this->assertContains('supplier-purchase-invoice-aging', $keys);
         $this->assertContains('supplier-purchase-invoice-aging-drilldown', $keys);
+        $this->assertContains('cash-flow-dashboard', $keys);
 
         $labels = ReportSavedViewRegistry::labels();
 
@@ -27,6 +28,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('تفاصيل فواتير العملاء المفتوحة', $labels['customer-sales-invoice-aging-drilldown']);
         $this->assertSame('تقرير أعمار ذمم الموردين', $labels['supplier-purchase-invoice-aging']);
         $this->assertSame('تفاصيل فواتير الموردين المفتوحة', $labels['supplier-purchase-invoice-aging-drilldown']);
+        $this->assertSame('لوحة التدفق النقدي المتوقع', $labels['cash-flow-dashboard']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
 
@@ -53,6 +55,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php',
             $viewPaths['supplier-purchase-invoice-aging-drilldown']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/cash-flow-dashboard.blade.php',
+            $viewPaths['cash-flow-dashboard']
         );
 
         foreach ($viewPaths as $viewPath) {
@@ -113,6 +120,16 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'reports.supplier-purchase-invoice-aging.drilldown.saved-views.store',
             ReportSavedViewRegistry::savedViewStoreRoute('supplier-purchase-invoice-aging-drilldown')
         );
+
+        $this->assertSame(
+            'reports.cash-flow-dashboard.index',
+            ReportSavedViewRegistry::indexRoute('cash-flow-dashboard')
+        );
+
+        $this->assertSame(
+            'reports.cash-flow-dashboard.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('cash-flow-dashboard')
+        );
     }
 
     public function test_registry_map_helpers_return_hidden_fields_and_test_ids(): void
@@ -149,6 +166,12 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             'aging_bucket',
         ], $hiddenFieldMap['supplier-purchase-invoice-aging-drilldown']);
 
+        $this->assertSame([
+            'branch_id',
+            'date_from',
+            'date_to',
+        ], $hiddenFieldMap['cash-flow-dashboard']);
+
         $testIdMap = ReportSavedViewRegistry::testIdMap();
 
         $this->assertSame(
@@ -174,6 +197,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'supplier-aging-drilldown-save-view-form',
             $testIdMap['supplier-purchase-invoice-aging-drilldown']['form']
+        );
+
+        $this->assertSame(
+            'cash-flow-dashboard-save-view-form',
+            $testIdMap['cash-flow-dashboard']['form']
         );
     }
 
@@ -208,6 +236,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.cash-flow-dashboard-saved-view-controls-config',
+            $configPartials['cash-flow-dashboard']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/customer-sales-invoice-aging-saved-view-controls-config.blade.php',
             $configPartialPaths['customer-sales-invoice-aging']
         );
@@ -227,6 +260,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             $configPartialPaths['supplier-purchase-invoice-aging-drilldown']
         );
 
+        $this->assertSame(
+            'resources/views/reports/partials/cash-flow-dashboard-saved-view-controls-config.blade.php',
+            $configPartialPaths['cash-flow-dashboard']
+        );
+
         foreach ($configPartialPaths as $configPartialPath) {
             $this->assertFileExists(base_path($configPartialPath));
         }
@@ -236,7 +274,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(5, $rows);
+        $this->assertCount(6, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 
@@ -245,6 +283,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertTrue($rowsByKey->has('customer-sales-invoice-aging-drilldown'));
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging'));
         $this->assertTrue($rowsByKey->has('supplier-purchase-invoice-aging-drilldown'));
+        $this->assertTrue($rowsByKey->has('cash-flow-dashboard'));
 
         foreach ($rowsByKey as $row) {
             $this->assertNotEmpty($row['key']);

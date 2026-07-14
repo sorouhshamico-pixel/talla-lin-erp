@@ -148,6 +148,36 @@ class ReportSavedViewRegistry
                     'default_badge' => 'supplier-aging-drilldown-saved-view-default-badge',
                 ],
             ],
+            'cash-flow-dashboard' => [
+                'key' => 'cash-flow-dashboard',
+                'label' => 'لوحة التدفق النقدي المتوقع',
+                'view' => 'reports.cash-flow-dashboard',
+                'view_path' => 'resources/views/reports/cash-flow-dashboard.blade.php',
+                'index_route' => 'reports.cash-flow-dashboard.index',
+                'export_route' => 'reports.cash-flow-dashboard.export',
+                'saved_view_store_route' => 'reports.cash-flow-dashboard.saved-views.store',
+                'config_partial' => 'reports.partials.cash-flow-dashboard-saved-view-controls-config',
+                'config_partial_path' => 'resources/views/reports/partials/cash-flow-dashboard-saved-view-controls-config.blade.php',
+                'hidden_fields' => [
+                    'branch_id',
+                    'date_from',
+                    'date_to',
+                ],
+                'test_ids' => [
+                    'section_card' => 'cash-flow-dashboard-saved-views-selector',
+                    'empty' => 'cash-flow-dashboard-saved-views-empty',
+                    'form_card' => 'cash-flow-dashboard-save-view-card',
+                    'form' => 'cash-flow-dashboard-save-view-form',
+                    'name_input' => 'cash-flow-dashboard-saved-view-name-input',
+                    'default_checkbox' => 'cash-flow-dashboard-saved-view-default-checkbox',
+                    'save_button' => 'cash-flow-dashboard-save-view-button',
+                    'list' => 'cash-flow-dashboard-saved-views-list',
+                    'item' => 'cash-flow-dashboard-saved-view-item',
+                    'open_link' => 'cash-flow-dashboard-saved-view-open-link',
+                    'active_badge' => 'cash-flow-dashboard-saved-view-active-badge',
+                    'default_badge' => 'cash-flow-dashboard-saved-view-default-badge',
+                ],
+            ],
         ];
     }
 

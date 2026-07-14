@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Services\ReportFilterPreferenceService;
+use App\Services\ReportSavedViewService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -17,11 +19,18 @@ class CashFlowDashboardController extends Controller
 
     private const FILTER_KEYS = ['branch_id', 'date_from', 'date_to'];
 
-    public function index(Request $request, ReportFilterPreferenceService $filterPreferences): View
-    {
+    public function index(
+        Request $request,
+        ReportFilterPreferenceService $filterPreferences,
+        ReportSavedViewService $savedViews
+    ): View {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, true);
 
-        return view('reports.cash-flow-dashboard', $this->dashboardData($request));
+        $viewData = $this->dashboardData($request);
+        $viewData['savedViews'] = $savedViews->listForReport($request->user(), self::REPORT_KEY);
+
+        return view('reports.cash-flow-dashboard', $viewData);
     }
 
     public function print(Request $request, ReportFilterPreferenceService $filterPreferences): View
@@ -98,6 +107,70 @@ class CashFlowDashboardController extends Controller
         ]);
     }
 
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'branch_id' => ['nullable', 'integer'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
+            'is_default' => ['nullable'],
+        ]);
+
+        $filters = array_filter([
+            'branch_id' => $validated['branch_id'] ?? null,
+            'date_from' => $validated['date_from'] ?? null,
+            'date_to' => $validated['date_to'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            $filters,
+            $request->boolean('is_default')
+        );
+
+        return redirect()
+            ->route('reports.cash-flow-dashboard.index', $filters)
+            ->with('status', 'تم حفظ عرض اللوحة بنجاح.');
+    }
+
+    private function requestWithDefaultSavedView(Request $request, ReportSavedViewService $savedViews): Request
+    {
+        if ($request->boolean('reset_filters')) {
+            return $request;
+        }
+
+        foreach (self::FILTER_KEYS as $key) {
+            if ($request->filled($key)) {
+                return $request;
+            }
+        }
+
+        $user = $request->user();
+
+        if (! $user) {
+            return $request;
+        }
+
+        $defaultSavedView = $savedViews->getDefault($user, self::REPORT_KEY);
+
+        if (! $defaultSavedView) {
+            return $request;
+        }
+
+        $filters = array_filter(
+            $defaultSavedView->filters ?? [],
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        if ($filters === []) {
+            return $request;
+        }
+
+        return $request->merge($filters);
+    }
     private function requestWithFilterPreferences(Request $request, ReportFilterPreferenceService $filterPreferences, bool $persist): Request
     {
         $user = $request->user();

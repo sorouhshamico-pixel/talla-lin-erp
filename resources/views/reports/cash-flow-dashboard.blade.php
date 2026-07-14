@@ -11,6 +11,12 @@
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">مركز التقارير</a>
         </div>
 
+        @if (session('status'))
+            <div class="alert alert-success" data-testid="cash-flow-dashboard-status">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card" data-testid="cash-flow-dashboard">
             <div class="card-body">
                 <form method="GET" action="{{ route('reports.cash-flow-dashboard.index') }}" class="filters" data-testid="cash-flow-dashboard-filters">
@@ -48,6 +54,8 @@
                         <a href="{{ route('reports.cash-flow-dashboard.index', ['reset_filters' => 1]) }}" class="btn btn-outline-secondary" data-testid="cash-flow-reset-filters">إعادة تعيين</a>
                     </div>
                 </form>
+
+                @include('reports.partials.cash-flow-dashboard-saved-view-controls-config')
 
                 <p data-testid="cash-flow-dashboard-report-date">تاريخ التقرير: {{ $reportDate->format('Y-m-d') }}</p>
 
