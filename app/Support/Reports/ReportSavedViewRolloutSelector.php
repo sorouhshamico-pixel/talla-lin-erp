@@ -62,8 +62,14 @@ class ReportSavedViewRolloutSelector
             ? str_replace('\\', '/', $candidate['view_path'])
             : '';
 
-        return $key === 'saved-view-rollout-selector'
-            || $viewPath === 'resources/views/reports/saved-view-rollout-selector.blade.php';
+        return in_array($key, [
+            'saved-view-rollout-selector',
+            'saved-view-rollout-target',
+        ], true)
+            || in_array($viewPath, [
+                'resources/views/reports/saved-view-rollout-selector.blade.php',
+                'resources/views/reports/saved-view-rollout-target.blade.php',
+            ], true);
     }
 
     /**
