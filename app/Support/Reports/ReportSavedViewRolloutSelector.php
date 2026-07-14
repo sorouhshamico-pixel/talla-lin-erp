@@ -28,6 +28,7 @@ class ReportSavedViewRolloutSelector
             $candidates,
             fn (array $candidate): bool => ! self::isPrintOnlyCandidate($candidate)
                 && ! self::isInternalToolingCandidate($candidate)
+                && ! self::isNavigationHubCandidate($candidate)
         ));
     }
 
@@ -71,6 +72,30 @@ class ReportSavedViewRolloutSelector
                 'resources/views/reports/saved-view-rollout-target.blade.php',
             ], true);
     }
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function excludedNavigationHubCandidates(): array
+    {
+        return array_values(array_filter(
+            ReportSavedViewCandidateScanner::unregisteredCandidates(),
+            fn (array $candidate): bool => self::isNavigationHubCandidate($candidate)
+        ));
+    }
+
+    /**
+     * @param  array<string, mixed>  $candidate
+     */
+    public static function isNavigationHubCandidate(array $candidate): bool
+    {
+        $key = is_string($candidate['key'] ?? null) ? $candidate['key'] : '';
+        $viewPath = is_string($candidate['view_path'] ?? null)
+            ? str_replace('\\', '/', $candidate['view_path'])
+            : '';
+
+        return $key === 'center'
+            || $viewPath === 'resources/views/reports/center.blade.php';
+    }
 
     /**
      * @param  array<string, mixed>  $candidate
@@ -106,6 +131,8 @@ class ReportSavedViewRolloutSelector
             'excluded_print_candidates' => self::excludedPrintCandidates(),
             'excluded_tooling_candidate_count' => count(self::excludedInternalToolingCandidates()),
             'excluded_tooling_candidates' => self::excludedInternalToolingCandidates(),
+            'excluded_navigation_candidate_count' => count(self::excludedNavigationHubCandidates()),
+            'excluded_navigation_candidates' => self::excludedNavigationHubCandidates(),
             'prioritized_candidates' => $prioritizedCandidates,
             'recommended_steps' => self::recommendedSteps($nextCandidate),
         ];
@@ -145,6 +172,7 @@ class ReportSavedViewRolloutSelector
             '- Unregistered candidate count: '.$plan['unregistered_candidate_count'],
             '- Print-only candidates excluded from rollout: '.$plan['excluded_print_candidate_count'],
             '- Internal tooling candidates excluded from rollout: '.$plan['excluded_tooling_candidate_count'],
+            '- Navigation hub candidates excluded from rollout: '.$plan['excluded_navigation_candidate_count'],
             '- Has next candidate: '.($plan['has_next_candidate'] ? 'yes' : 'no'),
             '',
             '## Next Candidate',

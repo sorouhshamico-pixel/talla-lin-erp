@@ -1,0 +1,81 @@
+{
+    "phase": "Phase 65N",
+    "title": "Lock Next Saved View Rollout Target After Navigation Hub Exclusion",
+    "baseline": {
+        "phase": "Phase 65M clean",
+        "commit": "2390575",
+        "tests": "1195 passed / 10474 assertions"
+    },
+    "source_selector_snapshot": "docs/phase-65n-saved-view-rollout-selector-snapshot-after-navigation-hub-exclusion.json",
+    "selected_target": {
+        "key": "financial-dashboard",
+        "view_path": "resources/views/reports/financial-dashboard.blade.php",
+        "priority_score": 10,
+        "registered_at_lock_time": false,
+        "has_get_form": false,
+        "has_filter_terms": false,
+        "has_saved_view_controls": false,
+        "print_only_candidate": false,
+        "internal_tooling_candidate": false,
+        "navigation_hub_candidate": false
+    },
+    "excluded_print_candidates": [
+        {
+            "key": "cash-flow-dashboard-print",
+            "view_path": "resources/views/reports/cash-flow-dashboard-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "customer-sales-invoice-aging-print",
+            "view_path": "resources/views/reports/customer-sales-invoice-aging-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "receivable-payable-aging-dashboard-print",
+            "view_path": "resources/views/reports/receivable-payable-aging-dashboard-print.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "supplier-purchase-invoice-aging-print",
+            "view_path": "resources/views/reports/supplier-purchase-invoice-aging-print.blade.php",
+            "priority_score": 40
+        }
+    ],
+    "excluded_tooling_candidates": [
+        {
+            "key": "saved-view-rollout-selector",
+            "view_path": "resources/views/reports/saved-view-rollout-selector.blade.php",
+            "priority_score": 40
+        },
+        {
+            "key": "saved-view-rollout-target",
+            "view_path": "resources/views/reports/saved-view-rollout-target.blade.php",
+            "priority_score": 40
+        }
+    ],
+    "excluded_navigation_candidates": [
+        {
+            "key": "center",
+            "view_path": "resources/views/reports/center.blade.php",
+            "priority_score": 10
+        }
+    ],
+    "proposed_contract_seed": {
+        "registry_key": "financial-dashboard",
+        "view_path": "resources/views/reports/financial-dashboard.blade.php",
+        "config_partial": "reports.partials.financial-dashboard-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/financial-dashboard-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    },
+    "guardrails": [
+        "Print-only views must remain excluded from rollout targets.",
+        "Internal saved-view tooling views must remain excluded from rollout targets.",
+        "Navigation hub views must remain excluded from rollout targets.",
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite full report partials.",
+        "Run focused tests before full suite."
+    ]
+}
