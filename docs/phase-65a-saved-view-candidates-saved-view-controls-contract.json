@@ -1,0 +1,88 @@
+{
+    "phase": "Phase 65A",
+    "title": "Prepare Saved View Candidates Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64Z clean",
+        "commit": "6142d90",
+        "previous_lock_baseline": {
+            "phase": "Phase 64Y clean",
+            "commit": "17b5d7e",
+            "tests": "1127 passed / 9732 assertions"
+        }
+    },
+    "source_lock": "docs/phase-64z-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "saved-view-candidates",
+        "view_path": "resources/views/reports/saved-view-candidates.blade.php",
+        "controller_path": null,
+        "route_implemented_as_closure": true,
+        "priority_score": 60,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": true,
+        "has_saved_view_controls_at_lock_time": true
+    },
+    "contract": {
+        "registry_key": "saved-view-candidates",
+        "view_path": "resources/views/reports/saved-view-candidates.blade.php",
+        "controller_path": null,
+        "config_partial": "reports.partials.saved-view-candidates-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/saved-view-candidates-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.saved-view-candidates-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.saved-view-candidates.index",
+        "markdown_route": "reports.saved-view-candidates.markdown",
+        "export_route": "reports.saved-view-candidates.json",
+        "saved_view_store_route": "reports.saved-view-candidates.saved-views.store",
+        "candidate_hidden_fields": [],
+        "test_ids": {
+            "section_card": "saved-view-candidates-saved-views-selector",
+            "empty": "saved-view-candidates-saved-views-empty",
+            "form_card": "saved-view-candidates-save-view-card",
+            "form": "saved-view-candidates-save-view-form",
+            "name_input": "saved-view-candidates-saved-view-name-input",
+            "default_checkbox": "saved-view-candidates-saved-view-default-checkbox",
+            "save_button": "saved-view-candidates-save-view-button",
+            "list": "saved-view-candidates-saved-views-list",
+            "item": "saved-view-candidates-saved-view-item",
+            "open_link": "saved-view-candidates-saved-view-open-link",
+            "active_badge": "saved-view-candidates-saved-view-active-badge",
+            "default_badge": "saved-view-candidates-saved-view-default-badge"
+        }
+    },
+    "current_state_evidence": {
+        "route_names_in_view": [
+            "reports.saved-view-candidates.json",
+            "reports.saved-view-candidates.markdown",
+            "reports.saved-view-diagnostics.index",
+            "reports.saved-view-rollout-selector.index"
+        ],
+        "data_test_ids_in_view": [
+            "report-saved-view-candidate-row-{{ $candidate[",
+            "report-saved-view-candidates-cli-commands",
+            "report-saved-view-candidates-export-actions",
+            "report-saved-view-candidates-markdown",
+            "report-saved-view-candidates-page",
+            "report-saved-view-candidates-summary",
+            "report-saved-view-candidates-table",
+            "report-saved-view-candidates-web-links"
+        ],
+        "contains_get_form": false,
+        "contains_filter_terms": true,
+        "contains_saved_view_controls_terms": true,
+        "contains_report_specific_config_partial": false,
+        "routes_have_index_route": true,
+        "routes_have_markdown_route": true,
+        "routes_have_json_route": true,
+        "routes_have_saved_view_store_route": false
+    },
+    "implementation_notes": [
+        "saved-view-candidates is a tooling/report-inspection page implemented through route closures.",
+        "It does not have GET report filters, so the rollout should store empty filters.",
+        "The JSON route is used as the registry export_route equivalent.",
+        "The index closure should pass savedViews to the Blade view during rollout.",
+        "The rollout should add a POST route named reports.saved-view-candidates.saved-views.store.",
+        "The rollout should create a report-specific config partial and include it near the top of the page after the summary cards.",
+        "Do not modify shared saved view partials."
+    ]
+}
