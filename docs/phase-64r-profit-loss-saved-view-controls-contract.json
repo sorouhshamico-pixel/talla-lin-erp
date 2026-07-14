@@ -1,0 +1,93 @@
+{
+    "phase": "Phase 64R",
+    "title": "Prepare Profit Loss Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 64Q clean",
+        "commit": "8098e93",
+        "tests": "1089 passed / 9018 assertions"
+    },
+    "source_lock": "docs/phase-64q-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "profit-loss",
+        "view_path": "resources/views/reports/profit-loss.blade.php",
+        "controller_path": "app/Http/Controllers/ProfitLossReportController.php",
+        "priority_score": 80,
+        "registered_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false
+    },
+    "contract": {
+        "registry_key": "profit-loss",
+        "view_path": "resources/views/reports/profit-loss.blade.php",
+        "controller_path": "app/Http/Controllers/ProfitLossReportController.php",
+        "config_partial": "reports.partials.profit-loss-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/profit-loss-saved-view-controls-config.blade.php",
+        "view_include": "@include('reports.partials.profit-loss-saved-view-controls-config')",
+        "shared_controls_partial": "reports.partials.saved-view-controls",
+        "index_route": "reports.profit-loss",
+        "export_route": "reports.profit-loss.export",
+        "saved_view_store_route": "reports.profit-loss.saved-views.store",
+        "candidate_hidden_fields": [
+            "from_date",
+            "to_date",
+            "branch_id"
+        ],
+        "test_ids": {
+            "section_card": "profit-loss-saved-views-selector",
+            "empty": "profit-loss-saved-views-empty",
+            "form_card": "profit-loss-save-view-card",
+            "form": "profit-loss-save-view-form",
+            "name_input": "profit-loss-saved-view-name-input",
+            "default_checkbox": "profit-loss-saved-view-default-checkbox",
+            "save_button": "profit-loss-save-view-button",
+            "list": "profit-loss-saved-views-list",
+            "item": "profit-loss-saved-view-item",
+            "open_link": "profit-loss-saved-view-open-link",
+            "active_badge": "profit-loss-saved-view-active-badge",
+            "default_badge": "profit-loss-saved-view-default-badge"
+        }
+    },
+    "current_state_evidence": {
+        "route_names_in_view": [
+            "reports.profit-loss",
+            "reports.profit-loss.export"
+        ],
+        "input_names_in_view": [
+            "branch_id",
+            "from_date",
+            "to_date"
+        ],
+        "data_test_ids_in_view": [
+            "profit-loss-expense-tax",
+            "profit-loss-export",
+            "profit-loss-filter-form",
+            "profit-loss-monthly-summary",
+            "profit-loss-net-profit",
+            "profit-loss-report",
+            "profit-loss-revenue-tax",
+            "profit-loss-tax-difference",
+            "profit-loss-total-expenses",
+            "profit-loss-total-revenues"
+        ],
+        "contains_get_form": true,
+        "contains_filter_terms": true,
+        "contains_saved_view_controls": false,
+        "contains_report_specific_config_partial": false,
+        "controller_has_report_key_constant": false,
+        "controller_uses_report_saved_view_service": false,
+        "controller_has_store_saved_view_method": false,
+        "controller_has_invoke_method": true,
+        "controller_has_export_method": true,
+        "routes_have_index_route": true,
+        "routes_have_export_route": true,
+        "routes_have_saved_view_store_route": false
+    },
+    "implementation_notes": [
+        "Phase 64R does not modify the profit-loss Blade view.",
+        "Phase 64R does not register the target report yet.",
+        "Phase 64S should add ReportSavedViewService support to ProfitLossReportController while preserving the invokable index route and export route.",
+        "Phase 64S should add a POST saved-view store route named reports.profit-loss.saved-views.store.",
+        "Phase 64S should create the report-specific config partial and insert the config include after the GET filters/export controls card.",
+        "Phase 64S should register profit-loss with export_route reports.profit-loss.export because the registry validator requires export_route.",
+        "Do not modify shared saved view partials."
+    ]
+}
