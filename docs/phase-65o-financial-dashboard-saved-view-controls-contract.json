@@ -1,0 +1,112 @@
+{
+    "phase": "Phase 65O",
+    "title": "Prepare Financial Dashboard Saved View Controls Contract",
+    "baseline": {
+        "phase": "Phase 65N clean",
+        "commit": "a21cd86",
+        "previous_tests": "1200 passed / 10510 assertions"
+    },
+    "source_lock": "docs/phase-65n-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "financial-dashboard",
+        "view_path": "resources/views/reports/financial-dashboard.blade.php",
+        "controller_path": "app/Http/Controllers/FinancialDashboardController.php",
+        "priority_score": 10,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false,
+        "print_only_candidate": false,
+        "internal_tooling_candidate": false,
+        "navigation_hub_candidate": false
+    },
+    "eligibility_decision": {
+        "status": "eligible_for_empty_filter_saved_view_controls_rollout",
+        "rollout_mode": "empty_filter_dashboard_saved_views",
+        "reason": "The target is a business financial dashboard surface with useful current-month metrics and no user filter form. Saved views can still provide quick access/default pinning with an empty filter payload.",
+        "hidden_fields": [],
+        "do_register_report_saved_view_key": true,
+        "do_create_saved_view_controls_config_partial": true,
+        "do_add_saved_view_store_route": true,
+        "do_add_json_export_route": true
+    },
+    "current_state_evidence": {
+        "view_exists": true,
+        "controller_exists": true,
+        "is_standalone_html_document": true,
+        "is_business_dashboard": true,
+        "controller_is_invokable": true,
+        "controller_uses_schema_guards": true,
+        "contains_financial_dashboard_title": true,
+        "contains_current_month_revenues_metric": true,
+        "contains_current_month_expenses_metric": true,
+        "contains_current_month_net_profit_metric": true,
+        "contains_uncollected_revenues_metric": true,
+        "contains_unpaid_expenses_metric": true,
+        "contains_profit_loss_links": true,
+        "existing_index_route_in_routes_file": true,
+        "json_export_route_exists_at_contract_time": false,
+        "saved_view_store_route_exists_at_contract_time": false,
+        "contains_interactive_form": false,
+        "contains_get_form": false,
+        "contains_saved_view_controls_include_or_inline_config": false,
+        "linked_route_names": [
+            "reports.profit-loss",
+            "reports.profit-loss.export"
+        ],
+        "data_test_ids_in_view": [
+            "financial-dashboard",
+            "financial-dashboard-current-month-expenses",
+            "financial-dashboard-current-month-net-profit",
+            "financial-dashboard-current-month-revenues",
+            "financial-dashboard-profit-loss-export-link",
+            "financial-dashboard-profit-loss-link",
+            "financial-dashboard-profit-loss-link-card",
+            "financial-dashboard-uncollected-revenues",
+            "financial-dashboard-unpaid-expenses"
+        ]
+    },
+    "route_contract": {
+        "existing_index_route": "reports.financial-dashboard",
+        "json_export_route_to_add": "reports.financial-dashboard.json",
+        "json_export_path_to_add": "/reports/financial-dashboard/json",
+        "saved_view_store_route_to_add": "reports.financial-dashboard.saved-views.store",
+        "saved_view_store_path_to_add": "/reports/financial-dashboard/saved-views"
+    },
+    "registry_contract": {
+        "key": "financial-dashboard",
+        "label": "الداشبورد المالية",
+        "view": "reports.financial-dashboard",
+        "view_path": "resources/views/reports/financial-dashboard.blade.php",
+        "index_route": "reports.financial-dashboard",
+        "export_route": "reports.financial-dashboard.json",
+        "saved_view_store_route": "reports.financial-dashboard.saved-views.store",
+        "config_partial": "reports.partials.financial-dashboard-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/financial-dashboard-saved-view-controls-config.blade.php",
+        "hidden_fields": [],
+        "test_ids": {
+            "section_card": "financial-dashboard-saved-views-selector",
+            "empty": "financial-dashboard-saved-views-empty",
+            "form_card": "financial-dashboard-save-view-card",
+            "form": "financial-dashboard-save-view-form",
+            "name_input": "financial-dashboard-saved-view-name-input",
+            "default_checkbox": "financial-dashboard-saved-view-default-checkbox",
+            "save_button": "financial-dashboard-save-view-button",
+            "list": "financial-dashboard-saved-views-list",
+            "item": "financial-dashboard-saved-view-item",
+            "open_link": "financial-dashboard-saved-view-open-link",
+            "active_badge": "financial-dashboard-saved-view-active-badge",
+            "default_badge": "financial-dashboard-saved-view-default-badge",
+            "status": "financial-dashboard-status"
+        }
+    },
+    "rollout_guardrails": [
+        "No shared saved-view partial changes.",
+        "Use an empty hidden fields list.",
+        "Save empty filters as [].",
+        "Preserve the current standalone dashboard layout unless the rollout include requires a minimal insertion.",
+        "Add JSON export route for registry export route integrity.",
+        "Do not add static or hidden markers.",
+        "Run focused tests before full suite."
+    ]
+}
