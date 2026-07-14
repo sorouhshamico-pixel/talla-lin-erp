@@ -1,0 +1,200 @@
+{
+    "phase": "Phase 66A",
+    "title": "Saved View Management UX Audit Contract",
+    "baseline": {
+        "phase": "Phase 65Q clean",
+        "commit": "308ab02",
+        "previous_tests": "1216 passed / 10744 assertions"
+    },
+    "scope": {
+        "type": "audit_contract_only",
+        "implementation_changes_allowed": false,
+        "files_allowed": [
+            "docs/phase-66a-saved-view-management-ux-audit-contract.json",
+            "docs/phase-66a-saved-view-management-ux-audit-contract.md",
+            "tests/Feature/ReportSavedViewPhase66ASavedViewManagementUxAuditContractTest.php"
+        ]
+    },
+    "surfaces": {
+        "controller": "app/Http/Controllers/ReportSavedViewController.php",
+        "index_view": "resources/views/reports/saved-views/index.blade.php",
+        "edit_view": "resources/views/reports/saved-views/edit.blade.php",
+        "model": "app/Models/ReportSavedView.php",
+        "routes": "routes/web.php"
+    },
+    "current_capabilities": {
+        "routes": {
+            "reports.saved-views.index": true,
+            "reports.saved-views.edit": true,
+            "reports.saved-views.update": true,
+            "reports.saved-views.duplicate": true,
+            "reports.saved-views.apply": true,
+            "reports.saved-views.destroy-all": true,
+            "reports.saved-views.make-default": true,
+            "reports.saved-views.destroy": true
+        },
+        "controller_actions": {
+            "index": true,
+            "edit": true,
+            "update": true,
+            "duplicate": true,
+            "apply": true,
+            "make_default": true,
+            "destroy": true,
+            "destroy_all": true,
+            "ownership_guard": true
+        },
+        "index_view": {
+            "page_test_id": true,
+            "table_test_id": true,
+            "count_test_id": true,
+            "empty_state_test_id": true,
+            "clear_all_button": true,
+            "open_link": true,
+            "edit_link": true,
+            "apply_link": true,
+            "duplicate_button": true,
+            "make_default_button": true,
+            "delete_button": true,
+            "default_badge": true
+        },
+        "edit_view": {
+            "page_test_id": true,
+            "form_test_id": true,
+            "name_input": true,
+            "default_checkbox": true,
+            "filter_inputs": true,
+            "submit_button": true
+        },
+        "model": {
+            "has_fillable_user_id": true,
+            "has_fillable_report_key": true,
+            "casts_filters_to_array": true,
+            "casts_is_default_to_boolean": true,
+            "belongs_to_user": true
+        }
+    },
+    "registry_alignment": {
+        "registry_report_count": 13,
+        "registry_keys": [
+            "cash-flow-dashboard",
+            "customer-sales-invoice-aging",
+            "customer-sales-invoice-aging-drilldown",
+            "financial-dashboard",
+            "index",
+            "profit-loss",
+            "receivable-payable-aging-dashboard",
+            "sales-invoice-aging",
+            "sales-invoice-collection-follow-ups",
+            "sales-invoice-collections",
+            "saved-view-candidates",
+            "supplier-purchase-invoice-aging",
+            "supplier-purchase-invoice-aging-drilldown"
+        ],
+        "controller_static_report_label_keys": [
+            "cash-flow-dashboard",
+            "customer-sales-invoice-aging",
+            "customer-sales-invoice-aging-drilldown",
+            "receivable-payable-aging-dashboard",
+            "sales-invoice-aging",
+            "supplier-purchase-invoice-aging",
+            "supplier-purchase-invoice-aging-drilldown"
+        ],
+        "controller_static_report_route_keys": [
+            "cash-flow-dashboard",
+            "customer-sales-invoice-aging",
+            "customer-sales-invoice-aging-drilldown",
+            "receivable-payable-aging-dashboard",
+            "sales-invoice-aging",
+            "supplier-purchase-invoice-aging",
+            "supplier-purchase-invoice-aging-drilldown"
+        ],
+        "missing_label_keys_from_controller_static_map": [
+            "financial-dashboard",
+            "index",
+            "profit-loss",
+            "sales-invoice-collection-follow-ups",
+            "sales-invoice-collections",
+            "saved-view-candidates"
+        ],
+        "missing_route_keys_from_controller_static_map": [
+            "financial-dashboard",
+            "index",
+            "profit-loss",
+            "sales-invoice-collection-follow-ups",
+            "sales-invoice-collections",
+            "saved-view-candidates"
+        ],
+        "uses_static_labels_instead_of_registry": true,
+        "uses_static_routes_instead_of_registry": true
+    },
+    "audit_findings": [
+        {
+            "key": "registry_alignment_gap",
+            "severity": "high",
+            "finding": "ReportSavedViewController uses private static report label/route maps instead of ReportSavedViewRegistry.",
+            "impact": "New registered reports can have saved views but may show raw keys or fail apply/open links in the management page until static maps are updated.",
+            "evidence": {
+                "missing_label_keys": [
+                    "financial-dashboard",
+                    "index",
+                    "profit-loss",
+                    "sales-invoice-collection-follow-ups",
+                    "sales-invoice-collections",
+                    "saved-view-candidates"
+                ],
+                "missing_route_keys": [
+                    "financial-dashboard",
+                    "index",
+                    "profit-loss",
+                    "sales-invoice-collection-follow-ups",
+                    "sales-invoice-collections",
+                    "saved-view-candidates"
+                ]
+            }
+        },
+        {
+            "key": "index_action_density",
+            "severity": "medium",
+            "finding": "The saved view index table exposes many actions in one table cell.",
+            "impact": "As report count and saved views grow, scanability and mobile usability can degrade.",
+            "evidence": {
+                "actions": [
+                    "open",
+                    "edit",
+                    "apply",
+                    "duplicate",
+                    "make_default",
+                    "delete",
+                    "delete_all"
+                ]
+            }
+        },
+        {
+            "key": "edit_filter_mutation_risk",
+            "severity": "medium",
+            "finding": "The edit page copy says filters are read-only, but the page renders editable filter inputs and update accepts filters.",
+            "impact": "Users can modify filter payloads without report-specific validation or clear UX expectations.",
+            "evidence": {
+                "edit_view_has_filter_inputs": true,
+                "controller_accepts_filters_array": true
+            }
+        },
+        {
+            "key": "ownership_guard_present",
+            "severity": "positive",
+            "finding": "Saved view actions call authorizeSavedView before per-record operations.",
+            "impact": "User ownership is protected for edit, update, apply, duplicate, make default, and delete operations.",
+            "evidence": {
+                "authorize_method_present": true
+            }
+        }
+    ],
+    "phase_66b_recommendations": [
+        "Replace ReportSavedViewController static REPORT_LABELS and REPORT_ROUTES with ReportSavedViewRegistry lookups.",
+        "Add coverage proving every registered saved view report has a management label and apply/open route.",
+        "Decide whether edit filters are truly editable. If yes, add report-aware validation. If no, render filters read-only.",
+        "Add grouped action layout or action menu for saved view rows to reduce table density.",
+        "Keep existing ownership guard behavior and add explicit tests for cross-user forbidden access for every management action."
+    ]
+}
