@@ -1,0 +1,34 @@
+{
+    "phase": "Phase 64H",
+    "title": "Lock Next Saved View Rollout Target After Phase 64G",
+    "baseline": {
+        "phase": "Phase 64G clean",
+        "commit": "23006ae",
+        "tests": "1043 passed / 8301 assertions"
+    },
+    "source_selector_snapshot": "docs/phase-64h-saved-view-rollout-selector-snapshot.json",
+    "selected_target": {
+        "key": "supplier-purchase-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php",
+        "priority_score": 100,
+        "registered_at_lock_time": false,
+        "has_get_form": true,
+        "has_filter_terms": true,
+        "has_saved_view_controls": true
+    },
+    "proposed_contract_seed": {
+        "registry_key": "supplier-purchase-invoice-aging-drilldown",
+        "view_path": "resources/views/reports/supplier-purchase-invoice-aging-drilldown.blade.php",
+        "config_partial": "reports.partials.supplier-purchase-invoice-aging-drilldown-saved-view-controls-config",
+        "config_partial_path": "resources/views/reports/partials/supplier-purchase-invoice-aging-drilldown-saved-view-controls-config.blade.php",
+        "shared_controls_partial": "reports.partials.saved-view-controls"
+    },
+    "guardrails": [
+        "Do not use broken Phase 64D scripts.",
+        "Do not modify saved-view-controls or shared partials broadly.",
+        "Do not add static markers.",
+        "Do not add hidden markers.",
+        "Do not rewrite full report partials.",
+        "Run focused tests before full suite."
+    ]
+}
