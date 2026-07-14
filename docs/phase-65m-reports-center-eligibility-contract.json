@@ -1,0 +1,71 @@
+{
+    "phase": "Phase 65M",
+    "title": "Prepare Reports Center Eligibility Contract",
+    "baseline": {
+        "phase": "Phase 65L clean",
+        "commit": "2a0fd6e",
+        "previous_tests": "1190 passed / 10434 assertions"
+    },
+    "source_lock": "docs/phase-65l-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "center",
+        "view_path": "resources/views/reports/center.blade.php",
+        "priority_score": 10,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": false,
+        "has_saved_view_controls_at_lock_time": false,
+        "print_only_candidate": false,
+        "internal_tooling_candidate": false
+    },
+    "eligibility_decision": {
+        "status": "not_eligible_for_saved_view_controls_rollout",
+        "reason": "The target is a reports navigation center. It provides links to other reports and exports, but it is not a business report surface with user-owned report filters or independently meaningful saved view state.",
+        "recommended_next_phase": "Exclude report navigation hub views from the rollout selector before selecting the next business report target.",
+        "do_not_register_report_saved_view_key": true,
+        "do_not_create_saved_view_controls_config_partial": true,
+        "do_not_add_store_route": true,
+        "do_not_modify_navigation_view": true
+    },
+    "current_state_evidence": {
+        "view_exists": true,
+        "is_standalone_html_document": true,
+        "is_navigation_hub": true,
+        "contains_reports_center_title": true,
+        "contains_financial_dashboard_card": true,
+        "contains_profit_loss_card": true,
+        "contains_profit_loss_export_card": true,
+        "linked_route_names": [
+            "reports.financial-dashboard",
+            "reports.profit-loss",
+            "reports.profit-loss.export"
+        ],
+        "contains_interactive_form": false,
+        "contains_get_form": false,
+        "contains_saved_view_controls_include_or_inline_config": false,
+        "data_test_ids_in_view": [
+            "reports-center",
+            "reports-center-financial-dashboard-card",
+            "reports-center-financial-dashboard-link",
+            "reports-center-profit-loss-card",
+            "reports-center-profit-loss-export-card",
+            "reports-center-profit-loss-export-link",
+            "reports-center-profit-loss-link"
+        ]
+    },
+    "proposed_exclusion": {
+        "exclusion_rule": "ReportSavedViewRolloutSelector should ignore navigation hub candidates such as center.",
+        "scope": "selector/prioritization only",
+        "candidate_keys_to_exclude": [
+            "center"
+        ],
+        "expected_result_after_exclusion": "center should no longer be the next rollout target."
+    },
+    "guardrails": [
+        "Do not add saved view controls to navigation hub pages.",
+        "Do not register center in ReportSavedViewRegistry.",
+        "Do not add saved view store routes for navigation hub pages.",
+        "Do not modify shared saved view partials.",
+        "Implement exclusion in selector/prioritization before locking the next target."
+    ]
+}
