@@ -1,0 +1,72 @@
+{
+    "phase": "Phase 65I",
+    "title": "Prepare Saved View Rollout Selector Eligibility Contract",
+    "baseline": {
+        "phase": "Phase 65H clean",
+        "commit": "90f8368",
+        "previous_tests": "1170 passed / 10288 assertions"
+    },
+    "source_lock": "docs/phase-65h-next-saved-view-rollout-target.json",
+    "target": {
+        "key": "saved-view-rollout-selector",
+        "view_path": "resources/views/reports/saved-view-rollout-selector.blade.php",
+        "priority_score": 40,
+        "registered_at_lock_time": false,
+        "has_get_form_at_lock_time": false,
+        "has_filter_terms_at_lock_time": true,
+        "has_saved_view_controls_at_lock_time": false,
+        "print_only_candidate": false
+    },
+    "eligibility_decision": {
+        "status": "not_eligible_for_saved_view_controls_rollout",
+        "reason": "The target is an internal rollout tooling surface. It explains and exports saved view rollout planning state rather than representing a business report with user-owned report filters.",
+        "recommended_next_phase": "Exclude rollout tooling views from the rollout selector before selecting the next business report target.",
+        "do_not_register_report_saved_view_key": true,
+        "do_not_create_saved_view_controls_config_partial": true,
+        "do_not_add_store_route": true,
+        "do_not_modify_tooling_view": true
+    },
+    "current_state_evidence": {
+        "view_exists": true,
+        "extends_layout": true,
+        "is_tooling_surface": true,
+        "contains_rollout_workflow": true,
+        "contains_cli_commands": true,
+        "contains_next_candidate_panel": true,
+        "contains_prioritized_candidates_table": true,
+        "links_to_markdown_export": true,
+        "links_to_json_export": true,
+        "links_to_candidates_tooling": true,
+        "links_to_diagnostics_tooling": true,
+        "contains_interactive_form": false,
+        "contains_get_form": false,
+        "contains_saved_view_controls_include_or_inline_config": false,
+        "data_test_ids_in_view": [
+            "report-saved-view-rollout-selector-cli-commands",
+            "report-saved-view-rollout-selector-export-actions",
+            "report-saved-view-rollout-selector-markdown",
+            "report-saved-view-rollout-selector-next-candidate",
+            "report-saved-view-rollout-selector-page",
+            "report-saved-view-rollout-selector-recommended-steps",
+            "report-saved-view-rollout-selector-summary",
+            "report-saved-view-rollout-selector-table",
+            "report-saved-view-rollout-selector-web-links",
+            "report-saved-view-rollout-selector-workflow"
+        ]
+    },
+    "proposed_exclusion": {
+        "exclusion_rule": "ReportSavedViewRolloutSelector should ignore internal saved-view tooling candidates such as saved-view-rollout-selector.",
+        "scope": "selector/prioritization only",
+        "candidate_keys_to_exclude": [
+            "saved-view-rollout-selector"
+        ],
+        "expected_result_after_exclusion": "saved-view-rollout-selector should no longer be the next rollout target."
+    },
+    "guardrails": [
+        "Do not add saved view controls to internal rollout tooling pages.",
+        "Do not register saved-view-rollout-selector in ReportSavedViewRegistry.",
+        "Do not add saved view store routes for rollout tooling pages.",
+        "Do not modify shared saved view partials.",
+        "Implement exclusion in selector/prioritization before locking the next target."
+    ]
+}
