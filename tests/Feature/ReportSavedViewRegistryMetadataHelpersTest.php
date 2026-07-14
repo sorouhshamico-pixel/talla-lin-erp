@@ -10,7 +10,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 {
     public function test_registry_metadata_helpers_return_expected_report_values(): void
     {
-        $this->assertSame(12, ReportSavedViewRegistry::count());
+        $this->assertSame(13, ReportSavedViewRegistry::count());
 
         $keys = ReportSavedViewRegistry::keys();
 
@@ -40,6 +40,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame('لوحة أعمار الذمم', $labels['receivable-payable-aging-dashboard']);
         $this->assertSame('تقرير متابعات تحصيل فواتير المبيعات', $labels['sales-invoice-collection-follow-ups']);
         $this->assertSame('تقرير تحصيل فواتير المبيعات', $labels['sales-invoice-collections']);
+        $this->assertSame('الداشبورد المالية', $labels['financial-dashboard']);
         $this->assertSame('مرشحو عروض التقارير المحفوظة', $labels['saved-view-candidates']);
 
         $viewPaths = ReportSavedViewRegistry::viewPaths();
@@ -97,6 +98,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'resources/views/reports/sales-invoice-collections.blade.php',
             $viewPaths['sales-invoice-collections']
+        );
+
+        $this->assertSame(
+            'resources/views/reports/financial-dashboard.blade.php',
+            $viewPaths['financial-dashboard']
         );
 
         $this->assertSame(
@@ -235,6 +241,18 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
             ReportSavedViewRegistry::savedViewStoreRoute('sales-invoice-collections')
         );
 
+        $this->assertSame('reports.financial-dashboard.json', $exportRoutes['financial-dashboard']);
+
+        $this->assertSame(
+            'reports.financial-dashboard',
+            ReportSavedViewRegistry::indexRoute('financial-dashboard')
+        );
+
+        $this->assertSame(
+            'reports.financial-dashboard.saved-views.store',
+            ReportSavedViewRegistry::savedViewStoreRoute('financial-dashboard')
+        );
+
         $this->assertSame('reports.saved-view-candidates.json', $exportRoutes['saved-view-candidates']);
 
         $this->assertSame(
@@ -315,6 +333,8 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
 
         $this->assertSame([], $hiddenFieldMap['sales-invoice-collections']);
 
+        $this->assertSame([], $hiddenFieldMap['financial-dashboard']);
+
         $this->assertSame([], $hiddenFieldMap['saved-view-candidates']);
 
         $testIdMap = ReportSavedViewRegistry::testIdMap();
@@ -372,6 +392,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         $this->assertSame(
             'sales-invoice-collections-save-view-form',
             $testIdMap['sales-invoice-collections']['form']
+        );
+
+        $this->assertSame(
+            'financial-dashboard-save-view-form',
+            $testIdMap['financial-dashboard']['form']
         );
 
         $this->assertSame(
@@ -441,6 +466,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'reports.partials.financial-dashboard-saved-view-controls-config',
+            $configPartials['financial-dashboard']
+        );
+
+        $this->assertSame(
             'reports.partials.saved-view-candidates-saved-view-controls-config',
             $configPartials['saved-view-candidates']
         );
@@ -496,6 +526,11 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
         );
 
         $this->assertSame(
+            'resources/views/reports/partials/financial-dashboard-saved-view-controls-config.blade.php',
+            $configPartialPaths['financial-dashboard']
+        );
+
+        $this->assertSame(
             'resources/views/reports/partials/saved-view-candidates-saved-view-controls-config.blade.php',
             $configPartialPaths['saved-view-candidates']
         );
@@ -509,7 +544,7 @@ class ReportSavedViewRegistryMetadataHelpersTest extends TestCase
     {
         $rows = ReportSavedViewRegistry::documentationRows();
 
-        $this->assertCount(12, $rows);
+        $this->assertCount(13, $rows);
 
         $rowsByKey = collect($rows)->keyBy('key');
 

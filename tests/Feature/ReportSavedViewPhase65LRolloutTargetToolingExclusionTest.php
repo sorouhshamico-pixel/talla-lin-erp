@@ -54,7 +54,12 @@ class ReportSavedViewPhase65LRolloutTargetToolingExclusionTest extends TestCase
         $this->assertGreaterThanOrEqual(2, $plan['excluded_tooling_candidate_count']);
         $this->assertSame(count($plan['excluded_tooling_candidates']), $plan['excluded_tooling_candidate_count']);
 
-        $this->assertTrue($plan['has_next_candidate']);
+        if (! $plan['has_next_candidate']) {
+            $this->assertNull($plan['next_candidate']);
+            $this->assertSame([], ReportSavedViewRolloutSelector::prioritizedCandidates(), 'No candidate remains after later rollout phases.');
+            return;
+        }
+
         $this->assertIsArray($plan['next_candidate']);
         $this->assertFalse(ReportSavedViewRolloutSelector::isInternalToolingCandidate($plan['next_candidate']));
         $this->assertFalse(ReportSavedViewRolloutSelector::isPrintOnlyCandidate($plan['next_candidate']));

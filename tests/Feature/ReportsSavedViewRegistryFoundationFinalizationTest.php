@@ -76,7 +76,7 @@ class ReportsSavedViewRegistryFoundationFinalizationTest extends TestCase
 
             $this->assertIsArray($report['hidden_fields']);
 
-            if (in_array(($report['key'] ?? null), ['saved-view-candidates', 'sales-invoice-collections'], true)) {
+            if (in_array(($report['key'] ?? null), ['saved-view-candidates', 'sales-invoice-collections', 'financial-dashboard'], true)) {
                 $this->assertSame([], $report['hidden_fields']);
             } else {
                 $this->assertNotEmpty($report['hidden_fields']);

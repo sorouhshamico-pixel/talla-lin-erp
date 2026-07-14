@@ -275,6 +275,14 @@ Route::get('/reports/financial-dashboard', \App\Http\Controllers\FinancialDashbo
     ->middleware('auth')
     ->name('reports.financial-dashboard');
 
+Route::get('/reports/financial-dashboard/json', [\App\Http\Controllers\FinancialDashboardController::class, 'json'])
+    ->middleware('auth')
+    ->name('reports.financial-dashboard.json');
+
+Route::post('/reports/financial-dashboard/saved-views', [\App\Http\Controllers\FinancialDashboardController::class, 'storeSavedView'])
+    ->middleware('auth')
+    ->name('reports.financial-dashboard.saved-views.store');
+
 Route::get('/reports/center', \App\Http\Controllers\ReportsCenterController::class)
     ->middleware('auth')
     ->name('reports.center');

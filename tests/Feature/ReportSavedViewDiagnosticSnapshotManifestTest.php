@@ -37,7 +37,7 @@ class ReportSavedViewDiagnosticSnapshotManifestTest extends TestCase
         $this->assertSame('manifest-markdown-test.md', $manifest['latest']['markdown']['filename']);
         $this->assertSame('report-saved-view-diagnostics/manifest-markdown-test.md', $manifest['latest']['markdown']['relative_path']);
         $this->assertTrue($manifest['latest']['markdown']['healthy']);
-        $this->assertSame(12, $manifest['latest']['markdown']['report_count']);
+        $this->assertSame(13, $manifest['latest']['markdown']['report_count']);
         $this->assertSame(0, $manifest['latest']['markdown']['invalid_count']);
         $this->assertCount(1, $manifest['history']);
     }
@@ -53,7 +53,7 @@ class ReportSavedViewDiagnosticSnapshotManifestTest extends TestCase
         $this->assertSame('json', $manifest['latest']['json']['format']);
         $this->assertSame('report-saved-view-diagnostics/manifest-json-test.json', $manifest['latest']['json']['relative_path']);
         $this->assertTrue($manifest['latest']['json']['healthy']);
-        $this->assertSame(12, $manifest['latest']['json']['report_count']);
+        $this->assertSame(13, $manifest['latest']['json']['report_count']);
         $this->assertSame(0, $manifest['latest']['json']['invalid_count']);
     }
 

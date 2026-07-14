@@ -2,14 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ReportSavedViewService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class FinancialDashboardController extends Controller
 {
-    public function __invoke(): View
+    private const REPORT_KEY = 'financial-dashboard';
+
+    public function __invoke(ReportSavedViewService $savedViews): View
+    {
+        return view('reports.financial-dashboard', [
+            ...$this->dashboardData(),
+            'savedViews' => $this->savedViewsForCurrentUser($savedViews),
+        ]);
+    }
+
+    public function json(): JsonResponse
+    {
+        return response()->json($this->dashboardData());
+    }
+
+    public function storeSavedView(Request $request, ReportSavedViewService $savedViews): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'is_default' => ['nullable', 'boolean'],
+        ]);
+
+        $savedViews->save(
+            $request->user(),
+            self::REPORT_KEY,
+            $validated['name'],
+            [],
+            (bool) ($validated['is_default'] ?? false)
+        );
+
+        return redirect()
+            ->route('reports.financial-dashboard')
+            ->with('status', 'تم حفظ عرض الداشبورد المالية بنجاح.');
+    }
+
+    /**
+     * @return array<string, float|string>
+     */
+    private function dashboardData(): array
     {
         $fromDate = now()->startOfMonth()->toDateString();
         $toDate = now()->endOfMonth()->toDateString();
@@ -18,18 +61,26 @@ class FinancialDashboardController extends Controller
         $currentMonthExpenses = $this->sumAmountWithinDateRange('expenses', 'expense_date', $fromDate, $toDate);
         $currentMonthNetProfit = round($currentMonthRevenues - $currentMonthExpenses, 2);
 
-        $uncollectedRevenues = $this->sumAmountByBooleanColumn('revenues', 'is_collected', false);
-        $unpaidExpenses = $this->sumAmountByBooleanColumn('expenses', 'is_paid', false);
-
-        return view('reports.financial-dashboard', [
+        return [
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'currentMonthRevenues' => $currentMonthRevenues,
             'currentMonthExpenses' => $currentMonthExpenses,
             'currentMonthNetProfit' => $currentMonthNetProfit,
-            'uncollectedRevenues' => $uncollectedRevenues,
-            'unpaidExpenses' => $unpaidExpenses,
-        ]);
+            'uncollectedRevenues' => $this->sumAmountByBooleanColumn('revenues', 'is_collected', false),
+            'unpaidExpenses' => $this->sumAmountByBooleanColumn('expenses', 'is_paid', false),
+        ];
+    }
+
+    private function savedViewsForCurrentUser(ReportSavedViewService $savedViews): Collection
+    {
+        $user = auth()->user();
+
+        if ($user === null || ! Schema::hasTable('report_saved_views')) {
+            return collect();
+        }
+
+        return $savedViews->list($user, self::REPORT_KEY);
     }
 
     private function sumAmountWithinDateRange(string $table, string $preferredDateColumn, string $fromDate, string $toDate): float

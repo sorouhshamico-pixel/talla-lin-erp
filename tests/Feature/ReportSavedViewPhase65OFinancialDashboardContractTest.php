@@ -58,7 +58,8 @@ class ReportSavedViewPhase65OFinancialDashboardContractTest extends TestCase
         $this->assertStringContainsString('financial-dashboard-current-month-net-profit', $view);
         $this->assertStringContainsString('financial-dashboard-uncollected-revenues', $view);
         $this->assertStringContainsString('financial-dashboard-unpaid-expenses', $view);
-        $this->assertStringContainsString('public function __invoke(): View', $controller);
+        $this->assertStringContainsString('public function __invoke(', $controller);
+        $this->assertStringContainsString('): View', $controller);
 
         $this->assertTrue($contract['current_state_evidence']['is_business_dashboard']);
         $this->assertTrue($contract['current_state_evidence']['controller_is_invokable']);

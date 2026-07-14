@@ -110,6 +110,14 @@
         </div>
     </div>
 
+    @if (session('status'))
+        <div class="card" data-testid="financial-dashboard-status">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @include('reports.partials.financial-dashboard-saved-view-controls-config')
+
     <div class="metrics">
         <div class="metric" data-testid="financial-dashboard-current-month-revenues">
             <div class="metric-label">إجمالي الإيرادات هذا الشهر</div>
