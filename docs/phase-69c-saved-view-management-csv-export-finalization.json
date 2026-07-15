@@ -1,0 +1,69 @@
+{
+    "phase": "Phase 69C",
+    "title": "Saved View Management CSV Export Finalization",
+    "baseline": {
+        "phase": "Phase 69B clean",
+        "commit": "3696fc3",
+        "previous_tests": "1341 passed / 11851 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase69CCsvExportFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-69c-saved-view-management-csv-export-finalization.json",
+            "docs/phase-69c-saved-view-management-csv-export-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "finalized_behavior": {
+        "csv_export_route_locked": true,
+        "csv_export_controller_action_locked": true,
+        "csv_export_service_query_locked": true,
+        "csv_export_link_locked": true,
+        "csv_export_user_scope_locked": true,
+        "csv_export_search_filter_locked": true,
+        "csv_export_report_key_filter_locked": true,
+        "csv_export_full_filtered_set_locked": true,
+        "csv_export_ignores_page_and_per_page_locked": true,
+        "csv_export_columns_locked": true,
+        "csv_filter_summary_includes_display_and_raw_value_locked": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_management_pagination_preserved": true,
+        "phase_66_authorization_preserved": true
+    },
+    "csv_columns": [
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "updated_at"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 70A",
+        "title": "Saved View Management Import Contract",
+        "reason": "After search, pagination, bulk actions, and export are stable, the next controlled workflow is import/restore planning. This should begin with a contract because import is write-capable and higher risk than export."
+    },
+    "guardrails": [
+        "Do not change Phase 69 CSV export implementation in this finalization phase.",
+        "CSV export must remain user-scoped.",
+        "CSV export must remain read-only.",
+        "CSV export must include the full filtered result set, not only the current page.",
+        "CSV export must preserve search and report_key filters.",
+        "CSV export must not change management pagination semantics.",
+        "CSV export must not change Phase 68 bulk delete selection or context behavior.",
+        "CSV export must not change row action authorization."
+    ]
+}
