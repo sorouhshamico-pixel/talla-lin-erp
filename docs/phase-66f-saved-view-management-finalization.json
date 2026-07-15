@@ -1,0 +1,48 @@
+{
+    "phase": "Phase 66F",
+    "title": "Saved View Management Finalization",
+    "baseline": {
+        "phase": "Phase 66E clean",
+        "commit": "975f33a",
+        "commit_message": "Clean up saved view management table actions"
+    },
+    "scope": {
+        "type": "finalization_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase66FSavedViewManagementFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-66f-saved-view-management-finalization.json",
+            "docs/phase-66f-saved-view-management-finalization.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "completed_phase_66_work": {
+        "66A": "Saved view management UX audit contract",
+        "66B": "Management labels and routes aligned with ReportSavedViewRegistry",
+        "66C": "Saved view edit filters made read-only",
+        "66D": "Ownership authorization hardened across management actions",
+        "66E": "Management table row actions grouped into primary, secondary, and danger clusters"
+    },
+    "final_state_contract": {
+        "management_uses_registry_for_report_labels_and_urls": true,
+        "saved_view_edit_filters_are_read_only": true,
+        "cross_user_record_actions_return_not_found": true,
+        "bulk_delete_is_scoped_to_authenticated_user": true,
+        "management_table_actions_are_grouped": true,
+        "existing_management_action_test_ids_are_preserved": true
+    },
+    "recommended_next_phase": {
+        "phase": "Phase 67A",
+        "title": "Saved View Management Pagination And Search Contract",
+        "reason": "After management UX hardening, the next scalable improvement is search/filter/pagination for larger saved view collections."
+    }
+}
