@@ -1,0 +1,88 @@
+{
+    "phase": "Phase 72A",
+    "title": "Saved View Machine-Readable Filters Payload Contract",
+    "baseline": {
+        "phase": "Phase 71C clean",
+        "commit": "1ae3818",
+        "previous_tests": "1398 passed / 12494 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase72AFiltersPayloadContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-72a-saved-view-machine-readable-filters-payload-contract.json",
+            "docs/phase-72a-saved-view-machine-readable-filters-payload-contract.md"
+        ],
+        "excluded_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "csv_export_exists": true,
+        "csv_export_human_filters_summary_exists": true,
+        "filters_payload_export_column_absent": true,
+        "import_preview_exists": true,
+        "import_apply_exists": true,
+        "import_apply_revalidates_payload": true,
+        "import_apply_uses_transaction": true,
+        "import_apply_skips_duplicates": true,
+        "import_apply_imports_empty_filters": true,
+        "filters_summary_not_machine_readable": true,
+        "lossless_saved_view_import_absent": true,
+        "phase_71_import_apply_stable": true,
+        "phase_70_import_preview_stable": true,
+        "phase_69_csv_export_stable": true
+    },
+    "phase_72b_recommendation": {
+        "title": "Implement Saved View Filters Payload Export And Import",
+        "implementation_targets": [
+            "Add filters_payload as a machine-readable JSON column to saved view CSV export.",
+            "Keep filters_summary as a human-readable column.",
+            "Add filters_payload to required or supported import preview headers with backwards-compatible handling for older CSV files.",
+            "Validate filters_payload as JSON before import apply writes.",
+            "Validate that filters_payload decodes to an object or associative array.",
+            "Sanitize unsupported or empty filter values consistently with ReportSavedViewService cleanFilters behavior.",
+            "Use filters_payload for imported saved view filters when present and valid.",
+            "Keep filters_summary ignored for machine-readable import.",
+            "Keep duplicate skip policy from Phase 71B.",
+            "Keep database transaction boundary from Phase 71B.",
+            "Keep authenticated-user scoping from Phase 71B.",
+            "Preserve CSV export, preview, apply, bulk selection, and pagination behavior."
+        ],
+        "risk": "medium-high",
+        "risk_reason": "filters_payload enables lossless import/export and writes structured filter data. Invalid JSON or unsupported filters could corrupt saved view behavior if not validated carefully."
+    },
+    "proposed_csv_columns": [
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "filters_payload",
+        "updated_at"
+    ],
+    "guardrails": [
+        "Do not implement filters_payload in this contract phase.",
+        "Do not change CSV export in this contract phase.",
+        "Do not change import preview or import apply in this contract phase.",
+        "filters_summary must remain human-readable only.",
+        "filters_payload must be JSON and machine-readable before it is used for import apply.",
+        "Invalid filters_payload must block writes.",
+        "Imported filters must remain scoped to the authenticated user.",
+        "Duplicate saved views must still be skipped and not overwritten.",
+        "Import apply must remain transaction-protected.",
+        "Keep Phase 71 import apply stable.",
+        "Keep Phase 70 import preview stable.",
+        "Keep Phase 69 CSV export stable."
+    ]
+}
