@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ReportSavedView;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -18,6 +19,52 @@ class ReportSavedViewService
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * @param array<int, string> $matchingReportKeys
+     * @param array<int, string> $matchingFilterValues
+     */
+    public function paginateForManagement(
+        User $user,
+        ?string $search = null,
+        ?string $reportKey = null,
+        array $matchingReportKeys = [],
+        array $matchingFilterValues = [],
+        int $perPage = 15
+    ): LengthAwarePaginator {
+        $search = trim((string) $search);
+        $reportKey = trim((string) $reportKey);
+        $perPage = max(5, min($perPage, 100));
+
+        return ReportSavedView::query()
+            ->where('user_id', $user->id)
+            ->when($reportKey !== '', fn ($query) => $query->where('report_key', $reportKey))
+            ->when(
+                $search !== '' || $matchingReportKeys !== [] || $matchingFilterValues !== [],
+                function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
+                    $query->where(function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
+                        if ($search !== '') {
+                            $query
+                                ->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('report_key', 'like', '%' . $search . '%')
+                                ->orWhere('filters', 'like', '%' . $search . '%');
+                        }
+
+                        if ($matchingReportKeys !== []) {
+                            $query->orWhereIn('report_key', array_values(array_unique($matchingReportKeys)));
+                        }
+
+                        foreach (array_values(array_unique($matchingFilterValues)) as $filterValue) {
+                            $query->orWhere('filters', 'like', '%' . $filterValue . '%');
+                        }
+                    });
+                }
+            )
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function save(User $user, string $reportKey, string $name, array $filters, bool $isDefault = false): ReportSavedView
@@ -54,7 +101,6 @@ class ReportSavedViewService
             );
         });
     }
-
 
     public function listForReport(User $user, string $reportKey)
     {

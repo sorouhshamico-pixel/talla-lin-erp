@@ -1,0 +1,46 @@
+{
+    "phase": "Phase 67B",
+    "title": "Saved View Management Pagination And Search Implementation",
+    "baseline": {
+        "phase": "Phase 67A clean",
+        "commit": "5990865",
+        "previous_tests": "1260 passed / 11135 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "updated_contract_tests": [
+            "tests/Feature/ReportSavedViewPhase67APaginationSearchContractTest.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase67BPaginationSearchImplementationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-67b-saved-view-management-pagination-search-implementation.json",
+            "docs/phase-67b-saved-view-management-pagination-search-implementation.md"
+        ]
+    },
+    "implemented_behavior": {
+        "search_input": true,
+        "report_key_filter": true,
+        "pagination": true,
+        "pagination_per_page_default": 15,
+        "pagination_preserves_query_string": true,
+        "search_matches_saved_view_name": true,
+        "search_matches_report_key": true,
+        "search_matches_registry_report_label": true,
+        "search_matches_raw_filter_payload": true,
+        "search_matches_common_filter_display_labels": true,
+        "invalid_report_key_filter_is_ignored": true
+    },
+    "guardrails": [
+        "Preserve Phase 66 registry-aligned labels and URLs.",
+        "Preserve Phase 66 read-only edit filters.",
+        "Preserve Phase 66 ownership authorization hardening.",
+        "Preserve Phase 66 grouped row action UX.",
+        "Do not change saved view store behavior."
+    ]
+}

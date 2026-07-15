@@ -17,13 +17,52 @@
             </div>
         @endif
 
+        <div class="card" data-testid="report-saved-views-filter-card" style="margin-bottom: 16px;">
+            <form method="GET" action="{{ route('reports.saved-views.index') }}" data-testid="report-saved-views-search-form">
+                <div class="form-group">
+                    <label for="report_saved_views_search">بحث</label>
+                    <input id="report_saved_views_search"
+                           type="text"
+                           name="search"
+                           value="{{ $filters['search'] ?? '' }}"
+                           maxlength="120"
+                           placeholder="ابحث باسم العرض أو التقرير أو الفلاتر"
+                           data-testid="report-saved-views-search-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="report_saved_views_report_key">التقرير</label>
+                    <select id="report_saved_views_report_key"
+                            name="report_key"
+                            data-testid="report-saved-views-report-key-select">
+                        <option value="">كل التقارير</option>
+                        @foreach ($reportOptions as $reportOption)
+                            <option value="{{ $reportOption->key }}" @selected(($filters['report_key'] ?? '') === $reportOption->key)>
+                                {{ $reportOption->label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary" data-testid="report-saved-views-search-submit-button">
+                        تطبيق
+                    </button>
+
+                    <a href="{{ route('reports.saved-views.index') }}" class="btn btn-outline-secondary" data-testid="report-saved-views-search-clear-link">
+                        مسح
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <div class="card" data-testid="report-saved-views-card">
             <div class="card-body">
                 <div class="report-meta">
                     <p data-testid="report-saved-views-count">عدد العروض المحفوظة: {{ $totalSavedViews }}</p>
                 </div>
 
-                @if ($savedViews->isEmpty())
+                @if ($savedViews->count() === 0)
                     <div class="empty-state" data-testid="report-saved-views-empty">
                         لا توجد عروض محفوظة حاليًا.
                     </div>
@@ -139,6 +178,12 @@
                             </tbody>
                         </table>
                     </div>
+
+                    @if ($savedViews->hasPages())
+                        <div class="pagination-wrap" data-testid="report-saved-views-pagination">
+                            {{ $savedViews->links() }}
+                        </div>
+                    @endif
                 @endif
             </div>
         </div>

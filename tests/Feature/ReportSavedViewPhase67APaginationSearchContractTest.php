@@ -27,28 +27,26 @@ class ReportSavedViewPhase67APaginationSearchContractTest extends TestCase
         $this->assertFalse($contract['scope']['implementation_changes_allowed']);
     }
 
-    public function test_current_management_index_loads_all_saved_views_without_pagination_or_search(): void
+    public function test_phase_67a_contract_documented_pre_implementation_pagination_and_search_gap(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $service = file_get_contents(app_path('Services/ReportSavedViewService.php'));
-        $indexView = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-67a-saved-view-management-pagination-search-contract.json')),
+            true
+        );
 
-        $this->assertStringContainsString('->list($request->user())', $controller);
-        $this->assertStringContainsString('->map(fn (ReportSavedView $savedView) => $this->formatSavedView($savedView))', $controller);
-        $this->assertStringContainsString("'totalSavedViews' => \$savedViews->count()", $controller);
-
-        $this->assertStringContainsString('public function list(User $user, ?string $reportKey = null): Collection', $service);
-        $this->assertStringContainsString('->get();', $service);
-        $this->assertStringNotContainsString('->paginate(', $service);
-        $this->assertStringNotContainsString('LengthAwarePaginator', $service);
-
-        $this->assertStringNotContainsString('data-testid="report-saved-views-search-form"', $indexView);
-        $this->assertStringNotContainsString('name="search"', $indexView);
-        $this->assertStringNotContainsString('name="report_key"', $indexView);
-        $this->assertStringNotContainsString('pagination', $indexView);
-        $this->assertStringNotContainsString('links()', $indexView);
+        foreach ([
+            'management_index_uses_service_list',
+            'service_list_returns_collection',
+            'service_list_uses_get_not_paginate',
+            'management_index_maps_all_saved_views_before_render',
+            'management_index_has_no_search_query_validation',
+            'management_view_has_no_search_form',
+            'management_view_has_no_report_key_filter',
+            'management_view_has_no_pagination_links',
+        ] as $key) {
+            $this->assertTrue($contract['current_state'][$key], $key);
+        }
     }
-
     public function test_phase_66_final_state_is_still_present_before_pagination_search_work(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));

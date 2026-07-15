@@ -41,13 +41,40 @@ class ReportSavedViewController extends Controller
 
     public function index(Request $request, ReportSavedViewService $savedViewService): View
     {
-        $savedViews = $savedViewService
-            ->list($request->user())
-            ->map(fn (ReportSavedView $savedView) => $this->formatSavedView($savedView));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'report_key' => ['nullable', 'string', 'max:120'],
+            'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+        ]);
+
+        $search = trim((string) ($validated['search'] ?? ''));
+        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+
+        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+            $reportKey = '';
+        }
+
+        $savedViews = $savedViewService->paginateForManagement(
+            $request->user(),
+            $search,
+            $reportKey,
+            $this->matchingReportKeysForSearch($search),
+            $this->matchingFilterValuesForSearch($search),
+            (int) ($validated['per_page'] ?? 15)
+        );
+
+        $savedViews->getCollection()->transform(
+            fn (ReportSavedView $savedView) => $this->formatSavedView($savedView)
+        );
 
         return view('reports.saved-views.index', [
             'savedViews' => $savedViews,
-            'totalSavedViews' => $savedViews->count(),
+            'totalSavedViews' => $savedViews->total(),
+            'filters' => [
+                'search' => $search,
+                'report_key' => $reportKey,
+            ],
+            'reportOptions' => $this->reportFilterOptions(),
         ]);
     }
 
@@ -180,6 +207,71 @@ class ReportSavedViewController extends Controller
         return redirect()
             ->route('reports.saved-views.index')
             ->with('status', 'تم حذف جميع العروض المحفوظة.');
+    }
+
+    /**
+     * @return array<int, object{key: string, label: string}>
+     */
+    private function reportFilterOptions(): array
+    {
+        return collect(ReportSavedViewRegistry::reports())
+            ->map(fn (array $report): object => (object) [
+                'key' => $report['key'],
+                'label' => $report['label'],
+            ])
+            ->sortBy('label')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function matchingReportKeysForSearch(string $search): array
+    {
+        $needle = mb_strtolower(trim($search), 'UTF-8');
+
+        if ($needle === '') {
+            return [];
+        }
+
+        return collect(ReportSavedViewRegistry::reports())
+            ->filter(function (array $report) use ($needle): bool {
+                return str_contains(mb_strtolower($report['key'], 'UTF-8'), $needle)
+                    || str_contains(mb_strtolower($report['label'], 'UTF-8'), $needle);
+            })
+            ->pluck('key')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function matchingFilterValuesForSearch(string $search): array
+    {
+        $needle = mb_strtolower(trim($search), 'UTF-8');
+
+        if ($needle === '') {
+            return [];
+        }
+
+        $maps = [
+            self::PAYMENT_STATUS_LABELS,
+            self::AGING_BUCKET_LABELS,
+        ];
+
+        $matches = [];
+
+        foreach ($maps as $map) {
+            foreach ($map as $value => $label) {
+                if (str_contains(mb_strtolower($label, 'UTF-8'), $needle)) {
+                    $matches[] = (string) $value;
+                }
+            }
+        }
+
+        return array_values(array_unique($matches));
     }
 
     private function formatSavedView(ReportSavedView $savedView): object
