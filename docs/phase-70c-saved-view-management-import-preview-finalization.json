@@ -1,0 +1,69 @@
+{
+    "phase": "Phase 70C",
+    "title": "Saved View Management Import Preview Finalization",
+    "baseline": {
+        "phase": "Phase 70B clean",
+        "commit": "219e45c",
+        "previous_tests": "1364 passed / 12121 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase70CImportPreviewFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-70c-saved-view-management-import-preview-finalization.json",
+            "docs/phase-70c-saved-view-management-import-preview-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "finalized_behavior": {
+        "import_preview_route_locked": true,
+        "import_preview_controller_action_locked": true,
+        "import_preview_form_locked": true,
+        "import_preview_panel_locked": true,
+        "csv_header_validation_locked": true,
+        "row_level_validation_locked": true,
+        "unknown_report_key_validation_locked": true,
+        "preview_requires_authentication_locked": true,
+        "preview_is_read_only_locked": true,
+        "write_capable_import_route_absent": true,
+        "phase_69_export_preserved": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_management_pagination_preserved": true
+    },
+    "required_csv_columns": [
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "updated_at"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 71A",
+        "title": "Saved View Management Import Apply Contract",
+        "reason": "After preview-only import is stable, the next step can plan a write-capable apply workflow. It must begin with a contract because it can create or update saved views."
+    },
+    "guardrails": [
+        "Do not change Phase 70B import preview implementation in this finalization phase.",
+        "Import preview must remain read-only.",
+        "Do not add write-capable import before a dedicated apply contract.",
+        "Do not create or update report_saved_views rows during preview.",
+        "Do not accept unknown report_key values as valid.",
+        "Do not silently overwrite existing saved views.",
+        "Keep Phase 69 export read-only and stable.",
+        "Keep Phase 68 bulk selection stable.",
+        "Keep Phase 67 management pagination stable."
+    ]
+}
