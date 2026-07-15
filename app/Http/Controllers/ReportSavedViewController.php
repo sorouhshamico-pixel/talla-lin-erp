@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportSavedViewController extends Controller
 {
@@ -77,6 +78,81 @@ class ReportSavedViewController extends Controller
                 'per_page' => $savedViews->perPage(),
             ],
             'reportOptions' => $this->reportFilterOptions(),
+        ]);
+    }
+
+    public function export(Request $request, ReportSavedViewService $savedViewService): StreamedResponse
+    {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'report_key' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $search = trim((string) ($validated['search'] ?? ''));
+        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+
+        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+            $reportKey = '';
+        }
+
+        $savedViews = $savedViewService->exportForManagement(
+            $request->user(),
+            $search,
+            $reportKey,
+            $this->matchingReportKeysForSearch($search),
+            $this->matchingFilterValuesForSearch($search)
+        );
+
+        $fileName = 'saved-views-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () use ($savedViews): void {
+            $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'name',
+                'report_label',
+                'report_key',
+                'is_default',
+                'filter_count',
+                'filters_summary',
+                'updated_at',
+            ]);
+
+            foreach ($savedViews as $savedView) {
+                $formatted = $this->formatSavedView($savedView);
+                $filtersSummary = $formatted->filters
+                    ->map(function (array $filter): string {
+                        $displayValue = (string) ($filter['display_value'] ?? '');
+                        $rawValue = (string) ($filter['value'] ?? '');
+
+                        if ($rawValue !== '' && $rawValue !== $displayValue) {
+                            return $filter['label'] . ': ' . $displayValue . ' (' . $rawValue . ')';
+                        }
+
+                        return $filter['label'] . ': ' . $displayValue;
+                    })
+                    ->implode('; ');
+
+                fputcsv($handle, [
+                    $formatted->name,
+                    $formatted->report_label,
+                    $formatted->report_key,
+                    $formatted->is_default ? 'yes' : 'no',
+                    $formatted->filters->count(),
+                    $filtersSummary,
+                    optional($formatted->updated_at)->toDateTimeString() ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 

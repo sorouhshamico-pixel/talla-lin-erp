@@ -1,0 +1,62 @@
+{
+    "phase": "Phase 69B",
+    "title": "Saved View Management CSV Export Implementation",
+    "baseline": {
+        "phase": "Phase 69A clean",
+        "commit": "3b96f53",
+        "previous_tests": "1333 passed / 11773 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase69AExportContractTest.php",
+            "tests/Feature/ReportSavedViewPhase69BCsvExportImplementationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-69b-saved-view-management-csv-export-implementation.json",
+            "docs/phase-69b-saved-view-management-csv-export-implementation.md"
+        ],
+        "excluded_files": [
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "export_route_added": true,
+        "export_controller_action_added": true,
+        "export_service_query_added": true,
+        "export_link_added_to_management_filters": true,
+        "export_is_user_scoped": true,
+        "export_honors_search_filter": true,
+        "export_honors_report_key_filter": true,
+        "export_ignores_page_and_per_page": true,
+        "export_uses_csv_download": true,
+        "export_columns_are_stable": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_pagination_preserved": true,
+        "phase_66_authorization_preserved": true
+    },
+    "csv_columns": [
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "updated_at"
+    ],
+    "guardrails": [
+        "CSV export must only include saved views owned by the authenticated user.",
+        "CSV export must include the full filtered result set, not only the current page.",
+        "CSV export must preserve search and report_key filters.",
+        "CSV export must not change saved view management pagination semantics.",
+        "CSV export must not change bulk delete selection or context behavior.",
+        "CSV export must not change row action authorization."
+    ]
+}

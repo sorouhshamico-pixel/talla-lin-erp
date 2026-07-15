@@ -58,12 +58,23 @@
                 </div>
 
                 <div class="filter-actions">
+                    @php
+                        $exportQuery = array_filter([
+                            'search' => $filters['search'] ?? '',
+                            'report_key' => $filters['report_key'] ?? '',
+                        ], fn ($value) => $value !== null && $value !== '');
+                    @endphp
+
                     <button type="submit" class="btn btn-primary" data-testid="report-saved-views-search-submit-button">
                         تطبيق
                     </button>
 
                     <a href="{{ route('reports.saved-views.index') }}" class="btn btn-outline-secondary" data-testid="report-saved-views-search-clear-link">
                         مسح
+                    </a>
+
+                    <a href="{{ route('reports.saved-views.export', $exportQuery) }}" class="btn btn-outline-secondary" data-testid="report-saved-views-export-link">
+                        تصدير CSV
                     </a>
                 </div>
             </form>

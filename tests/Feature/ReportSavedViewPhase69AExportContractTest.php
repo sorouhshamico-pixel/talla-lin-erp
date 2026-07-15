@@ -39,36 +39,48 @@ class ReportSavedViewPhase69AExportContractTest extends TestCase
         }
     }
 
-    public function test_current_saved_view_management_has_no_export_route_action_or_link(): void
+    public function test_phase_69a_contract_documented_pre_implementation_export_gap(): void
     {
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $view = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-69a-saved-view-management-export-contract.json')),
+            true
+        );
 
         foreach ([
-            'reports.saved-views.export',
-            '/reports/saved-views/export',
-        ] as $missingRouteMarker) {
-            $this->assertStringNotContainsString($missingRouteMarker, $routes);
+            'management_search_filter_pagination_exists',
+            'management_bulk_selection_exists',
+            'management_bulk_delete_context_preserved',
+            'export_route_absent',
+            'export_controller_action_absent',
+            'export_link_or_button_absent',
+            'export_test_coverage_absent',
+        ] as $key) {
+            $this->assertTrue($contract['current_state'][$key], $key);
         }
 
-        foreach ([
-            'public function export(',
-            'exportCsv(',
-            'savedViewExport',
-            'Content-Type',
-            'text/csv',
-        ] as $missingControllerMarker) {
-            $this->assertStringNotContainsString($missingControllerMarker, $controller);
-        }
+        $this->assertSame('Implement Saved View Management CSV Export', $contract['phase_69b_recommendation']['title']);
+        $this->assertSame('low-medium', $contract['phase_69b_recommendation']['risk']);
+        $this->assertNotEmpty($contract['phase_69b_recommendation']['implementation_targets']);
+        $this->assertNotEmpty($contract['guardrails']);
+    }
+
+    public function test_phase_69a_contract_remains_historical_after_phase_69b_implementation(): void
+    {
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-69a-saved-view-management-export-contract.json')),
+            true
+        );
+
+        $this->assertSame('audit_contract', $contract['scope']['type']);
+        $this->assertFalse($contract['scope']['implementation_changes_expected']);
 
         foreach ([
-            'data-testid="report-saved-views-export-link"',
-            'data-testid="report-saved-views-export-button"',
-            "route('reports.saved-views.export'",
-            'تصدير',
-        ] as $missingViewMarker) {
-            $this->assertStringNotContainsString($missingViewMarker, $view);
+            'export_route_absent',
+            'export_controller_action_absent',
+            'export_link_or_button_absent',
+            'export_test_coverage_absent',
+        ] as $preImplementationGap) {
+            $this->assertTrue($contract['current_state'][$preImplementationGap], $preImplementationGap);
         }
     }
 
@@ -123,31 +135,6 @@ class ReportSavedViewPhase69AExportContractTest extends TestCase
         ] as $viewMarker) {
             $this->assertStringContainsString($viewMarker, $view);
         }
-    }
-
-    public function test_phase_69a_contract_documents_current_state_and_next_recommendation(): void
-    {
-        $contract = json_decode(
-            file_get_contents(base_path('docs/phase-69a-saved-view-management-export-contract.json')),
-            true
-        );
-
-        foreach ([
-            'management_search_filter_pagination_exists',
-            'management_bulk_selection_exists',
-            'management_bulk_delete_context_preserved',
-            'export_route_absent',
-            'export_controller_action_absent',
-            'export_link_or_button_absent',
-            'export_test_coverage_absent',
-        ] as $key) {
-            $this->assertTrue($contract['current_state'][$key], $key);
-        }
-
-        $this->assertSame('Implement Saved View Management CSV Export', $contract['phase_69b_recommendation']['title']);
-        $this->assertSame('low-medium', $contract['phase_69b_recommendation']['risk']);
-        $this->assertNotEmpty($contract['phase_69b_recommendation']['implementation_targets']);
-        $this->assertNotEmpty($contract['guardrails']);
     }
 
     public function test_phase_69a_markdown_mentions_export_columns_scope_and_guardrails(): void

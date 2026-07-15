@@ -296,6 +296,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'index'])->name('reports.saved-views.index');
+    Route::get('/reports/saved-views/export', [\App\Http\Controllers\ReportSavedViewController::class, 'export'])->name('reports.saved-views.export');
     Route::get('/reports/saved-views/{savedView}/edit', [\App\Http\Controllers\ReportSavedViewController::class, 'edit'])->name('reports.saved-views.edit');
     Route::patch('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'update'])->name('reports.saved-views.update');
     Route::post('/reports/saved-views/{savedView}/duplicate', [\App\Http\Controllers\ReportSavedViewController::class, 'duplicate'])->name('reports.saved-views.duplicate');
