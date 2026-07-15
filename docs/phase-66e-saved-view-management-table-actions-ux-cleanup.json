@@ -1,0 +1,54 @@
+{
+    "phase": "Phase 66E",
+    "title": "Saved View Management Table Actions UX Cleanup",
+    "baseline": {
+        "phase": "Phase 66D clean",
+        "commit": "ba529f5",
+        "previous_tests": "1242 passed / 10966 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase66EManagementTableActionsUxCleanupTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-66e-saved-view-management-table-actions-ux-cleanup.json",
+            "docs/phase-66e-saved-view-management-table-actions-ux-cleanup.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "ux_contract": {
+        "actions_column_heading": "الإجراءات",
+        "primary_actions_group": [
+            "open",
+            "apply"
+        ],
+        "secondary_actions_group": [
+            "edit",
+            "duplicate",
+            "make_default"
+        ],
+        "danger_actions_group": [
+            "delete"
+        ],
+        "preserve_existing_action_test_ids": true,
+        "preserve_existing_routes_and_methods": true
+    },
+    "resolved_findings": [
+        "index_action_density"
+    ],
+    "guardrails": [
+        "Do not alter saved view authorization behavior.",
+        "Do not alter saved view registry lookups.",
+        "Do not change saved view edit filter read-only behavior.",
+        "Preserve existing data-testid markers for action buttons and links."
+    ]
+}

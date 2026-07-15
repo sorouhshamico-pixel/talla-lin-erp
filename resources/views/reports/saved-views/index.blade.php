@@ -48,7 +48,7 @@
                                     <th>الفلاتر</th>
                                     <th>افتراضي</th>
                                     <th>آخر تحديث</th>
-                                    <th>إجراء</th>
+                                    <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -85,46 +85,54 @@
                                         </td>
                                         <td dir="ltr">{{ $savedView->updated_at ?: '-' }}</td>
                                         <td>
-                                            @if ($savedView->report_url)
-                                                <a href="{{ $savedView->report_url }}" class="btn btn-outline-primary" data-testid="report-saved-view-open-link">
-                                                    فتح التقرير
-                                                </a>
-                                            @endif
+                                            <div class="saved-view-actions" data-testid="report-saved-view-actions" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                                                <div class="saved-view-action-group saved-view-action-group-primary" data-testid="report-saved-view-primary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                    @if ($savedView->report_url)
+                                                        <a href="{{ $savedView->report_url }}" class="btn btn-outline-primary" data-testid="report-saved-view-open-link">
+                                                            فتح التقرير
+                                                        </a>
+                                                    @endif
 
-                                            <a href="{{ route('reports.saved-views.edit', $savedView->id) }}" class="btn btn-outline-secondary" data-testid="report-saved-view-edit-link">
-                                                تعديل
-                                            </a>
+                                                    <a href="{{ route('reports.saved-views.apply', $savedView->id) }}" class="btn btn-outline-primary" data-testid="report-saved-view-apply-link">
+                                                        تطبيق
+                                                    </a>
+                                                </div>
 
-                                            <a href="{{ route('reports.saved-views.apply', $savedView->id) }}" class="btn btn-outline-primary" data-testid="report-saved-view-apply-link">
-                                                تطبيق
-                                            </a>
+                                                <div class="saved-view-action-group saved-view-action-group-secondary" data-testid="report-saved-view-secondary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                    <a href="{{ route('reports.saved-views.edit', $savedView->id) }}" class="btn btn-outline-secondary" data-testid="report-saved-view-edit-link">
+                                                        تعديل
+                                                    </a>
 
-                                            <form method="POST" action="{{ route('reports.saved-views.duplicate', $savedView->id) }}" class="d-inline" data-testid="report-saved-view-duplicate-form">
-                                                @csrf
-                                                <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-duplicate-button">
-                                                    نسخ
-                                                </button>
-                                            </form>
+                                                    <form method="POST" action="{{ route('reports.saved-views.duplicate', $savedView->id) }}" class="d-inline" data-testid="report-saved-view-duplicate-form">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-duplicate-button">
+                                                            نسخ
+                                                        </button>
+                                                    </form>
 
-                                            @unless ($savedView->is_default)
-                                                <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;">
-                                                    @csrf
-                                                    @method('PATCH')
+                                                    @unless ($savedView->is_default)
+                                                        <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;" data-testid="report-saved-view-make-default-form">
+                                                            @csrf
+                                                            @method('PATCH')
 
-                                                    <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-make-default-button">
-                                                        تعيين افتراضي
-                                                    </button>
-                                                </form>
-                                            @endunless
+                                                            <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-make-default-button">
+                                                                تعيين افتراضي
+                                                            </button>
+                                                        </form>
+                                                    @endunless
+                                                </div>
 
-                                            <form method="POST" action="{{ route('reports.saved-views.destroy', $savedView->id) }}" style="display:inline-block;" onsubmit="return confirm('هل تريد حذف هذا العرض؟');">
-                                                @csrf
-                                                @method('DELETE')
+                                                <div class="saved-view-action-group saved-view-action-group-danger" data-testid="report-saved-view-danger-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                    <form method="POST" action="{{ route('reports.saved-views.destroy', $savedView->id) }}" style="display:inline-block;" onsubmit="return confirm('هل تريد حذف هذا العرض؟');">
+                                                        @csrf
+                                                        @method('DELETE')
 
-                                                <button type="submit" class="btn btn-outline-danger" data-testid="report-saved-view-delete-button">
-                                                    حذف
-                                                </button>
-                                            </form>
+                                                        <button type="submit" class="btn btn-outline-danger" data-testid="report-saved-view-delete-button">
+                                                            حذف
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
