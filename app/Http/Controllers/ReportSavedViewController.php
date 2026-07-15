@@ -205,6 +205,10 @@ class ReportSavedViewController extends Controller
         $validated = $request->validate([
             'saved_view_ids' => ['required', 'array', 'min:1'],
             'saved_view_ids.*' => ['integer', 'distinct'],
+            'return_search' => ['nullable', 'string', 'max:120'],
+            'return_report_key' => ['nullable', 'string', 'max:120'],
+            'return_per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+            'return_page' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $selectedIds = collect($validated['saved_view_ids'])
@@ -220,7 +224,7 @@ class ReportSavedViewController extends Controller
             ->delete();
 
         return redirect()
-            ->route('reports.saved-views.index')
+            ->route('reports.saved-views.index', $this->managementReturnQuery($request))
             ->with(
                 'status',
                 $deletedCount > 0
@@ -238,6 +242,49 @@ class ReportSavedViewController extends Controller
         return redirect()
             ->route('reports.saved-views.index')
             ->with('status', 'تم حذف جميع العروض المحفوظة.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function managementReturnQuery(Request $request): array
+    {
+        $search = trim((string) $request->input('return_search', ''));
+        $reportKey = trim((string) $request->input('return_report_key', ''));
+        $perPage = $request->input('return_per_page');
+        $page = $request->input('return_page');
+
+        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+            $reportKey = '';
+        }
+
+        $query = [];
+
+        if ($search !== '') {
+            $query['search'] = $search;
+        }
+
+        if ($reportKey !== '') {
+            $query['report_key'] = $reportKey;
+        }
+
+        if ($perPage !== null && $perPage !== '') {
+            $perPage = (int) $perPage;
+
+            if ($perPage >= 5 && $perPage <= 100) {
+                $query['per_page'] = $perPage;
+            }
+        }
+
+        if ($page !== null && $page !== '') {
+            $page = (int) $page;
+
+            if ($page > 1) {
+                $query['page'] = $page;
+            }
+        }
+
+        return $query;
     }
 
     /**

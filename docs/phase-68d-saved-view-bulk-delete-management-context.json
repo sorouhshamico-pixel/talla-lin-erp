@@ -1,0 +1,49 @@
+{
+    "phase": "Phase 68D",
+    "title": "Saved View Bulk Delete Management Context Preservation",
+    "baseline": {
+        "phase": "Phase 68C clean",
+        "commit": "c5eb843",
+        "previous_tests": "1309 passed / 11545 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase68DBulkDeleteManagementContextTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-68d-saved-view-bulk-delete-management-context.json",
+            "docs/phase-68d-saved-view-bulk-delete-management-context.md"
+        ],
+        "excluded_files": [
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "bulk_form_carries_return_search": true,
+        "bulk_form_carries_return_report_key": true,
+        "bulk_form_carries_return_per_page": true,
+        "bulk_form_carries_return_page": true,
+        "bulk_destroy_validates_return_context": true,
+        "bulk_destroy_redirect_preserves_valid_context": true,
+        "invalid_return_report_key_is_dropped": true,
+        "bulk_destroy_user_scope_preserved": true,
+        "phase_68c_selection_ux_preserved": true,
+        "phase_67_search_filter_pagination_controls_preserved": true
+    },
+    "guardrails": [
+        "Do not change route definitions.",
+        "Do not change bulk delete ownership scope.",
+        "Do not change saved view service pagination behavior.",
+        "Do not change row delete, delete-all, duplicate, default, edit, or apply actions.",
+        "Do not remove Phase 68C disabled-button and selected-count UX.",
+        "Only valid management return context may be appended to the redirect URL."
+    ]
+}

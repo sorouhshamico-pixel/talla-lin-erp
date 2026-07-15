@@ -142,6 +142,11 @@
                             @csrf
                             @method('DELETE')
 
+                            <input type="hidden" name="return_search" value="{{ $filters['search'] ?? '' }}" data-testid="report-saved-views-bulk-return-search">
+                            <input type="hidden" name="return_report_key" value="{{ $filters['report_key'] ?? '' }}" data-testid="report-saved-views-bulk-return-report-key">
+                            <input type="hidden" name="return_per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}" data-testid="report-saved-views-bulk-return-per-page">
+                            <input type="hidden" name="return_page" value="{{ request('page') }}" data-testid="report-saved-views-bulk-return-page">
+
                             <button type="submit"
                                     class="btn btn-outline-danger"
                                     data-testid="report-saved-views-bulk-delete-button"
