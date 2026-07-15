@@ -1,0 +1,72 @@
+{
+    "phase": "Phase 70A",
+    "title": "Saved View Management Import Contract",
+    "baseline": {
+        "phase": "Phase 69C clean",
+        "commit": "9917445",
+        "previous_tests": "1349 passed / 11949 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase70AImportContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-70a-saved-view-management-import-contract.json",
+            "docs/phase-70a-saved-view-management-import-contract.md"
+        ],
+        "excluded_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "csv_export_route_exists": true,
+        "csv_export_controller_action_exists": true,
+        "csv_export_service_query_exists": true,
+        "csv_export_link_exists": true,
+        "management_search_filter_pagination_exists": true,
+        "management_bulk_selection_exists": true,
+        "management_bulk_delete_context_preserved": true,
+        "import_route_absent": true,
+        "import_controller_action_absent": true,
+        "import_form_or_link_absent": true,
+        "import_validation_absent": true,
+        "import_preview_absent": true,
+        "import_write_tests_absent": true
+    },
+    "phase_70b_recommendation": {
+        "title": "Implement Saved View Management Import Preview",
+        "implementation_targets": [
+            "Add an import entry point to the saved view management page.",
+            "Accept CSV input using the same stable export columns where possible.",
+            "Validate headers before processing rows.",
+            "Preview parsed rows without writing any saved views.",
+            "Show row-level validation results for report_key, name, is_default, and filters_summary.",
+            "Require authenticated user scope for all preview/import actions.",
+            "Do not write database rows in the preview phase.",
+            "Do not change Phase 69 CSV export behavior.",
+            "Do not change Phase 68 bulk selection behavior.",
+            "Do not change Phase 67 pagination behavior."
+        ],
+        "risk": "medium-high",
+        "risk_reason": "Import is write-capable once completed and can create, overwrite, or corrupt saved view data if implemented without a preview and validation gate."
+    },
+    "guardrails": [
+        "Start with preview-only import before any write-capable import.",
+        "Do not create or update saved views during Phase 70B preview.",
+        "Do not accept unknown report_key values.",
+        "Do not import saved views for another user.",
+        "Do not silently overwrite existing saved views.",
+        "Do not trust CSV filters_summary as a complete source for machine-readable filters without a parsing contract.",
+        "Keep Phase 69 export read-only and stable.",
+        "Keep Phase 68 bulk selection stable.",
+        "Keep Phase 67 management pagination stable."
+    ]
+}
