@@ -19,7 +19,7 @@ class ReportSavedViewEditFiltersUpdateTest extends TestCase
         $this->seed(InitialSetupSeeder::class);
     }
 
-    public function test_edit_page_renders_filter_inputs(): void
+    public function test_edit_page_renders_filter_values_as_read_only(): void
     {
         $user = User::query()->firstOrFail();
 
@@ -37,14 +37,22 @@ class ReportSavedViewEditFiltersUpdateTest extends TestCase
         $response = $this->actingAs($user)->get(route('reports.saved-views.edit', $savedView->id));
 
         $response->assertOk();
-        $response->assertSee('data-testid="report-saved-view-edit-filter-inputs"', false);
-        $response->assertSee('name="filters[customer_id]"', false);
-        $response->assertSee('name="filters[aging_bucket]"', false);
-        $response->assertSee('value="1"', false);
-        $response->assertSee('value="without_due_date"', false);
+        $response->assertSee('data-testid="report-saved-view-edit-filter-list"', false);
+        $response->assertSee('data-testid="report-saved-view-edit-filter-raw-value"', false);
+        $response->assertSee('العميل');
+        $response->assertSee('عميلة تجربة');
+        $response->assertSee('1');
+        $response->assertSee('شريحة العمر');
+        $response->assertSee('بدون تاريخ استحقاق');
+        $response->assertSee('without_due_date');
+
+        $response->assertDontSee('data-testid="report-saved-view-edit-filter-inputs"', false);
+        $response->assertDontSee('data-testid="report-saved-view-edit-filter-input"', false);
+        $response->assertDontSee('name="filters[customer_id]"', false);
+        $response->assertDontSee('name="filters[aging_bucket]"', false);
     }
 
-    public function test_user_can_update_saved_view_filters(): void
+    public function test_submitted_filter_payload_is_ignored_when_updating_saved_view(): void
     {
         $user = User::query()->firstOrFail();
 
@@ -75,13 +83,13 @@ class ReportSavedViewEditFiltersUpdateTest extends TestCase
 
         $this->assertSame('عرض بفلاتر محدثة', $savedView->name);
         $this->assertSame([
-            'customer_id' => '2',
-            'aging_bucket' => 'not_due',
-            'payment_status' => 'unpaid',
+            'customer_id' => '1',
+            'aging_bucket' => 'without_due_date',
+            'payment_status' => 'paid',
         ], $savedView->filters);
     }
 
-    public function test_empty_filter_values_are_removed_when_updating_saved_view(): void
+    public function test_empty_filter_values_are_ignored_and_existing_filters_are_preserved(): void
     {
         $user = User::query()->firstOrFail();
 
@@ -108,8 +116,10 @@ class ReportSavedViewEditFiltersUpdateTest extends TestCase
 
         $savedView->refresh();
 
+        $this->assertSame('عرض بفلاتر منظفة', $savedView->name);
         $this->assertSame([
-            'aging_bucket' => 'not_due',
+            'customer_id' => '1',
+            'aging_bucket' => 'without_due_date',
         ], $savedView->filters);
     }
 }

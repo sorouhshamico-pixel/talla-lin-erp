@@ -1,0 +1,44 @@
+{
+    "phase": "Phase 66C",
+    "title": "Saved View Edit Filters Read Only",
+    "baseline": {
+        "phase": "Phase 66B clean",
+        "commit": "09f9e39",
+        "previous_tests": "1228 passed / 10888 assertions"
+    },
+    "decision": {
+        "saved_view_edit_filters": "read_only",
+        "reason": "The management edit page already states that filters are read-only. Keeping them mutable through generic inputs creates a validation and UX risk."
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/edit.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewEditTest.php",
+            "tests/Feature/ReportSavedViewPhase66CSavedViewEditFiltersReadOnlyTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-66c-saved-view-edit-filters-read-only.json",
+            "docs/phase-66c-saved-view-edit-filters-read-only.md"
+        ]
+    },
+    "behavior": {
+        "update_name": true,
+        "update_default_state": true,
+        "display_saved_filters": true,
+        "render_filter_inputs": false,
+        "accept_filter_mutation": false,
+        "preserve_existing_filters": true
+    },
+    "resolved_findings": [
+        "edit_filter_mutation_risk"
+    ],
+    "guardrails": [
+        "Do not add report-specific filter editing in this phase.",
+        "Do not modify saved view management routes in this phase.",
+        "Do not modify ReportSavedViewRegistry in this phase.",
+        "Keep ownership guards unchanged."
+    ]
+}

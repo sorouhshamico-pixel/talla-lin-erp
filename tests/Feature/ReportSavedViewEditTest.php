@@ -68,6 +68,10 @@ class ReportSavedViewEditTest extends TestCase
         $response->assertSee((string) $customer->id);
         $response->assertSee('شريحة العمر');
         $response->assertSee('بدون تاريخ استحقاق');
+        $response->assertSee('data-testid="report-saved-view-edit-filter-list"', false);
+        $response->assertSee('data-testid="report-saved-view-edit-filter-raw-value"', false);
+        $response->assertDontSee('data-testid="report-saved-view-edit-filter-input"', false);
+        $response->assertDontSee('name="filters[', false);
     }
 
     public function test_user_can_update_saved_view_name_and_default_state(): void
@@ -105,6 +109,9 @@ class ReportSavedViewEditTest extends TestCase
             'id' => $savedView->id,
             'name' => 'اسم محدث',
             'is_default' => true,
+            'filters' => json_encode([
+                'aging_bucket' => 'without_due_date',
+            ]),
         ]);
 
         $this->assertDatabaseHas('report_saved_views', [

@@ -135,17 +135,11 @@ class ReportSavedViewController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'is_default' => ['nullable'],
-            'filters' => ['nullable', 'array'],
-            'filters.*' => ['nullable', 'string', 'max:255'],
         ]);
 
         DB::transaction(function () use ($request, $savedView, $validated): void {
             $isDefault = $request->boolean('is_default');
 
-            $filters = array_filter(
-                $validated['filters'] ?? [],
-                fn ($value) => $value !== null && $value !== ''
-            );
 
             if ($isDefault) {
                 ReportSavedView::query()
@@ -157,7 +151,6 @@ class ReportSavedViewController extends Controller
 
             $savedView->forceFill([
                 'name' => $validated['name'],
-                'filters' => $filters,
                 'is_default' => $isDefault,
             ])->save();
         });

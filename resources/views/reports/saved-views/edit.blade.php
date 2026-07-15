@@ -57,22 +57,19 @@
                     @if ($filters->isEmpty())
                         <p data-testid="report-saved-view-edit-empty-filters">لا توجد فلاتر محفوظة.</p>
                     @else
-                        <div data-testid="report-saved-view-edit-filter-inputs">
+                        <div data-testid="report-saved-view-edit-filter-list">
                             @foreach ($filters as $filter)
                                 <div class="form-group" data-testid="report-saved-view-edit-filter-item">
-                                    <label for="saved_view_filter_{{ $filter['key'] }}" data-testid="report-saved-view-edit-filter-label">
+                                    <strong data-testid="report-saved-view-edit-filter-label">
                                         {{ $filter['label'] ?? $filter['key'] }}
-                                    </label>
+                                    </strong>
 
-                                    <input id="saved_view_filter_{{ $filter['key'] }}"
-                                           type="text"
-                                           name="filters[{{ $filter['key'] }}]"
-                                           value="{{ old('filters.' . $filter['key'], $filter['raw_value'] ?? '') }}"
-                                           maxlength="255"
-                                           data-testid="report-saved-view-edit-filter-input">
+                                    <div data-testid="report-saved-view-edit-filter-value">
+                                        {{ $filter['value'] }}
+                                    </div>
 
-                                    <small data-testid="report-saved-view-edit-filter-value">
-                                        القيمة الحالية: {{ $filter['value'] }}
+                                    <small class="text-muted" dir="ltr" data-testid="report-saved-view-edit-filter-raw-value">
+                                        {{ $filter['raw_value'] ?? '' }}
                                     </small>
                                 </div>
                             @endforeach
