@@ -1,0 +1,64 @@
+{
+    "phase": "Phase 71C",
+    "title": "Saved View Import Apply Finalization",
+    "baseline": {
+        "phase": "Phase 71B clean",
+        "commit": "7f35cea",
+        "previous_tests": "1389 passed / 12396 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase71CImportApplyFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-71c-saved-view-import-apply-finalization.json",
+            "docs/phase-71c-saved-view-import-apply-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "finalized_behavior": {
+        "import_apply_route_locked": true,
+        "import_apply_controller_action_locked": true,
+        "import_apply_form_locked": true,
+        "apply_requires_authentication_locked": true,
+        "apply_revalidates_payload_before_writes_locked": true,
+        "apply_rejects_invalid_payload_without_writes_locked": true,
+        "apply_uses_database_transaction_locked": true,
+        "apply_creates_for_authenticated_user_only_locked": true,
+        "apply_skips_duplicates_locked": true,
+        "apply_does_not_overwrite_existing_locked": true,
+        "apply_normalizes_default_per_report_locked": true,
+        "apply_imports_empty_filters_only_locked": true,
+        "phase_70_preview_preserved": true,
+        "phase_69_export_preserved": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_pagination_preserved": true
+    },
+    "duplicate_policy": "skip_existing_user_report_key_name",
+    "filters_policy": "filters_summary remains human-readable only. Imported saved views use empty filters until a dedicated filters_payload contract is implemented.",
+    "next_recommendation": {
+        "phase": "Phase 72A",
+        "title": "Saved View Machine-Readable Filters Payload Contract",
+        "reason": "Import apply is now stable, but imported rows intentionally use empty filters because filters_summary is not machine-readable. The next safe step is a contract for filters_payload before lossless import/export."
+    },
+    "guardrails": [
+        "Do not modify Phase 71B implementation in this finalization phase.",
+        "Import apply must remain transaction-protected.",
+        "Import apply must revalidate payloads before writes.",
+        "Invalid payloads must not write rows.",
+        "Duplicate saved views must be skipped, not overwritten.",
+        "Imported saved views must remain scoped to the authenticated user.",
+        "filters_summary must not be treated as machine-readable filters.",
+        "Keep preview, export, bulk selection, and pagination stable."
+    ]
+}
