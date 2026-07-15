@@ -166,25 +166,14 @@ class ReportSavedViewPhase70CImportPreviewFinalizationTest extends TestCase
         $this->assertSame(0, ReportSavedView::query()->count());
     }
 
-    public function test_final_import_preview_requires_authentication_and_write_capable_route_is_absent(): void
+    public function test_final_import_preview_requires_authentication_and_phase_70c_contract_remains_historical(): void
     {
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-70c-saved-view-management-import-preview-finalization.json')),
+            true
+        );
 
-        foreach ([
-            "Route::post('/reports/saved-views/import',",
-            "->name('reports.saved-views.import')",
-        ] as $missingRouteMarker) {
-            $this->assertStringNotContainsString($missingRouteMarker, $routes);
-        }
-
-        foreach ([
-            'public function import(',
-            'public function applyImport(',
-            'public function storeImport(',
-        ] as $missingControllerMarker) {
-            $this->assertStringNotContainsString($missingControllerMarker, $controller);
-        }
+        $this->assertTrue($contract['finalized_behavior']['write_capable_import_route_absent']);
 
         $csv = implode("\n", [
             'name,report_label,report_key,is_default,filter_count,filters_summary,updated_at',

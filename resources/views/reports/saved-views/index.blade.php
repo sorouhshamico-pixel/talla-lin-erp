@@ -162,6 +162,27 @@
                             </tbody>
                         </table>
                     </div>
+
+                    @if (($importPreview['valid_rows'] ?? 0) > 0 && ($importPreview['invalid_rows'] ?? 0) === 0)
+                        <form method="POST"
+                              action="{{ route('reports.saved-views.import-apply') }}"
+                              data-testid="report-saved-views-import-apply-form"
+                              style="margin-top: 16px;">
+                            @csrf
+
+                            <textarea name="csv_payload"
+                                      style="display:none;"
+                                      data-testid="report-saved-views-import-apply-payload">{{ $importPreview['csv_payload'] ?? '' }}</textarea>
+
+                            <p class="text-muted" data-testid="report-saved-views-import-apply-warning">
+                                سيتم إنشاء العروض الصالحة فقط. لن يتم استخدام filters_summary لإعادة بناء الفلاتر، وسيتم تخطي العروض المكررة بدل استبدالها.
+                            </p>
+
+                            <button type="submit" class="btn btn-primary" data-testid="report-saved-views-import-apply-button">
+                                تطبيق الاستيراد
+                            </button>
+                        </form>
+                    @endif
                 @endif
             </div>
         @endif

@@ -123,6 +123,9 @@ class ReportSavedViewController extends Controller
         );
 
         $csvFile = $request->file('csv_file');
+        $csvPath = (string) $csvFile->getRealPath();
+        $importPreview = $this->previewSavedViewImport($csvPath);
+        $importPreview['csv_payload'] = base64_encode((string) file_get_contents($csvPath));
 
         return view('reports.saved-views.index', [
             'savedViews' => $savedViews,
@@ -133,8 +136,50 @@ class ReportSavedViewController extends Controller
                 'per_page' => $savedViews->perPage(),
             ],
             'reportOptions' => $this->reportFilterOptions(),
-            'importPreview' => $this->previewSavedViewImport((string) $csvFile->getRealPath()),
+            'importPreview' => $importPreview,
         ]);
+    }
+
+    public function applyImport(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'csv_payload' => ['required', 'string'],
+        ]);
+
+        $payload = base64_decode((string) $validated['csv_payload'], true);
+
+        if ($payload === false || $payload === '') {
+            return redirect()
+                ->route('reports.saved-views.index')
+                ->with('status', 'تعذر قراءة ملف الاستيراد.');
+        }
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'saved-view-import-');
+
+        if ($tempPath === false) {
+            return redirect()
+                ->route('reports.saved-views.index')
+                ->with('status', 'تعذر تجهيز ملف الاستيراد.');
+        }
+
+        file_put_contents($tempPath, $payload);
+        $preview = $this->previewSavedViewImport($tempPath);
+        @unlink($tempPath);
+
+        if ($preview['header_errors'] !== [] || $preview['invalid_rows'] > 0) {
+            return redirect()
+                ->route('reports.saved-views.index')
+                ->with('status', 'لم يتم تطبيق الاستيراد بسبب وجود أخطاء في الملف.');
+        }
+
+        $result = $this->applySavedViewImportRows($request, $preview['rows']);
+
+        return redirect()
+            ->route('reports.saved-views.index')
+            ->with(
+                'status',
+                'تم تطبيق الاستيراد: تم إنشاء ' . $result['created'] . ' عرض محفوظ، وتم تخطي ' . $result['skipped'] . ' مكرر.'
+            );
     }
 
     public function export(Request $request, ReportSavedViewService $savedViewService): StreamedResponse
@@ -561,6 +606,60 @@ class ReportSavedViewController extends Controller
         }
 
         return true;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array{created: int, skipped: int}
+     */
+    private function applySavedViewImportRows(Request $request, array $rows): array
+    {
+        return DB::transaction(function () use ($request, $rows): array {
+            $created = 0;
+            $skipped = 0;
+
+            foreach ($rows as $row) {
+                if (($row['status'] ?? '') !== 'valid') {
+                    continue;
+                }
+
+                $exists = ReportSavedView::query()
+                    ->where('user_id', $request->user()->id)
+                    ->where('report_key', $row['report_key'])
+                    ->where('name', $row['name'])
+                    ->exists();
+
+                if ($exists) {
+                    $skipped++;
+
+                    continue;
+                }
+
+                $isDefault = ($row['is_default'] ?? '') === 'نعم';
+
+                if ($isDefault) {
+                    ReportSavedView::query()
+                        ->where('user_id', $request->user()->id)
+                        ->where('report_key', $row['report_key'])
+                        ->update(['is_default' => false]);
+                }
+
+                ReportSavedView::query()->create([
+                    'user_id' => $request->user()->id,
+                    'report_key' => $row['report_key'],
+                    'name' => $row['name'],
+                    'filters' => [],
+                    'is_default' => $isDefault,
+                ]);
+
+                $created++;
+            }
+
+            return [
+                'created' => $created,
+                'skipped' => $skipped,
+            ];
+        });
     }
 
     /**

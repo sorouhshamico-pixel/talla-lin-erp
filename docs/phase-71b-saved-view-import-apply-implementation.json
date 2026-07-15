@@ -1,0 +1,59 @@
+{
+    "phase": "Phase 71B",
+    "title": "Saved View Import Apply Implementation",
+    "baseline": {
+        "phase": "Phase 71A clean",
+        "commit": "7dbfea6",
+        "previous_tests": "1380 passed / 12330 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase71AImportApplyContractTest.php",
+            "tests/Feature/ReportSavedViewPhase71BImportApplyImplementationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-71b-saved-view-import-apply-implementation.json",
+            "docs/phase-71b-saved-view-import-apply-implementation.md"
+        ],
+        "excluded_files": [
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "import_apply_route_added": true,
+        "import_apply_controller_action_added": true,
+        "import_apply_form_added_after_valid_preview": true,
+        "apply_requires_authentication": true,
+        "apply_revalidates_payload_before_writes": true,
+        "apply_rejects_invalid_payload_without_writes": true,
+        "apply_uses_database_transaction": true,
+        "apply_creates_saved_views_for_authenticated_user_only": true,
+        "apply_skips_duplicate_user_report_name_pairs": true,
+        "apply_does_not_overwrite_existing_saved_views": true,
+        "apply_normalizes_single_default_per_report": true,
+        "apply_imports_empty_filters_only": true,
+        "phase_70_preview_preserved": true,
+        "phase_69_export_preserved": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_pagination_preserved": true
+    },
+    "duplicate_policy": "skip_existing_user_report_key_name",
+    "filters_policy": "filters_summary is not machine-readable; imported saved views are created with empty filters until a dedicated filters payload contract exists.",
+    "guardrails": [
+        "Apply import must re-run preview validation before any writes.",
+        "Apply import must not write when headers or rows are invalid.",
+        "Apply import must run inside a database transaction.",
+        "Apply import must skip duplicates and must not overwrite existing saved views.",
+        "Apply import must create saved views only for the authenticated user.",
+        "Apply import must not use filters_summary as machine-readable filters.",
+        "Apply import must preserve CSV export, preview, bulk selection, and pagination."
+    ]
+}
