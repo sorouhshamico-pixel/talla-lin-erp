@@ -40,6 +40,16 @@ class ReportSavedViewController extends Controller
         'without_due_date' => 'بدون تاريخ استحقاق',
     ];
 
+    private const IMPORT_PREVIEW_REQUIRED_COLUMNS = [
+        'name',
+        'report_label',
+        'report_key',
+        'is_default',
+        'filter_count',
+        'filters_summary',
+        'updated_at',
+    ];
+
     public function index(Request $request, ReportSavedViewService $savedViewService): View
     {
         $validated = $request->validate([
@@ -78,6 +88,52 @@ class ReportSavedViewController extends Controller
                 'per_page' => $savedViews->perPage(),
             ],
             'reportOptions' => $this->reportFilterOptions(),
+            'importPreview' => null,
+        ]);
+    }
+
+    public function previewImport(Request $request, ReportSavedViewService $savedViewService): View
+    {
+        $validated = $request->validate([
+            'csv_file' => ['required', 'file', 'max:2048'],
+            'search' => ['nullable', 'string', 'max:120'],
+            'report_key' => ['nullable', 'string', 'max:120'],
+            'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+        ]);
+
+        $search = trim((string) ($validated['search'] ?? ''));
+        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+        $perPage = (int) ($validated['per_page'] ?? 15);
+
+        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+            $reportKey = '';
+        }
+
+        $savedViews = $savedViewService->paginateForManagement(
+            $request->user(),
+            $search,
+            $reportKey,
+            $this->matchingReportKeysForSearch($search),
+            $this->matchingFilterValuesForSearch($search),
+            $perPage
+        );
+
+        $savedViews->getCollection()->transform(
+            fn (ReportSavedView $savedView) => $this->formatSavedView($savedView)
+        );
+
+        $csvFile = $request->file('csv_file');
+
+        return view('reports.saved-views.index', [
+            'savedViews' => $savedViews,
+            'totalSavedViews' => $savedViews->total(),
+            'filters' => [
+                'search' => $search,
+                'report_key' => $reportKey,
+                'per_page' => $savedViews->perPage(),
+            ],
+            'reportOptions' => $this->reportFilterOptions(),
+            'importPreview' => $this->previewSavedViewImport((string) $csvFile->getRealPath()),
         ]);
     }
 
@@ -361,6 +417,150 @@ class ReportSavedViewController extends Controller
         }
 
         return $query;
+    }
+
+    /**
+     * @return array{
+     *     headers: array<int, string>,
+     *     header_errors: array<int, string>,
+     *     rows: array<int, array<string, mixed>>,
+     *     total_rows: int,
+     *     valid_rows: int,
+     *     invalid_rows: int
+     * }
+     */
+    private function previewSavedViewImport(string $path): array
+    {
+        $handle = fopen($path, 'r');
+
+        if ($handle === false) {
+            return [
+                'headers' => [],
+                'header_errors' => ['تعذر قراءة ملف CSV.'],
+                'rows' => [],
+                'total_rows' => 0,
+                'valid_rows' => 0,
+                'invalid_rows' => 0,
+            ];
+        }
+
+        $headers = fgetcsv($handle);
+
+        if (! is_array($headers)) {
+            fclose($handle);
+
+            return [
+                'headers' => [],
+                'header_errors' => ['ملف CSV فارغ أو غير صالح.'],
+                'rows' => [],
+                'total_rows' => 0,
+                'valid_rows' => 0,
+                'invalid_rows' => 0,
+            ];
+        }
+
+        $headers = array_map(
+            fn ($header): string => trim(str_replace("\xEF\xBB\xBF", '', (string) $header)),
+            $headers
+        );
+
+        $missingColumns = array_values(array_diff(self::IMPORT_PREVIEW_REQUIRED_COLUMNS, $headers));
+        $rows = [];
+        $rowNumber = 1;
+
+        if ($missingColumns !== []) {
+            fclose($handle);
+
+            return [
+                'headers' => $headers,
+                'header_errors' => ['الأعمدة المطلوبة غير موجودة: ' . implode(', ', $missingColumns)],
+                'rows' => [],
+                'total_rows' => 0,
+                'valid_rows' => 0,
+                'invalid_rows' => 0,
+            ];
+        }
+
+        $indexes = array_flip($headers);
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+
+            if ($this->isEmptyCsvRow($row)) {
+                continue;
+            }
+
+            $data = [];
+
+            foreach (self::IMPORT_PREVIEW_REQUIRED_COLUMNS as $column) {
+                $data[$column] = trim((string) ($row[$indexes[$column]] ?? ''));
+            }
+
+            $errors = [];
+            $name = $data['name'];
+            $reportKey = $data['report_key'];
+            $filterCount = $data['filter_count'];
+            $isDefault = mb_strtolower($data['is_default'], 'UTF-8');
+
+            if ($name === '') {
+                $errors[] = 'اسم العرض مطلوب.';
+            } elseif (mb_strlen($name, 'UTF-8') > 120) {
+                $errors[] = 'اسم العرض يتجاوز 120 حرفًا.';
+            }
+
+            if ($reportKey === '') {
+                $errors[] = 'مفتاح التقرير مطلوب.';
+            } elseif (! ReportSavedViewRegistry::has($reportKey)) {
+                $errors[] = 'مفتاح التقرير غير معروف.';
+            }
+
+            if ($isDefault !== '' && ! in_array($isDefault, ['yes', 'no', '1', '0', 'true', 'false', 'نعم', 'لا'], true)) {
+                $errors[] = 'قيمة الافتراضي غير صالحة.';
+            }
+
+            if ($filterCount !== '' && (! ctype_digit($filterCount) || (int) $filterCount < 0)) {
+                $errors[] = 'عدد الفلاتر يجب أن يكون رقمًا صحيحًا.';
+            }
+
+            $rows[] = [
+                'row_number' => $rowNumber,
+                'name' => $name,
+                'report_label' => ReportSavedViewRegistry::find($reportKey)['label'] ?? $data['report_label'],
+                'report_key' => $reportKey,
+                'is_default' => in_array($isDefault, ['yes', '1', 'true', 'نعم'], true) ? 'نعم' : 'لا',
+                'filter_count' => $filterCount === '' ? 0 : (int) $filterCount,
+                'filters_summary' => $data['filters_summary'],
+                'status' => $errors === [] ? 'valid' : 'invalid',
+                'errors' => $errors,
+            ];
+        }
+
+        fclose($handle);
+
+        $validRows = count(array_filter($rows, fn (array $row): bool => $row['status'] === 'valid'));
+
+        return [
+            'headers' => $headers,
+            'header_errors' => [],
+            'rows' => $rows,
+            'total_rows' => count($rows),
+            'valid_rows' => $validRows,
+            'invalid_rows' => count($rows) - $validRows,
+        ];
+    }
+
+    /**
+     * @param array<int, mixed> $row
+     */
+    private function isEmptyCsvRow(array $row): bool
+    {
+        foreach ($row as $value) {
+            if (trim((string) $value) !== '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

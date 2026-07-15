@@ -39,60 +39,56 @@ class ReportSavedViewPhase70AImportContractTest extends TestCase
         }
     }
 
-    public function test_current_saved_view_management_has_export_but_no_import_workflow(): void
+    public function test_phase_70a_contract_documented_pre_implementation_import_gap(): void
     {
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $service = file_get_contents(app_path('Services/ReportSavedViewService.php'));
-        $view = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-70a-saved-view-management-import-contract.json')),
+            true
+        );
 
         foreach ([
-            "Route::get('/reports/saved-views/export'",
-            'reports.saved-views.export',
-        ] as $exportRouteMarker) {
-            $this->assertStringContainsString($exportRouteMarker, $routes);
+            'csv_export_route_exists',
+            'csv_export_controller_action_exists',
+            'csv_export_service_query_exists',
+            'csv_export_link_exists',
+            'management_search_filter_pagination_exists',
+            'management_bulk_selection_exists',
+            'management_bulk_delete_context_preserved',
+            'import_route_absent',
+            'import_controller_action_absent',
+            'import_form_or_link_absent',
+            'import_validation_absent',
+            'import_preview_absent',
+            'import_write_tests_absent',
+        ] as $key) {
+            $this->assertTrue($contract['current_state'][$key], $key);
         }
 
-        foreach ([
-            'public function export(Request $request, ReportSavedViewService $savedViewService): StreamedResponse',
-            '$savedViewService->exportForManagement(',
-            "'Content-Type' => 'text/csv; charset=UTF-8'",
-        ] as $exportControllerMarker) {
-            $this->assertStringContainsString($exportControllerMarker, $controller);
-        }
+        $this->assertSame('Implement Saved View Management Import Preview', $contract['phase_70b_recommendation']['title']);
+        $this->assertSame('medium-high', $contract['phase_70b_recommendation']['risk']);
+        $this->assertNotEmpty($contract['phase_70b_recommendation']['implementation_targets']);
+        $this->assertNotEmpty($contract['guardrails']);
+    }
 
-        $this->assertStringContainsString('public function exportForManagement(', $service);
-        $this->assertStringContainsString('data-testid="report-saved-views-export-link"', $view);
+    public function test_phase_70a_contract_remains_historical_after_phase_70b_implementation(): void
+    {
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-70a-saved-view-management-import-contract.json')),
+            true
+        );
 
-        foreach ([
-            'reports.saved-views.import',
-            '/reports/saved-views/import',
-            'reports.saved-views.import-preview',
-            '/reports/saved-views/import-preview',
-        ] as $missingRouteMarker) {
-            $this->assertStringNotContainsString($missingRouteMarker, $routes);
-        }
+        $this->assertSame('audit_contract', $contract['scope']['type']);
+        $this->assertFalse($contract['scope']['implementation_changes_expected']);
 
         foreach ([
-            'public function import(',
-            'public function previewImport(',
-            'importCsv(',
-            'previewImportCsv(',
-            'UploadedFile',
-            'text/csv import',
-        ] as $missingControllerMarker) {
-            $this->assertStringNotContainsString($missingControllerMarker, $controller);
-        }
-
-        foreach ([
-            'data-testid="report-saved-views-import-link"',
-            'data-testid="report-saved-views-import-form"',
-            'data-testid="report-saved-views-import-file-input"',
-            "route('reports.saved-views.import'",
-            "route('reports.saved-views.import-preview'",
-            'استيراد CSV',
-        ] as $missingViewMarker) {
-            $this->assertStringNotContainsString($missingViewMarker, $view);
+            'import_route_absent',
+            'import_controller_action_absent',
+            'import_form_or_link_absent',
+            'import_validation_absent',
+            'import_preview_absent',
+            'import_write_tests_absent',
+        ] as $preImplementationGap) {
+            $this->assertTrue($contract['current_state'][$preImplementationGap], $preImplementationGap);
         }
     }
 
@@ -149,37 +145,6 @@ class ReportSavedViewPhase70AImportContractTest extends TestCase
         ] as $viewMarker) {
             $this->assertStringContainsString($viewMarker, $view);
         }
-    }
-
-    public function test_phase_70a_contract_documents_current_state_and_next_recommendation(): void
-    {
-        $contract = json_decode(
-            file_get_contents(base_path('docs/phase-70a-saved-view-management-import-contract.json')),
-            true
-        );
-
-        foreach ([
-            'csv_export_route_exists',
-            'csv_export_controller_action_exists',
-            'csv_export_service_query_exists',
-            'csv_export_link_exists',
-            'management_search_filter_pagination_exists',
-            'management_bulk_selection_exists',
-            'management_bulk_delete_context_preserved',
-            'import_route_absent',
-            'import_controller_action_absent',
-            'import_form_or_link_absent',
-            'import_validation_absent',
-            'import_preview_absent',
-            'import_write_tests_absent',
-        ] as $key) {
-            $this->assertTrue($contract['current_state'][$key], $key);
-        }
-
-        $this->assertSame('Implement Saved View Management Import Preview', $contract['phase_70b_recommendation']['title']);
-        $this->assertSame('medium-high', $contract['phase_70b_recommendation']['risk']);
-        $this->assertNotEmpty($contract['phase_70b_recommendation']['implementation_targets']);
-        $this->assertNotEmpty($contract['guardrails']);
     }
 
     public function test_phase_70a_markdown_mentions_preview_first_and_import_guardrails(): void

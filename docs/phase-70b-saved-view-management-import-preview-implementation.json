@@ -1,0 +1,63 @@
+{
+    "phase": "Phase 70B",
+    "title": "Saved View Management Import Preview Implementation",
+    "baseline": {
+        "phase": "Phase 70A clean",
+        "commit": "99f4022",
+        "previous_tests": "1355 passed / 12043 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "routes/web.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase70AImportContractTest.php",
+            "tests/Feature/ReportSavedViewPhase70BImportPreviewImplementationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-70b-saved-view-management-import-preview-implementation.json",
+            "docs/phase-70b-saved-view-management-import-preview-implementation.md"
+        ],
+        "excluded_files": [
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "import_preview_route_added": true,
+        "import_preview_controller_action_added": true,
+        "import_preview_form_added": true,
+        "csv_header_validation_added": true,
+        "row_level_validation_added": true,
+        "preview_panel_added": true,
+        "preview_is_authenticated": true,
+        "preview_is_read_only": true,
+        "unknown_report_key_rejected_per_row": true,
+        "phase_69_export_preserved": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_pagination_preserved": true
+    },
+    "required_csv_columns": [
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "updated_at"
+    ],
+    "guardrails": [
+        "Import preview must not create or update report_saved_views rows.",
+        "Import preview must require authentication.",
+        "Import preview must validate headers before row validation.",
+        "Import preview must reject unknown report_key values per row.",
+        "Import preview must not silently overwrite existing saved views.",
+        "Import preview must not change Phase 69 export behavior.",
+        "Import preview must not change Phase 68 bulk selection behavior.",
+        "Import preview must not change Phase 67 pagination behavior."
+    ]
+}

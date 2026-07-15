@@ -78,7 +78,93 @@
                     </a>
                 </div>
             </form>
+
+            <form method="POST"
+                  action="{{ route('reports.saved-views.import-preview') }}"
+                  enctype="multipart/form-data"
+                  data-testid="report-saved-views-import-preview-form"
+                  style="margin-top: 16px;">
+                @csrf
+
+                <input type="hidden" name="search" value="{{ $filters['search'] ?? '' }}">
+                <input type="hidden" name="report_key" value="{{ $filters['report_key'] ?? '' }}">
+                <input type="hidden" name="per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}">
+
+                <div class="form-group">
+                    <label for="report_saved_views_import_csv">معاينة استيراد CSV</label>
+                    <input id="report_saved_views_import_csv"
+                           type="file"
+                           name="csv_file"
+                           accept=".csv,text/csv"
+                           data-testid="report-saved-views-import-file-input">
+                </div>
+
+                <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-views-import-preview-button">
+                    معاينة الاستيراد
+                </button>
+            </form>
         </div>
+
+        @if (! empty($importPreview))
+            <div class="card" data-testid="report-saved-views-import-preview-card" style="margin-bottom: 16px;">
+                <h2>معاينة استيراد CSV</h2>
+
+                @if (! empty($importPreview['header_errors']))
+                    <div class="alert alert-danger" data-testid="report-saved-views-import-header-errors">
+                        @foreach ($importPreview['header_errors'] as $headerError)
+                            <div>{{ $headerError }}</div>
+                        @endforeach
+                    </div>
+                @else
+                    <p data-testid="report-saved-views-import-preview-summary">
+                        إجمالي الصفوف: {{ $importPreview['total_rows'] }}
+                        | صالحة: {{ $importPreview['valid_rows'] }}
+                        | غير صالحة: {{ $importPreview['invalid_rows'] }}
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table" data-testid="report-saved-views-import-preview-table">
+                            <thead>
+                                <tr>
+                                    <th>الصف</th>
+                                    <th>اسم العرض</th>
+                                    <th>التقرير</th>
+                                    <th>افتراضي</th>
+                                    <th>الفلاتر</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($importPreview['rows'] as $previewRow)
+                                    <tr data-testid="report-saved-views-import-preview-row">
+                                        <td>{{ $previewRow['row_number'] }}</td>
+                                        <td>{{ $previewRow['name'] }}</td>
+                                        <td>
+                                            <strong>{{ $previewRow['report_label'] }}</strong>
+                                            <div class="text-muted" dir="ltr">{{ $previewRow['report_key'] }}</div>
+                                        </td>
+                                        <td>{{ $previewRow['is_default'] }}</td>
+                                        <td>{{ $previewRow['filters_summary'] }}</td>
+                                        <td>
+                                            @if ($previewRow['status'] === 'valid')
+                                                <span data-testid="report-saved-views-import-row-valid">صالح</span>
+                                            @else
+                                                <span data-testid="report-saved-views-import-row-invalid">غير صالح</span>
+                                                <ul>
+                                                    @foreach ($previewRow['errors'] as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        @endif
 
         <div class="card" data-testid="report-saved-views-card">
             <div class="card-body">
