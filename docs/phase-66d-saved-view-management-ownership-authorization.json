@@ -1,0 +1,52 @@
+{
+    "phase": "Phase 66D",
+    "title": "Saved View Management Ownership Authorization Hardening",
+    "baseline": {
+        "phase": "Phase 66C clean",
+        "commit": "1c1dc8c",
+        "previous_tests": "1233 passed / 10930 assertions"
+    },
+    "scope": {
+        "type": "authorization_hardening_tests",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase66DOwnershipAuthorizationHardeningTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-66d-saved-view-management-ownership-authorization.json",
+            "docs/phase-66d-saved-view-management-ownership-authorization.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "protected_actions": [
+        "edit",
+        "update",
+        "apply",
+        "duplicate",
+        "make_default",
+        "destroy",
+        "destroy_all"
+    ],
+    "ownership_contract": {
+        "cross_user_record_actions_return_not_found": true,
+        "cross_user_update_does_not_mutate_name_default_or_filters": true,
+        "cross_user_duplicate_does_not_create_copy": true,
+        "cross_user_make_default_does_not_change_default_state": true,
+        "cross_user_delete_does_not_delete_record": true,
+        "destroy_all_deletes_only_authenticated_user_records": true,
+        "destroy_all_preserves_other_users_records": true
+    },
+    "guardrails": [
+        "Do not weaken authorizeSavedView behavior.",
+        "Do not expose whether another user's saved view exists.",
+        "Do not allow bulk delete to affect other users.",
+        "Keep saved filter payloads read-only from Phase 66C."
+    ]
+}
