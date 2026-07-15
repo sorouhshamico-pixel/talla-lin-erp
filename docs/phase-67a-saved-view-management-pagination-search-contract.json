@@ -1,0 +1,51 @@
+{
+    "phase": "Phase 67A",
+    "title": "Saved View Management Pagination And Search Contract",
+    "baseline": {
+        "phase": "Phase 66F clean",
+        "commit": "9725524",
+        "previous_tests": "1254 passed / 11086 assertions"
+    },
+    "scope": {
+        "type": "audit_contract_only",
+        "implementation_changes_allowed": false,
+        "documentation_files": [
+            "docs/phase-67a-saved-view-management-pagination-search-contract.json",
+            "docs/phase-67a-saved-view-management-pagination-search-contract.md"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase67APaginationSearchContractTest.php"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "management_index_uses_service_list": true,
+        "service_list_returns_collection": true,
+        "service_list_uses_get_not_paginate": true,
+        "management_index_maps_all_saved_views_before_render": true,
+        "management_index_has_no_search_query_validation": true,
+        "management_view_has_no_search_form": true,
+        "management_view_has_no_report_key_filter": true,
+        "management_view_has_no_pagination_links": true
+    },
+    "scalability_risk": {
+        "severity": "medium",
+        "finding": "Saved view management loads the authenticated user's complete saved view collection and renders it in a single table.",
+        "impact": "Large saved view collections can reduce scanability and increase page rendering cost."
+    },
+    "phase_67b_recommendations": [
+        "Add request-level search input for saved view name, report label, report key, and common filter display values.",
+        "Add optional report_key filtering sourced from ReportSavedViewRegistry labels.",
+        "Use Laravel pagination for saved views management instead of eager-loading every record into a collection.",
+        "Preserve Phase 66 registry alignment, read-only filters, ownership hardening, and grouped action UX.",
+        "Keep query parameters across pagination links."
+    ]
+}
