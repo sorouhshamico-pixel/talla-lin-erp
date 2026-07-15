@@ -1,0 +1,48 @@
+{
+    "phase": "Phase 68C",
+    "title": "Saved View Management Bulk Selection UX Cleanup",
+    "baseline": {
+        "phase": "Phase 68B clean",
+        "commit": "a9277d9",
+        "previous_tests": "1301 passed / 11472 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase68CBulkSelectionUxCleanupTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-68c-saved-view-management-bulk-selection-ux-cleanup.json",
+            "docs/phase-68c-saved-view-management-bulk-selection-ux-cleanup.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "removed_script_artifact_text_from_blade": true,
+        "bulk_delete_button_disabled_until_selection": true,
+        "selected_count_visible": true,
+        "select_all_updates_selected_count": true,
+        "row_selection_updates_selected_count": true,
+        "select_all_indeterminate_state_supported": true,
+        "empty_submit_guard_present": true,
+        "bulk_delete_confirmation_preserved": true,
+        "phase_68b_bulk_route_and_controller_preserved": true,
+        "phase_67_search_filter_pagination_controls_preserved": true
+    },
+    "guardrails": [
+        "Do not change bulk delete controller behavior.",
+        "Do not change routes.",
+        "Do not change saved view service pagination behavior.",
+        "Do not change Phase 67 search, report filter, per-page, pagination, active-filter, empty-state, or result-summary behavior.",
+        "Do not remove existing row actions or delete-all."
+    ]
+}

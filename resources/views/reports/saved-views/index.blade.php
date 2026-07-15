@@ -138,32 +138,24 @@
                         <form id="report_saved_views_bulk_delete_form"
                               method="POST"
                               action="{{ route('reports.saved-views.bulk-destroy') }}"
-                              onsubmit="return confirm('هل تريد حذف العروض المحددة؟');"
                               data-testid="report-saved-views-bulk-action-form">
                             @csrf
                             @method('DELETE')
 
-                            <button type="submit" class="btn btn-outline-danger" data-testid="report-saved-views-bulk-delete-button">
+                            <button type="submit"
+                                    class="btn btn-outline-danger"
+                                    data-testid="report-saved-views-bulk-delete-button"
+                                    disabled>
                                 حذف المحدد
                             </button>
+
+                            <span class="text-muted"
+                                  data-testid="report-saved-views-selected-count"
+                                  aria-live="polite">
+                                المحدد: 0
+                            </span>
                         </form>
 
-SEARCH,
-    'insert saved view bulk action form'
-);
-
-$view = replace_once(
-    $view,
-    <<<'SEARCH'
-                                    <th>اسم العرض</th>
-SEARCH,
-    <<<'REPLACE'
-                                    <th>
-                                        <input type="checkbox"
-                                               data-testid="report-saved-views-select-all-checkbox"
-                                               aria-label="تحديد كل العروض المحفوظة">
-                                    </th>
-                                    <th>اسم العرض</th>
                         <form method="POST" action="{{ route('reports.saved-views.destroy-all') }}" onsubmit="return confirm('هل تريد حذف جميع العروض المحفوظة؟');">
                             @csrf
                             @method('DELETE')
@@ -178,6 +170,11 @@ SEARCH,
                         <table class="table" data-testid="report-saved-views-table">
                             <thead>
                                 <tr>
+                                    <th>
+                                        <input type="checkbox"
+                                               data-testid="report-saved-views-select-all-checkbox"
+                                               aria-label="تحديد كل العروض المحفوظة">
+                                    </th>
                                     <th>اسم العرض</th>
                                     <th>التقرير</th>
                                     <th>الفلاتر</th>
@@ -285,18 +282,66 @@ SEARCH,
 
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
+                            const bulkForm = document.querySelector('[data-testid="report-saved-views-bulk-action-form"]');
+                            const bulkDeleteButton = document.querySelector('[data-testid="report-saved-views-bulk-delete-button"]');
+                            const selectedCountLabel = document.querySelector('[data-testid="report-saved-views-selected-count"]');
                             const selectAll = document.querySelector('[data-testid="report-saved-views-select-all-checkbox"]');
-                            const rowCheckboxes = document.querySelectorAll('[data-testid="report-saved-view-bulk-select-checkbox"]');
+                            const rowCheckboxes = Array.from(document.querySelectorAll('[data-testid="report-saved-view-bulk-select-checkbox"]'));
 
-                            if (! selectAll) {
-                                return;
+                            function updateBulkSelectionState() {
+                                const selectedCount = rowCheckboxes.filter(function (checkbox) {
+                                    return checkbox.checked;
+                                }).length;
+
+                                if (selectedCountLabel) {
+                                    selectedCountLabel.textContent = 'المحدد: ' + selectedCount;
+                                }
+
+                                if (bulkDeleteButton) {
+                                    bulkDeleteButton.disabled = selectedCount === 0;
+                                }
+
+                                if (selectAll) {
+                                    selectAll.checked = selectedCount > 0 && selectedCount === rowCheckboxes.length;
+                                    selectAll.indeterminate = selectedCount > 0 && selectedCount < rowCheckboxes.length;
+                                }
                             }
 
-                            selectAll.addEventListener('change', function () {
-                                rowCheckboxes.forEach(function (checkbox) {
-                                    checkbox.checked = selectAll.checked;
+                            if (selectAll) {
+                                selectAll.addEventListener('change', function () {
+                                    rowCheckboxes.forEach(function (checkbox) {
+                                        checkbox.checked = selectAll.checked;
+                                    });
+
+                                    updateBulkSelectionState();
                                 });
+                            }
+
+                            rowCheckboxes.forEach(function (checkbox) {
+                                checkbox.addEventListener('change', updateBulkSelectionState);
                             });
+
+                            if (bulkForm) {
+                                bulkForm.addEventListener('submit', function (event) {
+                                    const selectedCount = rowCheckboxes.filter(function (checkbox) {
+                                        return checkbox.checked;
+                                    }).length;
+
+                                    if (selectedCount === 0) {
+                                        event.preventDefault();
+                                        alert('اختر عرضًا واحدًا على الأقل.');
+                                        updateBulkSelectionState();
+
+                                        return;
+                                    }
+
+                                    if (! confirm('هل تريد حذف العروض المحددة؟')) {
+                                        event.preventDefault();
+                                    }
+                                });
+                            }
+
+                            updateBulkSelectionState();
                         });
                     </script>
 
