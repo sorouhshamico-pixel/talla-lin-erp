@@ -44,6 +44,19 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label for="report_saved_views_per_page">عدد النتائج في الصفحة</label>
+                    <select id="report_saved_views_per_page"
+                            name="per_page"
+                            data-testid="report-saved-views-per-page-select">
+                        @foreach ([5, 10, 15, 25, 50, 100] as $perPageOption)
+                            <option value="{{ $perPageOption }}" @selected((int) ($filters['per_page'] ?? 15) === $perPageOption)>
+                                {{ $perPageOption }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="filter-actions">
                     <button type="submit" class="btn btn-primary" data-testid="report-saved-views-search-submit-button">
                         تطبيق
@@ -60,6 +73,16 @@
             <div class="card-body">
                 <div class="report-meta">
                     <p data-testid="report-saved-views-count">عدد العروض المحفوظة: {{ $totalSavedViews }}</p>
+
+                    @if ($savedViews->total() > 0)
+                        <p class="text-muted" data-testid="report-saved-views-results-summary">
+                            عرض {{ $savedViews->firstItem() }} إلى {{ $savedViews->lastItem() }} من {{ $savedViews->total() }} نتيجة
+                        </p>
+
+                        <p class="text-muted" data-testid="report-saved-views-per-page-summary">
+                            عدد النتائج في الصفحة: {{ $savedViews->perPage() }}
+                        </p>
+                    @endif
                 </div>
 
                 @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '')

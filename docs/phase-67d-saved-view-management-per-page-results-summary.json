@@ -1,0 +1,52 @@
+{
+    "phase": "Phase 67D",
+    "title": "Saved View Management Per Page Control And Results Summary",
+    "baseline": {
+        "phase": "Phase 67C clean",
+        "commit": "a53a825",
+        "previous_tests": "1275 passed / 11236 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase67DPerPageResultsSummaryTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-67d-saved-view-management-per-page-results-summary.json",
+            "docs/phase-67d-saved-view-management-per-page-results-summary.md"
+        ],
+        "excluded_files": [
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "per_page_select_visible": true,
+        "per_page_options": [
+            5,
+            10,
+            15,
+            25,
+            50,
+            100
+        ],
+        "selected_per_page_is_preserved": true,
+        "controller_passes_per_page_to_view_filters": true,
+        "results_range_summary_visible": true,
+        "per_page_summary_visible": true,
+        "empty_state_does_not_show_range_summary": true
+    },
+    "guardrails": [
+        "Do not change Phase 67B search query semantics.",
+        "Do not change Phase 67B report key filter semantics.",
+        "Do not change Phase 67C filtered empty state behavior.",
+        "Do not change service pagination implementation.",
+        "Do not change saved view authorization behavior."
+    ]
+}

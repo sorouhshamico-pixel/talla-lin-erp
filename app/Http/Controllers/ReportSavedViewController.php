@@ -49,6 +49,7 @@ class ReportSavedViewController extends Controller
 
         $search = trim((string) ($validated['search'] ?? ''));
         $reportKey = trim((string) ($validated['report_key'] ?? ''));
+        $perPage = (int) ($validated['per_page'] ?? 15);
 
         if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
             $reportKey = '';
@@ -60,7 +61,7 @@ class ReportSavedViewController extends Controller
             $reportKey,
             $this->matchingReportKeysForSearch($search),
             $this->matchingFilterValuesForSearch($search),
-            (int) ($validated['per_page'] ?? 15)
+            $perPage
         );
 
         $savedViews->getCollection()->transform(
@@ -73,6 +74,7 @@ class ReportSavedViewController extends Controller
             'filters' => [
                 'search' => $search,
                 'report_key' => $reportKey,
+                'per_page' => $savedViews->perPage(),
             ],
             'reportOptions' => $this->reportFilterOptions(),
         ]);
