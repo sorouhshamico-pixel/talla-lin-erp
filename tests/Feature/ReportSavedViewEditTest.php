@@ -63,7 +63,7 @@ class ReportSavedViewEditTest extends TestCase
         $response->assertSee('data-testid="report-saved-view-edit-form"', false);
         $response->assertSee(route('reports.saved-views.update', $savedView->id), false);
         $response->assertSee('value="عرض قابل للتعديل"', false);
-        $response->assertSee('تقرير أعمار فواتير المبيعات');
+        $response->assertSee('تقرير أعمار ذمم فواتير المبيعات');
         $response->assertSee('العميل');
         $response->assertSee((string) $customer->id);
         $response->assertSee('شريحة العمر');

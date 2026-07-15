@@ -34,7 +34,7 @@ class ReportSavedViewManagementTest extends TestCase
         $response->assertOk();
         $response->assertSee('data-testid="report-saved-views-page"', false);
         $response->assertSee('متابعة التحصيل');
-        $response->assertSee('تقرير أعمار فواتير المبيعات');
+        $response->assertSee('تقرير أعمار ذمم فواتير المبيعات');
         $response->assertSee('مدفوعة جزئيًا');
         $response->assertSee('بدون تاريخ استحقاق');
         $response->assertSee('data-testid="report-saved-view-open-link"', false);

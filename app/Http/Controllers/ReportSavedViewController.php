@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ReportSavedView;
 use App\Services\ReportSavedViewService;
+use App\Support\Reports\ReportSavedViewRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,26 +13,6 @@ use Illuminate\View\View;
 
 class ReportSavedViewController extends Controller
 {
-    private const REPORT_LABELS = [
-        'cash-flow-dashboard' => 'لوحة التدفق النقدي',
-        'receivable-payable-aging-dashboard' => 'لوحة أعمار الذمم المدينة والدائنة',
-        'customer-sales-invoice-aging' => 'تقرير أعمار ذمم العملاء',
-        'supplier-purchase-invoice-aging' => 'تقرير أعمار ذمم الموردين',
-        'sales-invoice-aging' => 'تقرير أعمار فواتير المبيعات',
-        'customer-sales-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير العملاء',
-        'supplier-purchase-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير الموردين',
-    ];
-
-    private const REPORT_ROUTES = [
-        'cash-flow-dashboard' => 'reports.cash-flow-dashboard.index',
-        'receivable-payable-aging-dashboard' => 'reports.receivable-payable-aging-dashboard.index',
-        'customer-sales-invoice-aging' => 'reports.customer-sales-invoice-aging.index',
-        'supplier-purchase-invoice-aging' => 'reports.supplier-purchase-invoice-aging.index',
-        'sales-invoice-aging' => 'reports.sales-invoice-aging.index',
-        'customer-sales-invoice-aging-drilldown' => 'reports.customer-sales-invoice-aging.drilldown',
-        'supplier-purchase-invoice-aging-drilldown' => 'reports.supplier-purchase-invoice-aging.drilldown',
-    ];
-
     private const FILTER_LABELS = [
         'branch_id' => 'الفرع',
         'customer_id' => 'العميل',
@@ -216,7 +197,7 @@ class ReportSavedViewController extends Controller
             'id' => $savedView->id,
             'name' => $savedView->name,
             'report_key' => $savedView->report_key,
-            'report_label' => self::REPORT_LABELS[$savedView->report_key] ?? $savedView->report_key,
+            'report_label' => $this->reportLabel($savedView->report_key),
             'is_default' => $savedView->is_default,
             'report_url' => $this->reportUrl($savedView->report_key, $filters),
             'filters' => collect($filters)
@@ -234,17 +215,24 @@ class ReportSavedViewController extends Controller
 
     private function formatReportName(string $reportKey): string
     {
-        return [
-            'cash-flow-dashboard' => 'لوحة التدفق النقدي',
-            'receivable-payable-aging-dashboard' => 'لوحة أعمار الذمم',
-            'customer-sales-invoice-aging' => 'تقرير أعمار ذمم العملاء',
-            'supplier-purchase-invoice-aging' => 'تقرير أعمار ذمم الموردين',
-            'sales-invoice-aging' => 'تقرير أعمار فواتير المبيعات',
-            'customer-sales-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير العملاء',
-            'supplier-purchase-invoice-aging-drilldown' => 'تفاصيل أعمار فواتير الموردين',
-        ][$reportKey] ?? $reportKey;
+        return $this->reportLabel($reportKey);
     }
 
+    private function reportLabel(string $reportKey): string
+    {
+        $report = ReportSavedViewRegistry::find($reportKey);
+
+        if (! $report) {
+            return $reportKey;
+        }
+
+        return $report['label'] ?? $reportKey;
+    }
+
+    private function reportRouteName(string $reportKey): ?string
+    {
+        return ReportSavedViewRegistry::indexRoute($reportKey);
+    }
 
 
     private function formatFilterKey(string $key): string
@@ -345,7 +333,7 @@ class ReportSavedViewController extends Controller
 
     private function reportUrl(string $reportKey, array $filters): ?string
     {
-        $routeName = self::REPORT_ROUTES[$reportKey] ?? null;
+        $routeName = $this->reportRouteName($reportKey);
 
         if (! $routeName || ! Route::has($routeName)) {
             return null;
@@ -355,7 +343,6 @@ class ReportSavedViewController extends Controller
 
         return route($routeName, $query);
     }
-
     private function displayFilterValue(string $key, mixed $value): string
     {
         if ($value === null || $value === '') {

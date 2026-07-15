@@ -1,0 +1,48 @@
+{
+    "phase": "Phase 66B",
+    "title": "Saved View Management Registry Alignment",
+    "baseline": {
+        "phase": "Phase 66A clean",
+        "commit": "dac5b45",
+        "previous_audit": "Saved View Management UX Audit Contract"
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php"
+        ],
+        "documentation_files": [
+            "docs/phase-66b-saved-view-management-registry-alignment.json",
+            "docs/phase-66b-saved-view-management-registry-alignment.md"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase66BManagementRegistryAlignmentTest.php"
+        ],
+        "excluded_files": [
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php",
+            "resources/views/reports/partials/saved-view-controls.blade.php",
+            "resources/views/reports/partials/saved-view-section-card.blade.php",
+            "resources/views/reports/partials/saved-view-form-card.blade.php"
+        ]
+    },
+    "registry_alignment": {
+        "replace_static_report_labels": true,
+        "replace_static_report_routes": true,
+        "label_source": "ReportSavedViewRegistry::find",
+        "route_source": "ReportSavedViewRegistry::indexRoute",
+        "unknown_report_label_fallback": "raw report key",
+        "unknown_report_url_fallback": null
+    },
+    "resolved_findings": [
+        "registry_alignment_gap"
+    ],
+    "guardrails": [
+        "Do not modify saved view management routes in this phase.",
+        "Do not modify saved view management Blade views in this phase.",
+        "Do not modify ReportSavedViewRegistry entries in this phase.",
+        "Keep existing ownership guard behavior unchanged."
+    ]
+}
