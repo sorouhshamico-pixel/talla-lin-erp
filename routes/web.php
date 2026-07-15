@@ -195,6 +195,7 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     Route::post('/reports/saved-views', [ReportController::class, 'storeSavedView'])->name('reports.index.saved-views.store');
+    Route::delete('/reports/saved-views/bulk-destroy', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkDestroy'])->name('reports.saved-views.bulk-destroy');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/sales-invoice-collections', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'index'])->name('reports.sales-invoice-collections.index');
 Route::get('/reports/sales-invoice-collections/json', [\App\Http\Controllers\SalesInvoiceCollectionReportController::class, 'json'])->name('reports.sales-invoice-collections.json');

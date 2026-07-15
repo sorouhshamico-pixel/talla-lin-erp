@@ -1,0 +1,50 @@
+{
+    "phase": "Phase 68B",
+    "title": "Saved View Management Bulk Selection Implementation",
+    "baseline": {
+        "phase": "Phase 68A clean",
+        "commit": "0661b7f",
+        "previous_tests": "1295 passed / 11436 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase68BBulkSelectionImplementationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-68b-saved-view-management-bulk-selection-implementation.json",
+            "docs/phase-68b-saved-view-management-bulk-selection-implementation.md"
+        ],
+        "excluded_files": [
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "bulk_action_form_visible": true,
+        "bulk_delete_button_visible": true,
+        "select_all_checkbox_visible": true,
+        "row_selection_checkboxes_visible": true,
+        "bulk_destroy_route_added": true,
+        "bulk_destroy_controller_method_added": true,
+        "bulk_delete_is_selection_scoped": true,
+        "bulk_delete_is_user_scoped": true,
+        "bulk_delete_requires_at_least_one_selected_id": true,
+        "phase_67_search_filter_pagination_controls_preserved": true,
+        "phase_66_row_actions_preserved": true
+    },
+    "guardrails": [
+        "Bulk delete deletes only selected saved view IDs.",
+        "Bulk delete deletes only the authenticated user's saved views.",
+        "Bulk delete does not behave like delete-all.",
+        "Existing row delete and delete-all actions remain available.",
+        "Phase 67 search, report filter, per-page selector, pagination, and summaries remain visible.",
+        "Phase 66 authorization and grouped row actions remain present."
+    ]
+}

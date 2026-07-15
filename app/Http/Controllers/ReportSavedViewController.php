@@ -200,6 +200,35 @@ class ReportSavedViewController extends Controller
             ->with('status', 'تم حذف العرض المحفوظ.');
     }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'saved_view_ids' => ['required', 'array', 'min:1'],
+            'saved_view_ids.*' => ['integer', 'distinct'],
+        ]);
+
+        $selectedIds = collect($validated['saved_view_ids'])
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        $deletedCount = ReportSavedView::query()
+            ->where('user_id', $request->user()->id)
+            ->whereIn('id', $selectedIds)
+            ->delete();
+
+        return redirect()
+            ->route('reports.saved-views.index')
+            ->with(
+                'status',
+                $deletedCount > 0
+                    ? 'تم حذف ' . $deletedCount . ' من العروض المحددة.'
+                    : 'لم يتم حذف أي عروض محفوظة.'
+            );
+    }
+
     public function destroyAll(Request $request): RedirectResponse
     {
         ReportSavedView::query()

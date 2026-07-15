@@ -135,6 +135,35 @@
                     </div>
                 @else
                     <div class="filter-actions" style="margin-bottom: 16px;">
+                        <form id="report_saved_views_bulk_delete_form"
+                              method="POST"
+                              action="{{ route('reports.saved-views.bulk-destroy') }}"
+                              onsubmit="return confirm('هل تريد حذف العروض المحددة؟');"
+                              data-testid="report-saved-views-bulk-action-form">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="btn btn-outline-danger" data-testid="report-saved-views-bulk-delete-button">
+                                حذف المحدد
+                            </button>
+                        </form>
+
+SEARCH,
+    'insert saved view bulk action form'
+);
+
+$view = replace_once(
+    $view,
+    <<<'SEARCH'
+                                    <th>اسم العرض</th>
+SEARCH,
+    <<<'REPLACE'
+                                    <th>
+                                        <input type="checkbox"
+                                               data-testid="report-saved-views-select-all-checkbox"
+                                               aria-label="تحديد كل العروض المحفوظة">
+                                    </th>
+                                    <th>اسم العرض</th>
                         <form method="POST" action="{{ route('reports.saved-views.destroy-all') }}" onsubmit="return confirm('هل تريد حذف جميع العروض المحفوظة؟');">
                             @csrf
                             @method('DELETE')
@@ -160,6 +189,14 @@
                             <tbody>
                                 @foreach ($savedViews as $savedView)
                                     <tr data-testid="report-saved-view-row">
+                                        <td>
+                                            <input type="checkbox"
+                                                   name="saved_view_ids[]"
+                                                   value="{{ $savedView->id }}"
+                                                   form="report_saved_views_bulk_delete_form"
+                                                   data-testid="report-saved-view-bulk-select-checkbox"
+                                                   aria-label="تحديد {{ $savedView->name }}">
+                                        </td>
                                         <td>
                                             <strong>{{ $savedView->name }}</strong>
                                         </td>
@@ -245,6 +282,23 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const selectAll = document.querySelector('[data-testid="report-saved-views-select-all-checkbox"]');
+                            const rowCheckboxes = document.querySelectorAll('[data-testid="report-saved-view-bulk-select-checkbox"]');
+
+                            if (! selectAll) {
+                                return;
+                            }
+
+                            selectAll.addEventListener('change', function () {
+                                rowCheckboxes.forEach(function (checkbox) {
+                                    checkbox.checked = selectAll.checked;
+                                });
+                            });
+                        });
+                    </script>
 
                     @if ($savedViews->hasPages())
                         <div class="pagination-wrap" data-testid="report-saved-views-pagination">

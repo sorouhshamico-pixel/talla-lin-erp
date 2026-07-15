@@ -39,98 +39,7 @@ class ReportSavedViewPhase68ABulkSelectionContractTest extends TestCase
         }
     }
 
-    public function test_current_management_page_has_row_actions_and_delete_all_but_no_bulk_selection_controls(): void
-    {
-        $indexView = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
-
-        foreach ([
-            'data-testid="report-saved-view-row"',
-            'data-testid="report-saved-view-actions"',
-            'data-testid="report-saved-view-primary-actions"',
-            'data-testid="report-saved-view-secondary-actions"',
-            'data-testid="report-saved-view-danger-actions"',
-            'data-testid="report-saved-view-delete-button"',
-            'data-testid="report-saved-views-clear-all-button"',
-        ] as $existingMarker) {
-            $this->assertStringContainsString($existingMarker, $indexView);
-        }
-
-        foreach ([
-            'data-testid="report-saved-view-bulk-select-checkbox"',
-            'data-testid="report-saved-views-select-all-checkbox"',
-            'data-testid="report-saved-views-bulk-action-form"',
-            'data-testid="report-saved-views-bulk-delete-button"',
-            'name="saved_view_ids[]"',
-            "name='saved_view_ids[]'",
-        ] as $missingMarker) {
-            $this->assertStringNotContainsString($missingMarker, $indexView);
-        }
-    }
-
-    public function test_current_routes_and_controller_have_no_bulk_destroy_action(): void
-    {
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-
-        foreach ([
-            'reports.saved-views.index',
-            'reports.saved-views.destroy',
-            'reports.saved-views.destroy-all',
-        ] as $existingRouteName) {
-            $this->assertStringContainsString($existingRouteName, $routes);
-        }
-
-        foreach ([
-            'reports.saved-views.bulk-destroy',
-            'reports.saved-views.destroy-selected',
-            'bulkDestroy',
-            'destroySelected',
-            'selectedSavedViewIds',
-            'saved_view_ids',
-        ] as $missingMarker) {
-            $this->assertStringNotContainsString($missingMarker, $routes);
-            $this->assertStringNotContainsString($missingMarker, $controller);
-        }
-    }
-
-    public function test_phase_67_final_state_is_preserved_before_bulk_selection_work(): void
-    {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $service = file_get_contents(app_path('Services/ReportSavedViewService.php'));
-        $indexView = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
-
-        foreach ([
-            "'search' => ['nullable', 'string', 'max:120']",
-            "'report_key' => ['nullable', 'string', 'max:120']",
-            "'per_page' => ['nullable', 'integer', 'min:5', 'max:100']",
-            '$savedViewService->paginateForManagement(',
-            "'per_page' => \$savedViews->perPage()",
-        ] as $controllerMarker) {
-            $this->assertStringContainsString($controllerMarker, $controller);
-        }
-
-        foreach ([
-            'public function paginateForManagement(',
-            '->paginate($perPage)',
-            '->withQueryString()',
-        ] as $serviceMarker) {
-            $this->assertStringContainsString($serviceMarker, $service);
-        }
-
-        foreach ([
-            'data-testid="report-saved-views-search-form"',
-            'data-testid="report-saved-views-report-key-select"',
-            'data-testid="report-saved-views-per-page-select"',
-            'data-testid="report-saved-views-active-filters"',
-            'data-testid="report-saved-views-filtered-empty-message"',
-            'data-testid="report-saved-views-results-summary"',
-            'data-testid="report-saved-views-pagination"',
-        ] as $viewMarker) {
-            $this->assertStringContainsString($viewMarker, $indexView);
-        }
-    }
-
-    public function test_phase_68a_contract_documents_recommendations_and_guardrails(): void
+    public function test_phase_68a_contract_documented_pre_implementation_bulk_selection_gap(): void
     {
         $contract = json_decode(
             file_get_contents(base_path('docs/phase-68a-saved-view-management-bulk-selection-contract.json')),
@@ -149,13 +58,31 @@ class ReportSavedViewPhase68ABulkSelectionContractTest extends TestCase
             $this->assertTrue($contract['current_state'][$key], $key);
         }
 
-        $this->assertSame('Phase 68B', $contract['phase_68b_recommendation']['title'] === 'Implement Saved View Management Bulk Selection'
-            ? 'Phase 68B'
-            : null
-        );
+        $this->assertSame('Implement Saved View Management Bulk Selection', $contract['phase_68b_recommendation']['title']);
         $this->assertSame('medium', $contract['phase_68b_recommendation']['risk']);
         $this->assertNotEmpty($contract['phase_68b_recommendation']['implementation_targets']);
         $this->assertNotEmpty($contract['guardrails']);
+    }
+
+    public function test_phase_68a_contract_remains_historical_after_phase_68b_implementation(): void
+    {
+        $contract = json_decode(
+            file_get_contents(base_path('docs/phase-68a-saved-view-management-bulk-selection-contract.json')),
+            true
+        );
+
+        $this->assertSame('audit_contract', $contract['scope']['type']);
+        $this->assertFalse($contract['scope']['implementation_changes_expected']);
+
+        foreach ([
+            'bulk_selection_checkboxes_absent',
+            'select_all_checkbox_absent',
+            'bulk_delete_form_absent',
+            'bulk_destroy_route_absent',
+            'bulk_destroy_controller_method_absent',
+        ] as $preImplementationGap) {
+            $this->assertTrue($contract['current_state'][$preImplementationGap], $preImplementationGap);
+        }
     }
 
     public function test_phase_68a_markdown_mentions_selection_scope_and_next_phase(): void
