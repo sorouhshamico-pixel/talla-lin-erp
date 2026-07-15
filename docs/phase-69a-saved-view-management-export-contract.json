@@ -1,0 +1,60 @@
+{
+    "phase": "Phase 69A",
+    "title": "Saved View Management Export Contract",
+    "baseline": {
+        "phase": "Phase 68E clean",
+        "commit": "b24643c",
+        "previous_tests": "1327 passed / 11697 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase69AExportContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-69a-saved-view-management-export-contract.json",
+            "docs/phase-69a-saved-view-management-export-contract.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "management_search_filter_pagination_exists": true,
+        "management_bulk_selection_exists": true,
+        "management_bulk_delete_context_preserved": true,
+        "export_route_absent": true,
+        "export_controller_action_absent": true,
+        "export_link_or_button_absent": true,
+        "export_test_coverage_absent": true
+    },
+    "phase_69b_recommendation": {
+        "title": "Implement Saved View Management CSV Export",
+        "implementation_targets": [
+            "Add a user-scoped export route for the saved view management list.",
+            "Add a controller action that exports only the authenticated user's saved views.",
+            "Honor current management filters: search and report_key.",
+            "Do not depend on page or per_page; export the full filtered result set.",
+            "Include stable CSV columns: name, report label, report key, default flag, filter count, filters summary, updated_at.",
+            "Add an export link/button to the management page that preserves active filters.",
+            "Do not change Phase 67 pagination, Phase 68 bulk selection, or Phase 66 row action behavior."
+        ],
+        "risk": "low-medium",
+        "risk_reason": "Export is read-only, but must remain user-scoped and must not accidentally expose saved views belonging to another user."
+    },
+    "guardrails": [
+        "Do not export saved views owned by another user.",
+        "Do not make export page-scoped unless explicitly decided later.",
+        "Do not include raw sensitive values beyond the existing saved view filters summary unless reviewed.",
+        "Do not change saved view management pagination semantics.",
+        "Do not change bulk delete selection or context behavior.",
+        "Do not change row action authorization."
+    ]
+}
