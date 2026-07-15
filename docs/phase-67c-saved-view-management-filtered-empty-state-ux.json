@@ -1,0 +1,44 @@
+{
+    "phase": "Phase 67C",
+    "title": "Saved View Management Filtered Empty State UX",
+    "baseline": {
+        "phase": "Phase 67B clean",
+        "commit": "e974436",
+        "previous_tests": "1269 passed / 11189 assertions"
+    },
+    "scope": {
+        "implementation_files": [
+            "resources/views/reports/saved-views/index.blade.php"
+        ],
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase67CFilteredEmptyStateUxTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-67c-saved-view-management-filtered-empty-state-ux.json",
+            "docs/phase-67c-saved-view-management-filtered-empty-state-ux.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "implemented_behavior": {
+        "active_filter_summary": true,
+        "active_search_label": true,
+        "active_report_filter_label": true,
+        "clear_active_filters_link": true,
+        "filtered_empty_state_message": true,
+        "filtered_empty_state_clear_link": true,
+        "unfiltered_empty_state_preserved": true
+    },
+    "guardrails": [
+        "Do not change pagination query behavior from Phase 67B.",
+        "Do not change saved view management search query behavior from Phase 67B.",
+        "Do not change saved view authorization behavior from Phase 66D.",
+        "Do not change saved view edit filter read-only behavior from Phase 66C."
+    ]
+}

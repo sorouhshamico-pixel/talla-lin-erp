@@ -62,9 +62,53 @@
                     <p data-testid="report-saved-views-count">عدد العروض المحفوظة: {{ $totalSavedViews }}</p>
                 </div>
 
+                @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '')
+                    @php
+                        $activeReportOption = collect($reportOptions)->firstWhere('key', $filters['report_key'] ?? '');
+                    @endphp
+
+                    <div class="alert alert-info" data-testid="report-saved-views-active-filters">
+                        <strong>الفلاتر النشطة:</strong>
+
+                        @if (($filters['search'] ?? '') !== '')
+                            <span data-testid="report-saved-views-active-search">
+                                بحث: {{ $filters['search'] }}
+                            </span>
+                        @endif
+
+                        @if (($filters['report_key'] ?? '') !== '')
+                            <span data-testid="report-saved-views-active-report-key">
+                                التقرير: {{ $activeReportOption->label ?? $filters['report_key'] }}
+                            </span>
+                        @endif
+
+                        <a href="{{ route('reports.saved-views.index') }}"
+                           class="btn btn-outline-secondary"
+                           data-testid="report-saved-views-active-filters-clear-link">
+                            مسح الفلاتر
+                        </a>
+                    </div>
+                @endif
+
                 @if ($savedViews->count() === 0)
                     <div class="empty-state" data-testid="report-saved-views-empty">
-                        لا توجد عروض محفوظة حاليًا.
+                        @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '')
+                            <span data-testid="report-saved-views-filtered-empty-message">
+                                لا توجد نتائج مطابقة للفلاتر الحالية.
+                            </span>
+
+                            <div style="margin-top: 12px;">
+                                <a href="{{ route('reports.saved-views.index') }}"
+                                   class="btn btn-outline-secondary"
+                                   data-testid="report-saved-views-filtered-empty-clear-link">
+                                    عرض كل العروض
+                                </a>
+                            </div>
+                        @else
+                            <span data-testid="report-saved-views-unfiltered-empty-message">
+                                لا توجد عروض محفوظة حاليًا.
+                            </span>
+                        @endif
                     </div>
                 @else
                     <div class="filter-actions" style="margin-bottom: 16px;">
