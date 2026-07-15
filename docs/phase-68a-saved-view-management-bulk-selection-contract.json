@@ -1,0 +1,59 @@
+{
+    "phase": "Phase 68A",
+    "title": "Saved View Management Bulk Selection Contract",
+    "baseline": {
+        "phase": "Phase 67E clean",
+        "commit": "c54365e",
+        "previous_tests": "1288 passed / 11360 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase68ABulkSelectionContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-68a-saved-view-management-bulk-selection-contract.json",
+            "docs/phase-68a-saved-view-management-bulk-selection-contract.md"
+        ],
+        "excluded_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Services/ReportSavedViewService.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "single_row_actions_exist": true,
+        "delete_all_action_exists": true,
+        "bulk_selection_checkboxes_absent": true,
+        "select_all_checkbox_absent": true,
+        "bulk_delete_form_absent": true,
+        "bulk_destroy_route_absent": true,
+        "bulk_destroy_controller_method_absent": true
+    },
+    "phase_68b_recommendation": {
+        "title": "Implement Saved View Management Bulk Selection",
+        "implementation_targets": [
+            "Add select-all and per-row checkboxes to the saved view management table.",
+            "Add a bulk delete form that accepts selected saved view IDs only.",
+            "Add a guarded controller action that deletes only the authenticated user's selected saved views.",
+            "Add a route for the bulk delete action.",
+            "Preserve Phase 67 search, filter, per-page, pagination, active-filter, and results-summary UX.",
+            "Preserve Phase 66 ownership authorization and row action behavior."
+        ],
+        "risk": "medium",
+        "risk_reason": "Bulk deletion changes destructive-action scope and must not delete another user's saved views or accidentally behave like delete-all."
+    },
+    "guardrails": [
+        "Do not change Phase 67 search query semantics.",
+        "Do not change Phase 67 pagination or per-page behavior.",
+        "Do not change Phase 67 filtered empty state behavior.",
+        "Do not change Phase 66 authorization hardening.",
+        "Do not weaken existing delete-all confirmation behavior.",
+        "Bulk delete must be selection-scoped, not filter-scoped, unless explicitly implemented and tested later."
+    ]
+}
