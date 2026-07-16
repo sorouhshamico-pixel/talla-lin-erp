@@ -1,0 +1,185 @@
+{
+    "phase": "Phase 75C",
+    "title": "Saved View CSV Import Parser Finalization",
+    "baseline": {
+        "phase": "Phase 75B clean",
+        "commit": "c09f1d9",
+        "previous_tests": "1504 passed / 13560 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase75CCsvImportParserFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-75c-saved-view-csv-import-parser-finalization.json",
+            "docs/phase-75c-saved-view-csv-import-parser-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php",
+            "app/Services/ReportSavedViewService.php",
+            "app/Models/ReportSavedView.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php"
+        ]
+    },
+    "parser_identity": {
+        "class": "App\\Support\\Reports\\ReportSavedViewCsvImportParser",
+        "file": "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+        "final_class": true,
+        "stateless": true,
+        "constructor_dependencies": [],
+        "public_api": {
+            "parse": "public function parse(string $path): array"
+        },
+        "allowed_collaborators": [
+            "App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry",
+            "App\\Support\\Reports\\ReportSavedViewRegistry"
+        ],
+        "allowed_runtime_access": [
+            "read_only_csv_filesystem_access"
+        ],
+        "forbidden_runtime_access": [
+            "database",
+            "eloquent_models",
+            "request",
+            "response",
+            "session",
+            "authentication",
+            "redirects",
+            "views",
+            "routes"
+        ]
+    },
+    "finalized_result_contract": {
+        "preview_shape": {
+            "headers": "array<int, string>",
+            "header_errors": "array<int, string>",
+            "rows": "array<int, array<string, mixed>>",
+            "total_rows": "int",
+            "valid_rows": "int",
+            "invalid_rows": "int"
+        },
+        "row_shape": [
+            "row_number",
+            "format_version",
+            "name",
+            "report_label",
+            "report_key",
+            "is_default",
+            "filter_count",
+            "filters_summary",
+            "filters_payload",
+            "filters",
+            "status",
+            "errors"
+        ],
+        "row_number_policy": "CSV header is row 1 and the first data row is row 2",
+        "status_values": [
+            "valid",
+            "invalid"
+        ],
+        "legacy_format_version_value": null,
+        "explicit_format_version_type": "string",
+        "is_default_display_values": [
+            "نعم",
+            "لا"
+        ],
+        "filter_count_output_type": "integer",
+        "errors_output_type": "array<int, string>"
+    },
+    "finalized_file_and_header_behavior": {
+        "read_only_open": true,
+        "utf8_bom_removed": true,
+        "empty_or_invalid_file_rejected": true,
+        "unreadable_file_rejected": true,
+        "required_columns_validated_before_rows": true,
+        "legacy_schema_source": "ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()",
+        "explicit_schema_source": "ReportSavedViewImportExportVersionRegistry::requiredColumns(currentVersion())",
+        "format_mode_detected_only_by_format_version_column": true,
+        "empty_rows_skipped": true
+    },
+    "finalized_row_validation": {
+        "name_required_and_max_120": true,
+        "report_key_required_and_registry_validated": true,
+        "default_flag_validated_case_insensitively": true,
+        "filter_count_optional_non_negative_integer": true,
+        "explicit_format_version_required": true,
+        "unsupported_version_rejected": true,
+        "mixed_explicit_versions_report_header_error": true,
+        "explicit_v1_requires_filters_payload": true,
+        "filters_payload_accepts_json_object_only": true,
+        "json_lists_rejected": true,
+        "filters_summary_never_parsed": true,
+        "canonical_report_label_from_registry_when_known": true
+    },
+    "finalized_filter_cleaning": {
+        "empty_or_non_string_keys_removed": true,
+        "null_values_removed": true,
+        "empty_string_values_removed": true,
+        "nested_arrays_cleaned_recursively": true,
+        "empty_nested_arrays_removed": true,
+        "non_empty_scalar_values_preserved": true,
+        "non_empty_nested_values_preserved": true
+    },
+    "finalized_controller_integration": {
+        "constructor_injects_parser": true,
+        "preview_uses_parser": true,
+        "apply_reparses_with_parser": true,
+        "old_controller_parser_helpers_absent": true,
+        "request_validation_remains_in_controller": true,
+        "base64_payload_handling_remains_in_controller": true,
+        "temporary_file_lifecycle_remains_in_controller": true,
+        "database_apply_remains_in_controller": true,
+        "transaction_remains_in_controller": true,
+        "authenticated_user_scope_remains_in_controller": true,
+        "duplicate_skip_without_overwrite_remains_in_controller": true,
+        "default_normalization_remains_in_controller": true
+    },
+    "preserved_behavior": {
+        "preview_is_read_only": true,
+        "preview_and_apply_share_parser": true,
+        "apply_revalidates_before_writes": true,
+        "invalid_header_or_row_blocks_all_writes": true,
+        "legacy_without_payload_imports_empty_filters": true,
+        "legacy_with_payload_preserves_filters": true,
+        "explicit_v1_round_trip_is_lossless": true,
+        "empty_unsupported_and_mixed_versions_rejected": true,
+        "filters_summary_human_readable_only": true,
+        "filters_payload_machine_source_only": true,
+        "duplicate_import_skips_without_overwrite": true,
+        "cross_user_records_unchanged": true,
+        "default_normalization_per_user_report_preserved": true,
+        "export_behavior_preserved": true,
+        "bulk_selection_preserved": true,
+        "pagination_preserved": true,
+        "exact_arabic_validation_messages_preserved": true,
+        "phase_69_through_75_historical_contracts_preserved": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 76A",
+        "title": "Saved View Import Apply Service Contract",
+        "reason": "CSV parsing is finalized and isolated. The remaining cohesive import responsibility in the controller is transactional row application, including authenticated-user scope, duplicate skipping, default normalization, and record creation.",
+        "implementation_changes_expected": false
+    },
+    "guardrails": [
+        "Do not modify parser, controller, registry, service, model, route, view, migration, or database behavior in Phase 75C.",
+        "The parser must remain final and stateless.",
+        "The parser may read CSV files but must not write files.",
+        "The parser must not access database, Eloquent, HTTP, session, authentication, redirects, views, or routes.",
+        "The version registry remains the sole source of CSV version and schema metadata.",
+        "The report registry remains the sole source of valid report keys and canonical report labels.",
+        "Preview and apply must continue to use the same parser.",
+        "Apply must continue to reparse before database writes.",
+        "All preview and row result keys and exact Arabic validation messages must remain unchanged.",
+        "filters_summary must remain human-readable only.",
+        "filters_payload must remain the machine-readable filter source.",
+        "Transaction, user scope, duplicate skipping, and default normalization remain outside the parser.",
+        "No behavior change is allowed in Phase 75C."
+    ]
+}
