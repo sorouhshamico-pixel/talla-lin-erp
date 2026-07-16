@@ -1,42 +1,32 @@
 # Codex Handoff — Talla Lin ERP
 
-## Latest validated phase
+## Latest completed contract phase
 
 ```text
-Phase: Phase 77C — Finalize Saved View CSV Export Writer
-Branch: phase/77c-saved-view-csv-export-finalization
-Starting commit: 8df3f25
-Feature baseline: Phase 77B at 40c6f60
-Baseline suite: 1567 passed / 14298 assertions
-Phase suite: 1573 passed / 14410 assertions
+Phase: Phase 78A — Prepare Selected Saved View CSV Export Contract
+Branch: phase/78a-selected-saved-view-csv-export-contract
+Starting commit: 4220470
+Baseline suite: 1573 passed / 14410 assertions
+Phase suite: 1577 passed / 14457 assertions
 Runtime changes: none
-Status: validated; commit, merge, main test, and push pending
+Stable commit: the commit containing this document
+Status: validated, merged to main, and published when this document is on origin/main
 ```
 
-## Files
+## Selected implementation
 
-Added:
+Phase 78B will implement authenticated selected-row CSV export.
 
-- `docs/phase-77c-saved-view-csv-export-writer-finalization.json`
-- `docs/phase-77c-saved-view-csv-export-writer-finalization.md`
-- `tests/Feature/ReportSavedViewPhase77CCsvExportWriterFinalizationTest.php`
+## Locked boundaries
 
-Updated:
-
-- `docs/codex-development-log.md`
-- `docs/codex-handoff.md`
-- `docs/CODEX_PROJECT_STATE.md`
-
-## Locked decisions
-
-- The writer is final, stateless, and constructor-free.
-- The writer owns stream bytes, BOM, header, version, summary, payload,
-  rows, and stream close.
-- The controller owns validation, user scope, filtering, formatting,
-  filename, streamed response, and content type.
-- The registry owns the export schema and current version.
-- Phase 77C changes no runtime file.
+- POST route and validated selected IDs.
+- Authenticated-user scope only.
+- Foreign and nonexistent IDs ignored without disclosure.
+- Deterministic management ordering.
+- Header-only CSV when no owned rows match.
+- Existing CSV writer reused without changes.
+- Existing filtered export and bulk delete preserved.
 
 ## Next phase
 
-Phase 78A — Select Next Saved View Management Contract.
+Phase 78B — Implement Selected Saved View CSV Export.

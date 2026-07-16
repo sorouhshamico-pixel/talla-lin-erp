@@ -23,3 +23,26 @@
 - Next: Phase 78A — Select Next Saved View Management Contract.
 - Risks: none identified.
 
+## 2026-07-16T14:55:46+03:00 — Phase 78A
+
+- Title: Prepare Selected Saved View CSV Export Contract.
+- Starting commit: `4220470`.
+- Branch: `phase/78a-selected-saved-view-csv-export-contract`.
+- Selected capability: selected saved-view CSV export.
+- Runtime files changed: none.
+- Added:
+  - `docs/phase-78a-selected-saved-view-csv-export-contract.json`
+  - `docs/phase-78a-selected-saved-view-csv-export-contract.md`
+  - `tests/Feature/ReportSavedViewPhase78ASelectedCsvExportContractTest.php`
+- Updated:
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Baseline suite:
+  `1573 passed / 14410 assertions`.
+- Phase suite:
+  `1577 passed / 14457 assertions`.
+- Stable commit: the commit containing this entry.
+- Next: Phase 78B — Implement Selected Saved View CSV Export.
+- Risks: none identified.
+

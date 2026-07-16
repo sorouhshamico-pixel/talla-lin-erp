@@ -1,0 +1,106 @@
+{
+    "phase": "Phase 78A",
+    "title": "Prepare Selected Saved View CSV Export Contract",
+    "type": "contract",
+    "selection_decision": {
+        "selected_capability": "selected_saved_view_csv_export",
+        "reason": "The management page already supports row selection and bulk delete, while CSV export currently exports all filtered results. Exporting only selected rows is the smallest coherent next management capability.",
+        "alternatives_deferred": [
+            "saved_view_tags",
+            "saved_view_sharing",
+            "saved_view_archiving",
+            "saved_view_manual_sorting"
+        ]
+    },
+    "baseline": {
+        "phase": "Phase 77C",
+        "commit": "4220470",
+        "full_suite": "1573 passed / 14410 assertions"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "implementation_phase": "Phase 78B",
+        "finalization_phase": "Phase 78C"
+    },
+    "future_http_contract": {
+        "method": "POST",
+        "path": "/reports/saved-views/export-selected",
+        "route_name": "reports.saved-views.export-selected",
+        "controller_method": "exportSelected",
+        "middleware": ["auth"],
+        "validation": {
+            "saved_view_ids": ["required", "array", "min:1"],
+            "saved_view_ids.*": ["integer", "distinct"]
+        }
+    },
+    "future_service_contract": {
+        "class": "App\\Services\\ReportSavedViewService",
+        "method": "exportSelectedForManagement",
+        "parameters": ["App\\Models\\User", "array<int, int>"],
+        "return": "Illuminate\\Support\\Collection<int, App\\Models\\ReportSavedView>",
+        "selection_rules": [
+            "normalize IDs to positive unique integers",
+            "query only rows owned by the authenticated user",
+            "ignore foreign-user and nonexistent IDs without disclosure",
+            "do not apply management search or report filters to explicit selected IDs",
+            "order by is_default descending, name ascending, then id ascending"
+        ]
+    },
+    "future_response_contract": {
+        "writer": "App\\Support\\Reports\\ReportSavedViewCsvExportWriter",
+        "writer_changes_expected": false,
+        "filename_pattern": "saved-views-selected-YYYYMMDD-HHMMSS.csv",
+        "content_type": "text/csv; charset=UTF-8",
+        "empty_owned_selection_behavior": "return a valid header-only CSV",
+        "csv_contract_preserved": [
+            "UTF-8 BOM",
+            "registry export header",
+            "registry current version",
+            "human filters summary",
+            "machine filters payload",
+            "input order",
+            "import round trip"
+        ]
+    },
+    "future_view_contract": {
+        "reuse_existing_row_checkboxes": true,
+        "reuse_existing_select_all_checkbox": true,
+        "selected_export_button_label": "تصدير المحدد CSV",
+        "selected_export_button_disabled_when_empty": true,
+        "selection_scope": "current management page rows only",
+        "form_design": [
+            "use one POST bulk-selection form",
+            "default form action is selected export",
+            "bulk delete button uses formaction for the existing bulk-destroy route",
+            "bulk delete button submits _method=DELETE only when that button is clicked",
+            "preserve current selected-count JavaScript behavior"
+        ]
+    },
+    "preserved_behavior": {
+        "filtered_export_unchanged": true,
+        "bulk_delete_unchanged": true,
+        "delete_all_unchanged": true,
+        "import_preview_and_apply_unchanged": true,
+        "writer_boundary_unchanged": true,
+        "controller_user_scope_required": true,
+        "no_cross_user_disclosure": true
+    },
+    "required_phase_78b_tests": [
+        "route is authenticated and POST-only",
+        "request validation rejects empty, non-array, duplicate, and non-integer IDs",
+        "service exports only authenticated-user selected rows",
+        "foreign and nonexistent IDs are ignored",
+        "deterministic management ordering is preserved",
+        "valid zero-owned match returns header-only CSV",
+        "writer output preserves BOM, header, version, payload, and Unicode",
+        "selected export round trips through current import",
+        "existing filtered export remains unchanged",
+        "existing bulk delete remains unchanged",
+        "view reuses selection controls and enables both selected export and delete"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 78B",
+        "title": "Implement Selected Saved View CSV Export"
+    }
+}
