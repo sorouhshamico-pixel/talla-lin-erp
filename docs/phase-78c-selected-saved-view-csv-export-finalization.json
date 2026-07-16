@@ -1,0 +1,57 @@
+{
+    "phase": "Phase 78C",
+    "title": "Finalize Selected Saved View CSV Export",
+    "type": "finalization",
+    "baseline": {
+        "phase": "Phase 78B",
+        "commit": "f886978",
+        "full_suite": "1588 passed / 14543 assertions"
+    },
+    "workflow_transition": {
+        "mode": "main_only",
+        "primary_repository": "https://github.com/sorouhshamico-pixel/talla-lin-erp.git",
+        "development_branch": "main",
+        "phase_branches_allowed": false,
+        "codex_worktrees_allowed": false,
+        "codex_local_branch_status": "already_absent",
+        "codex_remote_branch_status": "removed",
+        "codex_branch": "agents/codex-phase-77b-execution",
+        "push_target": "origin/main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "workflow_file_updated": "AGENTS.md"
+    },
+    "finalized_behavior": {
+        "authenticated_post_route": true,
+        "selected_id_validation": true,
+        "positive_unique_id_normalization": true,
+        "authenticated_user_scope": true,
+        "foreign_and_missing_ids_ignored": true,
+        "deterministic_management_ordering": true,
+        "header_only_empty_selection": true,
+        "selected_filename": true,
+        "content_type_preserved": true,
+        "existing_writer_reused_unchanged": true,
+        "selected_export_button": true,
+        "bulk_delete_preserved": true,
+        "delete_confirmation_scoped": true,
+        "filtered_export_preserved": true,
+        "import_round_trip_preserved": true,
+        "no_cross_user_disclosure": true
+    },
+    "locked_runtime_files": [
+        "routes/web.php",
+        "app/Http/Controllers/ReportSavedViewController.php",
+        "app/Services/ReportSavedViewService.php",
+        "app/Support/Reports/ReportSavedViewCsvExportWriter.php",
+        "resources/views/reports/saved-views/index.blade.php"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 79A",
+        "title": "Select Next Saved View Management Contract",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-16T15:18:42+03:00"
+}

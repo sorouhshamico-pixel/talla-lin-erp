@@ -74,3 +74,27 @@
 - Next: Phase 78C — Finalize Selected Saved View CSV Export.
 - Risks: none identified.
 
+## 2026-07-16T15:22:30+03:00 — Phase 78C
+
+- Title: Finalize Selected Saved View CSV Export.
+- Starting commit: `f886978`.
+- Branch: `main`.
+- Workflow: direct `main` only.
+- Runtime files changed: none.
+- Workflow file updated: `AGENTS.md`.
+- Added:
+  - `docs/phase-78c-selected-saved-view-csv-export-finalization.json`
+  - `docs/phase-78c-selected-saved-view-csv-export-finalization.md`
+  - `tests/Feature/ReportSavedViewPhase78CSelectedCsvExportFinalizationTest.php`
+- Updated:
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Pre-commit full suite:
+  `1595 passed / 14620 assertions`.
+- Registered worktrees: `1`.
+- Codex remote branch: absent.
+- Push target: `origin/main` only.
+- Next: Phase 79A — Select Next Saved View Management Contract.
+- Risks: none identified.
+
