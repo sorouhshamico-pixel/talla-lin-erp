@@ -1,0 +1,70 @@
+{
+    "phase": "Phase 72C",
+    "title": "Saved View Filters Payload Import Export Finalization",
+    "baseline": {
+        "phase": "Phase 72B clean",
+        "commit": "e1ad866",
+        "previous_tests": "1415 passed / 12637 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase72CFiltersPayloadFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-72c-saved-view-filters-payload-finalization.json",
+            "docs/phase-72c-saved-view-filters-payload-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "finalized_behavior": {
+        "filters_payload_export_column_locked": true,
+        "filters_payload_json_object_format_locked": true,
+        "empty_filters_export_as_object_locked": true,
+        "filters_summary_human_readable_only_locked": true,
+        "filters_payload_only_machine_import_source_locked": true,
+        "legacy_csv_without_payload_supported_locked": true,
+        "legacy_csv_imports_empty_filters_locked": true,
+        "invalid_json_blocks_writes_locked": true,
+        "json_list_blocks_writes_locked": true,
+        "import_transaction_boundary_locked": true,
+        "authenticated_user_scope_locked": true,
+        "duplicate_skip_without_overwrite_locked": true,
+        "lossless_round_trip_locked": true,
+        "phase_71_import_apply_preserved": true,
+        "phase_70_import_preview_preserved": true,
+        "phase_69_csv_export_preserved": true,
+        "phase_68_bulk_selection_preserved": true,
+        "phase_67_pagination_preserved": true
+    },
+    "machine_readable_filters_source": "filters_payload",
+    "filters_payload_format": "JSON object",
+    "filters_summary_policy": "human_readable_only_not_parsed",
+    "duplicate_policy": "skip_existing_user_report_key_name_without_overwrite",
+    "next_recommendation": {
+        "phase": "Phase 73A",
+        "title": "Saved View Import Export Format Version Contract",
+        "reason": "Lossless filters import and export is now finalized. The next safe step is an explicit format-version contract so future CSV columns can evolve with deterministic compatibility and migration rules."
+    },
+    "guardrails": [
+        "Do not modify the Phase 72B implementation in this finalization phase.",
+        "filters_summary must remain human-readable only and must never be parsed for imported filters.",
+        "filters_payload must remain the sole machine-readable filters source.",
+        "filters_payload must decode to a JSON object before writes.",
+        "Invalid JSON and JSON lists must block all import writes.",
+        "Legacy CSV files without filters_payload must remain supported with empty filters.",
+        "Import apply must remain protected by a database transaction.",
+        "Imported saved views must remain scoped to the authenticated user.",
+        "Duplicates must be skipped without overwriting existing saved views.",
+        "Preserve import preview, import apply, CSV export, bulk selection, and pagination behavior."
+    ]
+}
