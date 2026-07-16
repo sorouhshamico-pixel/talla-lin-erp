@@ -96,10 +96,25 @@ class ReportSavedViewPhase66CSavedViewEditFiltersReadOnlyTest extends TestCase
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
 
-        $this->assertStringNotContainsString("'filters' => ['nullable', 'array']", $controller);
-        $this->assertStringNotContainsString("'filters.*' => ['nullable', 'string', 'max:255']", $controller);
-        $this->assertStringNotContainsString('$validated[\'filters\']', $controller);
-        $this->assertStringNotContainsString("'filters' => \$filters", $controller);
+        $updateStart = strpos(
+            $controller,
+            '    public function update(Request $request, ReportSavedView $savedView): RedirectResponse'
+        );
+        $destroyStart = $updateStart === false
+            ? false
+            : strpos($controller, '    public function destroy(', $updateStart);
+
+        $this->assertNotFalse($updateStart);
+        $this->assertNotFalse($destroyStart);
+
+        $updateMethod = substr($controller, $updateStart, $destroyStart - $updateStart);
+
+
+
+        $this->assertStringNotContainsString("'filters' => ['nullable', 'array']", $updateMethod);
+        $this->assertStringNotContainsString("'filters.*' => ['nullable', 'string', 'max:255']", $updateMethod);
+        $this->assertStringNotContainsString('$validated[\'filters\']', $updateMethod);
+        $this->assertStringNotContainsString("'filters' => \$filters", $updateMethod);
     }
 
     public function test_phase_66c_json_contract_documents_read_only_filter_decision(): void

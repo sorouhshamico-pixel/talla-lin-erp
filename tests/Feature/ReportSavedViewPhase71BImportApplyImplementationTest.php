@@ -193,7 +193,7 @@ class ReportSavedViewPhase71BImportApplyImplementationTest extends TestCase
             'applySavedViewImportRows($request, $preview',
             'private function applySavedViewImportRows(Request $request, array $rows): array',
             'return DB::transaction(function () use ($request, $rows): array',
-            "'filters' => []",
+            "'filters' => \$row['filters'] ?? []",
         ] as $controllerMarker) {
             $this->assertStringContainsString($controllerMarker, $controller);
         }

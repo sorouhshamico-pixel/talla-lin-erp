@@ -222,6 +222,7 @@ class ReportSavedViewController extends Controller
                 'is_default',
                 'filter_count',
                 'filters_summary',
+                'filters_payload',
                 'updated_at',
             ]);
 
@@ -240,6 +241,8 @@ class ReportSavedViewController extends Controller
                     })
                     ->implode('; ');
 
+                $filtersPayload = json_encode((object) ($savedView->filters ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
                 fputcsv($handle, [
                     $formatted->name,
                     $formatted->report_label,
@@ -247,6 +250,7 @@ class ReportSavedViewController extends Controller
                     $formatted->is_default ? 'yes' : 'no',
                     $formatted->filters->count(),
                     $filtersSummary,
+                    $filtersPayload === false ? '{}' : $filtersPayload,
                     optional($formatted->updated_at)->toDateTimeString() ?? '',
                 ]);
             }
@@ -541,6 +545,10 @@ class ReportSavedViewController extends Controller
                 $data[$column] = trim((string) ($row[$indexes[$column]] ?? ''));
             }
 
+            $data['filters_payload'] = array_key_exists('filters_payload', $indexes)
+                ? trim((string) ($row[$indexes['filters_payload']] ?? ''))
+                : '';
+
             $errors = [];
             $name = $data['name'];
             $reportKey = $data['report_key'];
@@ -567,6 +575,8 @@ class ReportSavedViewController extends Controller
                 $errors[] = 'عدد الفلاتر يجب أن يكون رقمًا صحيحًا.';
             }
 
+            $filters = $this->decodeImportFiltersPayload($data['filters_payload'], $errors);
+
             $rows[] = [
                 'row_number' => $rowNumber,
                 'name' => $name,
@@ -575,6 +585,8 @@ class ReportSavedViewController extends Controller
                 'is_default' => in_array($isDefault, ['yes', '1', 'true', 'نعم'], true) ? 'نعم' : 'لا',
                 'filter_count' => $filterCount === '' ? 0 : (int) $filterCount,
                 'filters_summary' => $data['filters_summary'],
+                'filters_payload' => $data['filters_payload'],
+                'filters' => $filters,
                 'status' => $errors === [] ? 'valid' : 'invalid',
                 'errors' => $errors,
             ];
@@ -593,6 +605,67 @@ class ReportSavedViewController extends Controller
             'invalid_rows' => count($rows) - $validRows,
         ];
     }
+
+
+/**
+ * @param array<int, string> $errors
+ * @return array<string, mixed>
+ */
+private function decodeImportFiltersPayload(string $filtersPayload, array &$errors): array
+{
+    if ($filtersPayload === '') {
+        return [];
+    }
+
+    $decodedObject = json_decode($filtersPayload);
+
+    if (json_last_error() !== JSON_ERROR_NONE || ! $decodedObject instanceof \stdClass) {
+        $errors[] = 'filters_payload يجب أن يكون JSON object صالحًا.';
+
+        return [];
+    }
+
+    $decodedFilters = json_decode($filtersPayload, true);
+
+    if (! is_array($decodedFilters)) {
+        $errors[] = 'filters_payload يجب أن يكون JSON object صالحًا.';
+
+        return [];
+    }
+
+    return $this->cleanImportedFilters($decodedFilters);
+}
+
+/**
+ * @param array<mixed> $filters
+ * @return array<string, mixed>
+ */
+private function cleanImportedFilters(array $filters): array
+{
+    $cleaned = [];
+
+    foreach ($filters as $key => $value) {
+        if (! is_string($key) || trim($key) === '') {
+            continue;
+        }
+
+        if ($value === null || $value === '') {
+            continue;
+        }
+
+        if (is_array($value)) {
+            $value = $this->cleanImportedFilters($value);
+
+            if ($value === []) {
+                continue;
+            }
+        }
+
+        $cleaned[$key] = $value;
+    }
+
+    return $cleaned;
+}
 
     /**
      * @param array<int, mixed> $row
@@ -648,7 +721,7 @@ class ReportSavedViewController extends Controller
                     'user_id' => $request->user()->id,
                     'report_key' => $row['report_key'],
                     'name' => $row['name'],
-                    'filters' => [],
+                    'filters' => $row['filters'] ?? [],
                     'is_default' => $isDefault,
                 ]);
 

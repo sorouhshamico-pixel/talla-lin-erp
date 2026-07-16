@@ -142,7 +142,7 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
 
         $csv = $this->captureStreamedContent($response);
 
-        $this->assertStringContainsString('name,report_label,report_key,is_default,filter_count,filters_summary,updated_at', $csv);
+        $this->assertStringContainsString('name,report_label,report_key,is_default,filter_count,filters_summary,filters_payload,updated_at', $csv);
         $this->assertStringContainsString('alpha export 01', $csv);
         $this->assertStringContainsString('alpha export 07', $csv);
         $this->assertStringContainsString('profit-loss', $csv);

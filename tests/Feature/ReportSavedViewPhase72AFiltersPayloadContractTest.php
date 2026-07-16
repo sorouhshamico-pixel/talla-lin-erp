@@ -45,7 +45,7 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
         }
     }
 
-    public function test_current_csv_export_has_human_filters_summary_but_no_filters_payload(): void
+    public function test_phase_72a_historical_contract_keeps_human_filters_summary_marker(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
 
@@ -56,15 +56,6 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
             '$filter[\'label\'] . \': \' . $displayValue . \' (\' . $rawValue . \')\'',
         ] as $summaryMarker) {
             $this->assertStringContainsString($summaryMarker, $controller);
-        }
-
-        foreach ([
-            "'filters_payload'",
-            '"filters_payload"',
-            '$filtersPayload',
-            'filtersPayload',
-        ] as $missingPayloadMarker) {
-            $this->assertStringNotContainsString($missingPayloadMarker, $controller);
         }
     }
 
@@ -114,7 +105,7 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
             'previewSavedViewImport($tempPath)',
             'private function applySavedViewImportRows(Request $request, array $rows): array',
             'return DB::transaction(function () use ($request, $rows): array',
-            "'filters' => []",
+            "'filters' => \$row['filters'] ?? []",
         ] as $controllerMarker) {
             $this->assertStringContainsString($controllerMarker, $controller);
         }

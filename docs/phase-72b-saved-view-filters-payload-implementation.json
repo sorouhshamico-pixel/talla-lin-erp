@@ -1,0 +1,33 @@
+{
+    "phase": "Phase 72B",
+    "title": "Saved View Filters Payload Export And Import",
+    "baseline": {
+        "phase": "Phase 72A clean",
+        "commit": "24d1caa",
+        "previous_tests": "1406 passed / 12595 assertions"
+    },
+    "implementation": {
+        "csv_export_adds_filters_payload": true,
+        "filters_payload_format": "JSON object",
+        "filters_summary_policy": "human_readable_only_not_parsed",
+        "old_csv_without_filters_payload_supported": true,
+        "old_csv_imports_empty_filters": true,
+        "invalid_filters_payload_blocks_writes": true,
+        "import_apply_uses_transaction": true,
+        "duplicate_policy": "skip_existing_user_report_key_name_without_overwrite",
+        "authenticated_user_scope_only": true
+    },
+    "changed_files": [
+        "app/Http/Controllers/ReportSavedViewController.php",
+        "tests/Feature/ReportSavedViewPhase72BFiltersPayloadImplementationTest.php",
+        "tests/Feature/ReportSavedViewPhase72AFiltersPayloadContractTest.php",
+        "tests/Feature/ReportSavedViewPhase71BImportApplyImplementationTest.php",
+        "tests/Feature/ReportSavedViewPhase71CImportApplyFinalizationTest.php",
+        "docs/phase-72b-saved-view-filters-payload-implementation.json",
+        "docs/phase-72b-saved-view-filters-payload-implementation.md"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 72C",
+        "title": "Finalize Saved View Filters Payload Import Export"
+    }
+}

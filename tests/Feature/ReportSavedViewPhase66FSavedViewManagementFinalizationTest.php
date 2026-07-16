@@ -37,6 +37,7 @@ class ReportSavedViewPhase66FSavedViewManagementFinalizationTest extends TestCas
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
 
+
         $this->assertStringContainsString('use App\Support\Reports\ReportSavedViewRegistry;', $controller);
         $this->assertStringContainsString('ReportSavedViewRegistry::find($reportKey)', $controller);
         $this->assertStringContainsString('ReportSavedViewRegistry::indexRoute($reportKey)', $controller);
@@ -50,12 +51,26 @@ class ReportSavedViewPhase66FSavedViewManagementFinalizationTest extends TestCas
     public function test_saved_view_edit_final_state_keeps_filters_read_only(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+
+        $updateStart = strpos(
+            $controller,
+            '    public function update(Request $request, ReportSavedView $savedView): RedirectResponse'
+        );
+        $destroyStart = $updateStart === false
+            ? false
+            : strpos($controller, '    public function destroy(', $updateStart);
+
+        $this->assertNotFalse($updateStart);
+        $this->assertNotFalse($destroyStart);
+
+        $updateMethod = substr($controller, $updateStart, $destroyStart - $updateStart);
+
         $editView = file_get_contents(resource_path('views/reports/saved-views/edit.blade.php'));
 
-        $this->assertStringNotContainsString("'filters' => ['nullable', 'array']", $controller);
-        $this->assertStringNotContainsString("'filters.*' => ['nullable', 'string', 'max:255']", $controller);
-        $this->assertStringNotContainsString('$validated[\'filters\']', $controller);
-        $this->assertStringNotContainsString("'filters' => \$filters", $controller);
+        $this->assertStringNotContainsString("'filters' => ['nullable', 'array']", $updateMethod);
+        $this->assertStringNotContainsString("'filters.*' => ['nullable', 'string', 'max:255']", $updateMethod);
+        $this->assertStringNotContainsString('$validated[\'filters\']', $updateMethod);
+        $this->assertStringNotContainsString("'filters' => \$filters", $updateMethod);
 
         $this->assertStringContainsString('data-testid="report-saved-view-edit-filter-list"', $editView);
         $this->assertStringContainsString('data-testid="report-saved-view-edit-filter-raw-value"', $editView);
