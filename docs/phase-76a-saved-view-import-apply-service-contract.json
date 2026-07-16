@@ -1,0 +1,233 @@
+{
+    "phase": "Phase 76A",
+    "title": "Saved View Import Apply Service Contract",
+    "baseline": {
+        "phase": "Phase 75C clean",
+        "commit": "ffefb88",
+        "previous_tests": "1515 passed / 13686 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase76AImportApplyServiceContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-76a-saved-view-import-apply-service-contract.json",
+            "docs/phase-76a-saved-view-import-apply-service-contract.md"
+        ],
+        "excluded_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php",
+            "app/Services/ReportSavedViewService.php",
+            "app/Models/ReportSavedView.php",
+            "app/Models/User.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php"
+        ]
+    },
+    "current_state": {
+        "apply_action_validates_csv_payload_in_controller": true,
+        "apply_action_decodes_base64_in_controller": true,
+        "apply_action_manages_temp_file_in_controller": true,
+        "apply_action_reparses_with_csv_parser": true,
+        "apply_action_blocks_invalid_preview_before_writes": true,
+        "row_application_is_private_controller_method": true,
+        "transaction_is_inline_in_controller": true,
+        "valid_row_guard_is_inline_in_controller": true,
+        "duplicate_detection_is_inline_in_controller": true,
+        "default_normalization_is_inline_in_controller": true,
+        "record_creation_is_inline_in_controller": true,
+        "created_and_skipped_counting_is_inline_in_controller": true,
+        "dedicated_import_apply_service_absent": true
+    },
+    "service_contract": {
+        "class": "App\\Services\\ReportSavedViewImportApplyService",
+        "file": "app/Services/ReportSavedViewImportApplyService.php",
+        "type": "final_stateless_transactional_service",
+        "constructor_dependencies": [],
+        "allowed_collaborators": [
+            "App\\Models\\ReportSavedView",
+            "App\\Models\\User",
+            "Illuminate\\Support\\Facades\\DB"
+        ],
+        "must_not_access": [
+            "request",
+            "response",
+            "session",
+            "authentication_facade",
+            "redirects",
+            "views",
+            "routes",
+            "csv_filesystem",
+            "base64_payload",
+            "csv_parser",
+            "version_registry"
+        ],
+        "public_api": {
+            "apply": {
+                "signature": "public function apply(User $user, array $rows): array",
+                "return_shape": {
+                    "created": "int",
+                    "skipped": "int"
+                }
+            }
+        }
+    },
+    "row_input_contract": {
+        "source": "ReportSavedViewCsvImportParser::parse()['rows']",
+        "required_keys_for_valid_rows": [
+            "status",
+            "report_key",
+            "name",
+            "is_default",
+            "filters"
+        ],
+        "status_policy": {
+            "valid_value": "valid",
+            "non_valid_rows": "ignored without incrementing skipped"
+        },
+        "is_default_policy": {
+            "true_display_value": "نعم",
+            "all_other_values": false
+        },
+        "filters_policy": {
+            "missing_value": [],
+            "preserve_parser_cleaned_array": true
+        }
+    },
+    "transaction_contract": {
+        "entire_apply_call_is_single_transaction": true,
+        "transaction_source": "DB::transaction",
+        "return_value_committed_atomically": true,
+        "exceptions_roll_back_all_writes": true,
+        "no_partial_success_outside_transaction": true
+    },
+    "duplicate_contract": {
+        "lookup_model": "ReportSavedView",
+        "scope_columns": [
+            "user_id",
+            "report_key",
+            "name"
+        ],
+        "comparison": "exact database equality",
+        "duplicate_action": "skip without update or overwrite",
+        "duplicate_increments_skipped": true,
+        "duplicate_does_not_increment_created": true,
+        "existing_filters_preserved": true,
+        "existing_default_state_preserved_until_later_new_default_row": true,
+        "cross_user_records_never_match": true
+    },
+    "default_contract": {
+        "default_requested_when": "row is_default equals Arabic نعم",
+        "normalization_scope": [
+            "same user_id",
+            "same report_key"
+        ],
+        "normalization_action": "update existing rows is_default to false",
+        "normalization_happens_before_create": true,
+        "non_default_rows_do_not_change_existing_defaults": true,
+        "last_new_default_row_for_same_report_wins": true,
+        "cross_user_defaults_unchanged": true,
+        "other_report_defaults_unchanged": true
+    },
+    "creation_contract": {
+        "model": "ReportSavedView",
+        "attributes": {
+            "user_id": "User::$id",
+            "report_key": "row report_key",
+            "name": "row name",
+            "filters": "row filters or empty array",
+            "is_default": "derived boolean"
+        },
+        "created_increments_after_successful_create": true,
+        "timestamps_use_model_defaults": true,
+        "no_imported_updated_at_write": true,
+        "no_overwrite_or_upsert": true
+    },
+    "result_contract": {
+        "created": "number of newly inserted saved views",
+        "skipped": "number of exact duplicates",
+        "invalid_rows_not_counted": true,
+        "result_message_remains_controller_owned": true,
+        "exact_controller_message": "تم تطبيق الاستيراد: تم إنشاء {created} عرض محفوظ، وتم تخطي {skipped} مكرر."
+    },
+    "phase_76b_migration_contract": {
+        "controller_import": "use App\\Services\\ReportSavedViewImportApplyService;",
+        "controller_constructor": "inject ReportSavedViewImportApplyService beside ReportSavedViewCsvImportParser",
+        "replace_call": "$this->applySavedViewImportRows($request, $preview['rows']) becomes $this->importApplyService->apply($request->user(), $preview['rows'])",
+        "remove_controller_method": "applySavedViewImportRows",
+        "remove_controller_db_import_only_if_unused": false,
+        "preserve_controller_methods": [
+            "previewImport",
+            "applyImport",
+            "export",
+            "update"
+        ],
+        "request_validation_changed": false,
+        "base64_handling_changed": false,
+        "temp_file_flow_changed": false,
+        "parser_changed": false,
+        "routes_changed": false,
+        "views_changed": false,
+        "model_changed": false,
+        "database_schema_changed": false,
+        "behavior_change_allowed": false
+    },
+    "preserved_behavior": {
+        "apply_requires_authentication": true,
+        "apply_validates_csv_payload": true,
+        "invalid_base64_message_preserved": true,
+        "temp_file_failure_message_preserved": true,
+        "apply_reparses_before_writes": true,
+        "invalid_header_or_row_blocks_all_writes": true,
+        "transaction_boundary_preserved": true,
+        "authenticated_user_scope_preserved": true,
+        "duplicate_skip_without_overwrite_preserved": true,
+        "created_and_skipped_counts_preserved": true,
+        "default_normalization_preserved": true,
+        "cleaned_filters_preserved": true,
+        "legacy_and_versioned_import_preserved": true,
+        "exact_success_message_preserved": true,
+        "preview_export_bulk_selection_pagination_preserved": true,
+        "phase_69_through_75_contracts_preserved": true
+    },
+    "phase_76b_recommendation": {
+        "phase": "Phase 76B",
+        "title": "Implement Saved View Import Apply Service",
+        "implementation_targets": [
+            "Create final stateless ReportSavedViewImportApplyService.",
+            "Move the complete DB::transaction row-application block out of the controller.",
+            "Accept App\\Models\\User and parser rows as method arguments.",
+            "Preserve the valid-row guard and exact duplicate predicate.",
+            "Preserve per-user per-report default normalization.",
+            "Preserve ReportSavedView create attributes and result counts.",
+            "Inject the service into ReportSavedViewController.",
+            "Replace the controller private helper call and remove the helper.",
+            "Update historical source-marker tests without weakening behavioral assertions.",
+            "Run focused and full regression suites before commit."
+        ],
+        "risk": "medium",
+        "risk_reason": "The extraction moves all import writes and transaction logic. Any change in duplicate scope, default normalization order, or count semantics would alter persisted data."
+    },
+    "guardrails": [
+        "Do not implement the service in Phase 76A.",
+        "Do not modify controller, parser, registry, existing service, model, route, view, migration, or database behavior in Phase 76A.",
+        "The future service must be final and stateless.",
+        "The future service must accept a User object and parser rows, not an HTTP Request.",
+        "The future service must own one transaction around the full row set.",
+        "The future service must not parse CSV or inspect format versions.",
+        "The future service must not access HTTP, session, redirects, views, routes, files, or base64 payloads.",
+        "Invalid rows must remain ignored and must not count as duplicates.",
+        "Duplicates must remain scoped by user_id, report_key, and name.",
+        "Duplicates must remain skipped without overwrite.",
+        "Default normalization must remain scoped to the same user and report.",
+        "A new default row must clear existing defaults before creation.",
+        "Filters must come only from parser-cleaned row filters.",
+        "Success and failure messages remain controller-owned and exact.",
+        "No route, view, parser, model, migration, or database schema change is allowed in Phase 76B."
+    ]
+}
