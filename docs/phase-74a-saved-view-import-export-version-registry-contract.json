@@ -1,0 +1,234 @@
+{
+    "phase": "Phase 74A",
+    "title": "Saved View Import Export Version Registry Contract",
+    "baseline": {
+        "phase": "Phase 73C clean",
+        "commit": "6a38b8c",
+        "previous_tests": "1454 passed / 12981 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase74AImportExportVersionRegistryContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-74a-saved-view-import-export-version-registry-contract.json",
+            "docs/phase-74a-saved-view-import-export-version-registry-contract.md"
+        ],
+        "excluded_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "format_version_metadata_is_inline_in_controller": true,
+        "legacy_required_columns_are_inline_in_controller": true,
+        "supported_versions_are_inline_in_controller": true,
+        "version_one_required_columns_are_inline_in_controller": true,
+        "dedicated_version_registry_absent": true,
+        "current_explicit_version": "1",
+        "supported_explicit_versions": [
+            "1"
+        ],
+        "legacy_mode": "absence_of_format_version_header",
+        "phase_73_behavior_is_finalized": true
+    },
+    "registry_contract": {
+        "class": "App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry",
+        "file": "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+        "type": "final_static_immutable_metadata_registry",
+        "dependencies": [],
+        "must_not_access": [
+            "database",
+            "request",
+            "response",
+            "session",
+            "filesystem",
+            "authentication"
+        ],
+        "constants": {
+            "FORMAT_VERSION_COLUMN": "format_version",
+            "CURRENT_VERSION": "1",
+            "LEGACY_MODE": "legacy_unversioned"
+        },
+        "public_api": {
+            "formatVersionColumn": {
+                "return_type": "string",
+                "returns": "format_version"
+            },
+            "currentVersion": {
+                "return_type": "string",
+                "returns": "1"
+            },
+            "supportedVersions": {
+                "return_type": "array<int, string>",
+                "returns": [
+                    "1"
+                ]
+            },
+            "supports": {
+                "parameters": [
+                    "string $version"
+                ],
+                "return_type": "bool"
+            },
+            "legacyRequiredColumns": {
+                "return_type": "array<int, string>",
+                "returns": [
+                    "name",
+                    "report_label",
+                    "report_key",
+                    "is_default",
+                    "filter_count",
+                    "filters_summary",
+                    "updated_at"
+                ]
+            },
+            "requiredColumns": {
+                "parameters": [
+                    "string $version"
+                ],
+                "return_type": "array<int, string>",
+                "version_one_returns": [
+                    "format_version",
+                    "name",
+                    "report_label",
+                    "report_key",
+                    "is_default",
+                    "filter_count",
+                    "filters_summary",
+                    "filters_payload",
+                    "updated_at"
+                ],
+                "unsupported_version_policy": "empty_array"
+            },
+            "exportHeader": {
+                "return_type": "array<int, string>",
+                "returns": [
+                    "format_version",
+                    "name",
+                    "report_label",
+                    "report_key",
+                    "is_default",
+                    "filter_count",
+                    "filters_summary",
+                    "filters_payload",
+                    "updated_at"
+                ]
+            },
+            "requiresFiltersPayload": {
+                "parameters": [
+                    "string $version"
+                ],
+                "return_type": "bool",
+                "version_one_returns": true,
+                "unsupported_version_returns": false
+            }
+        }
+    },
+    "registry_data": {
+        "legacy_required_columns": [
+            "name",
+            "report_label",
+            "report_key",
+            "is_default",
+            "filter_count",
+            "filters_summary",
+            "updated_at"
+        ],
+        "versions": {
+            "1": {
+                "required_columns": [
+                    "format_version",
+                    "name",
+                    "report_label",
+                    "report_key",
+                    "is_default",
+                    "filter_count",
+                    "filters_summary",
+                    "filters_payload",
+                    "updated_at"
+                ],
+                "requires_filters_payload": true,
+                "filters_payload_format": "JSON object",
+                "filters_summary_policy": "human_readable_only_not_parsed"
+            }
+        }
+    },
+    "phase_74b_migration_contract": {
+        "controller_import": "use App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry;",
+        "remove_controller_constants": [
+            "IMPORT_PREVIEW_REQUIRED_COLUMNS",
+            "IMPORT_EXPORT_FORMAT_VERSION",
+            "SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS",
+            "IMPORT_PREVIEW_V1_REQUIRED_COLUMNS"
+        ],
+        "replace_with_registry_calls": {
+            "export_header": "ReportSavedViewImportExportVersionRegistry::exportHeader()",
+            "export_version_value": "ReportSavedViewImportExportVersionRegistry::currentVersion()",
+            "format_version_column": "ReportSavedViewImportExportVersionRegistry::formatVersionColumn()",
+            "legacy_required_columns": "ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()",
+            "version_required_columns": "ReportSavedViewImportExportVersionRegistry::requiredColumns($formatVersion)",
+            "supported_version_check": "ReportSavedViewImportExportVersionRegistry::supports($formatVersion)",
+            "filters_payload_requirement": "ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)"
+        },
+        "behavior_change_allowed": false
+    },
+    "preserved_behavior": {
+        "format_version_first_export_column": true,
+        "new_exports_use_version_one": true,
+        "explicit_v1_requires_non_empty_filters_payload": true,
+        "invalid_or_list_payload_rejected": true,
+        "empty_unsupported_mixed_versions_rejected": true,
+        "legacy_unversioned_without_payload_supported": true,
+        "legacy_unversioned_with_payload_supported": true,
+        "version_not_inferred_from_other_columns": true,
+        "filters_summary_human_readable_only": true,
+        "filters_payload_only_machine_source": true,
+        "import_revalidates_before_writes": true,
+        "transaction_boundary_preserved": true,
+        "authenticated_user_scope_preserved": true,
+        "duplicate_skip_without_overwrite_preserved": true,
+        "default_normalization_preserved": true,
+        "preview_export_bulk_selection_pagination_preserved": true
+    },
+    "phase_74b_recommendation": {
+        "phase": "Phase 74B",
+        "title": "Implement Saved View Import Export Version Registry",
+        "implementation_targets": [
+            "Create the final static ReportSavedViewImportExportVersionRegistry class.",
+            "Move format version column, current version, supported versions, legacy columns, and version 1 schema metadata out of the controller.",
+            "Replace controller inline version metadata with registry calls.",
+            "Keep version detection and validation flow behavior unchanged.",
+            "Keep legacy unversioned compatibility unchanged.",
+            "Keep filters_payload and filters_summary policies unchanged.",
+            "Preserve transaction, user scope, duplicate skip, default normalization, preview, export, bulk selection, and pagination behavior."
+        ],
+        "risk": "medium-low",
+        "risk_reason": "The change should be metadata extraction only, but incorrect method mapping could alter CSV headers or legacy/version validation."
+    },
+    "guardrails": [
+        "Do not implement the version registry in Phase 74A.",
+        "Do not modify controller, routes, services, views, models, or existing registries in Phase 74A.",
+        "The future registry must contain immutable deterministic metadata only.",
+        "The future registry must not access database, HTTP, session, filesystem, or authentication state.",
+        "Legacy unversioned mode must remain separate from explicit version 1.",
+        "Unsupported version requiredColumns must return an empty array.",
+        "Unsupported version requiresFiltersPayload must return false.",
+        "Phase 74B must be behavior-preserving metadata extraction only.",
+        "format_version must remain the first exported CSV column.",
+        "New exports must continue to use explicit version 1.",
+        "Explicit version 1 must continue to require non-empty JSON-object filters_payload.",
+        "Empty, unsupported, or mixed explicit versions must continue to block all writes.",
+        "Legacy CSV compatibility must remain unchanged.",
+        "filters_summary must remain human-readable only and must never be parsed.",
+        "Import apply must remain transaction-protected and authenticated-user scoped.",
+        "Duplicates must remain skipped without overwrite."
+    ]
+}
