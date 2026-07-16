@@ -1,0 +1,59 @@
+{
+    "phase": "Phase 77C",
+    "title": "Finalize Saved View CSV Export Writer",
+    "type": "finalization",
+    "baseline": {
+        "latest_feature_phase": "Phase 77B",
+        "feature_commit": "40c6f60",
+        "workflow_commit": "8df3f25",
+        "branch": "phase/77c-saved-view-csv-export-finalization",
+        "full_suite": "1567 passed / 14298 assertions"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "runtime_files_locked": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewCsvExportWriter.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "app/Services/ReportSavedViewService.php",
+            "app/Services/ReportSavedViewImportApplyService.php",
+            "app/Models/ReportSavedView.php",
+            "routes/web.php"
+        ]
+    },
+    "finalized_behavior": {
+        "writer_exists_and_is_final": true,
+        "writer_is_stateless": true,
+        "writer_has_no_constructor_dependencies": true,
+        "writer_accepts_iterable_formatted_rows": true,
+        "writer_owns_php_output_stream": true,
+        "writer_owns_utf8_bom": true,
+        "writer_uses_registry_header": true,
+        "writer_uses_registry_current_version": true,
+        "writer_preserves_input_order": true,
+        "writer_builds_filter_count": true,
+        "writer_builds_human_summary": true,
+        "writer_builds_machine_payload": true,
+        "writer_preserves_unicode_and_slashes": true,
+        "writer_returns_empty_object_on_json_failure": true,
+        "writer_closes_output_stream": true,
+        "controller_retains_http_and_query_boundary": true,
+        "controller_delegates_csv_bytes_to_writer": true,
+        "export_order_and_user_scope_preserved": true,
+        "versioned_export_import_round_trip_preserved": true
+    },
+    "guardrails": [
+        "Do not move request or response concerns into the writer.",
+        "Do not allow the writer to query models, services, routes, or views.",
+        "Do not rebuild filters_payload from display labels.",
+        "Do not parse filters_summary during import.",
+        "Do not change the registry-owned header or current version.",
+        "Do not add runtime changes during this finalization."
+    ],
+    "next_recommendation": {
+        "phase": "Phase 78A",
+        "title": "Select Next Saved View Management Contract",
+        "implementation_deferred": true
+    }
+}
