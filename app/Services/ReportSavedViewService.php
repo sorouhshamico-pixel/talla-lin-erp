@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ReportSavedView;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -15,7 +16,12 @@ class ReportSavedViewService
     {
         return ReportSavedView::query()
             ->where('user_id', $user->id)
-            ->when($reportKey, fn ($query) => $query->where('report_key', $reportKey))
+            ->whereNull('archived_at')
+            ->when(
+                $reportKey,
+                fn (Builder $query) =>
+                    $query->where('report_key', $reportKey)
+            )
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
@@ -31,38 +37,90 @@ class ReportSavedViewService
         ?string $reportKey = null,
         array $matchingReportKeys = [],
         array $matchingFilterValues = [],
-        int $perPage = 15
+        int $perPage = 15,
+        string $status = 'active'
     ): LengthAwarePaginator {
         $search = trim((string) $search);
         $reportKey = trim((string) $reportKey);
         $perPage = max(5, min($perPage, 100));
+        $status = $this->normalizeManagementStatus($status);
 
-        return ReportSavedView::query()
-            ->where('user_id', $user->id)
-            ->when($reportKey !== '', fn ($query) => $query->where('report_key', $reportKey))
+        $query = ReportSavedView::query()
+            ->where('user_id', $user->id);
+
+        $this->applyManagementStatus($query, $status);
+
+        return $query
             ->when(
-                $search !== '' || $matchingReportKeys !== [] || $matchingFilterValues !== [],
-                function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
-                    $query->where(function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
-                        if ($search !== '') {
-                            $query
-                                ->where('name', 'like', '%' . $search . '%')
-                                ->orWhere('report_key', 'like', '%' . $search . '%')
-                                ->orWhere('filters', 'like', '%' . $search . '%');
-                        }
+                $reportKey !== '',
+                fn (Builder $query) =>
+                    $query->where('report_key', $reportKey)
+            )
+            ->when(
+                $search !== ''
+                    || $matchingReportKeys !== []
+                    || $matchingFilterValues !== [],
+                function (Builder $query) use (
+                    $search,
+                    $matchingReportKeys,
+                    $matchingFilterValues
+                ): void {
+                    $query->where(
+                        function (Builder $query) use (
+                            $search,
+                            $matchingReportKeys,
+                            $matchingFilterValues
+                        ): void {
+                            if ($search !== '') {
+                                $query
+                                    ->where(
+                                        'name',
+                                        'like',
+                                        '%' . $search . '%'
+                                    )
+                                    ->orWhere(
+                                        'report_key',
+                                        'like',
+                                        '%' . $search . '%'
+                                    )
+                                    ->orWhere(
+                                        'filters',
+                                        'like',
+                                        '%' . $search . '%'
+                                    );
+                            }
 
-                        if ($matchingReportKeys !== []) {
-                            $query->orWhereIn('report_key', array_values(array_unique($matchingReportKeys)));
-                        }
+                            if ($matchingReportKeys !== []) {
+                                $query->orWhereIn(
+                                    'report_key',
+                                    array_values(
+                                        array_unique(
+                                            $matchingReportKeys
+                                        )
+                                    )
+                                );
+                            }
 
-                        foreach (array_values(array_unique($matchingFilterValues)) as $filterValue) {
-                            $query->orWhere('filters', 'like', '%' . $filterValue . '%');
+                            foreach (
+                                array_values(
+                                    array_unique(
+                                        $matchingFilterValues
+                                    )
+                                ) as $filterValue
+                            ) {
+                                $query->orWhere(
+                                    'filters',
+                                    'like',
+                                    '%' . $filterValue . '%'
+                                );
+                            }
                         }
-                    });
+                    );
                 }
             )
             ->orderByDesc('is_default')
             ->orderBy('name')
+            ->orderBy('id')
             ->paginate($perPage)
             ->withQueryString();
     }
@@ -77,37 +135,89 @@ class ReportSavedViewService
         ?string $search = null,
         ?string $reportKey = null,
         array $matchingReportKeys = [],
-        array $matchingFilterValues = []
+        array $matchingFilterValues = [],
+        string $status = 'active'
     ): Collection {
         $search = trim((string) $search);
         $reportKey = trim((string) $reportKey);
+        $status = $this->normalizeManagementStatus($status);
 
-        return ReportSavedView::query()
-            ->where('user_id', $user->id)
-            ->when($reportKey !== '', fn ($query) => $query->where('report_key', $reportKey))
+        $query = ReportSavedView::query()
+            ->where('user_id', $user->id);
+
+        $this->applyManagementStatus($query, $status);
+
+        return $query
             ->when(
-                $search !== '' || $matchingReportKeys !== [] || $matchingFilterValues !== [],
-                function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
-                    $query->where(function ($query) use ($search, $matchingReportKeys, $matchingFilterValues): void {
-                        if ($search !== '') {
-                            $query
-                                ->where('name', 'like', '%' . $search . '%')
-                                ->orWhere('report_key', 'like', '%' . $search . '%')
-                                ->orWhere('filters', 'like', '%' . $search . '%');
-                        }
+                $reportKey !== '',
+                fn (Builder $query) =>
+                    $query->where('report_key', $reportKey)
+            )
+            ->when(
+                $search !== ''
+                    || $matchingReportKeys !== []
+                    || $matchingFilterValues !== [],
+                function (Builder $query) use (
+                    $search,
+                    $matchingReportKeys,
+                    $matchingFilterValues
+                ): void {
+                    $query->where(
+                        function (Builder $query) use (
+                            $search,
+                            $matchingReportKeys,
+                            $matchingFilterValues
+                        ): void {
+                            if ($search !== '') {
+                                $query
+                                    ->where(
+                                        'name',
+                                        'like',
+                                        '%' . $search . '%'
+                                    )
+                                    ->orWhere(
+                                        'report_key',
+                                        'like',
+                                        '%' . $search . '%'
+                                    )
+                                    ->orWhere(
+                                        'filters',
+                                        'like',
+                                        '%' . $search . '%'
+                                    );
+                            }
 
-                        if ($matchingReportKeys !== []) {
-                            $query->orWhereIn('report_key', array_values(array_unique($matchingReportKeys)));
-                        }
+                            if ($matchingReportKeys !== []) {
+                                $query->orWhereIn(
+                                    'report_key',
+                                    array_values(
+                                        array_unique(
+                                            $matchingReportKeys
+                                        )
+                                    )
+                                );
+                            }
 
-                        foreach (array_values(array_unique($matchingFilterValues)) as $filterValue) {
-                            $query->orWhere('filters', 'like', '%' . $filterValue . '%');
+                            foreach (
+                                array_values(
+                                    array_unique(
+                                        $matchingFilterValues
+                                    )
+                                ) as $filterValue
+                            ) {
+                                $query->orWhere(
+                                    'filters',
+                                    'like',
+                                    '%' . $filterValue . '%'
+                                );
+                            }
                         }
-                    });
+                    );
                 }
             )
             ->orderByDesc('is_default')
             ->orderBy('name')
+            ->orderBy('id')
             ->get();
     }
 
@@ -119,12 +229,7 @@ class ReportSavedViewService
         User $user,
         array $savedViewIds
     ): Collection {
-        $selectedIds = collect($savedViewIds)
-            ->map(fn ($id): int => (int) $id)
-            ->filter(fn (int $id): bool => $id > 0)
-            ->unique()
-            ->values()
-            ->all();
+        $selectedIds = $this->normalizeIds($savedViewIds);
 
         if ($selectedIds === []) {
             return collect();
@@ -145,33 +250,47 @@ class ReportSavedViewService
         $name = trim($name);
 
         if ($reportKey === '') {
-            throw new InvalidArgumentException('Report key is required.');
+            throw new InvalidArgumentException(
+                'Report key is required.'
+            );
         }
 
         if ($name === '') {
-            throw new InvalidArgumentException('Saved view name is required.');
+            throw new InvalidArgumentException(
+                'Saved view name is required.'
+            );
         }
 
-        return DB::transaction(function () use ($user, $reportKey, $name, $filters, $isDefault): ReportSavedView {
-            if ($isDefault) {
-                ReportSavedView::query()
-                    ->where('user_id', $user->id)
-                    ->where('report_key', $reportKey)
-                    ->update(['is_default' => false]);
-            }
+        return DB::transaction(
+            function () use (
+                $user,
+                $reportKey,
+                $name,
+                $filters,
+                $isDefault
+            ): ReportSavedView {
+                if ($isDefault) {
+                    ReportSavedView::query()
+                        ->where('user_id', $user->id)
+                        ->where('report_key', $reportKey)
+                        ->whereNull('archived_at')
+                        ->update(['is_default' => false]);
+                }
 
-            return ReportSavedView::query()->updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'report_key' => $reportKey,
-                    'name' => $name,
-                ],
-                [
-                    'filters' => $this->cleanFilters($filters),
-                    'is_default' => $isDefault,
-                ]
-            );
-        });
+                return ReportSavedView::query()->updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'report_key' => $reportKey,
+                        'name' => $name,
+                    ],
+                    [
+                        'filters' => $this->cleanFilters($filters),
+                        'is_default' => $isDefault,
+                        'archived_at' => null,
+                    ]
+                );
+            }
+        );
     }
 
     public function listForReport(User $user, string $reportKey)
@@ -179,6 +298,7 @@ class ReportSavedViewService
         return ReportSavedView::query()
             ->where('user_id', $user->id)
             ->where('report_key', $reportKey)
+            ->whereNull('archived_at')
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
@@ -189,8 +309,95 @@ class ReportSavedViewService
         return ReportSavedView::query()
             ->where('user_id', $user->id)
             ->where('report_key', $reportKey)
+            ->whereNull('archived_at')
             ->where('is_default', true)
             ->first();
+    }
+
+    public function archive(
+        User $user,
+        int $savedViewId
+    ): bool {
+        return DB::transaction(
+            fn (): bool =>
+                ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->whereKey($savedViewId)
+                    ->whereNull('archived_at')
+                    ->update([
+                        'archived_at' => now(),
+                        'is_default' => false,
+                    ]) > 0
+        );
+    }
+
+    public function restore(
+        User $user,
+        int $savedViewId
+    ): bool {
+        return DB::transaction(
+            fn (): bool =>
+                ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->whereKey($savedViewId)
+                    ->whereNotNull('archived_at')
+                    ->update([
+                        'archived_at' => null,
+                        'is_default' => false,
+                    ]) > 0
+        );
+    }
+
+    /**
+     * @param array<int, int> $savedViewIds
+     */
+    public function bulkArchive(
+        User $user,
+        array $savedViewIds
+    ): int {
+        $selectedIds = $this->normalizeIds($savedViewIds);
+
+        if ($selectedIds === []) {
+            return 0;
+        }
+
+        return DB::transaction(
+            fn (): int =>
+                ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->whereIn('id', $selectedIds)
+                    ->whereNull('archived_at')
+                    ->update([
+                        'archived_at' => now(),
+                        'is_default' => false,
+                    ])
+        );
+    }
+
+    /**
+     * @param array<int, int> $savedViewIds
+     */
+    public function bulkRestore(
+        User $user,
+        array $savedViewIds
+    ): int {
+        $selectedIds = $this->normalizeIds($savedViewIds);
+
+        if ($selectedIds === []) {
+            return 0;
+        }
+
+        return DB::transaction(
+            fn (): int =>
+                ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->whereIn('id', $selectedIds)
+                    ->whereNotNull('archived_at')
+                    ->update([
+                        'archived_at' => null,
+                        'is_default' => false,
+                    ])
+        );
     }
 
     public function delete(User $user, int $savedViewId): void
@@ -207,6 +414,49 @@ class ReportSavedViewService
             ->where('user_id', $user->id)
             ->where('report_key', $reportKey)
             ->delete();
+    }
+
+    private function normalizeManagementStatus(
+        ?string $status
+    ): string {
+        $status = trim((string) $status);
+
+        return in_array(
+            $status,
+            ['active', 'archived', 'all'],
+            true
+        )
+            ? $status
+            : 'active';
+    }
+
+    private function applyManagementStatus(
+        Builder $query,
+        string $status
+    ): void {
+        if ($status === 'active') {
+            $query->whereNull('archived_at');
+
+            return;
+        }
+
+        if ($status === 'archived') {
+            $query->whereNotNull('archived_at');
+        }
+    }
+
+    /**
+     * @param array<int, int> $savedViewIds
+     * @return array<int, int>
+     */
+    private function normalizeIds(array $savedViewIds): array
+    {
+        return collect($savedViewIds)
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     private function cleanFilters(array $filters): array

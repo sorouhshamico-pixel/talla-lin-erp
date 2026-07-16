@@ -13,12 +13,24 @@ class ReportSavedView extends Model
         'name',
         'filters',
         'is_default',
+        'archived_at',
     ];
 
     protected $casts = [
         'filters' => 'array',
         'is_default' => 'boolean',
+        'archived_at' => 'datetime',
     ];
+
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
+
+    public function isActive(): bool
+    {
+        return ! $this->isArchived();
+    }
 
     public function user(): BelongsTo
     {

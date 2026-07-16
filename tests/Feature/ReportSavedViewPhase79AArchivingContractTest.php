@@ -174,109 +174,66 @@ class ReportSavedViewPhase79AArchivingContractTest extends TestCase
         );
     }
 
-    public function test_current_runtime_records_preimplementation_gap(): void
+    public function test_phase_79a_historical_contract_records_implementation_boundary(): void
     {
-        $model = file_get_contents(
-            app_path('Models/ReportSavedView.php')
-        );
-        $service = file_get_contents(
-            app_path('Services/ReportSavedViewService.php')
-        );
-        $controller = file_get_contents(
-            app_path(
-                'Http/Controllers/ReportSavedViewController.php'
-            )
-        );
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $view = file_get_contents(
-            resource_path(
-                'views/reports/saved-views/index.blade.php'
-            )
-        );
+        $contract = $this->contract();
 
-        $this->assertStringNotContainsString(
-            "'archived_at'",
-            $model
+        $this->assertSame('Phase 79A', $contract['phase']);
+        $this->assertFalse(
+            $contract['scope']['runtime_changes_expected']
         );
-        $this->assertStringNotContainsString(
-            'public function isArchived(',
-            $model
+        $this->assertFalse(
+            $contract['scope']['database_changes_expected']
         );
-        $this->assertStringNotContainsString(
-            'public function archive(',
-            $service
+        $this->assertSame(
+            'archived_at',
+            $contract['future_database_contract']
+                ['column']['name']
         );
-        $this->assertStringNotContainsString(
-            'public function restore(',
-            $service
+        $this->assertSame(
+            ['active', 'archived', 'all'],
+            $contract['future_management_filter_contract']
+                ['allowed_values']
         );
-        $this->assertStringNotContainsString(
-            "->whereNull('archived_at')",
-            $service
-        );
-        $this->assertStringNotContainsString(
-            "'status' =>",
-            $controller
-        );
-
-        foreach ([
-            'reports.saved-views.archive',
-            'reports.saved-views.restore',
-            'reports.saved-views.bulk-archive',
-            'reports.saved-views.bulk-restore',
-        ] as $marker) {
-            $this->assertStringNotContainsString($marker, $routes);
-        }
-
-        foreach ([
-            'report-saved-views-status-select',
-            'report-saved-view-archive-button',
-            'report-saved-view-restore-button',
-            'report-saved-views-bulk-archive-button',
-            'report-saved-views-bulk-restore-button',
-        ] as $marker) {
-            $this->assertStringNotContainsString($marker, $view);
-        }
-
-        $this->assertStringContainsString(
-            'reports.saved-views.export-selected',
-            $routes
-        );
-        $this->assertStringContainsString(
-            'report-saved-views-bulk-delete-button',
-            $view
+        $this->assertSame(
+            'Phase 79B',
+            $contract['scope']['implementation_phase']
         );
     }
 
-    public function test_model_and_service_public_baseline_remain_unchanged_in_contract_phase(): void
+    public function test_phase_79a_historical_contract_declares_model_and_service_shape(): void
     {
-        $model = new ReportSavedView();
+        $contract = $this->contract();
 
-        $this->assertSame([
-            'user_id',
-            'report_key',
-            'name',
-            'filters',
-            'is_default',
-        ], $model->getFillable());
+        $this->assertSame(
+            'archived_at',
+            $contract['future_model_contract']
+                ['fillable_addition']
+        );
+        $this->assertSame(
+            'datetime',
+            $contract['future_model_contract']['cast']
+        );
 
-        $this->assertTrue(
-            method_exists(
-                ReportSavedViewService::class,
-                'exportSelectedForManagement'
-            )
+        foreach ([
+            'archive',
+            'restore',
+            'bulkArchive',
+            'bulkRestore',
+        ] as $method) {
+            $this->assertArrayHasKey(
+                $method,
+                $contract['future_service_contract']
+                    ['new_methods']
+            );
+        }
+
+        $this->assertFalse(
+            $contract['csv_and_import_contract']['schema_change']
         );
         $this->assertFalse(
-            method_exists(
-                ReportSavedViewService::class,
-                'archive'
-            )
-        );
-        $this->assertFalse(
-            method_exists(
-                ReportSavedViewService::class,
-                'restore'
-            )
+            $contract['csv_and_import_contract']
+                ['format_version_change']
         );
     }
 
@@ -290,8 +247,8 @@ class ReportSavedViewPhase79AArchivingContractTest extends TestCase
             'Do not create a Codex worktree.',
             '### 9. Commit directly on main',
             '### 10. Push only main',
-            'Phase 79A — Prepare Saved View Archiving Contract',
             'Phase 79B — Implement Saved View Archiving',
+            'Phase 79C — Finalize Saved View Archiving',
         ] as $marker) {
             $this->assertStringContainsString($marker, $agents);
         }

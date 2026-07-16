@@ -124,3 +124,28 @@
 - Next: Phase 79B — Implement Saved View Archiving.
 - Risks: none identified.
 
+## 2026-07-16T16:23:27+03:00 — Phase 79B
+
+- Title: Implement Saved View Archiving.
+- Starting stable commit: `399bd33`.
+- Branch: `main`.
+- Workflow: direct `main` only.
+- Runtime files:
+  - `database/migrations/2026_07_16_160000_add_archived_at_to_report_saved_views_table.php`
+  - `app/Models/ReportSavedView.php`
+  - `app/Services/ReportSavedViewService.php`
+  - `app/Http/Controllers/ReportSavedViewController.php`
+  - `routes/web.php`
+  - `resources/views/reports/saved-views/index.blade.php`
+- Historical test updated:
+  - `tests/Feature/ReportSavedViewPhase79AArchivingContractTest.php`
+- Historical controller signatures, compact validation markers,
+  CSV boundaries, and management return-route marker preserved.
+- Pre-commit full suite:
+  `1613 passed / 14831 assertions`.
+- Registered worktrees: `1`.
+- Codex remote branch: absent.
+- Push target: `origin/main` only.
+- Next: Phase 79C — Finalize Saved View Archiving.
+- Risks: none identified.
+

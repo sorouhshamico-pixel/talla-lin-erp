@@ -45,6 +45,23 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="report_saved_views_status">الحالة</label>
+                    <select id="report_saved_views_status"
+                            name="status"
+                            data-testid="report-saved-views-status-select">
+                        <option value="active" @selected(($filters['status'] ?? 'active') === 'active')>
+                            النشطة
+                        </option>
+                        <option value="archived" @selected(($filters['status'] ?? 'active') === 'archived')>
+                            المؤرشفة
+                        </option>
+                        <option value="all" @selected(($filters['status'] ?? 'active') === 'all')>
+                            الكل
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="report_saved_views_per_page">عدد النتائج في الصفحة</label>
                     <select id="report_saved_views_per_page"
                             name="per_page"
@@ -62,6 +79,7 @@
                         $exportQuery = array_filter([
                             'search' => $filters['search'] ?? '',
                             'report_key' => $filters['report_key'] ?? '',
+                            'status' => $filters['status'] ?? 'active',
                         ], fn ($value) => $value !== null && $value !== '');
                     @endphp
 
@@ -89,6 +107,7 @@
                 <input type="hidden" name="search" value="{{ $filters['search'] ?? '' }}">
                 <input type="hidden" name="report_key" value="{{ $filters['report_key'] ?? '' }}">
                 <input type="hidden" name="per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}">
+                <input type="hidden" name="status" value="{{ $filters['status'] ?? 'active' }}">
 
                 <div class="form-group">
                     <label for="report_saved_views_import_csv">معاينة استيراد CSV</label>
@@ -203,7 +222,7 @@
                     @endif
                 </div>
 
-                @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '')
+                @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '' || ($filters['status'] ?? 'active') !== 'active')
                     @php
                         $activeReportOption = collect($reportOptions)->firstWhere('key', $filters['report_key'] ?? '');
                     @endphp
@@ -223,6 +242,13 @@
                             </span>
                         @endif
 
+                        @if (($filters['status'] ?? 'active') !== 'active')
+                            <span data-testid="report-saved-views-active-status">
+                                الحالة:
+                                {{ ($filters['status'] ?? 'active') === 'archived' ? 'المؤرشفة' : 'الكل' }}
+                            </span>
+                        @endif
+
                         <a href="{{ route('reports.saved-views.index') }}"
                            class="btn btn-outline-secondary"
                            data-testid="report-saved-views-active-filters-clear-link">
@@ -233,7 +259,7 @@
 
                 @if ($savedViews->count() === 0)
                     <div class="empty-state" data-testid="report-saved-views-empty">
-                        @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '')
+                        @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '' || ($filters['status'] ?? 'active') !== 'active')
                             <span data-testid="report-saved-views-filtered-empty-message">
                                 لا توجد نتائج مطابقة للفلاتر الحالية.
                             </span>
@@ -263,12 +289,33 @@
                             <input type="hidden" name="return_report_key" value="{{ $filters['report_key'] ?? '' }}" data-testid="report-saved-views-bulk-return-report-key">
                             <input type="hidden" name="return_per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}" data-testid="report-saved-views-bulk-return-per-page">
                             <input type="hidden" name="return_page" value="{{ request('page') }}" data-testid="report-saved-views-bulk-return-page">
+                            <input type="hidden" name="return_status" value="{{ $filters['status'] ?? 'active' }}" data-testid="report-saved-views-bulk-return-status">
 
                             <button type="submit"
                                     class="btn btn-outline-secondary"
                                     data-testid="report-saved-views-export-selected-button"
                                     disabled>
                                 تصدير المحدد CSV
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    formaction="{{ route('reports.saved-views.bulk-archive') }}"
+                                    name="_method"
+                                    value="PATCH"
+                                    data-testid="report-saved-views-bulk-archive-button"
+                                    disabled>
+                                أرشفة المحدد
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    formaction="{{ route('reports.saved-views.bulk-restore') }}"
+                                    name="_method"
+                                    value="PATCH"
+                                    data-testid="report-saved-views-bulk-restore-button"
+                                    disabled>
+                                استعادة المحدد
                             </button>
 
                             <button type="submit"
@@ -311,6 +358,7 @@
                                     <th>التقرير</th>
                                     <th>الفلاتر</th>
                                     <th>افتراضي</th>
+                                    <th>الحالة</th>
                                     <th>آخر تحديث</th>
                                     <th>الإجراءات</th>
                                 </tr>
@@ -355,44 +403,87 @@
                                                 <span class="text-muted">لا</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if ($savedView->is_archived)
+                                                <span data-testid="report-saved-view-archived-badge">
+                                                    مؤرشف
+                                                </span>
+                                            @else
+                                                <span data-testid="report-saved-view-active-badge">
+                                                    نشط
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td dir="ltr">{{ $savedView->updated_at ?: '-' }}</td>
                                         <td>
                                             <div class="saved-view-actions" data-testid="report-saved-view-actions" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                                                <div class="saved-view-action-group saved-view-action-group-primary" data-testid="report-saved-view-primary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
-                                                    @if ($savedView->report_url)
-                                                        <a href="{{ $savedView->report_url }}" class="btn btn-outline-primary" data-testid="report-saved-view-open-link">
-                                                            فتح التقرير
+                                                @if (! $savedView->is_archived)
+                                                    <div class="saved-view-action-group saved-view-action-group-primary" data-testid="report-saved-view-primary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                        @if ($savedView->report_url)
+                                                            <a href="{{ $savedView->report_url }}" class="btn btn-outline-primary" data-testid="report-saved-view-open-link">
+                                                                فتح التقرير
+                                                            </a>
+                                                        @endif
+
+                                                        <a href="{{ route('reports.saved-views.apply', $savedView->id) }}" class="btn btn-outline-primary" data-testid="report-saved-view-apply-link">
+                                                            تطبيق
                                                         </a>
-                                                    @endif
+                                                    </div>
 
-                                                    <a href="{{ route('reports.saved-views.apply', $savedView->id) }}" class="btn btn-outline-primary" data-testid="report-saved-view-apply-link">
-                                                        تطبيق
-                                                    </a>
-                                                </div>
+                                                    <div class="saved-view-action-group saved-view-action-group-secondary" data-testid="report-saved-view-secondary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                        <a href="{{ route('reports.saved-views.edit', $savedView->id) }}" class="btn btn-outline-secondary" data-testid="report-saved-view-edit-link">
+                                                            تعديل
+                                                        </a>
 
-                                                <div class="saved-view-action-group saved-view-action-group-secondary" data-testid="report-saved-view-secondary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
-                                                    <a href="{{ route('reports.saved-views.edit', $savedView->id) }}" class="btn btn-outline-secondary" data-testid="report-saved-view-edit-link">
-                                                        تعديل
-                                                    </a>
-
-                                                    <form method="POST" action="{{ route('reports.saved-views.duplicate', $savedView->id) }}" class="d-inline" data-testid="report-saved-view-duplicate-form">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-duplicate-button">
-                                                            نسخ
-                                                        </button>
-                                                    </form>
-
-                                                    @unless ($savedView->is_default)
-                                                        <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;" data-testid="report-saved-view-make-default-form">
+                                                        <form method="POST" action="{{ route('reports.saved-views.duplicate', $savedView->id) }}" class="d-inline" data-testid="report-saved-view-duplicate-form">
                                                             @csrf
-                                                            @method('PATCH')
-
-                                                            <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-make-default-button">
-                                                                تعيين افتراضي
+                                                            <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-duplicate-button">
+                                                                نسخ
                                                             </button>
                                                         </form>
-                                                    @endunless
-                                                </div>
+
+                                                        @unless ($savedView->is_default)
+                                                            <form method="POST" action="{{ route('reports.saved-views.make-default', $savedView->id) }}" style="display:inline-block;" data-testid="report-saved-view-make-default-form">
+                                                                @csrf
+                                                                @method('PATCH')
+
+                                                                <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-make-default-button">
+                                                                    تعيين افتراضي
+                                                                </button>
+                                                            </form>
+                                                        @endunless
+
+                                                        <form method="POST" action="{{ route('reports.saved-views.archive', $savedView->id) }}" style="display:inline-block;" data-testid="report-saved-view-archive-form">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="return_search" value="{{ $filters['search'] ?? '' }}">
+                                                            <input type="hidden" name="return_report_key" value="{{ $filters['report_key'] ?? '' }}">
+                                                            <input type="hidden" name="return_per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}">
+                                                            <input type="hidden" name="return_page" value="{{ request('page') }}">
+                                                            <input type="hidden" name="return_status" value="{{ $filters['status'] ?? 'active' }}">
+
+                                                            <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-archive-button">
+                                                                أرشفة
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @else
+                                                    <div class="saved-view-action-group saved-view-action-group-secondary" data-testid="report-saved-view-secondary-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                                        <form method="POST" action="{{ route('reports.saved-views.restore', $savedView->id) }}" style="display:inline-block;" data-testid="report-saved-view-restore-form">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="return_search" value="{{ $filters['search'] ?? '' }}">
+                                                            <input type="hidden" name="return_report_key" value="{{ $filters['report_key'] ?? '' }}">
+                                                            <input type="hidden" name="return_per_page" value="{{ $filters['per_page'] ?? $savedViews->perPage() }}">
+                                                            <input type="hidden" name="return_page" value="{{ request('page') }}">
+                                                            <input type="hidden" name="return_status" value="{{ $filters['status'] ?? 'active' }}">
+
+                                                            <button type="submit" class="btn btn-outline-secondary" data-testid="report-saved-view-restore-button">
+                                                                استعادة
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @endif
 
                                                 <div class="saved-view-action-group saved-view-action-group-danger" data-testid="report-saved-view-danger-actions" style="display:flex; flex-wrap:wrap; gap:8px;">
                                                     <form method="POST" action="{{ route('reports.saved-views.destroy', $savedView->id) }}" style="display:inline-block;" onsubmit="return confirm('هل تريد حذف هذا العرض؟');">
@@ -416,6 +507,8 @@
                         document.addEventListener('DOMContentLoaded', function () {
                             const bulkForm = document.querySelector('[data-testid="report-saved-views-bulk-action-form"]');
                             const bulkExportButton = document.querySelector('[data-testid="report-saved-views-export-selected-button"]');
+                            const bulkArchiveButton = document.querySelector('[data-testid="report-saved-views-bulk-archive-button"]');
+                            const bulkRestoreButton = document.querySelector('[data-testid="report-saved-views-bulk-restore-button"]');
                             const bulkDeleteButton = document.querySelector('[data-testid="report-saved-views-bulk-delete-button"]');
                             const selectedCountLabel = document.querySelector('[data-testid="report-saved-views-selected-count"]');
                             const selectAll = document.querySelector('[data-testid="report-saved-views-select-all-checkbox"]');
@@ -432,6 +525,14 @@
 
                                 if (bulkExportButton) {
                                     bulkExportButton.disabled = selectedCount === 0;
+                                }
+
+                                if (bulkArchiveButton) {
+                                    bulkArchiveButton.disabled = selectedCount === 0;
+                                }
+
+                                if (bulkRestoreButton) {
+                                    bulkRestoreButton.disabled = selectedCount === 0;
                                 }
 
                                 if (bulkDeleteButton) {

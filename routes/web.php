@@ -300,8 +300,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/reports/saved-views/export-selected', [\App\Http\Controllers\ReportSavedViewController::class, 'exportSelected'])->name('reports.saved-views.export-selected');
     Route::post('/reports/saved-views/import-preview', [\App\Http\Controllers\ReportSavedViewController::class, 'previewImport'])->name('reports.saved-views.import-preview');
     Route::post('/reports/saved-views/import-apply', [\App\Http\Controllers\ReportSavedViewController::class, 'applyImport'])->name('reports.saved-views.import-apply');
+    Route::patch('/reports/saved-views/bulk-archive', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkArchive'])->name('reports.saved-views.bulk-archive');
+    Route::patch('/reports/saved-views/bulk-restore', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkRestore'])->name('reports.saved-views.bulk-restore');
     Route::get('/reports/saved-views/{savedView}/edit', [\App\Http\Controllers\ReportSavedViewController::class, 'edit'])->name('reports.saved-views.edit');
     Route::patch('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'update'])->name('reports.saved-views.update');
+    Route::patch('/reports/saved-views/{savedView}/archive', [\App\Http\Controllers\ReportSavedViewController::class, 'archive'])->name('reports.saved-views.archive');
+    Route::patch('/reports/saved-views/{savedView}/restore', [\App\Http\Controllers\ReportSavedViewController::class, 'restore'])->name('reports.saved-views.restore');
     Route::post('/reports/saved-views/{savedView}/duplicate', [\App\Http\Controllers\ReportSavedViewController::class, 'duplicate'])->name('reports.saved-views.duplicate');
     Route::get('/reports/saved-views/{savedView}/apply', [\App\Http\Controllers\ReportSavedViewController::class, 'apply'])->name('reports.saved-views.apply');
     Route::delete('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'destroyAll'])->name('reports.saved-views.destroy-all');

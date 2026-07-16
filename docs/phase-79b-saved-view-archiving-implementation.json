@@ -1,0 +1,69 @@
+{
+    "phase": "Phase 79B",
+    "title": "Implement Saved View Archiving",
+    "type": "implementation",
+    "baseline": {
+        "phase": "Phase 79A",
+        "commit": "399bd33",
+        "full_suite": "1602 passed / 14693 assertions",
+        "workflow": "direct main only"
+    },
+    "implementation": {
+        "archived_at_migration_added": true,
+        "user_archived_at_index_added": true,
+        "model_fillable_cast_helpers_added": true,
+        "management_status_filter_added": true,
+        "management_pagination_status_aware": true,
+        "filtered_export_status_aware": true,
+        "report_facing_queries_active_only": true,
+        "save_reactivates_matching_archived_row": true,
+        "single_archive_restore_added": true,
+        "bulk_archive_restore_added": true,
+        "archive_clears_default_atomically": true,
+        "restore_does_not_restore_default": true,
+        "foreign_rows_not_changed": true,
+        "archived_direct_actions_rejected": true,
+        "selected_export_allows_archived": true,
+        "csv_schema_unchanged": true,
+        "csv_version_unchanged": true,
+        "writer_unchanged": true,
+        "parser_unchanged": true,
+        "view_status_filter_badges_actions_added": true,
+        "existing_delete_export_import_preserved": true
+    },
+    "runtime_files": [
+        "database\\migrations\\2026_07_16_160000_add_archived_at_to_report_saved_views_table.php",
+        "app\\Models\\ReportSavedView.php",
+        "app\\Services\\ReportSavedViewService.php",
+        "app\\Http\\Controllers\\ReportSavedViewController.php",
+        "routes\\web.php",
+        "resources\\views\\reports\\saved-views\\index.blade.php"
+    ],
+    "historical_tests_updated": [
+        "tests\\Feature\\ReportSavedViewPhase79AArchivingContractTest.php"
+    ],
+    "database_contract": {
+        "column": "archived_at",
+        "type": "nullable timestamp",
+        "index": "report_saved_views_user_archived_at_index",
+        "existing_rows": "active"
+    },
+    "status_modes": [
+        "active",
+        "archived",
+        "all"
+    ],
+    "csv_contract": {
+        "schema_change": false,
+        "format_version_change": false,
+        "archived_at_exported": false,
+        "selected_archived_export_supported": true,
+        "imported_rows_active": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 79C",
+        "title": "Finalize Saved View Archiving",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-16T15:48:50+03:00"
+}

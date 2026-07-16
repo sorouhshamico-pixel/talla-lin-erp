@@ -56,13 +56,23 @@ class ReportSavedViewController extends Controller
             'search' => ['nullable', 'string', 'max:120'],
             'report_key' => ['nullable', 'string', 'max:120'],
             'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+            'status' => [
+                'nullable',
+                'in:active,archived,all',
+            ],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
-        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+        $reportKey = trim(
+            (string) ($validated['report_key'] ?? '')
+        );
         $perPage = (int) ($validated['per_page'] ?? 15);
+        $status = (string) ($validated['status'] ?? 'active');
 
-        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+        if (
+            $reportKey !== ''
+            && ! ReportSavedViewRegistry::has($reportKey)
+        ) {
             $reportKey = '';
         }
 
@@ -72,11 +82,13 @@ class ReportSavedViewController extends Controller
             $reportKey,
             $this->matchingReportKeysForSearch($search),
             $this->matchingFilterValuesForSearch($search),
-            $perPage
+            $perPage,
+            $status
         );
 
         $savedViews->getCollection()->transform(
-            fn (ReportSavedView $savedView) => $this->formatSavedView($savedView)
+            fn (ReportSavedView $savedView) =>
+                $this->formatSavedView($savedView)
         );
 
         return view('reports.saved-views.index', [
@@ -86,6 +98,7 @@ class ReportSavedViewController extends Controller
                 'search' => $search,
                 'report_key' => $reportKey,
                 'per_page' => $savedViews->perPage(),
+                'status' => $status,
             ],
             'reportOptions' => $this->reportFilterOptions(),
             'importPreview' => null,
@@ -99,13 +112,23 @@ class ReportSavedViewController extends Controller
             'search' => ['nullable', 'string', 'max:120'],
             'report_key' => ['nullable', 'string', 'max:120'],
             'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+            'status' => [
+                'nullable',
+                'in:active,archived,all',
+            ],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
-        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+        $reportKey = trim(
+            (string) ($validated['report_key'] ?? '')
+        );
         $perPage = (int) ($validated['per_page'] ?? 15);
+        $status = (string) ($validated['status'] ?? 'active');
 
-        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+        if (
+            $reportKey !== ''
+            && ! ReportSavedViewRegistry::has($reportKey)
+        ) {
             $reportKey = '';
         }
 
@@ -115,11 +138,13 @@ class ReportSavedViewController extends Controller
             $reportKey,
             $this->matchingReportKeysForSearch($search),
             $this->matchingFilterValuesForSearch($search),
-            $perPage
+            $perPage,
+            $status
         );
 
         $savedViews->getCollection()->transform(
-            fn (ReportSavedView $savedView) => $this->formatSavedView($savedView)
+            fn (ReportSavedView $savedView) =>
+                $this->formatSavedView($savedView)
         );
 
         $csvFile = $request->file('csv_file');
@@ -134,6 +159,7 @@ class ReportSavedViewController extends Controller
                 'search' => $search,
                 'report_key' => $reportKey,
                 'per_page' => $savedViews->perPage(),
+                'status' => $status,
             ],
             'reportOptions' => $this->reportFilterOptions(),
             'importPreview' => $importPreview,
@@ -187,12 +213,22 @@ class ReportSavedViewController extends Controller
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:120'],
             'report_key' => ['nullable', 'string', 'max:120'],
+            'status' => [
+                'nullable',
+                'in:active,archived,all',
+            ],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
-        $reportKey = trim((string) ($validated['report_key'] ?? ''));
+        $reportKey = trim(
+            (string) ($validated['report_key'] ?? '')
+        );
+        $status = (string) ($validated['status'] ?? 'active');
 
-        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+        if (
+            $reportKey !== ''
+            && ! ReportSavedViewRegistry::has($reportKey)
+        ) {
             $reportKey = '';
         }
 
@@ -201,7 +237,8 @@ class ReportSavedViewController extends Controller
             $search,
             $reportKey,
             $this->matchingReportKeysForSearch($search),
-            $this->matchingFilterValuesForSearch($search)
+            $this->matchingFilterValuesForSearch($search),
+            $status
         );
 
         $formattedSavedViews = $savedViews->map(
@@ -254,13 +291,58 @@ class ReportSavedViewController extends Controller
         );
     }
 
+    public function archive(
+        Request $request,
+        ReportSavedView $savedView,
+        ReportSavedViewService $savedViewService
+    ): RedirectResponse {
+        $this->authorizeSavedView($request, $savedView);
+
+        $changed = $savedViewService->archive(
+            $request->user(),
+            $savedView->id
+        );
+
+        return redirect()
+            ->route('reports.saved-views.index', $this->managementReturnQuery($request))
+            ->with(
+                'status',
+                $changed
+                    ? 'تمت أرشفة العرض المحفوظ.'
+                    : 'العرض المحفوظ مؤرشف بالفعل.'
+            );
+    }
+
+    public function restore(
+        Request $request,
+        ReportSavedView $savedView,
+        ReportSavedViewService $savedViewService
+    ): RedirectResponse {
+        $this->authorizeSavedView($request, $savedView);
+
+        $changed = $savedViewService->restore(
+            $request->user(),
+            $savedView->id
+        );
+
+        return redirect()
+            ->route('reports.saved-views.index', $this->managementReturnQuery($request))
+            ->with(
+                'status',
+                $changed
+                    ? 'تمت استعادة العرض المحفوظ.'
+                    : 'العرض المحفوظ نشط بالفعل.'
+            );
+    }
+
     public function makeDefault(Request $request, ReportSavedView $savedView): RedirectResponse
     {
-        $this->authorizeSavedView($request, $savedView);
+        $this->authorizeActiveSavedView($request, $savedView);
 
         ReportSavedView::query()
             ->where('user_id', $request->user()->id)
             ->where('report_key', $savedView->report_key)
+            ->whereNull('archived_at')
             ->update(['is_default' => false]);
 
         $savedView->forceFill(['is_default' => true])->save();
@@ -275,7 +357,7 @@ class ReportSavedViewController extends Controller
 
     public function apply(Request $request, ReportSavedView $savedView): RedirectResponse
     {
-        $this->authorizeSavedView($request, $savedView);
+        $this->authorizeActiveSavedView($request, $savedView);
 
         $filters = array_merge($savedView->filters ?? [], [
             'saved_view_id' => $savedView->id,
@@ -294,7 +376,7 @@ class ReportSavedViewController extends Controller
 
     public function duplicate(Request $request, ReportSavedView $savedView): RedirectResponse
     {
-        $this->authorizeSavedView($request, $savedView);
+        $this->authorizeActiveSavedView($request, $savedView);
 
         $name = mb_substr($savedView->name . ' - نسخة', 0, 120);
 
@@ -313,7 +395,7 @@ class ReportSavedViewController extends Controller
 
     public function edit(Request $request, ReportSavedView $savedView): View
     {
-        $this->authorizeSavedView($request, $savedView);
+        $this->authorizeActiveSavedView($request, $savedView);
 
         $filters = $savedView->filters ?? [];
 
@@ -333,7 +415,7 @@ class ReportSavedViewController extends Controller
 
     public function update(Request $request, ReportSavedView $savedView): RedirectResponse
     {
-        $this->authorizeSavedView($request, $savedView);
+        $this->authorizeActiveSavedView($request, $savedView);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -349,6 +431,7 @@ class ReportSavedViewController extends Controller
                     ->where('user_id', $request->user()->id)
                     ->where('report_key', $savedView->report_key)
                     ->where('id', '!=', $savedView->id)
+                    ->whereNull('archived_at')
                     ->update(['is_default' => false]);
             }
 
@@ -374,6 +457,56 @@ class ReportSavedViewController extends Controller
             ->with('status', 'تم حذف العرض المحفوظ.');
     }
 
+    public function bulkArchive(
+        Request $request,
+        ReportSavedViewService $savedViewService
+    ): RedirectResponse {
+        $validated = $request->validate(
+            $this->bulkLifecycleValidationRules()
+        );
+
+        $changedCount = $savedViewService->bulkArchive(
+            $request->user(),
+            $validated['saved_view_ids']
+        );
+
+        return redirect()
+            ->route('reports.saved-views.index', $this->managementReturnQuery($request))
+            ->with(
+                'status',
+                $changedCount > 0
+                    ? 'تمت أرشفة '
+                        . $changedCount
+                        . ' من العروض المحددة.'
+                    : 'لم تتم أرشفة أي عروض محفوظة.'
+            );
+    }
+
+    public function bulkRestore(
+        Request $request,
+        ReportSavedViewService $savedViewService
+    ): RedirectResponse {
+        $validated = $request->validate(
+            $this->bulkLifecycleValidationRules()
+        );
+
+        $changedCount = $savedViewService->bulkRestore(
+            $request->user(),
+            $validated['saved_view_ids']
+        );
+
+        return redirect()
+            ->route('reports.saved-views.index', $this->managementReturnQuery($request))
+            ->with(
+                'status',
+                $changedCount > 0
+                    ? 'تمت استعادة '
+                        . $changedCount
+                        . ' من العروض المحددة.'
+                    : 'لم تتم استعادة أي عروض محفوظة.'
+            );
+    }
+
     public function bulkDestroy(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -383,6 +516,7 @@ class ReportSavedViewController extends Controller
             'return_report_key' => ['nullable', 'string', 'max:120'],
             'return_per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
             'return_page' => ['nullable', 'integer', 'min:1'],
+            'return_status' => ['nullable', 'in:active,archived,all'],
         ]);
 
         $selectedIds = collect($validated['saved_view_ids'])
@@ -402,7 +536,9 @@ class ReportSavedViewController extends Controller
             ->with(
                 'status',
                 $deletedCount > 0
-                    ? 'تم حذف ' . $deletedCount . ' من العروض المحددة.'
+                    ? 'تم حذف '
+                        . $deletedCount
+                        . ' من العروض المحددة.'
                     : 'لم يتم حذف أي عروض محفوظة.'
             );
     }
@@ -423,13 +559,39 @@ class ReportSavedViewController extends Controller
      */
     private function managementReturnQuery(Request $request): array
     {
-        $search = trim((string) $request->input('return_search', ''));
-        $reportKey = trim((string) $request->input('return_report_key', ''));
+        $search = trim(
+            (string) $request->input('return_search', '')
+        );
+        $reportKey = trim(
+            (string) $request->input(
+                'return_report_key',
+                ''
+            )
+        );
         $perPage = $request->input('return_per_page');
         $page = $request->input('return_page');
+        $status = trim(
+            (string) $request->input(
+                'return_status',
+                'active'
+            )
+        );
 
-        if ($reportKey !== '' && ! ReportSavedViewRegistry::has($reportKey)) {
+        if (
+            $reportKey !== ''
+            && ! ReportSavedViewRegistry::has($reportKey)
+        ) {
             $reportKey = '';
+        }
+
+        if (
+            ! in_array(
+                $status,
+                ['active', 'archived', 'all'],
+                true
+            )
+        ) {
+            $status = 'active';
         }
 
         $query = [];
@@ -440,6 +602,10 @@ class ReportSavedViewController extends Controller
 
         if ($reportKey !== '') {
             $query['report_key'] = $reportKey;
+        }
+
+        if ($status !== 'active') {
+            $query['status'] = $status;
         }
 
         if ($perPage !== null && $perPage !== '') {
@@ -529,20 +695,35 @@ class ReportSavedViewController extends Controller
     private function formatSavedView(ReportSavedView $savedView): object
     {
         $filters = $savedView->filters ?? [];
+        $isArchived = $savedView->isArchived();
 
         return (object) [
             'id' => $savedView->id,
             'name' => $savedView->name,
             'report_key' => $savedView->report_key,
-            'report_label' => $this->reportLabel($savedView->report_key),
+            'report_label' => $this->reportLabel(
+                $savedView->report_key
+            ),
             'is_default' => $savedView->is_default,
-            'report_url' => $this->reportUrl($savedView->report_key, $filters),
+            'is_archived' => $isArchived,
+            'is_active' => ! $isArchived,
+            'archived_at' => $savedView->archived_at,
+            'report_url' => $isArchived
+                ? null
+                : $this->reportUrl(
+                    $savedView->report_key,
+                    $filters
+                ),
             'filters' => collect($filters)
                 ->map(fn ($value, $key) => [
                     'key' => $key,
                     'label' => self::FILTER_LABELS[$key] ?? $key,
                     'value' => $value,
-                    'display_value' => $this->displayFilterValue((string) $key, $value),
+                    'display_value' =>
+                        $this->displayFilterValue(
+                            (string) $key,
+                            $value
+                        ),
                 ])
                 ->values(),
             'updated_at' => $savedView->updated_at,
@@ -705,6 +886,35 @@ class ReportSavedViewController extends Controller
         $name = DB::table($table)->where('id', $id)->value('name');
 
         return $name ? $name . ' #' . $id : $fallbackLabel . ' غير معروف #' . $id;
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function bulkLifecycleValidationRules(): array
+    {
+        return [
+            'saved_view_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'saved_view_ids.*' => ['integer', 'distinct'],
+            'return_search' => ['nullable', 'string', 'max:120'],
+            'return_report_key' => ['nullable', 'string', 'max:120'],
+            'return_per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+            'return_page' => ['nullable', 'integer', 'min:1'],
+            'return_status' => ['nullable', 'in:active,archived,all'],
+        ];
+    }
+
+    private function authorizeActiveSavedView(
+        Request $request,
+        ReportSavedView $savedView
+    ): void {
+        $this->authorizeSavedView($request, $savedView);
+
+        abort_if($savedView->isArchived(), 404);
     }
 
     private function authorizeSavedView(Request $request, ReportSavedView $savedView): void

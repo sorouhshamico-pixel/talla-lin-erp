@@ -1,36 +1,28 @@
 # Project Handoff — Talla Lin ERP
 
-## Latest validated contract phase
+## Latest validated implementation phase
 
 ```text
-Phase: Phase 79A — Prepare Saved View Archiving Contract
+Phase: Phase 79B — Implement Saved View Archiving
 Branch: main
-Starting commit: 5c3def2
-Baseline suite: 1595 passed / 14620 assertions
-Pre-commit suite: 1602 passed / 14693 assertions
-Runtime changes: none
-Database changes: none
+Starting stable commit: 399bd33
+Pre-commit suite: 1613 passed / 14831 assertions
 Workflow: direct main only
-Status: awaiting commit, post-commit test, and push
+Codex remote branch: absent
+Registered worktrees: 1
+Status: awaiting commit, post-commit validation, migration, and push
 ```
 
-## Selected implementation
+## Implemented behavior
 
-Phase 79B will add reversible archive and restore lifecycle management.
-
-## Locked boundaries
-
-- nullable `archived_at`;
+- nullable `archived_at` and composite index;
 - active, archived, and all management modes;
-- report-facing queries exclude archived rows;
-- archiving clears default status atomically;
-- restoring does not restore default status;
 - single and bulk archive/restore;
-- foreign rows are never changed or disclosed;
-- CSV schema and version remain unchanged;
-- selected export may explicitly export archived rows;
-- existing delete, export, and import behavior remains supported.
+- active-only report-facing actions;
+- selected archived export support;
+- CSV schema, import, deletion, and pagination preserved;
+- historical source-contract markers preserved.
 
 ## Next phase
 
-Phase 79B — Implement Saved View Archiving.
+Phase 79C — Finalize Saved View Archiving.
