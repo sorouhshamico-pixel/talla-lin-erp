@@ -1,0 +1,51 @@
+{
+    "phase": "Phase 75B",
+    "title": "Implement Saved View CSV Import Parser",
+    "baseline": {
+        "phase": "Phase 75A clean",
+        "commit": "480eba8",
+        "previous_tests": "1495 passed / 13430 assertions"
+    },
+    "implementation": {
+        "parser_created": true,
+        "parser_class": "App\\Support\\Reports\\ReportSavedViewCsvImportParser",
+        "parser_is_final": true,
+        "parser_is_stateless": true,
+        "parser_has_no_constructor_dependencies": true,
+        "parser_runtime_access": [
+            "read_only_csv_filesystem_access"
+        ],
+        "csv_reading_extracted": true,
+        "bom_normalization_extracted": true,
+        "header_validation_extracted": true,
+        "version_resolution_extracted": true,
+        "row_validation_extracted": true,
+        "filters_payload_decoding_extracted": true,
+        "filter_cleaning_extracted": true,
+        "empty_row_detection_extracted": true,
+        "preview_summary_counting_extracted": true,
+        "controller_injects_parser": true,
+        "preview_and_apply_share_parser": true,
+        "database_apply_remains_in_controller": true,
+        "transaction_remains_in_controller": true,
+        "authenticated_user_scope_preserved": true,
+        "duplicate_policy_preserved": true,
+        "default_normalization_preserved": true,
+        "runtime_behavior_preserved": true
+    },
+    "changed_file_policy": {
+        "core_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "tests/Feature/ReportSavedViewPhase75ACsvImportParserContractTest.php",
+            "tests/Feature/ReportSavedViewPhase75BCsvImportParserImplementationTest.php",
+            "docs/phase-75b-saved-view-csv-import-parser-implementation.json",
+            "docs/phase-75b-saved-view-csv-import-parser-implementation.md"
+        ],
+        "historical_source_marker_tests": "Only ReportSavedView feature tests containing parser-owned controller source markers are updated."
+    },
+    "next_recommendation": {
+        "phase": "Phase 75C",
+        "title": "Finalize Saved View CSV Import Parser"
+    }
+}

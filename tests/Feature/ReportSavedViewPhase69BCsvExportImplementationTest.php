@@ -142,9 +142,21 @@ class ReportSavedViewPhase69BCsvExportImplementationTest extends TestCase
     public function test_phase_69b_source_contains_route_service_controller_and_view_markers(): void
     {
         $routes = file_get_contents(base_path('routes/web.php'));
-        $service = file_get_contents(app_path('Services/ReportSavedViewService.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $view = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $service = file_get_contents(
+            app_path('Services/ReportSavedViewService.php')
+        );
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $versionRegistry = file_get_contents(
+            app_path(
+                'Support/Reports/'
+                . 'ReportSavedViewImportExportVersionRegistry.php'
+            )
+        );
+        $view = file_get_contents(
+            resource_path('views/reports/saved-views/index.blade.php')
+        );
 
         foreach ([
             "Route::get('/reports/saved-views/export'",
@@ -161,7 +173,10 @@ class ReportSavedViewPhase69BCsvExportImplementationTest extends TestCase
             '->orderBy(\'name\')',
             '->get();',
         ] as $serviceMarker) {
-            $this->assertStringContainsString($serviceMarker, $service);
+            $this->assertStringContainsString(
+                $serviceMarker,
+                $service
+            );
         }
 
         foreach ([
@@ -170,11 +185,33 @@ class ReportSavedViewPhase69BCsvExportImplementationTest extends TestCase
             '$savedViewService->exportForManagement(',
             'streamDownload(function () use ($savedViews): void',
             "'Content-Type' => 'text/csv; charset=UTF-8'",
+            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
+            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+            '$filtersSummary = $formatted->filters',
+            '$rawValue = (string) ($filter[\'value\'] ?? \'\');',
+        ] as $controllerMarker) {
+            $this->assertStringContainsString(
+                $controllerMarker,
+                $controller
+            );
+        }
+
+        foreach ([
+            "'format_version'",
             "'name'",
             "'report_label'",
+            "'report_key'",
+            "'is_default'",
+            "'filter_count'",
             "'filters_summary'",
-        ] as $controllerMarker) {
-            $this->assertStringContainsString($controllerMarker, $controller);
+            "'filters_payload'",
+            "'updated_at'",
+            'public static function exportHeader(): array',
+        ] as $registryMarker) {
+            $this->assertStringContainsString(
+                $registryMarker,
+                $versionRegistry
+            );
         }
 
         foreach ([

@@ -62,7 +62,7 @@ class ReportSavedViewPhase71CImportApplyFinalizationTest extends TestCase
             'public function applyImport(Request $request): RedirectResponse',
             "'csv_payload' => ['required', 'string']",
             'base64_decode((string) $validated',
-            'previewSavedViewImport($tempPath)',
+            '$this->csvImportParser->parse($tempPath)',
             'applySavedViewImportRows($request, $preview',
             'private function applySavedViewImportRows(Request $request, array $rows): array',
             'return DB::transaction(function () use ($request, $rows): array',

@@ -47,9 +47,21 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
     public function test_final_source_state_contains_export_route_controller_service_and_view_contracts(): void
     {
         $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $service = file_get_contents(app_path('Services/ReportSavedViewService.php'));
-        $view = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $versionRegistry = file_get_contents(
+            app_path(
+                'Support/Reports/'
+                . 'ReportSavedViewImportExportVersionRegistry.php'
+            )
+        );
+        $service = file_get_contents(
+            app_path('Services/ReportSavedViewService.php')
+        );
+        $view = file_get_contents(
+            resource_path('views/reports/saved-views/index.blade.php')
+        );
 
         foreach ([
             "Route::get('/reports/saved-views/export'",
@@ -66,16 +78,33 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
             '$savedViewService->exportForManagement(',
             'streamDownload(function () use ($savedViews): void',
             "'Content-Type' => 'text/csv; charset=UTF-8'",
+            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
+            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+            '$filtersSummary = $formatted->filters',
+            '$rawValue = (string) ($filter[\'value\'] ?? \'\');',
+        ] as $controllerMarker) {
+            $this->assertStringContainsString(
+                $controllerMarker,
+                $controller
+            );
+        }
+
+        foreach ([
+            "'format_version'",
             "'name'",
             "'report_label'",
             "'report_key'",
             "'is_default'",
             "'filter_count'",
             "'filters_summary'",
+            "'filters_payload'",
             "'updated_at'",
-            '$rawValue = (string) ($filter[\'value\'] ?? \'\');',
-        ] as $controllerMarker) {
-            $this->assertStringContainsString($controllerMarker, $controller);
+            'public static function exportHeader(): array',
+        ] as $registryMarker) {
+            $this->assertStringContainsString(
+                $registryMarker,
+                $versionRegistry
+            );
         }
 
         foreach ([
@@ -86,7 +115,10 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
             '->orderBy(\'name\')',
             '->get();',
         ] as $serviceMarker) {
-            $this->assertStringContainsString($serviceMarker, $service);
+            $this->assertStringContainsString(
+                $serviceMarker,
+                $service
+            );
         }
 
         foreach ([

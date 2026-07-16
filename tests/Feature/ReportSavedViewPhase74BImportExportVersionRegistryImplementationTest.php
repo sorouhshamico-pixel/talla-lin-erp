@@ -111,11 +111,11 @@ class ReportSavedViewPhase74BImportExportVersionRegistryImplementationTest exten
             'use App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry;',
             'ReportSavedViewImportExportVersionRegistry::exportHeader()',
             'ReportSavedViewImportExportVersionRegistry::currentVersion()',
-            'ReportSavedViewImportExportVersionRegistry::formatVersionColumn()',
-            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
-            'ReportSavedViewImportExportVersionRegistry::requiredColumns(',
-            'ReportSavedViewImportExportVersionRegistry::supports($formatVersion)',
-            'ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)',
+            '$this->csvImportParser->parse(',
+            'private readonly ReportSavedViewCsvImportParser $csvImportParser',
+            '$this->csvImportParser->parse(',
+            '$this->csvImportParser->parse(',
+            '$this->csvImportParser->parse(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
         }

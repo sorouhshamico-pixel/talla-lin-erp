@@ -247,19 +247,45 @@ class ReportSavedViewPhase72BFiltersPayloadImplementationTest extends TestCase
 
     public function test_source_contains_filters_payload_import_export_markers(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $parser = file_get_contents(
+            app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
+        );
+
+        foreach ([
+            'use App\Support\Reports\ReportSavedViewCsvImportParser;',
+            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
+            "'filters' => \$row['filters'] ?? []",
+            'return DB::transaction(function () use ($request, $rows): array',
+        ] as $controllerMarker) {
+            $this->assertStringContainsString(
+                $controllerMarker,
+                $controller
+            );
+        }
 
         foreach ([
             "'filters_payload'",
-            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
             'json_decode($filtersPayload)',
-            'private function decodeImportFiltersPayload(string $filtersPayload, array &$errors): array',
-            'private function cleanImportedFilters(array $filters): array',
-            "'filters' => \$row['filters'] ?? []",
-            'return DB::transaction(function () use ($request, $rows): array',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
+            'private function decodeFiltersPayload(',
+            'private function cleanFilters(',
+        ] as $parserMarker) {
+            $this->assertStringContainsString(
+                $parserMarker,
+                $parser
+            );
         }
+
+        $this->assertStringNotContainsString(
+            'parseFiltersSummary',
+            $parser
+        );
+        $this->assertStringNotContainsString(
+            'json_decode($data[\'filters_summary\']',
+            $parser
+        );
     }
 
     /**

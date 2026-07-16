@@ -47,16 +47,46 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
 
     public function test_phase_72a_historical_contract_keeps_human_filters_summary_marker(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $versionRegistry = file_get_contents(
+            app_path(
+                'Support/Reports/'
+                . 'ReportSavedViewImportExportVersionRegistry.php'
+            )
+        );
+        $parser = file_get_contents(
+            app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
+        );
 
         foreach ([
-            "'filters_summary'",
             '$filtersSummary = $formatted->filters',
             '$filter[\'label\'] . \': \' . $displayValue',
             '$filter[\'label\'] . \': \' . $displayValue . \' (\' . $rawValue . \')\'',
-        ] as $summaryMarker) {
-            $this->assertStringContainsString($summaryMarker, $controller);
+        ] as $controllerSummaryMarker) {
+            $this->assertStringContainsString(
+                $controllerSummaryMarker,
+                $controller
+            );
         }
+
+        $this->assertStringContainsString(
+            "'filters_summary'",
+            $versionRegistry
+        );
+        $this->assertStringContainsString(
+            "'filters_summary'",
+            $parser
+        );
+        $this->assertStringNotContainsString(
+            'json_decode($data[\'filters_summary\']',
+            $parser
+        );
+        $this->assertStringNotContainsString(
+            'parseFiltersSummary',
+            $parser
+        );
     }
 
     public function test_current_import_apply_still_creates_empty_filters_and_does_not_parse_summary(): void
@@ -102,7 +132,7 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
         foreach ([
             'public function previewImport(Request $request, ReportSavedViewService $savedViewService): View',
             'public function applyImport(Request $request): RedirectResponse',
-            'previewSavedViewImport($tempPath)',
+            '$this->csvImportParser->parse($tempPath)',
             'private function applySavedViewImportRows(Request $request, array $rows): array',
             'return DB::transaction(function () use ($request, $rows): array',
             "'filters' => \$row['filters'] ?? []",

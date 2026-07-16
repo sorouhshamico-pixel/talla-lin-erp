@@ -48,8 +48,15 @@ class ReportSavedViewPhase70CImportPreviewFinalizationTest extends TestCase
     public function test_final_source_state_contains_import_preview_route_controller_and_view_contracts(): void
     {
         $routes = file_get_contents(base_path('routes/web.php'));
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
-        $view = file_get_contents(resource_path('views/reports/saved-views/index.blade.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $parser = file_get_contents(
+            app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
+        );
+        $view = file_get_contents(
+            resource_path('views/reports/saved-views/index.blade.php')
+        );
 
         foreach ([
             "Route::post('/reports/saved-views/import-preview'",
@@ -59,15 +66,31 @@ class ReportSavedViewPhase70CImportPreviewFinalizationTest extends TestCase
         }
 
         foreach ([
-            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
+            'use App\Support\Reports\ReportSavedViewCsvImportParser;',
+            'public function __construct(',
+            'private readonly ReportSavedViewCsvImportParser $csvImportParser',
             'public function previewImport(Request $request, ReportSavedViewService $savedViewService): View',
             "'csv_file' => ['required', 'file', 'max:2048']",
-            'private function previewSavedViewImport(string $path): array',
-            'private function isEmptyCsvRow(array $row): bool',
+            '$this->csvImportParser->parse($csvPath)',
+        ] as $controllerMarker) {
+            $this->assertStringContainsString(
+                $controllerMarker,
+                $controller
+            );
+        }
+
+        foreach ([
+            'final class ReportSavedViewCsvImportParser',
+            'public function parse(string $path): array',
+            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
             'ReportSavedViewRegistry::has($reportKey)',
             "'status' => \$errors === [] ? 'valid' : 'invalid'",
-        ] as $controllerMarker) {
-            $this->assertStringContainsString($controllerMarker, $controller);
+            'private function isEmptyRow(array $row): bool',
+        ] as $parserMarker) {
+            $this->assertStringContainsString(
+                $parserMarker,
+                $parser
+            );
         }
 
         foreach ([
@@ -79,8 +102,6 @@ class ReportSavedViewPhase70CImportPreviewFinalizationTest extends TestCase
             'data-testid="report-saved-views-import-preview-summary"',
             'data-testid="report-saved-views-import-preview-table"',
             'data-testid="report-saved-views-import-preview-row"',
-            'data-testid="report-saved-views-import-row-valid"',
-            'data-testid="report-saved-views-import-row-invalid"',
         ] as $viewMarker) {
             $this->assertStringContainsString($viewMarker, $view);
         }

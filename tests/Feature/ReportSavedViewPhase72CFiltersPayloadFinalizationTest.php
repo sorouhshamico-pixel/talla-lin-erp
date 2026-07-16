@@ -248,23 +248,48 @@ class ReportSavedViewPhase72CFiltersPayloadFinalizationTest extends TestCase
 
     public function test_final_source_state_locks_filters_payload_contract_and_transaction_boundary(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $parser = file_get_contents(
+            app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
+        );
+
+        foreach ([
+            'use App\Support\Reports\ReportSavedViewCsvImportParser;',
+            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
+            "'filters' => \$row['filters'] ?? []",
+            'return DB::transaction(function () use ($request, $rows): array',
+        ] as $controllerMarker) {
+            $this->assertStringContainsString(
+                $controllerMarker,
+                $controller
+            );
+        }
 
         foreach ([
             "'filters_summary'",
             "'filters_payload'",
-            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
             'json_decode($filtersPayload)',
-            'private function decodeImportFiltersPayload(string $filtersPayload, array &$errors): array',
-            'private function cleanImportedFilters(array $filters): array',
-            "'filters' => \$row['filters'] ?? []",
-            'return DB::transaction(function () use ($request, $rows): array',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
+            'private function decodeFiltersPayload(',
+            'private function cleanFilters(',
+        ] as $parserMarker) {
+            $this->assertStringContainsString(
+                $parserMarker,
+                $parser
+            );
         }
 
-        $this->assertStringNotContainsString('json_decode($data[\'filters_summary\']', $controller);
-        $this->assertStringNotContainsString('parseFiltersSummary', $controller);
+        foreach ([$controller, $parser] as $source) {
+            $this->assertStringNotContainsString(
+                'json_decode($data[\'filters_summary\']',
+                $source
+            );
+            $this->assertStringNotContainsString(
+                'parseFiltersSummary',
+                $source
+            );
+        }
     }
 
     public function test_phase_72c_json_contract_documents_finalized_behavior_and_next_recommendation(): void

@@ -45,36 +45,25 @@ class ReportSavedViewPhase75ACsvImportParserContractTest extends TestCase
         }
     }
 
-    public function test_current_csv_parser_logic_is_inline_and_dedicated_parser_is_absent(): void
+    public function test_phase_75a_historical_contract_records_inline_parser_baseline(): void
     {
-        $controller = file_get_contents(
-            app_path('Http/Controllers/ReportSavedViewController.php')
-        );
+        $currentState = $this->contract()['current_state'];
 
         foreach ([
-            'private function previewSavedViewImport(string $path): array',
-            "fopen(\$path, 'r')",
-            'fgetcsv($handle)',
-            'str_replace("\\xEF\\xBB\\xBF", \'\', (string) $header)',
-            'ReportSavedViewImportExportVersionRegistry::formatVersionColumn()',
-            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
-            'ReportSavedViewImportExportVersionRegistry::requiredColumns(',
-            'ReportSavedViewRegistry::has($reportKey)',
-            'ReportSavedViewRegistry::find($reportKey)',
-            'private function decodeImportFiltersPayload(string $filtersPayload, array &$errors): array',
-            'private function cleanImportedFilters(array $filters): array',
-            'private function isEmptyCsvRow(array $row): bool',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
+            'csv_file_opening_is_inline_in_controller',
+            'csv_header_reading_is_inline_in_controller',
+            'bom_header_normalization_is_inline_in_controller',
+            'version_and_required_column_resolution_is_inline_in_controller',
+            'row_iteration_and_validation_are_inline_in_controller',
+            'filters_payload_decoding_is_inline_in_controller',
+            'filters_cleaning_is_inline_in_controller',
+            'empty_row_detection_is_inline_in_controller',
+            'preview_summary_counting_is_inline_in_controller',
+            'database_apply_is_separate_from_parser_logic',
+            'dedicated_csv_import_parser_absent',
+        ] as $key) {
+            $this->assertTrue($currentState[$key], $key);
         }
-
-        $this->assertFileDoesNotExist(
-            app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
-        );
-        $this->assertStringNotContainsString(
-            'use App\\Support\\Reports\\ReportSavedViewCsvImportParser;',
-            $controller
-        );
     }
 
     public function test_parser_identity_dependencies_and_access_boundaries_are_locked(): void

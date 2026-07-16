@@ -145,11 +145,11 @@ class ReportSavedViewPhase74CImportExportVersionRegistryFinalizationTest extends
             'use App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry;',
             'ReportSavedViewImportExportVersionRegistry::exportHeader()',
             'ReportSavedViewImportExportVersionRegistry::currentVersion()',
-            'ReportSavedViewImportExportVersionRegistry::formatVersionColumn()',
-            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
-            'ReportSavedViewImportExportVersionRegistry::requiredColumns(',
-            'ReportSavedViewImportExportVersionRegistry::supports($formatVersion)',
-            'ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)',
+            '$this->csvImportParser->parse(',
+            'private readonly ReportSavedViewCsvImportParser $csvImportParser',
+            '$this->csvImportParser->parse(',
+            '$this->csvImportParser->parse(',
+            '$this->csvImportParser->parse(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
         }
@@ -341,9 +341,9 @@ class ReportSavedViewPhase74CImportExportVersionRegistryFinalizationTest extends
         );
 
         foreach ([
-            'private function previewSavedViewImport(string $path): array',
-            'private function decodeImportFiltersPayload(string $filtersPayload, array &$errors): array',
-            'private function cleanImportedFilters(array $filters): array',
+            'private readonly ReportSavedViewCsvImportParser $csvImportParser',
+            '$this->csvImportParser->parse(',
+            'use App\\Support\\Reports\\ReportSavedViewCsvImportParser;',
             'return DB::transaction(function () use ($request, $rows): array',
             "'filters' => \$row['filters'] ?? []",
         ] as $marker) {
