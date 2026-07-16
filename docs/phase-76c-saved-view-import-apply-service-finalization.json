@@ -1,0 +1,185 @@
+{
+    "phase": "Phase 76C",
+    "title": "Saved View Import Apply Service Finalization",
+    "baseline": {
+        "phase": "Phase 76B clean",
+        "commit": "d4f1b5c",
+        "previous_tests": "1536 passed / 13917 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase76CImportApplyServiceFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-76c-saved-view-import-apply-service-finalization.json",
+            "docs/phase-76c-saved-view-import-apply-service-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "app/Services/ReportSavedViewImportApplyService.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php",
+            "app/Services/ReportSavedViewService.php",
+            "app/Models/ReportSavedView.php",
+            "app/Models/User.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php"
+        ]
+    },
+    "service_identity": {
+        "class": "App\\Services\\ReportSavedViewImportApplyService",
+        "file": "app/Services/ReportSavedViewImportApplyService.php",
+        "final_class": true,
+        "stateless": true,
+        "constructor_dependencies": [],
+        "public_api": {
+            "apply": "public function apply(User $user, array $rows): array"
+        },
+        "return_shape": {
+            "created": "int",
+            "skipped": "int"
+        },
+        "allowed_collaborators": [
+            "App\\Models\\ReportSavedView",
+            "App\\Models\\User",
+            "Illuminate\\Support\\Facades\\DB"
+        ],
+        "forbidden_access": [
+            "http_request",
+            "http_response",
+            "session",
+            "authentication_facade",
+            "redirects",
+            "views",
+            "routes",
+            "csv_filesystem",
+            "base64_payload",
+            "csv_parser",
+            "version_registry"
+        ]
+    },
+    "finalized_transaction_contract": {
+        "single_transaction_for_complete_row_set": true,
+        "transaction_source": "DB::transaction",
+        "result_returned_from_transaction": true,
+        "exceptions_roll_back_all_writes": true,
+        "no_partial_commit": true
+    },
+    "finalized_row_contract": {
+        "input_source": "ReportSavedViewCsvImportParser::parse()['rows']",
+        "invalid_status_rows_ignored": true,
+        "invalid_rows_increment_created": false,
+        "invalid_rows_increment_skipped": false,
+        "required_valid_row_keys": [
+            "status",
+            "report_key",
+            "name",
+            "is_default",
+            "filters"
+        ],
+        "missing_filters_default": [],
+        "parser_cleaned_filters_preserved": true
+    },
+    "finalized_duplicate_contract": {
+        "model": "ReportSavedView",
+        "scope_columns": [
+            "user_id",
+            "report_key",
+            "name"
+        ],
+        "exact_match": true,
+        "duplicate_action": "skip without update or overwrite",
+        "duplicate_increments_skipped": true,
+        "duplicate_does_not_increment_created": true,
+        "existing_filters_unchanged": true,
+        "cross_user_rows_do_not_match": true,
+        "other_report_rows_do_not_match": true
+    },
+    "finalized_default_contract": {
+        "requested_when": "row is_default equals Arabic نعم",
+        "normalization_scope": [
+            "same user_id",
+            "same report_key"
+        ],
+        "clear_existing_defaults_before_create": true,
+        "non_default_rows_do_not_clear_defaults": true,
+        "last_new_default_for_same_report_wins": true,
+        "cross_user_defaults_unchanged": true,
+        "other_report_defaults_unchanged": true
+    },
+    "finalized_creation_contract": {
+        "attributes": {
+            "user_id": "User::$id",
+            "report_key": "row report_key",
+            "name": "row name",
+            "filters": "row filters or empty array",
+            "is_default": "derived boolean"
+        },
+        "created_increments_after_successful_create": true,
+        "csv_updated_at_is_not_written": true,
+        "model_timestamps_remain_authoritative": true,
+        "no_upsert": true,
+        "no_overwrite": true
+    },
+    "finalized_controller_boundary": {
+        "injects_csv_parser": true,
+        "injects_import_apply_service": true,
+        "validates_request": true,
+        "decodes_base64": true,
+        "manages_temp_file": true,
+        "reparses_before_writes": true,
+        "blocks_invalid_header_or_rows": true,
+        "delegates_valid_rows_to_service": true,
+        "owns_redirects": true,
+        "owns_exact_arabic_messages": true,
+        "old_private_apply_helper_absent": true
+    },
+    "preserved_behavior": {
+        "apply_requires_authentication": true,
+        "invalid_base64_message_preserved": true,
+        "temp_file_failure_message_preserved": true,
+        "invalid_file_message_preserved": true,
+        "exact_success_message_preserved": true,
+        "preview_remains_read_only": true,
+        "preview_and_apply_share_parser": true,
+        "legacy_import_preserved": true,
+        "versioned_import_preserved": true,
+        "filters_payload_preserved": true,
+        "filters_summary_display_only": true,
+        "invalid_file_blocks_all_writes": true,
+        "duplicate_skip_without_overwrite": true,
+        "authenticated_user_scope": true,
+        "default_normalization_scope": true,
+        "cross_user_records_unchanged": true,
+        "export_behavior_preserved": true,
+        "bulk_selection_preserved": true,
+        "pagination_preserved": true,
+        "phase_69_through_76_contracts_preserved": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 77A",
+        "title": "Saved View CSV Export Writer Contract",
+        "reason": "Import parsing and transactional application are now isolated. The next cohesive controller-owned responsibility is CSV export stream writing, including BOM, header, human summary, machine payload, version value, and row serialization.",
+        "implementation_changes_expected": false
+    },
+    "guardrails": [
+        "Do not modify runtime implementation in Phase 76C.",
+        "The import apply service must remain final and stateless.",
+        "The service must continue accepting a User object and parser rows.",
+        "The service must own one transaction around the complete row set.",
+        "The service must not access HTTP, session, routes, views, files, base64 payloads, parser, or version metadata.",
+        "Invalid rows must remain ignored without affecting counters.",
+        "Duplicate scope must remain user_id, report_key, and name.",
+        "Duplicates must remain skipped without overwrite.",
+        "Default normalization must remain scoped to the same user and report.",
+        "Parser-cleaned filters must be persisted without reinterpretation.",
+        "The controller must continue reparsing before writes.",
+        "The controller must continue blocking invalid files before service execution.",
+        "Exact Arabic success and failure messages must remain unchanged.",
+        "No route, view, parser, registry, model, migration, or database schema change is allowed."
+    ]
+}
