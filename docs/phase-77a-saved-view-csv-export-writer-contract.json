@@ -1,0 +1,266 @@
+{
+    "phase": "Phase 77A",
+    "title": "Saved View CSV Export Writer Contract",
+    "baseline": {
+        "phase": "Phase 76C clean",
+        "commit": "05bee93",
+        "previous_tests": "1546 passed / 14030 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase77ACsvExportWriterContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-77a-saved-view-csv-export-writer-contract.json",
+            "docs/phase-77a-saved-view-csv-export-writer-contract.md"
+        ],
+        "excluded_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewCsvExportWriter.php",
+            "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php",
+            "app/Services/ReportSavedViewImportApplyService.php",
+            "app/Services/ReportSavedViewService.php",
+            "app/Models/ReportSavedView.php",
+            "routes/web.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php"
+        ]
+    },
+    "current_state": {
+        "export_request_validation_in_controller": true,
+        "user_scoped_query_in_service": true,
+        "report_and_filter_formatting_in_controller": true,
+        "filename_in_controller": true,
+        "streamed_response_in_controller": true,
+        "php_output_open_in_controller_closure": true,
+        "utf8_bom_write_in_controller_closure": true,
+        "registry_header_write_in_controller_closure": true,
+        "current_version_write_in_controller_closure": true,
+        "filters_summary_build_in_controller_closure": true,
+        "filters_payload_json_build_in_controller_closure": true,
+        "csv_row_serialization_in_controller_closure": true,
+        "stream_close_in_controller_closure": true,
+        "dedicated_export_writer_absent": true
+    },
+    "writer_contract": {
+        "class": "App\\Support\\Reports\\ReportSavedViewCsvExportWriter",
+        "file": "app/Support/Reports/ReportSavedViewCsvExportWriter.php",
+        "type": "final_stateless_output_writer",
+        "constructor_dependencies": [],
+        "public_api": {
+            "write": {
+                "signature": "public function write(iterable $formattedSavedViews): void",
+                "input": "iterable of controller-formatted saved-view objects",
+                "return": "void"
+            }
+        },
+        "allowed_collaborators": [
+            "App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry",
+            "PHP CSV and stream functions",
+            "PHP JSON functions"
+        ],
+        "allowed_runtime_access": [
+            "write_only_php_output_stream"
+        ],
+        "must_not_access": [
+            "database",
+            "eloquent_models",
+            "user_model",
+            "request",
+            "response",
+            "session",
+            "authentication",
+            "redirects",
+            "views",
+            "routes",
+            "saved_view_query_service",
+            "csv_import_parser",
+            "import_apply_service"
+        ]
+    },
+    "formatted_input_contract": {
+        "producer": "ReportSavedViewController::formatSavedView",
+        "row_shape": {
+            "name": "string",
+            "report_label": "string",
+            "report_key": "string",
+            "is_default": "bool",
+            "filters": "iterable<int, array{key: string, label: string, value: mixed, display_value: mixed}>",
+            "updated_at": "nullable date-time object"
+        },
+        "filter_item_shape": {
+            "key": "machine filter key",
+            "label": "human-readable label",
+            "value": "original machine value",
+            "display_value": "human-readable display value"
+        },
+        "writer_must_not_resolve_labels": true,
+        "writer_must_not_query_entities": true,
+        "writer_must_not_reinterpret_filter_values": true
+    },
+    "stream_contract": {
+        "stream_uri": "php://output",
+        "mode": "w",
+        "open_failure_action": "return without throwing",
+        "utf8_bom_hex": "EF BB BF",
+        "header_source": "ReportSavedViewImportExportVersionRegistry::exportHeader()",
+        "header_written_once": true,
+        "header_written_for_empty_result_set": true,
+        "stream_closed_after_write": true
+    },
+    "row_contract": {
+        "column_order": [
+            "format_version",
+            "name",
+            "report_label",
+            "report_key",
+            "is_default",
+            "filter_count",
+            "filters_summary",
+            "filters_payload",
+            "updated_at"
+        ],
+        "format_version_source": "ReportSavedViewImportExportVersionRegistry::currentVersion()",
+        "is_default_values": {
+            "true": "yes",
+            "false": "no"
+        },
+        "filter_count_source": "number of formatted filter items",
+        "updated_at_format": "Y-m-d H:i:s through toDateTimeString",
+        "null_updated_at_value": "",
+        "input_order_preserved": true,
+        "writer_must_not_sort": true,
+        "one_csv_row_per_formatted_saved_view": true
+    },
+    "filters_summary_contract": {
+        "type": "human_readable_only",
+        "separator": "; ",
+        "display_only_rule": "label: display_value",
+        "display_and_raw_rule": "label: display_value (raw_value)",
+        "raw_suffix_condition": "raw value is non-empty and differs from display value",
+        "empty_filters_value": "",
+        "never_used_as_machine_source": true
+    },
+    "filters_payload_contract": {
+        "type": "machine_readable_only",
+        "source": "formatted filter key and original value pairs",
+        "top_level_json_type": "object",
+        "json_flags": [
+            "JSON_UNESCAPED_UNICODE",
+            "JSON_UNESCAPED_SLASHES"
+        ],
+        "empty_filters_value": "{}",
+        "json_encode_failure_fallback": "{}",
+        "preserve_scalar_types": true,
+        "preserve_nested_values": true,
+        "display_values_excluded": true,
+        "labels_excluded": true
+    },
+    "controller_boundary_after_phase_77b": {
+        "inject_writer": true,
+        "retain_request_validation": true,
+        "retain_report_key_normalization": true,
+        "retain_user_scoped_export_query": true,
+        "retain_format_saved_view": true,
+        "map_models_to_formatted_objects_before_stream": true,
+        "retain_filename": true,
+        "retain_streamed_response": true,
+        "retain_content_type": true,
+        "delegate_closure_body_to_writer": true,
+        "remove_inline_stream_open_and_close": true,
+        "remove_inline_bom_header_summary_payload_and_row_write": true
+    },
+    "phase_77b_migration_contract": {
+        "controller_import": "use App\\Support\\Reports\\ReportSavedViewCsvExportWriter;",
+        "constructor_change": "inject ReportSavedViewCsvExportWriter beside parser and import apply service",
+        "formatted_collection": "$formattedSavedViews = $savedViews->map(fn (ReportSavedView $savedView) => $this->formatSavedView($savedView));",
+        "writer_call": "$this->csvExportWriter->write($formattedSavedViews)",
+        "writer_owns": [
+            "php://output open and close",
+            "UTF-8 BOM",
+            "registry header",
+            "current format version",
+            "filter count",
+            "filters_summary",
+            "filters_payload",
+            "CSV row serialization"
+        ],
+        "controller_retains": [
+            "request validation",
+            "user-scoped query and active filters",
+            "saved-view display formatting",
+            "filename",
+            "StreamedResponse",
+            "Content-Type header"
+        ],
+        "routes_changed": false,
+        "views_changed": false,
+        "query_service_changed": false,
+        "models_changed": false,
+        "database_schema_changed": false,
+        "import_parser_changed": false,
+        "import_apply_service_changed": false,
+        "runtime_behavior_change_allowed": false
+    },
+    "preserved_behavior": {
+        "authentication_required": true,
+        "user_scope_preserved": true,
+        "search_filter_preserved": true,
+        "report_key_filter_preserved": true,
+        "invalid_report_key_falls_back_to_search_only": true,
+        "export_not_page_scoped": true,
+        "service_order_preserved": true,
+        "filename_pattern_preserved": true,
+        "content_type_preserved": true,
+        "utf8_bom_preserved": true,
+        "version_registry_header_preserved": true,
+        "current_version_preserved": true,
+        "human_filters_summary_preserved": true,
+        "machine_filters_payload_preserved": true,
+        "empty_export_header_preserved": true,
+        "exact_csv_column_order_preserved": true,
+        "import_round_trip_preserved": true,
+        "preview_import_apply_bulk_selection_pagination_preserved": true,
+        "phase_69_through_76_contracts_preserved": true
+    },
+    "phase_77b_recommendation": {
+        "phase": "Phase 77B",
+        "title": "Implement Saved View CSV Export Writer",
+        "implementation_targets": [
+            "Create final stateless ReportSavedViewCsvExportWriter.",
+            "Open and close php://output inside the writer.",
+            "Write UTF-8 BOM and the registry-owned header once.",
+            "Serialize formatted saved views without changing input order.",
+            "Build human filters_summary from label, display, and raw values.",
+            "Build machine filters_payload from filter keys and original values.",
+            "Preserve JSON flags, object shape, and fallback behavior.",
+            "Inject the writer into ReportSavedViewController.",
+            "Format the exported model collection before stream execution.",
+            "Replace the inline stream closure body with the writer call.",
+            "Update historical source-marker tests without weakening behavior.",
+            "Run focused and full regression suites before commit."
+        ],
+        "risk": "medium",
+        "risk_reason": "The extraction moves the full CSV byte-writing path. A difference in BOM, quoting, column order, summary spacing, JSON object construction, or row order would break existing exports and import round trips."
+    },
+    "guardrails": [
+        "Do not implement the writer in Phase 77A.",
+        "Do not modify controller, service, parser, registry, model, route, view, migration, or database behavior in Phase 77A.",
+        "The future writer must be final and stateless.",
+        "The future writer must accept formatted objects, not models or an HTTP request.",
+        "The future writer must not query the database or resolve labels.",
+        "The future writer must preserve input order and must not sort.",
+        "UTF-8 BOM must remain the first three output bytes.",
+        "The registry remains the sole source of header and format version.",
+        "filters_summary must remain human-readable and display-only.",
+        "filters_payload must remain machine-readable and derived from filter keys and original values.",
+        "JSON must remain unescaped for Unicode and slashes.",
+        "The empty payload and encoding failure fallback must remain {}.",
+        "The controller retains filename, streamed response, and content type.",
+        "No route, view, import, model, migration, or database schema change is allowed in Phase 77B."
+    ]
+}
