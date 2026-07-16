@@ -258,8 +258,8 @@ class ReportSavedViewPhase72CFiltersPayloadFinalizationTest extends TestCase
         foreach ([
             'use App\Support\Reports\ReportSavedViewCsvImportParser;',
             '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
-            "'filters' => \$row['filters'] ?? []",
-            'return DB::transaction(function () use ($request, $rows): array',
+            '$this->importApplyService->apply(',
+            '$this->importApplyService->apply(',
         ] as $controllerMarker) {
             $this->assertStringContainsString(
                 $controllerMarker,

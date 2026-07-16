@@ -373,7 +373,7 @@ class ReportSavedViewPhase73BImportExportFormatVersionImplementationTest extends
             '$this->csvImportParser->parse(',
             '$this->csvImportParser->parse(',
             '$this->csvImportParser->parse(',
-            'return DB::transaction(function () use ($request, $rows): array',
+            '$this->importApplyService->apply(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
         }

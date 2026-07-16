@@ -133,9 +133,9 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
             'public function previewImport(Request $request, ReportSavedViewService $savedViewService): View',
             'public function applyImport(Request $request): RedirectResponse',
             '$this->csvImportParser->parse($tempPath)',
-            'private function applySavedViewImportRows(Request $request, array $rows): array',
-            'return DB::transaction(function () use ($request, $rows): array',
-            "'filters' => \$row['filters'] ?? []",
+            'private readonly ReportSavedViewImportApplyService $importApplyService',
+            '$this->importApplyService->apply(',
+            '$this->importApplyService->apply(',
         ] as $controllerMarker) {
             $this->assertStringContainsString($controllerMarker, $controller);
         }

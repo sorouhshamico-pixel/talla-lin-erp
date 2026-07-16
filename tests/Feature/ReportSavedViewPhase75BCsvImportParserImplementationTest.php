@@ -291,9 +291,9 @@ class ReportSavedViewPhase75BCsvImportParserImplementationTest extends TestCase
             'private readonly ReportSavedViewCsvImportParser $csvImportParser',
             '$this->csvImportParser->parse($csvPath)',
             '$this->csvImportParser->parse($tempPath)',
-            'private function applySavedViewImportRows(Request $request, array $rows): array',
-            'return DB::transaction(function () use ($request, $rows): array',
-            "'user_id' => \$request->user()->id",
+            'private readonly ReportSavedViewImportApplyService $importApplyService',
+            '$this->importApplyService->apply(',
+            '$this->importApplyService->apply(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
         }

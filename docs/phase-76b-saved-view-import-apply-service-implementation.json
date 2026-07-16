@@ -1,0 +1,49 @@
+{
+    "phase": "Phase 76B",
+    "title": "Implement Saved View Import Apply Service",
+    "baseline": {
+        "phase": "Phase 76A clean",
+        "commit": "6d0e2b1",
+        "previous_tests": "1527 passed / 13835 assertions"
+    },
+    "implementation": {
+        "service_created": true,
+        "service_class": "App\\Services\\ReportSavedViewImportApplyService",
+        "service_is_final": true,
+        "service_is_stateless": true,
+        "service_has_no_constructor_dependencies": true,
+        "service_accepts_user_and_parser_rows": true,
+        "transaction_extracted": true,
+        "valid_row_guard_extracted": true,
+        "duplicate_detection_extracted": true,
+        "default_normalization_extracted": true,
+        "record_creation_extracted": true,
+        "result_counting_extracted": true,
+        "controller_injects_service": true,
+        "controller_private_apply_helper_removed": true,
+        "http_and_parser_flow_remain_in_controller": true,
+        "exact_messages_remain_in_controller": true,
+        "runtime_behavior_preserved": true
+    },
+    "preserved_behavior": {
+        "single_transaction": true,
+        "invalid_rows_ignored": true,
+        "duplicate_scope_user_report_name": true,
+        "duplicates_skipped_without_overwrite": true,
+        "created_and_skipped_counts": true,
+        "default_scope_user_and_report": true,
+        "last_new_default_wins": true,
+        "cross_user_records_unchanged": true,
+        "other_report_defaults_unchanged": true,
+        "parser_cleaned_filters_preserved": true,
+        "request_validation_preserved": true,
+        "base64_and_temp_file_flow_preserved": true,
+        "apply_reparse_preserved": true,
+        "invalid_file_blocks_all_writes": true,
+        "exact_status_messages_preserved": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 76C",
+        "title": "Finalize Saved View Import Apply Service"
+    }
+}

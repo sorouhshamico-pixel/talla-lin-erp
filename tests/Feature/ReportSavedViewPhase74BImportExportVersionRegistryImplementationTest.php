@@ -332,7 +332,7 @@ class ReportSavedViewPhase74BImportExportVersionRegistryImplementationTest exten
         );
 
         $this->assertStringContainsString(
-            'return DB::transaction(function () use ($request, $rows): array',
+            '$this->importApplyService->apply(',
             $controller
         );
         $this->assertStringNotContainsString('parseFiltersSummary', $controller);

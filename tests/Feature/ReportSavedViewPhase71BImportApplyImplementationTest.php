@@ -190,10 +190,10 @@ class ReportSavedViewPhase71BImportApplyImplementationTest extends TestCase
             "'csv_payload' => ['required', 'string']",
             'base64_decode((string) $validated',
             '$this->csvImportParser->parse($tempPath)',
-            'applySavedViewImportRows($request, $preview',
-            'private function applySavedViewImportRows(Request $request, array $rows): array',
-            'return DB::transaction(function () use ($request, $rows): array',
-            "'filters' => \$row['filters'] ?? []",
+            '$this->importApplyService->apply($request->user(), $preview',
+            'private readonly ReportSavedViewImportApplyService $importApplyService',
+            '$this->importApplyService->apply(',
+            '$this->importApplyService->apply(',
         ] as $controllerMarker) {
             $this->assertStringContainsString($controllerMarker, $controller);
         }

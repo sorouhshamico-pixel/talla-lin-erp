@@ -67,36 +67,27 @@ class ReportSavedViewPhase76AImportApplyServiceContractTest extends TestCase
         }
     }
 
-    public function test_current_apply_write_logic_is_inline_and_service_is_absent(): void
+    public function test_phase_76a_historical_contract_records_inline_apply_baseline(): void
     {
-        $controller = file_get_contents(
-            app_path('Http/Controllers/ReportSavedViewController.php')
-        );
+        $currentState = $this->contract()['current_state'];
 
         foreach ([
-            'public function applyImport(Request $request): RedirectResponse',
-            "'csv_payload' => ['required', 'string']",
-            'base64_decode((string) $validated',
-            '$this->csvImportParser->parse($tempPath)',
-            'private function applySavedViewImportRows(Request $request, array $rows): array',
-            'return DB::transaction(function () use ($request, $rows): array',
-            "(\$row['status'] ?? '') !== 'valid'",
-            "->where('user_id', \$request->user()->id)",
-            "->where('report_key', \$row['report_key'])",
-            "->where('name', \$row['name'])",
-            "(\$row['is_default'] ?? '') === 'نعم'",
-            "'filters' => \$row['filters'] ?? []",
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
+            'apply_action_validates_csv_payload_in_controller',
+            'apply_action_decodes_base64_in_controller',
+            'apply_action_manages_temp_file_in_controller',
+            'apply_action_reparses_with_csv_parser',
+            'apply_action_blocks_invalid_preview_before_writes',
+            'row_application_is_private_controller_method',
+            'transaction_is_inline_in_controller',
+            'valid_row_guard_is_inline_in_controller',
+            'duplicate_detection_is_inline_in_controller',
+            'default_normalization_is_inline_in_controller',
+            'record_creation_is_inline_in_controller',
+            'created_and_skipped_counting_is_inline_in_controller',
+            'dedicated_import_apply_service_absent',
+        ] as $key) {
+            $this->assertTrue($currentState[$key], $key);
         }
-
-        $this->assertFileDoesNotExist(
-            app_path('Services/ReportSavedViewImportApplyService.php')
-        );
-        $this->assertStringNotContainsString(
-            'use App\\Services\\ReportSavedViewImportApplyService;',
-            $controller
-        );
     }
 
     public function test_service_identity_api_and_boundaries_are_locked(): void

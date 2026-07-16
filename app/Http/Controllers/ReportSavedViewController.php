@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReportSavedView;
+use App\Services\ReportSavedViewImportApplyService;
 use App\Services\ReportSavedViewService;
 use App\Support\Reports\ReportSavedViewCsvImportParser;
 use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;
@@ -43,7 +44,8 @@ class ReportSavedViewController extends Controller
     ];
 
     public function __construct(
-        private readonly ReportSavedViewCsvImportParser $csvImportParser
+        private readonly ReportSavedViewCsvImportParser $csvImportParser,
+        private readonly ReportSavedViewImportApplyService $importApplyService
     ) {
     }
 
@@ -169,7 +171,7 @@ class ReportSavedViewController extends Controller
                 ->with('status', 'لم يتم تطبيق الاستيراد بسبب وجود أخطاء في الملف.');
         }
 
-        $result = $this->applySavedViewImportRows($request, $preview['rows']);
+        $result = $this->importApplyService->apply($request->user(), $preview['rows']);
 
         return redirect()
             ->route('reports.saved-views.index')
@@ -458,60 +460,6 @@ class ReportSavedViewController extends Controller
         }
 
         return $query;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $rows
-     * @return array{created: int, skipped: int}
-     */
-    private function applySavedViewImportRows(Request $request, array $rows): array
-    {
-        return DB::transaction(function () use ($request, $rows): array {
-            $created = 0;
-            $skipped = 0;
-
-            foreach ($rows as $row) {
-                if (($row['status'] ?? '') !== 'valid') {
-                    continue;
-                }
-
-                $exists = ReportSavedView::query()
-                    ->where('user_id', $request->user()->id)
-                    ->where('report_key', $row['report_key'])
-                    ->where('name', $row['name'])
-                    ->exists();
-
-                if ($exists) {
-                    $skipped++;
-
-                    continue;
-                }
-
-                $isDefault = ($row['is_default'] ?? '') === 'نعم';
-
-                if ($isDefault) {
-                    ReportSavedView::query()
-                        ->where('user_id', $request->user()->id)
-                        ->where('report_key', $row['report_key'])
-                        ->update(['is_default' => false]);
-                }
-
-                ReportSavedView::query()->create([
-                    'user_id' => $request->user()->id,
-                    'report_key' => $row['report_key'],
-                    'name' => $row['name'],
-                    'filters' => $row['filters'] ?? [],
-                    'is_default' => $isDefault,
-                ]);
-
-                $created++;
-            }
-
-            return [
-                'created' => $created,
-                'skipped' => $skipped,
-            ];
-        });
     }
 
     /**

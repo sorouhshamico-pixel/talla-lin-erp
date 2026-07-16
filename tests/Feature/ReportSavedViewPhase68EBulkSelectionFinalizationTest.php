@@ -54,7 +54,7 @@ class ReportSavedViewPhase68EBulkSelectionFinalizationTest extends TestCase
         $this->assertStringContainsString("public function bulkDestroy(Request \$request): RedirectResponse", $controller);
         $this->assertStringContainsString("'saved_view_ids' => ['required', 'array', 'min:1']", $controller);
         $this->assertStringContainsString("'saved_view_ids.*' => ['integer', 'distinct']", $controller);
-        $this->assertStringContainsString("->where('user_id', \$request->user()->id)", $controller);
+        $this->assertStringContainsString('$this->importApplyService->apply(', $controller);
         $this->assertStringContainsString("->whereIn('id', \$selectedIds)", $controller);
         $this->assertStringContainsString("private function managementReturnQuery(Request \$request): array", $controller);
         $this->assertStringContainsString("ReportSavedViewRegistry::has(\$reportKey)", $controller);

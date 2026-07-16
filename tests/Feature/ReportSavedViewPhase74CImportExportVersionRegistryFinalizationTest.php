@@ -344,8 +344,8 @@ class ReportSavedViewPhase74CImportExportVersionRegistryFinalizationTest extends
             'private readonly ReportSavedViewCsvImportParser $csvImportParser',
             '$this->csvImportParser->parse(',
             'use App\\Support\\Reports\\ReportSavedViewCsvImportParser;',
-            'return DB::transaction(function () use ($request, $rows): array',
-            "'filters' => \$row['filters'] ?? []",
+            '$this->importApplyService->apply(',
+            '$this->importApplyService->apply(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
         }
