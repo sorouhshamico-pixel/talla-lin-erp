@@ -1,0 +1,156 @@
+{
+    "phase": "Phase 74C",
+    "title": "Saved View Import Export Version Registry Finalization",
+    "baseline": {
+        "phase": "Phase 74B clean",
+        "commit": "18aa201",
+        "previous_tests": "1473 passed / 13188 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase74CImportExportVersionRegistryFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-74c-saved-view-import-export-version-registry-finalization.json",
+            "docs/phase-74c-saved-view-import-export-version-registry-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "registry_identity": {
+        "class": "App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry",
+        "file": "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+        "final_class": true,
+        "private_constructor": true,
+        "static_metadata_only": true,
+        "runtime_dependencies": []
+    },
+    "finalized_registry_api": {
+        "formatVersionColumn": {
+            "return_type": "string",
+            "value": "format_version"
+        },
+        "currentVersion": {
+            "return_type": "string",
+            "value": "1"
+        },
+        "supportedVersions": {
+            "return_type": "array<int, string>",
+            "value": [
+                "1"
+            ],
+            "identifiers_are_strings": true
+        },
+        "supports": {
+            "version_one": true,
+            "unsupported_version": false
+        },
+        "legacyRequiredColumns": {
+            "return_type": "array<int, string>",
+            "value": [
+                "name",
+                "report_label",
+                "report_key",
+                "is_default",
+                "filter_count",
+                "filters_summary",
+                "updated_at"
+            ]
+        },
+        "requiredColumns": {
+            "version_one": [
+                "format_version",
+                "name",
+                "report_label",
+                "report_key",
+                "is_default",
+                "filter_count",
+                "filters_summary",
+                "filters_payload",
+                "updated_at"
+            ],
+            "unsupported_version": []
+        },
+        "exportHeader": {
+            "value": [
+                "format_version",
+                "name",
+                "report_label",
+                "report_key",
+                "is_default",
+                "filter_count",
+                "filters_summary",
+                "filters_payload",
+                "updated_at"
+            ]
+        },
+        "requiresFiltersPayload": {
+            "version_one": true,
+            "unsupported_version": false
+        }
+    },
+    "finalized_integration": {
+        "controller_imports_registry": true,
+        "controller_inline_version_metadata_absent": true,
+        "controller_uses_registry_for_export_header": true,
+        "controller_uses_registry_for_current_version": true,
+        "controller_uses_registry_for_format_version_column": true,
+        "controller_uses_registry_for_legacy_columns": true,
+        "controller_uses_registry_for_version_required_columns": true,
+        "controller_uses_registry_for_supported_version_check": true,
+        "controller_uses_registry_for_filters_payload_requirement": true
+    },
+    "finalized_behavior": {
+        "format_version_first_export_column_locked": true,
+        "new_exports_use_version_one_locked": true,
+        "versioned_lossless_round_trip_locked": true,
+        "explicit_v1_requires_non_empty_filters_payload_locked": true,
+        "invalid_or_list_filters_payload_rejected_locked": true,
+        "empty_unsupported_mixed_versions_rejected_locked": true,
+        "legacy_unversioned_without_payload_supported_locked": true,
+        "legacy_unversioned_without_payload_imports_empty_filters_locked": true,
+        "legacy_unversioned_with_payload_supported_locked": true,
+        "version_not_inferred_from_other_columns_locked": true,
+        "filters_summary_human_readable_only_locked": true,
+        "filters_payload_machine_source_locked": true,
+        "import_revalidation_before_writes_locked": true,
+        "transaction_boundary_locked": true,
+        "authenticated_user_scope_locked": true,
+        "duplicate_skip_without_overwrite_locked": true,
+        "default_normalization_per_user_report_locked": true,
+        "preview_export_bulk_selection_pagination_preserved": true,
+        "phase_70_import_preview_contract_preserved": true,
+        "phase_73_format_version_contract_preserved": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 75A",
+        "title": "Saved View CSV Import Parser Contract",
+        "reason": "The version registry is now finalized. The next safe architectural step is a parser contract that extracts CSV reading, header resolution, and row validation from the controller without changing preview or apply behavior."
+    },
+    "guardrails": [
+        "Do not modify the Phase 74B registry or controller integration in this finalization phase.",
+        "The registry must remain final, static, deterministic, and metadata-only.",
+        "Registry version identifiers must remain strings.",
+        "The registry must not access database, HTTP, session, filesystem, or authentication state.",
+        "Controller inline version metadata constants must remain absent.",
+        "format_version must remain the first exported CSV column.",
+        "New exports must continue to use explicit version 1.",
+        "Explicit version 1 must continue to require non-empty JSON-object filters_payload.",
+        "Empty, unsupported, or mixed explicit versions must continue to block all writes.",
+        "Legacy unversioned CSV compatibility must remain unchanged.",
+        "filters_summary must remain human-readable only and must never be parsed.",
+        "Import apply must remain transaction-protected and authenticated-user scoped.",
+        "Duplicates must remain skipped without overwrite.",
+        "Preserve import preview, export, bulk selection, pagination, and default normalization."
+    ]
+}
