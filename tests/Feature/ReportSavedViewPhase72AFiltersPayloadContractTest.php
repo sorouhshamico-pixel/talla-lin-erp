@@ -47,8 +47,10 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
 
     public function test_phase_72a_historical_contract_keeps_human_filters_summary_marker(): void
     {
-        $controller = file_get_contents(
-            app_path('Http/Controllers/ReportSavedViewController.php')
+        $writer = file_get_contents(
+            app_path(
+                'Support/Reports/ReportSavedViewCsvExportWriter.php'
+            )
         );
         $versionRegistry = file_get_contents(
             app_path(
@@ -61,14 +63,12 @@ class ReportSavedViewPhase72AFiltersPayloadContractTest extends TestCase
         );
 
         foreach ([
-            '$filtersSummary = $formatted->filters',
+            '$summaryParts = []',
             '$filter[\'label\'] . \': \' . $displayValue',
-            '$filter[\'label\'] . \': \' . $displayValue . \' (\' . $rawValue . \')\'',
-        ] as $controllerSummaryMarker) {
-            $this->assertStringContainsString(
-                $controllerSummaryMarker,
-                $controller
-            );
+            '\' (\' . $rawValue . \')\'',
+            '$filtersSummary = implode(\'; \', $summaryParts)',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $writer);
         }
 
         $this->assertStringContainsString(

@@ -69,40 +69,28 @@ class ReportSavedViewPhase77ACsvExportWriterContractTest extends TestCase
         }
     }
 
-    public function test_current_csv_writer_logic_is_inline_and_writer_is_absent(): void
+    public function test_phase_77a_historical_contract_records_inline_writer_baseline(): void
     {
-        $controller = file_get_contents(
-            app_path('Http/Controllers/ReportSavedViewController.php')
-        );
+        $currentState = $this->contract()['current_state'];
 
         foreach ([
-            'public function export(Request $request, ReportSavedViewService $savedViewService): StreamedResponse',
-            '$savedViewService->exportForManagement(',
-            "'saved-views-' . now()->format('Ymd-His') . '.csv'",
-            'response()->streamDownload(function () use ($savedViews): void',
-            "fopen('php://output', 'w')",
-            'fwrite($handle, "\\xEF\\xBB\\xBF")',
-            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
-            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
-            '$filtersSummary = $formatted->filters',
-            '$rawValue = (string) ($filter[\'value\'] ?? \'\');',
-            'json_encode((object) ($savedView->filters ?? [])',
-            '$formatted->filters->count()',
-            "'Content-Type' => 'text/csv; charset=UTF-8'",
-            'fclose($handle)',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
+            'export_request_validation_in_controller',
+            'user_scoped_query_in_service',
+            'report_and_filter_formatting_in_controller',
+            'filename_in_controller',
+            'streamed_response_in_controller',
+            'php_output_open_in_controller_closure',
+            'utf8_bom_write_in_controller_closure',
+            'registry_header_write_in_controller_closure',
+            'current_version_write_in_controller_closure',
+            'filters_summary_build_in_controller_closure',
+            'filters_payload_json_build_in_controller_closure',
+            'csv_row_serialization_in_controller_closure',
+            'stream_close_in_controller_closure',
+            'dedicated_export_writer_absent',
+        ] as $key) {
+            $this->assertTrue($currentState[$key], $key);
         }
-
-        $this->assertFileDoesNotExist(
-            app_path(
-                'Support/Reports/ReportSavedViewCsvExportWriter.php'
-            )
-        );
-        $this->assertStringNotContainsString(
-            'ReportSavedViewCsvExportWriter',
-            $controller
-        );
     }
 
     public function test_writer_identity_api_and_boundaries_are_locked(): void

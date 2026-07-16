@@ -359,23 +359,37 @@ class ReportSavedViewPhase73BImportExportFormatVersionImplementationTest extends
 
     public function test_source_contains_registry_backed_format_version_contract_markers(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $controller = file_get_contents(
+            app_path('Http/Controllers/ReportSavedViewController.php')
+        );
+        $writer = file_get_contents(
+            app_path(
+                'Support/Reports/ReportSavedViewCsvExportWriter.php'
+            )
+        );
         $registry = file_get_contents(
-            app_path('Support/Reports/ReportSavedViewImportExportVersionRegistry.php')
+            app_path(
+                'Support/Reports/'
+                . 'ReportSavedViewImportExportVersionRegistry.php'
+            )
         );
 
         foreach ([
-            'use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;',
-            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
-            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+            'use App\\Support\\Reports\\ReportSavedViewCsvExportWriter;',
+            'private readonly ReportSavedViewCsvExportWriter $csvExportWriter',
+            '$this->csvExportWriter->write($formattedSavedViews)',
             '$this->csvImportParser->parse(',
             'private readonly ReportSavedViewCsvImportParser $csvImportParser',
-            '$this->csvImportParser->parse(',
-            '$this->csvImportParser->parse(',
-            '$this->csvImportParser->parse(',
             '$this->importApplyService->apply(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
+        }
+
+        foreach ([
+            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
+            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $writer);
         }
 
         foreach ([
@@ -396,13 +410,15 @@ class ReportSavedViewPhase73BImportExportFormatVersionImplementationTest extends
             'SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS',
             'IMPORT_PREVIEW_V1_REQUIRED_COLUMNS',
         ] as $removedConstant) {
-            $this->assertStringNotContainsString($removedConstant, $controller);
+            $this->assertStringNotContainsString(
+                $removedConstant,
+                $controller . $writer
+            );
         }
 
-        $this->assertStringNotContainsString('parseFiltersSummary', $controller);
         $this->assertStringNotContainsString(
-            "json_decode(\$data['filters_summary']",
-            $controller
+            'parseFiltersSummary',
+            $controller . $writer
         );
     }
 

@@ -250,20 +250,31 @@ class ReportSavedViewPhase72BFiltersPayloadImplementationTest extends TestCase
         $controller = file_get_contents(
             app_path('Http/Controllers/ReportSavedViewController.php')
         );
+        $writer = file_get_contents(
+            app_path(
+                'Support/Reports/ReportSavedViewCsvExportWriter.php'
+            )
+        );
         $parser = file_get_contents(
             app_path('Support/Reports/ReportSavedViewCsvImportParser.php')
         );
 
         foreach ([
-            'use App\Support\Reports\ReportSavedViewCsvImportParser;',
-            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
+            'use App\\Support\\Reports\\ReportSavedViewCsvImportParser;',
             '$this->importApplyService->apply(',
-            '$this->importApplyService->apply(',
-        ] as $controllerMarker) {
-            $this->assertStringContainsString(
-                $controllerMarker,
-                $controller
-            );
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $controller);
+        }
+
+        foreach ([
+            '$filtersPayloadData = []',
+            '$filtersPayload = json_encode(',
+            '(object) $filtersPayloadData',
+            'JSON_UNESCAPED_UNICODE',
+            'JSON_UNESCAPED_SLASHES',
+            '$filtersPayload === false ? \'{}\' : $filtersPayload',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $writer);
         }
 
         foreach ([
@@ -271,11 +282,8 @@ class ReportSavedViewPhase72BFiltersPayloadImplementationTest extends TestCase
             'json_decode($filtersPayload)',
             'private function decodeFiltersPayload(',
             'private function cleanFilters(',
-        ] as $parserMarker) {
-            $this->assertStringContainsString(
-                $parserMarker,
-                $parser
-            );
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $parser);
         }
 
         $this->assertStringNotContainsString(

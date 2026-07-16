@@ -106,18 +106,27 @@ class ReportSavedViewPhase74BImportExportVersionRegistryImplementationTest exten
         $controller = file_get_contents(
             app_path('Http/Controllers/ReportSavedViewController.php')
         );
+        $writer = file_get_contents(
+            app_path(
+                'Support/Reports/ReportSavedViewCsvExportWriter.php'
+            )
+        );
 
         foreach ([
-            'use App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry;',
-            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
-            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+            'use App\\Support\\Reports\\ReportSavedViewCsvExportWriter;',
+            'private readonly ReportSavedViewCsvExportWriter $csvExportWriter',
+            '$this->csvExportWriter->write($formattedSavedViews)',
             '$this->csvImportParser->parse(',
             'private readonly ReportSavedViewCsvImportParser $csvImportParser',
-            '$this->csvImportParser->parse(',
-            '$this->csvImportParser->parse(',
-            '$this->csvImportParser->parse(',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
+        }
+
+        foreach ([
+            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
+            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $writer);
         }
 
         foreach ([
@@ -126,7 +135,10 @@ class ReportSavedViewPhase74BImportExportVersionRegistryImplementationTest exten
             'SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS',
             'IMPORT_PREVIEW_V1_REQUIRED_COLUMNS',
         ] as $removedConstant) {
-            $this->assertStringNotContainsString($removedConstant, $controller);
+            $this->assertStringNotContainsString(
+                $removedConstant,
+                $controller . $writer
+            );
         }
     }
 

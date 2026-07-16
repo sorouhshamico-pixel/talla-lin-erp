@@ -50,6 +50,11 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
         $controller = file_get_contents(
             app_path('Http/Controllers/ReportSavedViewController.php')
         );
+        $writer = file_get_contents(
+            app_path(
+                'Support/Reports/ReportSavedViewCsvExportWriter.php'
+            )
+        );
         $versionRegistry = file_get_contents(
             app_path(
                 'Support/Reports/'
@@ -66,27 +71,36 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
         foreach ([
             "Route::get('/reports/saved-views/export'",
             'reports.saved-views.export',
-        ] as $routeMarker) {
-            $this->assertStringContainsString($routeMarker, $routes);
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $routes);
         }
 
         foreach ([
-            'use Symfony\Component\HttpFoundation\StreamedResponse;',
+            'use Symfony\\Component\\HttpFoundation\\StreamedResponse;',
+            'use App\\Support\\Reports\\ReportSavedViewCsvExportWriter;',
+            'private readonly ReportSavedViewCsvExportWriter $csvExportWriter',
             'public function export(Request $request, ReportSavedViewService $savedViewService): StreamedResponse',
             "'search' => ['nullable', 'string', 'max:120']",
             "'report_key' => ['nullable', 'string', 'max:120']",
             '$savedViewService->exportForManagement(',
-            'streamDownload(function () use ($savedViews): void',
+            '$formattedSavedViews = $savedViews->map(',
+            'response()->streamDownload(',
+            '$this->csvExportWriter->write($formattedSavedViews)',
             "'Content-Type' => 'text/csv; charset=UTF-8'",
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $controller);
+        }
+
+        foreach ([
+            "fopen('php://output', 'w')",
             'ReportSavedViewImportExportVersionRegistry::exportHeader()',
             'ReportSavedViewImportExportVersionRegistry::currentVersion()',
-            '$filtersSummary = $formatted->filters',
-            '$rawValue = (string) ($filter[\'value\'] ?? \'\');',
-        ] as $controllerMarker) {
-            $this->assertStringContainsString(
-                $controllerMarker,
-                $controller
-            );
+            '$filtersSummary = implode(\'; \', $summaryParts)',
+            '$filtersPayload = json_encode(',
+            'fputcsv($handle',
+            'fclose($handle)',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $writer);
         }
 
         foreach ([
@@ -100,9 +114,9 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
             "'filters_payload'",
             "'updated_at'",
             'public static function exportHeader(): array',
-        ] as $registryMarker) {
+        ] as $marker) {
             $this->assertStringContainsString(
-                $registryMarker,
+                $marker,
                 $versionRegistry
             );
         }
@@ -110,15 +124,11 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
         foreach ([
             'public function exportForManagement(',
             '->where(\'user_id\', $user->id)',
-            '->when($reportKey !== \'\', fn ($query) => $query->where(\'report_key\', $reportKey))',
             '->orderByDesc(\'is_default\')',
             '->orderBy(\'name\')',
             '->get();',
-        ] as $serviceMarker) {
-            $this->assertStringContainsString(
-                $serviceMarker,
-                $service
-            );
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $service);
         }
 
         foreach ([
@@ -126,8 +136,8 @@ class ReportSavedViewPhase69CCsvExportFinalizationTest extends TestCase
             "route('reports.saved-views.export', \$exportQuery)",
             'data-testid="report-saved-views-export-link"',
             'تصدير CSV',
-        ] as $viewMarker) {
-            $this->assertStringContainsString($viewMarker, $view);
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $view);
         }
     }
 

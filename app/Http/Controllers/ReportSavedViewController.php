@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ReportSavedView;
 use App\Services\ReportSavedViewImportApplyService;
 use App\Services\ReportSavedViewService;
+use App\Support\Reports\ReportSavedViewCsvExportWriter;
 use App\Support\Reports\ReportSavedViewCsvImportParser;
-use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;
 use App\Support\Reports\ReportSavedViewRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,7 +45,8 @@ class ReportSavedViewController extends Controller
 
     public function __construct(
         private readonly ReportSavedViewCsvImportParser $csvImportParser,
-        private readonly ReportSavedViewImportApplyService $importApplyService
+        private readonly ReportSavedViewImportApplyService $importApplyService,
+        private readonly ReportSavedViewCsvExportWriter $csvExportWriter
     ) {
     }
 
@@ -203,56 +204,21 @@ class ReportSavedViewController extends Controller
             $this->matchingFilterValuesForSearch($search)
         );
 
+        $formattedSavedViews = $savedViews->map(
+            fn (ReportSavedView $savedView) =>
+                $this->formatSavedView($savedView)
+        );
         $fileName = 'saved-views-' . now()->format('Ymd-His') . '.csv';
 
-        return response()->streamDownload(function () use ($savedViews): void {
-            $handle = fopen('php://output', 'w');
-
-            if ($handle === false) {
-                return;
-            }
-
-            fwrite($handle, "\xEF\xBB\xBF");
-
-            fputcsv(
-                $handle,
-                ReportSavedViewImportExportVersionRegistry::exportHeader()
-            );
-
-            foreach ($savedViews as $savedView) {
-                $formatted = $this->formatSavedView($savedView);
-                $filtersSummary = $formatted->filters
-                    ->map(function (array $filter): string {
-                        $displayValue = (string) ($filter['display_value'] ?? '');
-                        $rawValue = (string) ($filter['value'] ?? '');
-
-                        if ($rawValue !== '' && $rawValue !== $displayValue) {
-                            return $filter['label'] . ': ' . $displayValue . ' (' . $rawValue . ')';
-                        }
-
-                        return $filter['label'] . ': ' . $displayValue;
-                    })
-                    ->implode('; ');
-
-                $filtersPayload = json_encode((object) ($savedView->filters ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-                fputcsv($handle, [
-                    ReportSavedViewImportExportVersionRegistry::currentVersion(),
-                    $formatted->name,
-                    $formatted->report_label,
-                    $formatted->report_key,
-                    $formatted->is_default ? 'yes' : 'no',
-                    $formatted->filters->count(),
-                    $filtersSummary,
-                    $filtersPayload === false ? '{}' : $filtersPayload,
-                    optional($formatted->updated_at)->toDateTimeString() ?? '',
-                ]);
-            }
-
-            fclose($handle);
-        }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        return response()->streamDownload(
+            function () use ($formattedSavedViews): void {
+                $this->csvExportWriter->write($formattedSavedViews);
+            },
+            $fileName,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]
+        );
     }
 
     public function makeDefault(Request $request, ReportSavedView $savedView): RedirectResponse
