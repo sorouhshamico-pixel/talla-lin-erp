@@ -46,3 +46,31 @@
 - Next: Phase 78B — Implement Selected Saved View CSV Export.
 - Risks: none identified.
 
+## 2026-07-16T15:08:27+03:00 — Phase 78B
+
+- Title: Implement Selected Saved View CSV Export.
+- Starting commit: `18860e1`.
+- Branch: `phase/78b-selected-saved-view-csv-export`.
+- Runtime files:
+  - `routes/web.php`
+  - `app/Http/Controllers/ReportSavedViewController.php`
+  - `app/Services/ReportSavedViewService.php`
+  - `resources/views/reports/saved-views/index.blade.php`
+- Historical test updated:
+  - `tests/Feature/ReportSavedViewPhase78ASelectedCsvExportContractTest.php`
+- Added:
+  - `docs/phase-78b-selected-saved-view-csv-export-implementation.json`
+  - `docs/phase-78b-selected-saved-view-csv-export-implementation.md`
+  - `tests/Feature/ReportSavedViewPhase78BSelectedCsvExportImplementationTest.php`
+- Updated:
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Baseline suite:
+  `1577 passed / 14457 assertions`.
+- Phase suite:
+  `1588 passed / 14543 assertions`.
+- Stable commit: the commit containing this entry.
+- Next: Phase 78C — Finalize Selected Saved View CSV Export.
+- Risks: none identified.
+

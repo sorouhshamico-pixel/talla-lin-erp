@@ -297,6 +297,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'index'])->name('reports.saved-views.index');
     Route::get('/reports/saved-views/export', [\App\Http\Controllers\ReportSavedViewController::class, 'export'])->name('reports.saved-views.export');
+    Route::post('/reports/saved-views/export-selected', [\App\Http\Controllers\ReportSavedViewController::class, 'exportSelected'])->name('reports.saved-views.export-selected');
     Route::post('/reports/saved-views/import-preview', [\App\Http\Controllers\ReportSavedViewController::class, 'previewImport'])->name('reports.saved-views.import-preview');
     Route::post('/reports/saved-views/import-apply', [\App\Http\Controllers\ReportSavedViewController::class, 'applyImport'])->name('reports.saved-views.import-apply');
     Route::get('/reports/saved-views/{savedView}/edit', [\App\Http\Controllers\ReportSavedViewController::class, 'edit'])->name('reports.saved-views.edit');

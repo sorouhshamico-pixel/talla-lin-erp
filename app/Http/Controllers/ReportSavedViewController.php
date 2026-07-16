@@ -221,6 +221,39 @@ class ReportSavedViewController extends Controller
         );
     }
 
+    public function exportSelected(
+        Request $request,
+        ReportSavedViewService $savedViewService
+    ): StreamedResponse {
+        $validated = $request->validate([
+            'saved_view_ids' => ['required', 'array', 'min:1'],
+            'saved_view_ids.*' => ['integer', 'distinct'],
+        ]);
+
+        $savedViews = $savedViewService->exportSelectedForManagement(
+            $request->user(),
+            $validated['saved_view_ids']
+        );
+
+        $formattedSavedViews = $savedViews->map(
+            fn (ReportSavedView $savedView) =>
+                $this->formatSavedView($savedView)
+        );
+        $fileName = 'saved-views-selected-'
+            . now()->format('Ymd-His')
+            . '.csv';
+
+        return response()->streamDownload(
+            function () use ($formattedSavedViews): void {
+                $this->csvExportWriter->write($formattedSavedViews);
+            },
+            $fileName,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]
+        );
+    }
+
     public function makeDefault(Request $request, ReportSavedView $savedView): RedirectResponse
     {
         $this->authorizeSavedView($request, $savedView);

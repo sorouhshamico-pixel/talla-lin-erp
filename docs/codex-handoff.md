@@ -1,32 +1,30 @@
 # Codex Handoff — Talla Lin ERP
 
-## Latest completed contract phase
+## Latest implemented phase
 
 ```text
-Phase: Phase 78A — Prepare Selected Saved View CSV Export Contract
-Branch: phase/78a-selected-saved-view-csv-export-contract
-Starting commit: 4220470
-Baseline suite: 1573 passed / 14410 assertions
-Phase suite: 1577 passed / 14457 assertions
-Runtime changes: none
+Phase: Phase 78B — Implement Selected Saved View CSV Export
+Branch: phase/78b-selected-saved-view-csv-export
+Starting commit: 18860e1
+Baseline suite: 1577 passed / 14457 assertions
+Phase suite: 1588 passed / 14543 assertions
 Stable commit: the commit containing this document
-Status: validated, merged to main, and published when this document is on origin/main
+Status: validated and awaiting commit, merge, main test, and push
 ```
 
-## Selected implementation
+## Implemented behavior
 
-Phase 78B will implement authenticated selected-row CSV export.
-
-## Locked boundaries
-
-- POST route and validated selected IDs.
-- Authenticated-user scope only.
-- Foreign and nonexistent IDs ignored without disclosure.
-- Deterministic management ordering.
-- Header-only CSV when no owned rows match.
-- Existing CSV writer reused without changes.
-- Existing filtered export and bulk delete preserved.
+- authenticated POST selected-export route;
+- validated selected IDs;
+- user-scoped service query;
+- deterministic default/name/id ordering;
+- foreign and missing IDs ignored;
+- header-only CSV for zero owned matches;
+- existing final writer reused unchanged;
+- selected export button added to the existing selection form;
+- bulk delete preserved through button-scoped method override;
+- filtered export and import round trip preserved.
 
 ## Next phase
 
-Phase 78B — Implement Selected Saved View CSV Export.
+Phase 78C — Finalize Selected Saved View CSV Export.

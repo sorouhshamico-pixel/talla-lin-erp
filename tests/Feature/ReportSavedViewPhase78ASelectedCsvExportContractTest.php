@@ -110,54 +110,45 @@ class ReportSavedViewPhase78ASelectedCsvExportContractTest extends TestCase
         );
     }
 
-    public function test_current_management_baseline_has_selection_and_filtered_export_but_not_selected_export(): void
+    public function test_phase_78a_historical_contract_records_preimplementation_gap(): void
     {
-        $view = file_get_contents(
-            resource_path('views/reports/saved-views/index.blade.php')
-        );
-        $controller = file_get_contents(
-            app_path('Http/Controllers/ReportSavedViewController.php')
-        );
-        $service = file_get_contents(
-            app_path('Services/ReportSavedViewService.php')
-        );
-        $routes = file_get_contents(base_path('routes/web.php'));
-
-        foreach ([
-            'report-saved-views-export-link',
-            'report-saved-views-bulk-action-form',
-            'report-saved-view-bulk-select-checkbox',
-            'report-saved-views-select-all-checkbox',
-            'report-saved-views-bulk-delete-button',
-            'report-saved-views-selected-count',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $view);
-        }
-
-        $this->assertStringContainsString(
-            'public function export(',
-            $controller
-        );
-        $this->assertStringContainsString(
-            'public function exportForManagement(',
-            $service
+        $contract = json_decode(
+            file_get_contents(
+                base_path(
+                    'docs/'
+                    . 'phase-78a-selected-saved-view-csv-export-contract.json'
+                )
+            ),
+            true
         );
 
-        foreach ([
+        $this->assertSame('Phase 78A', $contract['phase']);
+        $this->assertFalse(
+            $contract['scope']['runtime_changes_expected']
+        );
+        $this->assertSame(
+            'POST',
+            $contract['future_http_contract']['method']
+        );
+        $this->assertSame(
             'reports.saved-views.export-selected',
-            'report-saved-views-export-selected-button',
-        ] as $marker) {
-            $this->assertStringNotContainsString($marker, $view);
-            $this->assertStringNotContainsString($marker, $routes);
-        }
-
-        $this->assertStringNotContainsString(
-            'public function exportSelected(',
-            $controller
+            $contract['future_http_contract']['route_name']
         );
-        $this->assertStringNotContainsString(
-            'public function exportSelectedForManagement(',
-            $service
+        $this->assertSame(
+            'exportSelectedForManagement',
+            $contract['future_service_contract']['method']
+        );
+        $this->assertFalse(
+            $contract['future_response_contract']
+                ['writer_changes_expected']
+        );
+        $this->assertTrue(
+            $contract['future_view_contract']
+                ['reuse_existing_row_checkboxes']
+        );
+        $this->assertSame(
+            'Phase 78B',
+            $contract['next_recommendation']['phase']
         );
     }
 

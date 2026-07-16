@@ -255,10 +255,9 @@
                     <div class="filter-actions" style="margin-bottom: 16px;">
                         <form id="report_saved_views_bulk_delete_form"
                               method="POST"
-                              action="{{ route('reports.saved-views.bulk-destroy') }}"
+                              action="{{ route('reports.saved-views.export-selected') }}"
                               data-testid="report-saved-views-bulk-action-form">
                             @csrf
-                            @method('DELETE')
 
                             <input type="hidden" name="return_search" value="{{ $filters['search'] ?? '' }}" data-testid="report-saved-views-bulk-return-search">
                             <input type="hidden" name="return_report_key" value="{{ $filters['report_key'] ?? '' }}" data-testid="report-saved-views-bulk-return-report-key">
@@ -266,7 +265,17 @@
                             <input type="hidden" name="return_page" value="{{ request('page') }}" data-testid="report-saved-views-bulk-return-page">
 
                             <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    data-testid="report-saved-views-export-selected-button"
+                                    disabled>
+                                تصدير المحدد CSV
+                            </button>
+
+                            <button type="submit"
                                     class="btn btn-outline-danger"
+                                    formaction="{{ route('reports.saved-views.bulk-destroy') }}"
+                                    name="_method"
+                                    value="DELETE"
                                     data-testid="report-saved-views-bulk-delete-button"
                                     disabled>
                                 حذف المحدد
@@ -406,6 +415,7 @@
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
                             const bulkForm = document.querySelector('[data-testid="report-saved-views-bulk-action-form"]');
+                            const bulkExportButton = document.querySelector('[data-testid="report-saved-views-export-selected-button"]');
                             const bulkDeleteButton = document.querySelector('[data-testid="report-saved-views-bulk-delete-button"]');
                             const selectedCountLabel = document.querySelector('[data-testid="report-saved-views-selected-count"]');
                             const selectAll = document.querySelector('[data-testid="report-saved-views-select-all-checkbox"]');
@@ -418,6 +428,10 @@
 
                                 if (selectedCountLabel) {
                                     selectedCountLabel.textContent = 'المحدد: ' + selectedCount;
+                                }
+
+                                if (bulkExportButton) {
+                                    bulkExportButton.disabled = selectedCount === 0;
                                 }
 
                                 if (bulkDeleteButton) {
@@ -458,7 +472,12 @@
                                         return;
                                     }
 
-                                    if (! confirm('هل تريد حذف العروض المحددة؟')) {
+                                    const submitter = event.submitter || document.activeElement;
+
+                                    if (
+                                        submitter === bulkDeleteButton
+                                        && ! confirm('هل تريد حذف العروض المحددة؟')
+                                    ) {
                                         event.preventDefault();
                                     }
                                 });

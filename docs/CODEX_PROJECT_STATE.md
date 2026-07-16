@@ -1,24 +1,27 @@
 # Codex Project State — Talla Lin ERP
 
-## Latest completed phase
+## Latest validated phase
 
 ```text
-Phase: Phase 78A — Prepare Selected Saved View CSV Export Contract
-Starting commit: 4220470
-Baseline tests: 1573 passed
-Baseline assertions: 14410
-Phase tests: 1577 passed
-Phase assertions: 14457
-Runtime changes: none
+Phase: Phase 78B — Implement Selected Saved View CSV Export
+Starting commit: 18860e1
+Baseline tests: 1577 passed
+Baseline assertions: 14457
+Phase tests: 1588 passed
+Phase assertions: 14543
 Stable commit: the commit containing this document
+Status: awaiting commit, merge, main validation, and push
 ```
 
-## Selected next capability
+## Preserved decisions
 
-Selected saved-view CSV export using the existing management selection UI.
+- selected export is authenticated and POST-only;
+- selected IDs never bypass user scope;
+- the final CSV writer remains unchanged;
+- filtered export, bulk delete, delete-all, and import remain supported.
 
-## Next phase
+## Next recommendation
 
 ```text
-Phase 78B — Implement Selected Saved View CSV Export
+Phase 78C — Finalize Selected Saved View CSV Export
 ```

@@ -111,6 +111,34 @@ class ReportSavedViewService
             ->get();
     }
 
+    /**
+     * @param array<int, int> $savedViewIds
+     * @return Collection<int, ReportSavedView>
+     */
+    public function exportSelectedForManagement(
+        User $user,
+        array $savedViewIds
+    ): Collection {
+        $selectedIds = collect($savedViewIds)
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($selectedIds === []) {
+            return collect();
+        }
+
+        return ReportSavedView::query()
+            ->where('user_id', $user->id)
+            ->whereIn('id', $selectedIds)
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
+    }
+
     public function save(User $user, string $reportKey, string $name, array $filters, bool $isDefault = false): ReportSavedView
     {
         $reportKey = trim($reportKey);

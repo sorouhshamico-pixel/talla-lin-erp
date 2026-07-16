@@ -1,0 +1,61 @@
+{
+    "phase": "Phase 78B",
+    "title": "Implement Selected Saved View CSV Export",
+    "type": "implementation",
+    "baseline": {
+        "phase": "Phase 78A",
+        "commit": "18860e1",
+        "full_suite": "1577 passed / 14457 assertions"
+    },
+    "implementation": {
+        "authenticated_post_route_added": true,
+        "request_validation_added": true,
+        "selected_service_query_added": true,
+        "positive_unique_id_normalization_added": true,
+        "authenticated_user_scope_enforced": true,
+        "foreign_and_missing_ids_ignored": true,
+        "management_ordering_preserved": true,
+        "header_only_empty_result_supported": true,
+        "existing_writer_reused": true,
+        "writer_runtime_changes": false,
+        "controller_formats_before_writer": true,
+        "selected_filename_added": true,
+        "content_type_preserved": true,
+        "existing_selection_form_reused": true,
+        "selected_export_button_added": true,
+        "bulk_delete_formaction_preserved": true,
+        "delete_method_is_button_scoped": true,
+        "delete_confirmation_is_button_scoped": true,
+        "filtered_export_preserved": true,
+        "import_round_trip_preserved": true
+    },
+    "runtime_files": [
+        "routes/web.php",
+        "app/Http/Controllers/ReportSavedViewController.php",
+        "app/Services/ReportSavedViewService.php",
+        "resources/views/reports/saved-views/index.blade.php"
+    ],
+    "historical_tests_updated": [
+        "tests/Feature/ReportSavedViewPhase78ASelectedCsvExportContractTest.php"
+    ],
+    "response_contract": {
+        "filename_pattern": "saved-views-selected-YYYYMMDD-HHMMSS.csv",
+        "content_type": "text/csv; charset=UTF-8",
+        "empty_owned_selection": "valid header-only CSV",
+        "writer": "App\\Support\\Reports\\ReportSavedViewCsvExportWriter"
+    },
+    "preserved_behavior": {
+        "existing_filtered_export": true,
+        "bulk_delete": true,
+        "delete_all": true,
+        "import_preview": true,
+        "import_apply": true,
+        "csv_schema_and_version": true,
+        "no_cross_user_disclosure": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 78C",
+        "title": "Finalize Selected Saved View CSV Export"
+    },
+    "generated_at": "2026-07-16T15:07:02+03:00"
+}
