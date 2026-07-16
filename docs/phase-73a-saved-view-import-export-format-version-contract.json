@@ -1,0 +1,144 @@
+{
+    "phase": "Phase 73A",
+    "title": "Saved View Import Export Format Version Contract",
+    "baseline": {
+        "phase": "Phase 72C clean",
+        "commit": "5941826",
+        "previous_tests": "1423 passed / 12717 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase73AImportExportFormatVersionContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-73a-saved-view-import-export-format-version-contract.json",
+            "docs/phase-73a-saved-view-import-export-format-version-contract.md"
+        ],
+        "excluded_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "csv_export_exists": true,
+        "csv_import_preview_exists": true,
+        "csv_import_apply_exists": true,
+        "filters_payload_lossless_round_trip_exists": true,
+        "filters_summary_human_readable_only": true,
+        "format_version_column_absent": true,
+        "explicit_version_validation_absent": true,
+        "legacy_unversioned_csv_supported": true,
+        "future_format_evolution_is_ambiguous_without_versioning": true
+    },
+    "version_contract": {
+        "column": "format_version",
+        "column_position": "first",
+        "first_supported_version": "1",
+        "export_version": "1",
+        "supported_versions": [
+            "1"
+        ],
+        "absent_column_mode": "legacy_unversioned",
+        "version_detection_policy": "use_format_version_header_and_exact_row_value_only",
+        "do_not_infer_version_from_other_columns": true,
+        "unknown_version_policy": "reject_before_writes",
+        "invalid_version_policy": "reject_before_writes",
+        "mixed_versions_in_one_file_policy": "reject_before_writes",
+        "version_value_policy": "non_empty_exact_supported_string"
+    },
+    "explicit_v1_schema": {
+        "required_columns": [
+            "format_version",
+            "name",
+            "report_label",
+            "report_key",
+            "is_default",
+            "filter_count",
+            "filters_summary",
+            "filters_payload",
+            "updated_at"
+        ],
+        "format_version_value": "1",
+        "filters_payload_required": true,
+        "filters_payload_format": "JSON object",
+        "filters_summary_policy": "human_readable_only_not_parsed"
+    },
+    "compatibility_matrix": {
+        "legacy_unversioned_without_filters_payload": {
+            "accepted": true,
+            "filters_result": "empty_filters"
+        },
+        "legacy_unversioned_with_filters_payload": {
+            "accepted": true,
+            "filters_result": "validated_payload_filters"
+        },
+        "explicit_v1_with_filters_payload": {
+            "accepted": true,
+            "filters_result": "validated_payload_filters"
+        },
+        "explicit_v1_without_filters_payload": {
+            "accepted": false,
+            "reason": "missing_required_filters_payload_column"
+        },
+        "explicit_unknown_version": {
+            "accepted": false,
+            "reason": "unsupported_format_version"
+        },
+        "explicit_invalid_or_empty_version": {
+            "accepted": false,
+            "reason": "invalid_format_version"
+        },
+        "mixed_explicit_versions_in_one_file": {
+            "accepted": false,
+            "reason": "mixed_format_versions"
+        }
+    },
+    "preserved_behavior": {
+        "filters_summary_never_parsed": true,
+        "filters_payload_only_machine_filters_source": true,
+        "invalid_json_blocks_all_writes": true,
+        "json_list_blocks_all_writes": true,
+        "import_apply_revalidates_before_writes": true,
+        "import_apply_uses_database_transaction": true,
+        "authenticated_user_scope_only": true,
+        "duplicates_skipped_without_overwrite": true,
+        "default_normalization_per_user_and_report": true,
+        "preview_export_bulk_selection_and_pagination_preserved": true
+    },
+    "phase_73b_recommendation": {
+        "phase": "Phase 73B",
+        "title": "Implement Saved View Import Export Format Version",
+        "implementation_targets": [
+            "Add format_version as the first CSV export column and write version 1 for every exported row.",
+            "Treat files without format_version as legacy unversioned CSV.",
+            "Require filters_payload for explicit version 1 files.",
+            "Reject empty, malformed, unsupported, or mixed explicit versions before any import writes.",
+            "Do not infer a format version from filters_payload or any other column.",
+            "Keep legacy CSV behavior unchanged.",
+            "Keep filters_summary human-readable only.",
+            "Preserve transaction, user scope, duplicate skip, default normalization, preview, export, bulk selection, and pagination behavior."
+        ],
+        "risk": "medium",
+        "risk_reason": "Version detection changes CSV header and import validation. Incorrect fallback logic could reject legacy files or accept unsupported future formats."
+    },
+    "guardrails": [
+        "Do not implement format_version in Phase 73A.",
+        "Do not modify CSV export, import preview, or import apply in Phase 73A.",
+        "Do not infer format versions from column presence other than the explicit format_version header.",
+        "Files without format_version must remain legacy unversioned files.",
+        "Legacy files without filters_payload must remain supported with empty filters.",
+        "Legacy files with filters_payload must preserve current validated payload behavior.",
+        "Explicit version 1 must require filters_payload.",
+        "Unknown, invalid, empty, or mixed explicit versions must block all writes.",
+        "filters_summary must remain human-readable only and must never be parsed.",
+        "Import apply must remain transaction-protected and authenticated-user scoped.",
+        "Duplicates must remain skipped without overwrite."
+    ]
+}
