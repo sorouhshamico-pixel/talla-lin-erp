@@ -1,0 +1,93 @@
+{
+    "phase": "Phase 73C",
+    "title": "Saved View Import Export Format Version Finalization",
+    "baseline": {
+        "phase": "Phase 73B clean",
+        "commit": "0bb324d",
+        "previous_tests": "1444 passed / 12866 assertions"
+    },
+    "scope": {
+        "type": "finalization",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase73CImportExportFormatVersionFinalizationTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-73c-saved-view-import-export-format-version-finalization.json",
+            "docs/phase-73c-saved-view-import-export-format-version-finalization.md"
+        ],
+        "locked_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "finalized_behavior": {
+        "format_version_export_column_locked": true,
+        "format_version_is_first_column_locked": true,
+        "export_version_one_locked": true,
+        "explicit_v1_requires_filters_payload_column_locked": true,
+        "explicit_v1_requires_non_empty_filters_payload_locked": true,
+        "explicit_v1_filters_payload_json_object_locked": true,
+        "empty_explicit_version_rejected_locked": true,
+        "unsupported_explicit_version_rejected_locked": true,
+        "mixed_explicit_versions_rejected_locked": true,
+        "legacy_unversioned_without_payload_supported_locked": true,
+        "legacy_unversioned_without_payload_imports_empty_filters_locked": true,
+        "legacy_unversioned_with_payload_supported_locked": true,
+        "version_not_inferred_from_other_columns_locked": true,
+        "filters_summary_human_readable_only_locked": true,
+        "filters_payload_machine_source_locked": true,
+        "versioned_lossless_round_trip_locked": true,
+        "import_revalidation_before_writes_locked": true,
+        "transaction_boundary_locked": true,
+        "authenticated_user_scope_locked": true,
+        "duplicate_skip_without_overwrite_locked": true,
+        "default_normalization_per_user_report_locked": true,
+        "preview_export_bulk_selection_pagination_preserved": true
+    },
+    "current_export_schema": [
+        "format_version",
+        "name",
+        "report_label",
+        "report_key",
+        "is_default",
+        "filter_count",
+        "filters_summary",
+        "filters_payload",
+        "updated_at"
+    ],
+    "current_explicit_version": "1",
+    "supported_explicit_versions": [
+        "1"
+    ],
+    "legacy_mode": "absence_of_format_version_header",
+    "filters_summary_policy": "human_readable_only_not_parsed",
+    "machine_readable_filters_source": "filters_payload",
+    "duplicate_policy": "skip_existing_user_report_key_name_without_overwrite",
+    "next_recommendation": {
+        "phase": "Phase 74A",
+        "title": "Saved View Import Export Version Registry Contract",
+        "reason": "Format version 1 is now finalized. The next safe step is a dedicated version registry contract that centralizes supported versions, schemas, and compatibility rules before a future version is introduced."
+    },
+    "guardrails": [
+        "Do not modify Phase 73B implementation in this finalization phase.",
+        "format_version must remain the first exported CSV column.",
+        "New exports must continue to use explicit version 1.",
+        "Explicit version 1 must require a non-empty filters_payload column.",
+        "filters_payload must decode to a JSON object before writes.",
+        "Empty, unsupported, or mixed explicit versions must block all writes.",
+        "Files without format_version must remain legacy unversioned files.",
+        "Legacy files without filters_payload must remain supported with empty filters.",
+        "Legacy files with filters_payload must preserve validated payload filters.",
+        "Do not infer a version from filters_payload or any non-version column.",
+        "filters_summary must remain human-readable only and must never be parsed.",
+        "Import apply must remain transaction-protected and authenticated-user scoped.",
+        "Duplicates must remain skipped without overwrite.",
+        "Preserve preview, export, bulk selection, and pagination behavior."
+    ]
+}
