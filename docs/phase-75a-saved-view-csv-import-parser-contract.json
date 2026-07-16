@@ -1,0 +1,292 @@
+{
+    "phase": "Phase 75A",
+    "title": "Saved View CSV Import Parser Contract",
+    "baseline": {
+        "phase": "Phase 74C clean",
+        "commit": "ce63519",
+        "previous_tests": "1483 passed / 13297 assertions"
+    },
+    "scope": {
+        "type": "audit_contract",
+        "implementation_changes_expected": false,
+        "test_files": [
+            "tests/Feature/ReportSavedViewPhase75ACsvImportParserContractTest.php"
+        ],
+        "documentation_files": [
+            "docs/phase-75a-saved-view-csv-import-parser-contract.json",
+            "docs/phase-75a-saved-view-csv-import-parser-contract.md"
+        ],
+        "excluded_implementation_files": [
+            "app/Http/Controllers/ReportSavedViewController.php",
+            "app/Support/Reports/ReportSavedViewImportExportVersionRegistry.php",
+            "routes/web.php",
+            "app/Services/ReportSavedViewService.php",
+            "resources/views/reports/saved-views/index.blade.php",
+            "resources/views/reports/saved-views/edit.blade.php",
+            "app/Models/ReportSavedView.php",
+            "app/Support/Reports/ReportSavedViewRegistry.php"
+        ]
+    },
+    "current_state": {
+        "csv_file_opening_is_inline_in_controller": true,
+        "csv_header_reading_is_inline_in_controller": true,
+        "bom_header_normalization_is_inline_in_controller": true,
+        "version_and_required_column_resolution_is_inline_in_controller": true,
+        "row_iteration_and_validation_are_inline_in_controller": true,
+        "filters_payload_decoding_is_inline_in_controller": true,
+        "filters_cleaning_is_inline_in_controller": true,
+        "empty_row_detection_is_inline_in_controller": true,
+        "preview_summary_counting_is_inline_in_controller": true,
+        "database_apply_is_separate_from_parser_logic": true,
+        "dedicated_csv_import_parser_absent": true
+    },
+    "parser_contract": {
+        "class": "App\\Support\\Reports\\ReportSavedViewCsvImportParser",
+        "file": "app/Support/Reports/ReportSavedViewCsvImportParser.php",
+        "type": "final_stateless_csv_parser",
+        "constructor_dependencies": [],
+        "allowed_collaborators": [
+            "App\\Support\\Reports\\ReportSavedViewImportExportVersionRegistry",
+            "App\\Support\\Reports\\ReportSavedViewRegistry"
+        ],
+        "allowed_runtime_access": [
+            "read_only_csv_filesystem_access"
+        ],
+        "must_not_access": [
+            "database",
+            "eloquent_models",
+            "request",
+            "response",
+            "session",
+            "authentication",
+            "redirects",
+            "views",
+            "routes"
+        ],
+        "public_api": {
+            "parse": {
+                "signature": "public function parse(string $path): array",
+                "return_shape": {
+                    "headers": "array<int, string>",
+                    "header_errors": "array<int, string>",
+                    "rows": "array<int, array<string, mixed>>",
+                    "total_rows": "int",
+                    "valid_rows": "int",
+                    "invalid_rows": "int"
+                }
+            }
+        },
+        "private_responsibilities": [
+            "open CSV path for read-only parsing",
+            "read and normalize UTF-8 BOM headers",
+            "resolve legacy or explicit format mode through the version registry",
+            "validate required columns before row parsing",
+            "iterate non-empty CSV rows with one-based file row numbers",
+            "read canonical legacy columns and optional machine-readable columns",
+            "validate format version, name, report key, default flag, and filter count",
+            "decode filters_payload only as a JSON object",
+            "recursively remove empty imported filter keys and values",
+            "build the unchanged preview row shape",
+            "detect mixed explicit versions",
+            "calculate valid and invalid row totals"
+        ]
+    },
+    "parse_result_contract": {
+        "return_shape": {
+            "headers": "array<int, string>",
+            "header_errors": "array<int, string>",
+            "rows": "array<int, array<string, mixed>>",
+            "total_rows": "int",
+            "valid_rows": "int",
+            "invalid_rows": "int"
+        },
+        "row_shape": [
+            "row_number",
+            "format_version",
+            "name",
+            "report_label",
+            "report_key",
+            "is_default",
+            "filter_count",
+            "filters_summary",
+            "filters_payload",
+            "filters",
+            "status",
+            "errors"
+        ],
+        "row_number_policy": "CSV header is row 1; first data row is row 2",
+        "format_version_policy": "explicit string value or null for legacy rows",
+        "report_label_policy": "canonical registry label when report key exists, otherwise CSV label",
+        "is_default_output_policy": "Arabic نعم or لا",
+        "filter_count_output_type": "integer",
+        "status_values": [
+            "valid",
+            "invalid"
+        ],
+        "errors_output_type": "array<int, string>"
+    },
+    "file_and_header_contract": {
+        "unreadable_file_result": {
+            "headers": [],
+            "header_errors": [
+                "تعذر قراءة ملف CSV."
+            ],
+            "rows": [],
+            "total_rows": 0,
+            "valid_rows": 0,
+            "invalid_rows": 0
+        },
+        "empty_or_invalid_file_result": {
+            "headers": [],
+            "header_errors": [
+                "ملف CSV فارغ أو غير صالح."
+            ],
+            "rows": [],
+            "total_rows": 0,
+            "valid_rows": 0,
+            "invalid_rows": 0
+        },
+        "bom_policy": "remove UTF-8 BOM from header cells before comparison",
+        "format_mode_detection": "presence of the registry format-version column only",
+        "legacy_required_columns_source": "ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()",
+        "explicit_required_columns_source": "ReportSavedViewImportExportVersionRegistry::requiredColumns(ReportSavedViewImportExportVersionRegistry::currentVersion())",
+        "missing_columns_error_prefix": "الأعمدة المطلوبة غير موجودة: ",
+        "missing_columns_blocks_row_parsing": true
+    },
+    "row_validation_contract": {
+        "empty_rows_skipped": true,
+        "name": {
+            "required_error": "اسم العرض مطلوب.",
+            "maximum_length": 120,
+            "maximum_length_error": "اسم العرض يتجاوز 120 حرفًا."
+        },
+        "report_key": {
+            "required_error": "مفتاح التقرير مطلوب.",
+            "unknown_error": "مفتاح التقرير غير معروف.",
+            "registry_source": "ReportSavedViewRegistry"
+        },
+        "is_default": {
+            "accepted_values_case_insensitive": [
+                "yes",
+                "no",
+                "1",
+                "0",
+                "true",
+                "false",
+                "نعم",
+                "لا"
+            ],
+            "invalid_error": "قيمة الافتراضي غير صالحة.",
+            "truthy_output_values": [
+                "yes",
+                "1",
+                "true",
+                "نعم"
+            ]
+        },
+        "filter_count": {
+            "optional": true,
+            "valid_format": "non-negative decimal integer string",
+            "invalid_error": "عدد الفلاتر يجب أن يكون رقمًا صحيحًا.",
+            "empty_output": 0
+        },
+        "format_version": {
+            "empty_error": "قيمة format_version مطلوبة.",
+            "unsupported_error": "إصدار تنسيق ملف الاستيراد غير مدعوم.",
+            "supported_check_source": "ReportSavedViewImportExportVersionRegistry::supports($formatVersion)",
+            "mixed_versions_header_error": "يحتوي الملف على أكثر من إصدار format_version."
+        },
+        "filters_payload": {
+            "legacy_empty_result": [],
+            "explicit_requirement_source": "ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)",
+            "required_error": "filters_payload مطلوب في الإصدار 1.",
+            "invalid_object_error": "filters_payload يجب أن يكون JSON object صالحًا.",
+            "json_arrays_rejected": true,
+            "filters_summary_never_parsed": true
+        }
+    },
+    "filters_cleaning_contract": {
+        "empty_or_non_string_keys_removed": true,
+        "null_values_removed": true,
+        "empty_string_values_removed": true,
+        "nested_arrays_cleaned_recursively": true,
+        "empty_nested_arrays_removed": true,
+        "non_empty_scalar_values_preserved": true,
+        "non_empty_nested_values_preserved": true
+    },
+    "phase_75b_migration_contract": {
+        "controller_import": "use App\\Support\\Reports\\ReportSavedViewCsvImportParser;",
+        "controller_constructor": "public function __construct(private readonly ReportSavedViewCsvImportParser $csvImportParser)",
+        "replace_calls": {
+            "preview_action": "$this->previewSavedViewImport($csvPath) becomes $this->csvImportParser->parse($csvPath)",
+            "apply_action": "$this->previewSavedViewImport($tempPath) becomes $this->csvImportParser->parse($tempPath)"
+        },
+        "remove_controller_methods": [
+            "previewSavedViewImport",
+            "decodeImportFiltersPayload",
+            "cleanImportedFilters",
+            "isEmptyCsvRow"
+        ],
+        "preserve_controller_methods": [
+            "previewImport",
+            "applyImport",
+            "applySavedViewImportRows"
+        ],
+        "routes_changed": false,
+        "views_changed": false,
+        "service_changed": false,
+        "model_changed": false,
+        "database_behavior_changed": false,
+        "behavior_change_allowed": false
+    },
+    "preserved_behavior": {
+        "preview_action_request_validation_preserved": true,
+        "preview_action_base64_payload_preserved": true,
+        "apply_action_base64_validation_preserved": true,
+        "apply_action_temp_file_flow_preserved": true,
+        "apply_action_reparses_before_writes": true,
+        "header_and_row_error_messages_preserved": true,
+        "preview_result_shape_preserved": true,
+        "row_result_shape_preserved": true,
+        "legacy_compatibility_preserved": true,
+        "version_registry_integration_preserved": true,
+        "filters_payload_policy_preserved": true,
+        "filters_summary_human_readable_only_preserved": true,
+        "transaction_boundary_preserved": true,
+        "authenticated_user_scope_preserved": true,
+        "duplicate_skip_without_overwrite_preserved": true,
+        "default_normalization_preserved": true,
+        "export_bulk_selection_pagination_preserved": true
+    },
+    "phase_75b_recommendation": {
+        "phase": "Phase 75B",
+        "title": "Implement Saved View CSV Import Parser",
+        "implementation_targets": [
+            "Create the final stateless ReportSavedViewCsvImportParser class.",
+            "Move CSV file reading, BOM normalization, header validation, and row parsing out of the controller.",
+            "Move format-version validation and filters_payload decoding into the parser.",
+            "Move recursive imported-filter cleaning and empty-row detection into the parser.",
+            "Inject the parser into the controller and replace both preview parsing calls.",
+            "Keep database import application and transaction logic inside the controller.",
+            "Update historical source-marker tests without weakening behavioral assertions.",
+            "Preserve every Phase 70 through Phase 74 behavior and message."
+        ],
+        "risk": "medium",
+        "risk_reason": "The extraction moves a large validation block and several private helpers. Small output-shape or exact-message changes could break preview and apply compatibility."
+    },
+    "guardrails": [
+        "Do not implement the CSV parser in Phase 75A.",
+        "Do not modify controller, registry, routes, services, views, models, or database behavior in Phase 75A.",
+        "The future parser must be final, stateless, and deterministic for the same file contents.",
+        "The future parser may read CSV files but must not write files or access database or HTTP state.",
+        "The version registry remains the sole source of format-version and schema metadata.",
+        "ReportSavedViewRegistry remains the sole source of valid report keys and canonical labels.",
+        "The parser output and all exact Arabic validation messages must remain unchanged.",
+        "The parser must not parse filters_summary.",
+        "The parser must reject JSON arrays and accept only JSON objects for filters_payload.",
+        "Preview and apply must continue to parse through the same parser path.",
+        "Apply must continue to reparse the base64 payload before writes.",
+        "Database transaction, authenticated-user scope, duplicate skipping, and default normalization remain outside the parser.",
+        "No route, view, service, model, migration, or database schema change is allowed in Phase 75B."
+    ]
+}
