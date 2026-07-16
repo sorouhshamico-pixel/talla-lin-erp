@@ -37,23 +37,19 @@ class ReportSavedViewPhase73AImportExportFormatVersionContractTest extends TestC
         }
     }
 
-    public function test_current_saved_view_csv_is_unversioned_but_payload_capable(): void
+    public function test_phase_73a_historical_contract_records_unversioned_payload_capable_baseline(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $currentState = $this->contract()['current_state'];
 
-        foreach ([
-            "'filters_summary'",
-            "'filters_payload'",
-            '$filtersPayload = json_encode((object) ($savedView->filters ?? []',
-            "array_key_exists('filters_payload', \$indexes)",
-            'decodeImportFiltersPayload($data[\'filters_payload\'], $errors)',
-        ] as $currentMarker) {
-            $this->assertStringContainsString($currentMarker, $controller);
-        }
-
-        $this->assertStringNotContainsString("'format_version'", $controller);
-        $this->assertStringNotContainsString('"format_version"', $controller);
-        $this->assertStringNotContainsString('$formatVersion', $controller);
+        $this->assertTrue($currentState['csv_export_exists']);
+        $this->assertTrue($currentState['csv_import_preview_exists']);
+        $this->assertTrue($currentState['csv_import_apply_exists']);
+        $this->assertTrue($currentState['filters_payload_lossless_round_trip_exists']);
+        $this->assertTrue($currentState['filters_summary_human_readable_only']);
+        $this->assertTrue($currentState['format_version_column_absent']);
+        $this->assertTrue($currentState['explicit_version_validation_absent']);
+        $this->assertTrue($currentState['legacy_unversioned_csv_supported']);
+        $this->assertTrue($currentState['future_format_evolution_is_ambiguous_without_versioning']);
     }
 
     public function test_contract_defines_one_explicit_version_column_without_inference(): void

@@ -1,0 +1,44 @@
+{
+    "phase": "Phase 73B",
+    "title": "Implement Saved View Import Export Format Version",
+    "baseline": {
+        "phase": "Phase 73A clean",
+        "commit": "7a621c9",
+        "previous_tests": "1433 passed / 12801 assertions"
+    },
+    "implementation": {
+        "export_format_version_column": "format_version",
+        "export_format_version_position": "first",
+        "export_format_version_value": "1",
+        "supported_explicit_versions": [
+            "1"
+        ],
+        "explicit_v1_requires_filters_payload_column": true,
+        "explicit_v1_requires_non_empty_filters_payload": true,
+        "empty_explicit_version_rejected": true,
+        "unsupported_explicit_version_rejected": true,
+        "mixed_explicit_versions_rejected": true,
+        "legacy_unversioned_without_payload_supported": true,
+        "legacy_unversioned_without_payload_imports_empty_filters": true,
+        "legacy_unversioned_with_payload_supported": true,
+        "version_not_inferred_from_other_columns": true,
+        "filters_summary_human_readable_only": true,
+        "transaction_preserved": true,
+        "authenticated_user_scope_preserved": true,
+        "duplicate_skip_without_overwrite_preserved": true,
+        "default_normalization_preserved": true
+    },
+    "changed_files": [
+        "app/Http/Controllers/ReportSavedViewController.php",
+        "tests/Feature/ReportSavedViewPhase73AImportExportFormatVersionContractTest.php",
+        "tests/Feature/ReportSavedViewPhase73BImportExportFormatVersionImplementationTest.php",
+        "tests/Feature/ReportSavedViewPhase69BCsvExportImplementationTest.php",
+        "tests/Feature/ReportSavedViewPhase69CCsvExportFinalizationTest.php",
+        "docs/phase-73b-saved-view-import-export-format-version-implementation.json",
+        "docs/phase-73b-saved-view-import-export-format-version-implementation.md"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 73C",
+        "title": "Finalize Saved View Import Export Format Version"
+    }
+}

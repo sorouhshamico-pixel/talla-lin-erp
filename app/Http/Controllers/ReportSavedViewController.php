@@ -50,6 +50,24 @@ class ReportSavedViewController extends Controller
         'updated_at',
     ];
 
+    private const IMPORT_EXPORT_FORMAT_VERSION = '1';
+
+    private const SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS = [
+        self::IMPORT_EXPORT_FORMAT_VERSION,
+    ];
+
+    private const IMPORT_PREVIEW_V1_REQUIRED_COLUMNS = [
+        'format_version',
+        'name',
+        'report_label',
+        'report_key',
+        'is_default',
+        'filter_count',
+        'filters_summary',
+        'filters_payload',
+        'updated_at',
+    ];
+
     public function index(Request $request, ReportSavedViewService $savedViewService): View
     {
         $validated = $request->validate([
@@ -216,6 +234,7 @@ class ReportSavedViewController extends Controller
             fwrite($handle, "\xEF\xBB\xBF");
 
             fputcsv($handle, [
+                'format_version',
                 'name',
                 'report_label',
                 'report_key',
@@ -244,6 +263,7 @@ class ReportSavedViewController extends Controller
                 $filtersPayload = json_encode((object) ($savedView->filters ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
                 fputcsv($handle, [
+                    self::IMPORT_EXPORT_FORMAT_VERSION,
                     $formatted->name,
                     $formatted->report_label,
                     $formatted->report_key,
@@ -513,9 +533,14 @@ class ReportSavedViewController extends Controller
             $headers
         );
 
-        $missingColumns = array_values(array_diff(self::IMPORT_PREVIEW_REQUIRED_COLUMNS, $headers));
+        $hasExplicitFormatVersion = in_array('format_version', $headers, true);
+        $requiredColumns = $hasExplicitFormatVersion
+            ? self::IMPORT_PREVIEW_V1_REQUIRED_COLUMNS
+            : self::IMPORT_PREVIEW_REQUIRED_COLUMNS;
+        $missingColumns = array_values(array_diff($requiredColumns, $headers));
         $rows = [];
         $rowNumber = 1;
+        $encounteredFormatVersions = [];
 
         if ($missingColumns !== []) {
             fclose($handle);
@@ -548,12 +573,32 @@ class ReportSavedViewController extends Controller
             $data['filters_payload'] = array_key_exists('filters_payload', $indexes)
                 ? trim((string) ($row[$indexes['filters_payload']] ?? ''))
                 : '';
+            $data['format_version'] = $hasExplicitFormatVersion
+                ? trim((string) ($row[$indexes['format_version']] ?? ''))
+                : '';
 
             $errors = [];
             $name = $data['name'];
             $reportKey = $data['report_key'];
             $filterCount = $data['filter_count'];
             $isDefault = mb_strtolower($data['is_default'], 'UTF-8');
+            $formatVersion = $data['format_version'];
+
+            if ($hasExplicitFormatVersion) {
+                if ($formatVersion === '') {
+                    $errors[] = 'قيمة format_version مطلوبة.';
+                } else {
+                    $encounteredFormatVersions[$formatVersion] = true;
+
+                    if (! in_array($formatVersion, self::SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS, true)) {
+                        $errors[] = 'إصدار تنسيق ملف الاستيراد غير مدعوم.';
+                    }
+                }
+
+                if ($data['filters_payload'] === '') {
+                    $errors[] = 'filters_payload مطلوب في الإصدار 1.';
+                }
+            }
 
             if ($name === '') {
                 $errors[] = 'اسم العرض مطلوب.';
@@ -579,6 +624,7 @@ class ReportSavedViewController extends Controller
 
             $rows[] = [
                 'row_number' => $rowNumber,
+                'format_version' => $hasExplicitFormatVersion ? $formatVersion : null,
                 'name' => $name,
                 'report_label' => ReportSavedViewRegistry::find($reportKey)['label'] ?? $data['report_label'],
                 'report_key' => $reportKey,
@@ -594,11 +640,17 @@ class ReportSavedViewController extends Controller
 
         fclose($handle);
 
+        $headerErrors = [];
+
+        if ($hasExplicitFormatVersion && count($encounteredFormatVersions) > 1) {
+            $headerErrors[] = 'يحتوي الملف على أكثر من إصدار format_version.';
+        }
+
         $validRows = count(array_filter($rows, fn (array $row): bool => $row['status'] === 'valid'));
 
         return [
             'headers' => $headers,
-            'header_errors' => [],
+            'header_errors' => $headerErrors,
             'rows' => $rows,
             'total_rows' => count($rows),
             'valid_rows' => $validRows,
