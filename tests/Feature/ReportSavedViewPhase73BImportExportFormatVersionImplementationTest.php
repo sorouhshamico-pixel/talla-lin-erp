@@ -357,23 +357,46 @@ class ReportSavedViewPhase73BImportExportFormatVersionImplementationTest extends
         $this->assertTrue($savedView->is_default);
     }
 
-    public function test_source_contains_explicit_format_version_contract_markers(): void
+    public function test_source_contains_registry_backed_format_version_contract_markers(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $registry = file_get_contents(
+            app_path('Support/Reports/ReportSavedViewImportExportVersionRegistry.php')
+        );
 
         foreach ([
-            "private const IMPORT_EXPORT_FORMAT_VERSION = '1';",
-            'private const SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS = [',
-            'private const IMPORT_PREVIEW_V1_REQUIRED_COLUMNS = [',
-            "'format_version'",
-            '$hasExplicitFormatVersion = in_array(\'format_version\', $headers, true);',
-            '? self::IMPORT_PREVIEW_V1_REQUIRED_COLUMNS',
-            '$encounteredFormatVersions[$formatVersion] = true;',
-            'count($encounteredFormatVersions) > 1',
-            'self::IMPORT_EXPORT_FORMAT_VERSION,',
+            'use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;',
+            'ReportSavedViewImportExportVersionRegistry::exportHeader()',
+            'ReportSavedViewImportExportVersionRegistry::currentVersion()',
+            'ReportSavedViewImportExportVersionRegistry::formatVersionColumn()',
+            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
+            'ReportSavedViewImportExportVersionRegistry::requiredColumns(',
+            'ReportSavedViewImportExportVersionRegistry::supports($formatVersion)',
+            'ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)',
             'return DB::transaction(function () use ($request, $rows): array',
         ] as $marker) {
             $this->assertStringContainsString($marker, $controller);
+        }
+
+        foreach ([
+            'final class ReportSavedViewImportExportVersionRegistry',
+            "private const FORMAT_VERSION_COLUMN = 'format_version';",
+            "private const CURRENT_VERSION = '1';",
+            'public static function supportedVersions(): array',
+            'public static function requiredColumns(string $version): array',
+            'public static function exportHeader(): array',
+            'public static function requiresFiltersPayload(string $version): bool',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $registry);
+        }
+
+        foreach ([
+            'IMPORT_PREVIEW_REQUIRED_COLUMNS',
+            'IMPORT_EXPORT_FORMAT_VERSION',
+            'SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS',
+            'IMPORT_PREVIEW_V1_REQUIRED_COLUMNS',
+        ] as $removedConstant) {
+            $this->assertStringNotContainsString($removedConstant, $controller);
         }
 
         $this->assertStringNotContainsString('parseFiltersSummary', $controller);

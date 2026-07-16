@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ReportSavedView;
 use App\Services\ReportSavedViewService;
+use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;
 use App\Support\Reports\ReportSavedViewRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,34 +39,6 @@ class ReportSavedViewController extends Controller
         'overdue_61_90' => 'متأخرة 61 إلى 90 يوم',
         'overdue_more_than_90' => 'أكثر من 90 يوم',
         'without_due_date' => 'بدون تاريخ استحقاق',
-    ];
-
-    private const IMPORT_PREVIEW_REQUIRED_COLUMNS = [
-        'name',
-        'report_label',
-        'report_key',
-        'is_default',
-        'filter_count',
-        'filters_summary',
-        'updated_at',
-    ];
-
-    private const IMPORT_EXPORT_FORMAT_VERSION = '1';
-
-    private const SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS = [
-        self::IMPORT_EXPORT_FORMAT_VERSION,
-    ];
-
-    private const IMPORT_PREVIEW_V1_REQUIRED_COLUMNS = [
-        'format_version',
-        'name',
-        'report_label',
-        'report_key',
-        'is_default',
-        'filter_count',
-        'filters_summary',
-        'filters_payload',
-        'updated_at',
     ];
 
     public function index(Request $request, ReportSavedViewService $savedViewService): View
@@ -233,17 +206,10 @@ class ReportSavedViewController extends Controller
 
             fwrite($handle, "\xEF\xBB\xBF");
 
-            fputcsv($handle, [
-                'format_version',
-                'name',
-                'report_label',
-                'report_key',
-                'is_default',
-                'filter_count',
-                'filters_summary',
-                'filters_payload',
-                'updated_at',
-            ]);
+            fputcsv(
+                $handle,
+                ReportSavedViewImportExportVersionRegistry::exportHeader()
+            );
 
             foreach ($savedViews as $savedView) {
                 $formatted = $this->formatSavedView($savedView);
@@ -263,7 +229,7 @@ class ReportSavedViewController extends Controller
                 $filtersPayload = json_encode((object) ($savedView->filters ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
                 fputcsv($handle, [
-                    self::IMPORT_EXPORT_FORMAT_VERSION,
+                    ReportSavedViewImportExportVersionRegistry::currentVersion(),
                     $formatted->name,
                     $formatted->report_label,
                     $formatted->report_key,
@@ -533,10 +499,13 @@ class ReportSavedViewController extends Controller
             $headers
         );
 
-        $hasExplicitFormatVersion = in_array('format_version', $headers, true);
+        $formatVersionColumn = ReportSavedViewImportExportVersionRegistry::formatVersionColumn();
+        $hasExplicitFormatVersion = in_array($formatVersionColumn, $headers, true);
         $requiredColumns = $hasExplicitFormatVersion
-            ? self::IMPORT_PREVIEW_V1_REQUIRED_COLUMNS
-            : self::IMPORT_PREVIEW_REQUIRED_COLUMNS;
+            ? ReportSavedViewImportExportVersionRegistry::requiredColumns(
+                ReportSavedViewImportExportVersionRegistry::currentVersion()
+            )
+            : ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns();
         $missingColumns = array_values(array_diff($requiredColumns, $headers));
         $rows = [];
         $rowNumber = 1;
@@ -566,7 +535,7 @@ class ReportSavedViewController extends Controller
 
             $data = [];
 
-            foreach (self::IMPORT_PREVIEW_REQUIRED_COLUMNS as $column) {
+            foreach (ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns() as $column) {
                 $data[$column] = trim((string) ($row[$indexes[$column]] ?? ''));
             }
 
@@ -574,7 +543,7 @@ class ReportSavedViewController extends Controller
                 ? trim((string) ($row[$indexes['filters_payload']] ?? ''))
                 : '';
             $data['format_version'] = $hasExplicitFormatVersion
-                ? trim((string) ($row[$indexes['format_version']] ?? ''))
+                ? trim((string) ($row[$indexes[$formatVersionColumn]] ?? ''))
                 : '';
 
             $errors = [];
@@ -590,12 +559,15 @@ class ReportSavedViewController extends Controller
                 } else {
                     $encounteredFormatVersions[$formatVersion] = true;
 
-                    if (! in_array($formatVersion, self::SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS, true)) {
+                    if (! ReportSavedViewImportExportVersionRegistry::supports($formatVersion)) {
                         $errors[] = 'إصدار تنسيق ملف الاستيراد غير مدعوم.';
                     }
                 }
 
-                if ($data['filters_payload'] === '') {
+                if (
+                    ReportSavedViewImportExportVersionRegistry::requiresFiltersPayload($formatVersion)
+                    && $data['filters_payload'] === ''
+                ) {
                     $errors[] = 'filters_payload مطلوب في الإصدار 1.';
                 }
             }

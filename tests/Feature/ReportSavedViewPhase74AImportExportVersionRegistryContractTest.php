@@ -37,26 +37,19 @@ class ReportSavedViewPhase74AImportExportVersionRegistryContractTest extends Tes
         }
     }
 
-    public function test_current_format_metadata_is_inline_and_dedicated_registry_is_absent(): void
+    public function test_phase_74a_historical_contract_records_inline_metadata_baseline(): void
     {
-        $controller = file_get_contents(app_path('Http/Controllers/ReportSavedViewController.php'));
+        $currentState = $this->contract()['current_state'];
 
-        foreach ([
-            'private const IMPORT_PREVIEW_REQUIRED_COLUMNS = [',
-            "private const IMPORT_EXPORT_FORMAT_VERSION = '1';",
-            'private const SUPPORTED_IMPORT_EXPORT_FORMAT_VERSIONS = [',
-            'private const IMPORT_PREVIEW_V1_REQUIRED_COLUMNS = [',
-        ] as $marker) {
-            $this->assertStringContainsString($marker, $controller);
-        }
-
-        $this->assertFileDoesNotExist(
-            app_path('Support/Reports/ReportSavedViewImportExportVersionRegistry.php')
-        );
-        $this->assertStringNotContainsString(
-            'use App\Support\Reports\ReportSavedViewImportExportVersionRegistry;',
-            $controller
-        );
+        $this->assertTrue($currentState['format_version_metadata_is_inline_in_controller']);
+        $this->assertTrue($currentState['legacy_required_columns_are_inline_in_controller']);
+        $this->assertTrue($currentState['supported_versions_are_inline_in_controller']);
+        $this->assertTrue($currentState['version_one_required_columns_are_inline_in_controller']);
+        $this->assertTrue($currentState['dedicated_version_registry_absent']);
+        $this->assertSame('1', $currentState['current_explicit_version']);
+        $this->assertSame(['1'], $currentState['supported_explicit_versions']);
+        $this->assertSame('absence_of_format_version_header', $currentState['legacy_mode']);
+        $this->assertTrue($currentState['phase_73_behavior_is_finalized']);
     }
 
     public function test_registry_identity_type_and_dependency_contract_are_locked(): void

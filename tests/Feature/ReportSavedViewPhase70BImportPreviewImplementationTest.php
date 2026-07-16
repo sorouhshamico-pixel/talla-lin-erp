@@ -141,7 +141,7 @@ class ReportSavedViewPhase70BImportPreviewImplementationTest extends TestCase
         }
 
         foreach ([
-            'private const IMPORT_PREVIEW_REQUIRED_COLUMNS',
+            'ReportSavedViewImportExportVersionRegistry::legacyRequiredColumns()',
             'public function previewImport(Request $request, ReportSavedViewService $savedViewService): View',
             "'csv_file' => ['required', 'file', 'max:2048']",
             'private function previewSavedViewImport(string $path): array',
