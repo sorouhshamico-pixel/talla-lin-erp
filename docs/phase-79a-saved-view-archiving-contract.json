@@ -1,0 +1,241 @@
+{
+    "phase": "Phase 79A",
+    "title": "Prepare Saved View Archiving Contract",
+    "type": "contract",
+    "selection_decision": {
+        "selected_capability": "saved_view_archiving",
+        "reason": "Saved views currently support permanent deletion but no reversible lifecycle state. Archiving is the smallest useful next management capability and is lower risk than sharing, tags, or manual ordering.",
+        "alternatives_deferred": [
+            "saved_view_tags",
+            "saved_view_sharing",
+            "saved_view_manual_sorting"
+        ]
+    },
+    "baseline": {
+        "phase": "Phase 78C",
+        "commit": "5c3def2",
+        "full_suite": "1595 passed / 14620 assertions",
+        "workflow": "direct main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "implementation_phase": "Phase 79B",
+        "finalization_phase": "Phase 79C"
+    },
+    "future_database_contract": {
+        "table": "report_saved_views",
+        "column": {
+            "name": "archived_at",
+            "type": "nullable timestamp",
+            "default": null
+        },
+        "index": [
+            "user_id",
+            "archived_at"
+        ],
+        "existing_rows": "remain active with archived_at null",
+        "rollback": "drop index and archived_at column"
+    },
+    "future_model_contract": {
+        "model": "App\\Models\\ReportSavedView",
+        "fillable_addition": "archived_at",
+        "cast": "datetime",
+        "helpers": [
+            "isArchived(): bool",
+            "isActive(): bool"
+        ]
+    },
+    "future_management_filter_contract": {
+        "parameter": "status",
+        "allowed_values": [
+            "active",
+            "archived",
+            "all"
+        ],
+        "default": "active",
+        "active_rule": "archived_at is null",
+        "archived_rule": "archived_at is not null",
+        "all_rule": "no archived_at restriction",
+        "preserve_in_pagination_and_return_queries": true,
+        "filtered_csv_export_respects_status": true
+    },
+    "future_service_contract": {
+        "existing_methods_active_only": [
+            "list",
+            "listForReport",
+            "getDefault"
+        ],
+        "management_methods_status_aware": [
+            "paginateForManagement",
+            "exportForManagement"
+        ],
+        "selected_export_rule": "exportSelectedForManagement remains explicit-ID and may export active or archived rows selected on the management page",
+        "new_methods": {
+            "archive": {
+                "parameters": [
+                    "User",
+                    "saved view ID"
+                ],
+                "result": "boolean changed",
+                "rules": [
+                    "authenticated-user scope",
+                    "set archived_at to current timestamp",
+                    "clear is_default in the same transaction",
+                    "idempotent when already archived"
+                ]
+            },
+            "restore": {
+                "parameters": [
+                    "User",
+                    "saved view ID"
+                ],
+                "result": "boolean changed",
+                "rules": [
+                    "authenticated-user scope",
+                    "set archived_at to null",
+                    "do not automatically restore default status",
+                    "idempotent when already active"
+                ]
+            },
+            "bulkArchive": {
+                "parameters": [
+                    "User",
+                    "array<int, int>"
+                ],
+                "result": "integer changed count",
+                "rules": [
+                    "positive unique ID normalization",
+                    "authenticated-user scope",
+                    "clear is_default for archived rows"
+                ]
+            },
+            "bulkRestore": {
+                "parameters": [
+                    "User",
+                    "array<int, int>"
+                ],
+                "result": "integer changed count",
+                "rules": [
+                    "positive unique ID normalization",
+                    "authenticated-user scope",
+                    "do not set any restored row as default"
+                ]
+            }
+        }
+    },
+    "future_http_contract": {
+        "routes": [
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-views/{savedView}/archive",
+                "name": "reports.saved-views.archive"
+            },
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-views/{savedView}/restore",
+                "name": "reports.saved-views.restore"
+            },
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-views/bulk-archive",
+                "name": "reports.saved-views.bulk-archive"
+            },
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-views/bulk-restore",
+                "name": "reports.saved-views.bulk-restore"
+            }
+        ],
+        "middleware": [
+            "auth"
+        ],
+        "bulk_validation": {
+            "saved_view_ids": [
+                "required",
+                "array",
+                "min:1"
+            ],
+            "saved_view_ids.*": [
+                "integer",
+                "distinct"
+            ]
+        },
+        "authorization": "foreign-user rows are never changed or disclosed"
+    },
+    "future_action_contract": {
+        "active_row_actions": [
+            "open",
+            "apply",
+            "edit",
+            "duplicate",
+            "make default",
+            "archive",
+            "delete",
+            "selected export"
+        ],
+        "archived_row_actions": [
+            "restore",
+            "delete",
+            "selected export"
+        ],
+        "archived_direct_action_rule": "apply, edit, duplicate, and make-default reject archived rows",
+        "delete_behavior": "single delete, bulk delete, and delete all remain permanent"
+    },
+    "future_view_contract": {
+        "status_filter_testid": "report-saved-views-status-select",
+        "active_badge_testid": "report-saved-view-active-badge",
+        "archived_badge_testid": "report-saved-view-archived-badge",
+        "archive_button_testid": "report-saved-view-archive-button",
+        "restore_button_testid": "report-saved-view-restore-button",
+        "bulk_archive_button_testid": "report-saved-views-bulk-archive-button",
+        "bulk_restore_button_testid": "report-saved-views-bulk-restore-button",
+        "reuse_existing_selection_controls": true,
+        "selection_count_preserved": true,
+        "delete_confirmation_preserved": true
+    },
+    "csv_and_import_contract": {
+        "schema_change": false,
+        "format_version_change": false,
+        "archived_at_exported": false,
+        "selected_export_can_include_archived_rows": true,
+        "imported_rows_are_active": true,
+        "existing_writer_changes_expected": false,
+        "import_parser_changes_expected": false
+    },
+    "preserved_behavior": {
+        "selected_csv_export": true,
+        "filtered_csv_export": true,
+        "csv_import_preview_and_apply": true,
+        "bulk_delete": true,
+        "delete_all": true,
+        "default_uniqueness_for_active_rows": true,
+        "authenticated_user_scope": true,
+        "no_cross_user_disclosure": true,
+        "main_only_workflow": true
+    },
+    "required_phase_79b_tests": [
+        "migration adds nullable archived_at and composite index",
+        "existing rows remain active",
+        "model fillable cast and helpers",
+        "management status validation and default active behavior",
+        "active archived and all pagination modes",
+        "filtered export respects status",
+        "report-facing list and default queries exclude archived rows",
+        "single archive clears default atomically",
+        "single restore does not restore default",
+        "bulk archive and restore normalize IDs and enforce user scope",
+        "foreign and nonexistent IDs are ignored without disclosure",
+        "archived direct apply edit duplicate and default actions are rejected",
+        "selected export can export explicitly selected archived rows",
+        "CSV schema and format version remain unchanged",
+        "management view shows status controls and correct actions",
+        "existing delete selected export import and pagination remain valid"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 79B",
+        "title": "Implement Saved View Archiving",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-16T15:31:20+03:00"
+}

@@ -184,7 +184,9 @@ destructive recovery action.
 
 ## Current stable state
 
-- Phase: Phase 78B — Implement Selected Saved View CSV Export.
-- Commit: `f886978`.
-- Full suite: `1588 passed / 14543 assertions`.
-- Next phase: Phase 78C — Finalize Selected Saved View CSV Export.
+- Phase: Phase 79A — Prepare Saved View Archiving Contract.
+- Commit: the commit containing this file.
+- Baseline: Phase 78C at `5c3def2`.
+- Baseline full suite:
+  `1595 passed / 14620 assertions`.
+- Next phase: Phase 79B — Implement Saved View Archiving.

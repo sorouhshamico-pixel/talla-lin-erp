@@ -98,3 +98,29 @@
 - Next: Phase 79A — Select Next Saved View Management Contract.
 - Risks: none identified.
 
+## 2026-07-16T15:32:31+03:00 — Phase 79A
+
+- Title: Prepare Saved View Archiving Contract.
+- Starting commit: `5c3def2`.
+- Branch: `main`.
+- Selected capability: reversible saved-view archiving.
+- Runtime files changed: none.
+- Database changes: none.
+- Added:
+  - `docs/phase-79a-saved-view-archiving-contract.json`
+  - `docs/phase-79a-saved-view-archiving-contract.md`
+  - `tests/Feature/ReportSavedViewPhase79AArchivingContractTest.php`
+- Updated:
+  - `AGENTS.md`
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Baseline suite:
+  `1595 passed / 14620 assertions`.
+- Pre-commit full suite:
+  `1602 passed / 14693 assertions`.
+- Stable commit: the commit containing this entry.
+- Push target: `origin/main` only.
+- Next: Phase 79B — Implement Saved View Archiving.
+- Risks: none identified.
+
