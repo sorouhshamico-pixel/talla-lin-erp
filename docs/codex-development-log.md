@@ -176,3 +176,31 @@
 - Next: Phase 80A — Select Next Saved View Management Contract.
 - Risks: none identified.
 
+## 2026-07-18T13:30:58+03:00 — Phase 80A
+
+- Title: Prepare Saved View Tags Contract.
+- Starting commit: `5dbb364`.
+- Branch: `main`.
+- Workflow: direct `main` only.
+- Selected capability: user-scoped saved-view tags.
+- Runtime files changed: none.
+- Database changes: none.
+- Historical Phase 79C workflow assertion stabilized:
+  - `tests/Feature/ReportSavedViewPhase79CArchivingFinalizationTest.php`
+- Added:
+  - `docs/phase-80a-saved-view-tags-contract.json`
+  - `docs/phase-80a-saved-view-tags-contract.md`
+  - `tests/Feature/ReportSavedViewPhase80ATagsContractTest.php`
+- Updated:
+  - `AGENTS.md`
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Pre-commit full suite:
+  `1625 passed / 14988 assertions`.
+- Registered worktrees: `1`.
+- Codex remote branch: absent.
+- Push target: `origin/main` only.
+- Next: Phase 80B — Implement Saved View Tags.
+- Risks: none identified.
+

@@ -3,10 +3,10 @@
 ## Latest validated phase
 
 ```text
-Phase: Phase 79C — Finalize Saved View Archiving
-Starting commit: 0e51cea
-Pre-commit tests: 1619 passed
-Pre-commit assertions: 14915
+Phase: Phase 80A — Prepare Saved View Tags Contract
+Starting commit: 5dbb364
+Pre-commit tests: 1625 passed
+Pre-commit assertions: 14988
 Branch: main
 Workflow: main only
 Push target: origin/main only
@@ -18,5 +18,5 @@ Status: awaiting commit and push
 ## Next recommendation
 
 ```text
-Phase 80A — Select Next Saved View Management Contract
+Phase 80B — Implement Saved View Tags
 ```

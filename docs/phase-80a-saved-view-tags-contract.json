@@ -1,0 +1,273 @@
+{
+    "phase": "Phase 80A",
+    "title": "Prepare Saved View Tags Contract",
+    "type": "contract",
+    "selection_decision": {
+        "selected_capability": "saved_view_tags",
+        "reason": "Tags provide high-value organization and filtering while remaining user-scoped and lower risk than sharing. They do not require changing report application behavior or manual ordering semantics.",
+        "alternatives_deferred": [
+            "saved_view_sharing",
+            "saved_view_manual_sorting"
+        ]
+    },
+    "baseline": {
+        "phase": "Phase 79C",
+        "commit": "5dbb364",
+        "full_suite": "1619 passed / 14915 assertions",
+        "workflow": "direct main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "implementation_phase": "Phase 80B",
+        "finalization_phase": "Phase 80C"
+    },
+    "future_database_contract": {
+        "tags_table": {
+            "name": "report_saved_view_tags",
+            "columns": [
+                "id",
+                "user_id",
+                "name",
+                "normalized_name",
+                "color",
+                "created_at",
+                "updated_at"
+            ],
+            "unique": [
+                "user_id",
+                "normalized_name"
+            ],
+            "foreign_key": "user_id references users.id with cascade delete"
+        },
+        "pivot_table": {
+            "name": "report_saved_view_tag",
+            "columns": [
+                "report_saved_view_id",
+                "report_saved_view_tag_id"
+            ],
+            "primary_key": [
+                "report_saved_view_id",
+                "report_saved_view_tag_id"
+            ],
+            "foreign_keys": [
+                "report_saved_view_id references report_saved_views.id with cascade delete",
+                "report_saved_view_tag_id references report_saved_view_tags.id with cascade delete"
+            ]
+        },
+        "existing_rows": "remain untagged",
+        "rollback": "drop pivot table, then tags table"
+    },
+    "future_tag_model_contract": {
+        "model": "App\\Models\\ReportSavedViewTag",
+        "fillable": [
+            "user_id",
+            "name",
+            "normalized_name",
+            "color"
+        ],
+        "relations": [
+            "user(): BelongsTo",
+            "savedViews(): BelongsToMany"
+        ],
+        "normalization": {
+            "trim": true,
+            "collapse_internal_whitespace": true,
+            "case_insensitive_uniqueness": true,
+            "maximum_name_length": 40,
+            "color": "nullable six-digit hexadecimal value with leading #"
+        }
+    },
+    "future_saved_view_model_contract": {
+        "relation": "tags(): BelongsToMany",
+        "eager_load_in_management": true,
+        "report_facing_queries": "do not require tags and preserve existing behavior"
+    },
+    "future_management_filter_contract": {
+        "parameter": "tag_ids",
+        "validation": [
+            "nullable",
+            "array"
+        ],
+        "item_validation": [
+            "integer",
+            "distinct"
+        ],
+        "matching_mode": "any selected tag",
+        "ownership_rule": "only authenticated-user tag IDs participate",
+        "preserve_with": [
+            "status",
+            "search",
+            "report_key",
+            "per_page",
+            "page",
+            "filtered export",
+            "import preview context",
+            "return queries"
+        ]
+    },
+    "future_service_contract": {
+        "tag_service": "App\\Services\\ReportSavedViewTagService",
+        "methods": {
+            "listForUser": {
+                "result": "Collection ordered by name and id"
+            },
+            "create": {
+                "rules": [
+                    "authenticated-user scope",
+                    "normalized uniqueness",
+                    "return existing matching tag idempotently"
+                ]
+            },
+            "update": {
+                "rules": [
+                    "authenticated-user scope",
+                    "normalized uniqueness",
+                    "foreign tag rejected without disclosure"
+                ]
+            },
+            "delete": {
+                "rules": [
+                    "authenticated-user scope",
+                    "detach assignments through cascade",
+                    "foreign tag rejected without disclosure"
+                ]
+            },
+            "syncSavedViewTags": {
+                "rules": [
+                    "saved view must belong to authenticated user",
+                    "tag IDs must belong to authenticated user",
+                    "foreign IDs ignored without disclosure",
+                    "replace assignments atomically"
+                ]
+            },
+            "bulkAttach": {
+                "rules": [
+                    "positive unique saved-view IDs",
+                    "positive unique tag IDs",
+                    "authenticated-user scope",
+                    "idempotent attachment"
+                ]
+            },
+            "bulkDetach": {
+                "rules": [
+                    "positive unique saved-view IDs",
+                    "positive unique tag IDs",
+                    "authenticated-user scope",
+                    "idempotent detachment"
+                ]
+            }
+        },
+        "management_methods_updated": [
+            "paginateForManagement",
+            "exportForManagement"
+        ]
+    },
+    "future_http_contract": {
+        "routes": [
+            {
+                "method": "POST",
+                "path": "/reports/saved-view-tags",
+                "name": "reports.saved-view-tags.store"
+            },
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-view-tags/{tag}",
+                "name": "reports.saved-view-tags.update"
+            },
+            {
+                "method": "DELETE",
+                "path": "/reports/saved-view-tags/{tag}",
+                "name": "reports.saved-view-tags.destroy"
+            },
+            {
+                "method": "PUT",
+                "path": "/reports/saved-views/{savedView}/tags",
+                "name": "reports.saved-views.tags.sync"
+            },
+            {
+                "method": "POST",
+                "path": "/reports/saved-views/bulk-attach-tags",
+                "name": "reports.saved-views.bulk-attach-tags"
+            },
+            {
+                "method": "DELETE",
+                "path": "/reports/saved-views/bulk-detach-tags",
+                "name": "reports.saved-views.bulk-detach-tags"
+            }
+        ],
+        "middleware": [
+            "auth"
+        ],
+        "authorization": "foreign tags and saved views are never disclosed"
+    },
+    "future_view_contract": {
+        "tag_filter_testid": "report-saved-views-tag-filter",
+        "tag_badge_testid": "report-saved-view-tag-badge",
+        "tag_manager_testid": "report-saved-view-tag-manager",
+        "sync_button_testid": "report-saved-view-tags-sync-button",
+        "bulk_attach_button_testid": "report-saved-views-bulk-attach-tags-button",
+        "bulk_detach_button_testid": "report-saved-views-bulk-detach-tags-button",
+        "active_and_archived_rows_supported": true,
+        "selection_controls_reused": true,
+        "current_status_controls_preserved": true
+    },
+    "archive_interaction_contract": {
+        "tags_remain_assigned_when_archived": true,
+        "tags_remain_assigned_when_restored": true,
+        "archived_rows_can_be_retagged": true,
+        "permanent_delete_removes_pivot_rows": true
+    },
+    "duplicate_contract": {
+        "duplicate_copies_tags": true,
+        "duplicate_remains_active_and_non_default": true
+    },
+    "csv_and_import_contract": {
+        "schema_change": false,
+        "format_version_change": false,
+        "tags_exported": false,
+        "filtered_export_can_filter_by_tags": true,
+        "selected_export_unchanged": true,
+        "imported_rows_have_no_tags": true,
+        "writer_changes_expected": false,
+        "parser_changes_expected": false
+    },
+    "preserved_behavior": {
+        "archiving_and_restoration": true,
+        "status_filter": true,
+        "selected_csv_export": true,
+        "filtered_csv_export": true,
+        "csv_import_preview_and_apply": true,
+        "single_bulk_delete": true,
+        "delete_all": true,
+        "default_view_behavior": true,
+        "authenticated_user_scope": true,
+        "historical_source_contracts": true,
+        "main_only_workflow": true
+    },
+    "required_phase_80b_tests": [
+        "tag and pivot migrations with indexes and cascades",
+        "existing saved views remain untagged",
+        "tag model fillable relations and normalization",
+        "case-insensitive per-user uniqueness",
+        "same normalized tag name allowed for different users",
+        "tag CRUD authorization and validation",
+        "saved-view tag sync enforces ownership",
+        "bulk attach and detach normalize IDs",
+        "tag filter supports active archived and all modes",
+        "tag filter persists through pagination and return context",
+        "filtered export respects tag filter without CSV schema change",
+        "selected export remains unchanged",
+        "archiving and restoring preserve tag assignments",
+        "duplicate copies tags and remains active non-default",
+        "permanent deletion removes pivot assignments",
+        "management view renders tag controls and badges",
+        "existing archive export import delete and pagination tests pass"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 80B",
+        "title": "Implement Saved View Tags",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-18T13:20:27+03:00"
+}

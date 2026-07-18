@@ -57,10 +57,11 @@ class ReportSavedViewPhase79CArchivingFinalizationTest extends TestCase
 
         foreach ([
             '## Main-only workflow',
-            'Phase 79C — Finalize Saved View Archiving',
-            'Phase 80A — Select Next Saved View Management Contract',
             'Do not create or push a phase branch.',
             'Do not create a Codex worktree.',
+            '### 9. Commit directly on main',
+            '### 10. Push only main',
+            'Only push completed, fully validated commits to `origin/main`.',
         ] as $marker) {
             $this->assertStringContainsString($marker, $agents);
         }
