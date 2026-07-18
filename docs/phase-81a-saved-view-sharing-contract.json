@@ -1,0 +1,285 @@
+{
+    "phase": "Phase 81A",
+    "title": "Prepare Saved View Sharing Contract",
+    "type": "contract",
+    "selection_decision": {
+        "selected_capability": "saved_view_sharing",
+        "reason": "Sharing is the next deferred high-value management capability after tags. The contract limits recipients to read, apply, and copy operations while preserving owner control and preventing shared-source mutation.",
+        "alternatives_deferred": [
+            "saved_view_manual_sorting",
+            "saved_view_folders",
+            "saved_view_team_permissions"
+        ]
+    },
+    "baseline": {
+        "phase": "Phase 80C",
+        "commit": "7a75448",
+        "full_suite": "1643 passed / 15126 assertions",
+        "workflow": "direct main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "implementation_phase": "Phase 81B",
+        "finalization_phase": "Phase 81C"
+    },
+    "future_database_contract": {
+        "table": {
+            "name": "report_saved_view_shares",
+            "columns": [
+                "id",
+                "report_saved_view_id",
+                "owner_user_id",
+                "recipient_user_id",
+                "permission",
+                "created_at",
+                "updated_at"
+            ],
+            "unique": [
+                "report_saved_view_id",
+                "recipient_user_id"
+            ],
+            "foreign_keys": [
+                "report_saved_view_id references report_saved_views.id with cascade delete",
+                "owner_user_id references users.id with cascade delete",
+                "recipient_user_id references users.id with cascade delete"
+            ],
+            "indexes": [
+                "owner_user_id",
+                "recipient_user_id",
+                "permission"
+            ]
+        },
+        "permission_values": [
+            "view",
+            "use"
+        ],
+        "existing_rows": "remain private and unshared",
+        "rollback": "drop report_saved_view_shares"
+    },
+    "future_model_contract": {
+        "model": "App\\Models\\ReportSavedViewShare",
+        "fillable": [
+            "report_saved_view_id",
+            "owner_user_id",
+            "recipient_user_id",
+            "permission"
+        ],
+        "relations": [
+            "savedView(): BelongsTo",
+            "owner(): BelongsTo",
+            "recipient(): BelongsTo"
+        ],
+        "saved_view_relations": [
+            "shares(): HasMany",
+            "sharedWithUsers(): BelongsToMany"
+        ]
+    },
+    "future_ownership_contract": {
+        "owner_only_actions": [
+            "create share",
+            "change permission",
+            "revoke share",
+            "list recipients"
+        ],
+        "recipient_actions": [
+            "list received shares",
+            "view shared saved view",
+            "apply shared saved view when permission is use",
+            "copy shared saved view into own account"
+        ],
+        "recipient_forbidden_actions": [
+            "edit source saved view",
+            "rename source saved view",
+            "archive source saved view",
+            "restore source saved view",
+            "delete source saved view",
+            "change source default state",
+            "change source tags",
+            "share source with another user"
+        ],
+        "self_sharing": "rejected",
+        "foreign_access": "rejected without disclosing resource ownership"
+    },
+    "future_service_contract": {
+        "service": "App\\Services\\ReportSavedViewShareService",
+        "methods": {
+            "listRecipients": {
+                "scope": "owner and saved-view scoped"
+            },
+            "share": {
+                "rules": [
+                    "saved view belongs to authenticated owner",
+                    "recipient exists",
+                    "recipient is not owner",
+                    "permission is view or use",
+                    "operation is idempotent for same recipient"
+                ]
+            },
+            "updatePermission": {
+                "rules": [
+                    "owner scoped",
+                    "permission is view or use"
+                ]
+            },
+            "revoke": {
+                "rules": [
+                    "owner scoped",
+                    "idempotent deletion"
+                ]
+            },
+            "listReceived": {
+                "scope": "authenticated recipient"
+            },
+            "copyToRecipient": {
+                "rules": [
+                    "authenticated recipient has active share",
+                    "creates independent active non-default saved view",
+                    "copies report key and filters",
+                    "does not copy owner tags",
+                    "does not copy further shares"
+                ]
+            }
+        }
+    },
+    "future_http_contract": {
+        "routes": [
+            {
+                "method": "POST",
+                "path": "/reports/saved-views/{savedView}/shares",
+                "name": "reports.saved-views.shares.store"
+            },
+            {
+                "method": "PATCH",
+                "path": "/reports/saved-view-shares/{share}",
+                "name": "reports.saved-view-shares.update"
+            },
+            {
+                "method": "DELETE",
+                "path": "/reports/saved-view-shares/{share}",
+                "name": "reports.saved-view-shares.destroy"
+            },
+            {
+                "method": "GET",
+                "path": "/reports/shared-saved-views",
+                "name": "reports.shared-saved-views.index"
+            },
+            {
+                "method": "POST",
+                "path": "/reports/shared-saved-views/{share}/copy",
+                "name": "reports.shared-saved-views.copy"
+            },
+            {
+                "method": "GET",
+                "path": "/reports/shared-saved-views/{share}/apply",
+                "name": "reports.shared-saved-views.apply"
+            }
+        ],
+        "middleware": [
+            "auth"
+        ]
+    },
+    "future_management_contract": {
+        "owned_management": {
+            "share_manager_testid": "report-saved-view-share-manager",
+            "recipient_testid": "report-saved-view-share-recipient",
+            "permission_testid": "report-saved-view-share-permission",
+            "revoke_button_testid": "report-saved-view-share-revoke-button"
+        },
+        "received_management": {
+            "page_testid": "shared-saved-views-page",
+            "row_testid": "shared-saved-view-row",
+            "apply_button_testid": "shared-saved-view-apply-button",
+            "copy_button_testid": "shared-saved-view-copy-button"
+        },
+        "filters": [
+            "search",
+            "report_key",
+            "permission",
+            "owner"
+        ]
+    },
+    "archive_interaction_contract": {
+        "share_records_preserved_when_archived": true,
+        "archived_source_hidden_from_recipient": true,
+        "archived_source_cannot_be_applied": true,
+        "archived_source_cannot_be_copied": true,
+        "restore_reactivates_existing_shares": true,
+        "permanent_delete_removes_shares": true
+    },
+    "tag_interaction_contract": {
+        "owner_tags_remain_private": true,
+        "received_view_can_display_no_owner_tags": true,
+        "copy_does_not_copy_owner_tags": true,
+        "recipient_can_assign_own_tags_after_copy": true
+    },
+    "duplicate_contract": {
+        "owner_duplicate_does_not_copy_shares": true,
+        "recipient_copy_does_not_copy_shares": true,
+        "recipient_copy_is_active": true,
+        "recipient_copy_is_non_default": true
+    },
+    "csv_and_import_contract": {
+        "schema_change": false,
+        "format_version_change": false,
+        "shares_exported": false,
+        "shared_received_rows_exported_from_owner_management": false,
+        "selected_export_remains_owner_scoped": true,
+        "imports_create_private_unshared_rows": true,
+        "writer_changes_expected": false,
+        "parser_changes_expected": false
+    },
+    "preserved_behavior": {
+        "saved_view_tags": true,
+        "archiving_and_restoration": true,
+        "status_filter": true,
+        "selected_csv_export": true,
+        "filtered_csv_export": true,
+        "csv_import_preview_and_apply": true,
+        "single_bulk_delete": true,
+        "delete_all": true,
+        "default_view_behavior": true,
+        "authenticated_user_scope": true,
+        "historical_source_contracts": true,
+        "main_only_workflow": true
+    },
+    "phase_81b_execution_plan": {
+        "large_phase": true,
+        "split_required": true,
+        "stages": [
+            "database models relations and ownership service",
+            "HTTP routes controllers and authorization",
+            "owned and received management interfaces",
+            "archive tags duplicate and CSV boundary integration",
+            "full validation documentation commit migration and push"
+        ]
+    },
+    "required_phase_81b_tests": [
+        "share migration indexes unique key and cascades",
+        "existing saved views remain private",
+        "share model fillable and relations",
+        "owner cannot share with self",
+        "owner can share with another user",
+        "same recipient share is idempotent",
+        "foreign owner cannot modify share",
+        "recipient can list received shares",
+        "view permission cannot apply source",
+        "use permission can apply active source",
+        "recipient cannot mutate source",
+        "recipient copy creates independent active non-default row",
+        "recipient copy does not copy tags or shares",
+        "archive suspends recipient access while preserving share",
+        "restore reactivates share access",
+        "permanent delete cascades share rows",
+        "owner duplicate does not copy shares",
+        "CSV schema writer parser and version remain unchanged",
+        "imports remain private and unshared",
+        "existing tags archive export import delete and pagination tests pass"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 81B",
+        "title": "Implement Saved View Sharing",
+        "workflow": "direct main only",
+        "split_large_phase": true
+    }
+}

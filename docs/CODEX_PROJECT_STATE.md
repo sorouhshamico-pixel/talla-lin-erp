@@ -1,23 +1,23 @@
 # Project State — Talla Lin ERP
 
-## Latest validated phase
+## Latest phase
 
 ```text
-Phase: Phase 80C — Finalize Saved View Tags
-Baseline commit: 4e7cbf2
-Pre-commit tests: 1643 passed
-Pre-commit assertions: 15126
+Phase: Phase 81A — Prepare Saved View Sharing Contract
+Baseline commit: 7a75448
+Baseline tests: 1643 passed
+Baseline assertions: 15126
 Branch: main
 Workflow: main only
 Push target: origin/main only
 Runtime changes: none
 Database changes: none
-Migration changes: none
 Status: awaiting commit and push
 ```
 
 ## Next recommendation
 
 ```text
-Phase 81A — Select Next Saved View Management Contract
+Phase 81B — Implement Saved View Sharing
+Large phase: split into small validated stages
 ```

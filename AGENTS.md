@@ -184,14 +184,18 @@ destructive recovery action.
 
 ## Current stable state
 
-- Phase: Phase 80C — Finalize Saved View Tags.
+- Phase: Phase 81A — Prepare Saved View Sharing Contract.
 - Commit: the commit containing this file.
-- Baseline: Phase 80B at `4e7cbf2`.
+- Baseline: Phase 80C at `7a75448`.
 - Historical contract:
   Phase 80A — Prepare Saved View Tags Contract.
 - Historical implementation:
   Phase 80B — Implement Saved View Tags.
-- Validated full suite:
+- Historical finalization:
+  Phase 80C — Finalize Saved View Tags.
+- Validated baseline full suite:
   `1643 passed / 15126 assertions`.
 - Next phase:
-  Phase 81A — Select Next Saved View Management Contract.
+  Phase 81B — Implement Saved View Sharing.
+- Large-phase policy:
+  split Phase 81B into small validated stages.
