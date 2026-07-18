@@ -1,0 +1,45 @@
+{
+    "phase": "Phase 80B",
+    "title": "Implement Saved View Tags",
+    "type": "implementation",
+    "baseline": {
+        "phase": "Phase 80A",
+        "commit": "a999163",
+        "tests": "1625 passed / 14988 assertions",
+        "workflow": "direct main only"
+    },
+    "validated_result": {
+        "pre_commit_tests": 1637,
+        "pre_commit_assertions": 15050
+    },
+    "implementation": {
+        "user_scoped_normalized_tags": true,
+        "tag_color_validation": true,
+        "saved_view_many_to_many_relation": true,
+        "tag_crud": true,
+        "single_view_sync": true,
+        "bulk_attach": true,
+        "bulk_detach": true,
+        "management_tag_filter": true,
+        "any_selected_tag_semantics": true,
+        "active_archived_all_status_modes": true,
+        "duplicate_copies_tags": true,
+        "archive_restore_preserve_tags": true,
+        "permanent_delete_cascades_assignments": true,
+        "management_filter_ui": true,
+        "tag_manager_ui": true,
+        "tag_badges": true,
+        "single_sync_ui": true,
+        "bulk_assignment_ui": true,
+        "csv_schema_unchanged": true,
+        "csv_writer_unchanged": true,
+        "csv_parser_unchanged": true,
+        "imported_rows_untagged": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 80C",
+        "title": "Finalize Saved View Tags",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-18T15:34:42+03:00"
+}

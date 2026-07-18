@@ -222,6 +222,137 @@ class ReportSavedViewService
     }
 
     /**
+     * @param array<int, string> $matchingReportKeys
+     * @param array<int, string> $matchingFilterValues
+     * @param array<int, int> $tagIds
+     */
+    public function paginateForManagementByTags(
+        User $user,
+        ?string $search = null,
+        ?string $reportKey = null,
+        array $matchingReportKeys = [],
+        array $matchingFilterValues = [],
+        int $perPage = 15,
+        string $status = 'active',
+        array $tagIds = []
+    ): LengthAwarePaginator {
+        $tagIds = $this->ownedManagementTagIds(
+            $user,
+            $tagIds
+        );
+
+        if ($tagIds === []) {
+            return $this->paginateForManagement(
+                $user,
+                $search,
+                $reportKey,
+                $matchingReportKeys,
+                $matchingFilterValues,
+                $perPage,
+                $status
+            );
+        }
+
+        $search = trim((string) $search);
+        $reportKey = trim((string) $reportKey);
+        $perPage = max(5, min($perPage, 100));
+        $status = $this->normalizeManagementStatus(
+            $status
+        );
+
+        $query = ReportSavedView::query()
+            ->with('tags')
+            ->where('user_id', $user->id);
+
+        $this->applyManagementStatus(
+            $query,
+            $status
+        );
+        $this->applyManagementTagFilter(
+            $query,
+            $tagIds
+        );
+        $this->applyManagementSearch(
+            $query,
+            $search,
+            $reportKey,
+            $matchingReportKeys,
+            $matchingFilterValues
+        );
+
+        return $query
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->orderBy('id')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
+     * @param array<int, string> $matchingReportKeys
+     * @param array<int, string> $matchingFilterValues
+     * @param array<int, int> $tagIds
+     * @return Collection<int, ReportSavedView>
+     */
+    public function exportForManagementByTags(
+        User $user,
+        ?string $search = null,
+        ?string $reportKey = null,
+        array $matchingReportKeys = [],
+        array $matchingFilterValues = [],
+        string $status = 'active',
+        array $tagIds = []
+    ): Collection {
+        $tagIds = $this->ownedManagementTagIds(
+            $user,
+            $tagIds
+        );
+
+        if ($tagIds === []) {
+            return $this->exportForManagement(
+                $user,
+                $search,
+                $reportKey,
+                $matchingReportKeys,
+                $matchingFilterValues,
+                $status
+            );
+        }
+
+        $search = trim((string) $search);
+        $reportKey = trim((string) $reportKey);
+        $status = $this->normalizeManagementStatus(
+            $status
+        );
+
+        $query = ReportSavedView::query()
+            ->with('tags')
+            ->where('user_id', $user->id);
+
+        $this->applyManagementStatus(
+            $query,
+            $status
+        );
+        $this->applyManagementTagFilter(
+            $query,
+            $tagIds
+        );
+        $this->applyManagementSearch(
+            $query,
+            $search,
+            $reportKey,
+            $matchingReportKeys,
+            $matchingFilterValues
+        );
+
+        return $query
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
      * @param array<int, int> $savedViewIds
      * @return Collection<int, ReportSavedView>
      */
@@ -443,6 +574,128 @@ class ReportSavedViewService
         if ($status === 'archived') {
             $query->whereNotNull('archived_at');
         }
+    }
+
+    /**
+     * @param array<int, string> $matchingReportKeys
+     * @param array<int, string> $matchingFilterValues
+     */
+    private function applyManagementSearch(
+        Builder $query,
+        string $search,
+        string $reportKey,
+        array $matchingReportKeys,
+        array $matchingFilterValues
+    ): void {
+        if ($reportKey !== '') {
+            $query->where(
+                'report_key',
+                $reportKey
+            );
+        }
+
+        if (
+            $search === ''
+            && $matchingReportKeys === []
+            && $matchingFilterValues === []
+        ) {
+            return;
+        }
+
+        $query->where(
+            function (Builder $query) use (
+                $search,
+                $matchingReportKeys,
+                $matchingFilterValues
+            ): void {
+                if ($search !== '') {
+                    $query
+                        ->where(
+                            'name',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'report_key',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'filters',
+                            'like',
+                            '%' . $search . '%'
+                        );
+                }
+
+                if ($matchingReportKeys !== []) {
+                    $query->orWhereIn(
+                        'report_key',
+                        array_values(
+                            array_unique(
+                                $matchingReportKeys
+                            )
+                        )
+                    );
+                }
+
+                foreach (
+                    array_values(
+                        array_unique(
+                            $matchingFilterValues
+                        )
+                    ) as $filterValue
+                ) {
+                    $query->orWhere(
+                        'filters',
+                        'like',
+                        '%' . $filterValue . '%'
+                    );
+                }
+            }
+        );
+    }
+
+    /**
+     * @param array<int, int> $tagIds
+     */
+    private function applyManagementTagFilter(
+        Builder $query,
+        array $tagIds
+    ): void {
+        $query->whereHas(
+            'tags',
+            fn (Builder $tagQuery) =>
+                $tagQuery->whereIn(
+                    'report_saved_view_tags.id',
+                    $tagIds
+                )
+        );
+    }
+
+    /**
+     * @param array<int, int> $tagIds
+     * @return array<int, int>
+     */
+    private function ownedManagementTagIds(
+        User $user,
+        array $tagIds
+    ): array {
+        $normalizedIds = $this->normalizeIds(
+            $tagIds
+        );
+
+        if ($normalizedIds === []) {
+            return [];
+        }
+
+        return DB::table(
+            'report_saved_view_tags'
+        )
+            ->where('user_id', $user->id)
+            ->whereIn('id', $normalizedIds)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
     }
 
     /**

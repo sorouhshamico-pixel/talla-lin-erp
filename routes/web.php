@@ -298,6 +298,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'index'])->name('reports.saved-views.index');
     Route::get('/reports/saved-views/export', [\App\Http\Controllers\ReportSavedViewController::class, 'export'])->name('reports.saved-views.export');
     Route::post('/reports/saved-views/export-selected', [\App\Http\Controllers\ReportSavedViewController::class, 'exportSelected'])->name('reports.saved-views.export-selected');
+    Route::post('/reports/saved-view-tags', [\App\Http\Controllers\ReportSavedViewTagController::class, 'store'])->name('reports.saved-view-tags.store');
+    Route::patch('/reports/saved-view-tags/{tag}', [\App\Http\Controllers\ReportSavedViewTagController::class, 'update'])->name('reports.saved-view-tags.update');
+    Route::delete('/reports/saved-view-tags/{tag}', [\App\Http\Controllers\ReportSavedViewTagController::class, 'destroy'])->name('reports.saved-view-tags.destroy');
+    Route::put('/reports/saved-views/{savedView}/tags', [\App\Http\Controllers\ReportSavedViewTagController::class, 'sync'])->name('reports.saved-views.tags.sync');
+    Route::post('/reports/saved-views/bulk-attach-tags', [\App\Http\Controllers\ReportSavedViewTagController::class, 'bulkAttach'])->name('reports.saved-views.bulk-attach-tags');
+    Route::delete('/reports/saved-views/bulk-detach-tags', [\App\Http\Controllers\ReportSavedViewTagController::class, 'bulkDetach'])->name('reports.saved-views.bulk-detach-tags');
     Route::post('/reports/saved-views/import-preview', [\App\Http\Controllers\ReportSavedViewController::class, 'previewImport'])->name('reports.saved-views.import-preview');
     Route::post('/reports/saved-views/import-apply', [\App\Http\Controllers\ReportSavedViewController::class, 'applyImport'])->name('reports.saved-views.import-apply');
     Route::patch('/reports/saved-views/bulk-archive', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkArchive'])->name('reports.saved-views.bulk-archive');

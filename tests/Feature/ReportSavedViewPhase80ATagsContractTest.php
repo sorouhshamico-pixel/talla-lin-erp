@@ -186,88 +186,31 @@ class ReportSavedViewPhase80ATagsContractTest extends TestCase
         );
     }
 
-    public function test_current_runtime_records_preimplementation_gap(): void
+    public function test_phase_80a_records_preimplementation_contract(): void
     {
-        $model = file_get_contents(
-            app_path('Models/ReportSavedView.php')
-        );
-        $service = file_get_contents(
-            app_path('Services/ReportSavedViewService.php')
-        );
-        $controller = file_get_contents(
-            app_path(
-                'Http/Controllers/'
-                . 'ReportSavedViewController.php'
-            )
-        );
-        $routes = file_get_contents(base_path('routes/web.php'));
-        $view = file_get_contents(
-            resource_path(
-                'views/reports/saved-views/index.blade.php'
-            )
-        );
+        $contract = $this->contract();
 
-        $this->assertStringNotContainsString(
-            'public function tags(',
-            $model
+        $this->assertFalse(
+            $contract['scope']['runtime_changes_expected']
         );
-        $this->assertStringNotContainsString(
-            'ReportSavedViewTagService',
-            $service
+        $this->assertFalse(
+            $contract['scope']['database_changes_expected']
         );
-        $this->assertStringNotContainsString(
-            "'tag_ids' =>",
-            $controller
+        $this->assertSame(
+            'Phase 80B',
+            $contract['scope']['implementation_phase']
         );
-
-        foreach ([
-            'reports.saved-view-tags.store',
-            'reports.saved-view-tags.update',
-            'reports.saved-view-tags.destroy',
-            'reports.saved-views.tags.sync',
-            'reports.saved-views.bulk-attach-tags',
-            'reports.saved-views.bulk-detach-tags',
-        ] as $marker) {
-            $this->assertStringNotContainsString(
-                $marker,
-                $routes
-            );
-        }
-
-        foreach ([
-            'report-saved-views-tag-filter',
-            'report-saved-view-tag-badge',
-            'report-saved-view-tag-manager',
-            'report-saved-view-tags-sync-button',
-            'report-saved-views-bulk-attach-tags-button',
-            'report-saved-views-bulk-detach-tags-button',
-        ] as $marker) {
-            $this->assertStringNotContainsString(
-                $marker,
-                $view
-            );
-        }
-
-        $this->assertTrue(
-            method_exists(
-                ReportSavedViewService::class,
-                'archive'
-            )
+        $this->assertSame(
+            'tags(): BelongsToMany',
+            $contract[
+                'future_saved_view_model_contract'
+            ]['relation']
         );
-        $this->assertTrue(
-            method_exists(
-                ReportSavedViewService::class,
-                'bulkRestore'
-            )
-        );
-
-        $savedView = new ReportSavedView();
-
-        $this->assertTrue(
-            method_exists($savedView, 'isArchived')
-        );
-        $this->assertTrue(
-            method_exists($savedView, 'isActive')
+        $this->assertSame(
+            'App\\Services\\ReportSavedViewTagService',
+            $contract[
+                'future_service_contract'
+            ]['tag_service']
         );
     }
 

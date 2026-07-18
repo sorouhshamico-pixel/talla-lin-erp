@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ReportSavedView extends Model
 {
@@ -30,6 +31,14 @@ class ReportSavedView extends Model
     public function isActive(): bool
     {
         return ! $this->isArchived();
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ReportSavedViewTag::class,
+            'report_saved_view_tag'
+        );
     }
 
     public function user(): BelongsTo

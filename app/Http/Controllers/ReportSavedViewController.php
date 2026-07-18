@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ReportSavedView;
 use App\Services\ReportSavedViewImportApplyService;
 use App\Services\ReportSavedViewService;
+use App\Services\ReportSavedViewTagService;
 use App\Support\Reports\ReportSavedViewCsvExportWriter;
 use App\Support\Reports\ReportSavedViewCsvImportParser;
 use App\Support\Reports\ReportSavedViewRegistry;
@@ -60,6 +61,8 @@ class ReportSavedViewController extends Controller
                 'nullable',
                 'in:active,archived,all',
             ],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'distinct'],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
@@ -68,6 +71,12 @@ class ReportSavedViewController extends Controller
         );
         $perPage = (int) ($validated['per_page'] ?? 15);
         $status = (string) ($validated['status'] ?? 'active');
+        $tagIds = collect($validated['tag_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
 
         if (
             $reportKey !== ''
@@ -76,15 +85,32 @@ class ReportSavedViewController extends Controller
             $reportKey = '';
         }
 
-        $savedViews = $savedViewService->paginateForManagement(
-            $request->user(),
-            $search,
-            $reportKey,
-            $this->matchingReportKeysForSearch($search),
-            $this->matchingFilterValuesForSearch($search),
-            $perPage,
-            $status
-        );
+        if ($tagIds === []) {
+            $savedViews = $savedViewService->paginateForManagement(
+                $request->user(),
+                $search,
+                $reportKey,
+                $this->matchingReportKeysForSearch($search),
+                $this->matchingFilterValuesForSearch($search),
+                $perPage,
+                $status
+            );
+        } else {
+            $savedViews =
+                $savedViewService->paginateForManagementByTags(
+                    $request->user(),
+                    $search,
+                    $reportKey,
+                    $this->matchingReportKeysForSearch($search),
+                    $this->matchingFilterValuesForSearch($search),
+                    $perPage,
+                    $status,
+                    $tagIds
+                );
+        }
+
+        $savedViews->getCollection()
+            ->loadMissing('tags');
 
         $savedViews->getCollection()->transform(
             fn (ReportSavedView $savedView) =>
@@ -99,8 +125,11 @@ class ReportSavedViewController extends Controller
                 'report_key' => $reportKey,
                 'per_page' => $savedViews->perPage(),
                 'status' => $status,
+                'tag_ids' => $tagIds,
             ],
             'reportOptions' => $this->reportFilterOptions(),
+            'tagOptions' => app(ReportSavedViewTagService::class)
+                ->listForUser($request->user()),
             'importPreview' => null,
         ]);
     }
@@ -116,6 +145,8 @@ class ReportSavedViewController extends Controller
                 'nullable',
                 'in:active,archived,all',
             ],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'distinct'],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
@@ -124,6 +155,12 @@ class ReportSavedViewController extends Controller
         );
         $perPage = (int) ($validated['per_page'] ?? 15);
         $status = (string) ($validated['status'] ?? 'active');
+        $tagIds = collect($validated['tag_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
 
         if (
             $reportKey !== ''
@@ -132,15 +169,32 @@ class ReportSavedViewController extends Controller
             $reportKey = '';
         }
 
-        $savedViews = $savedViewService->paginateForManagement(
-            $request->user(),
-            $search,
-            $reportKey,
-            $this->matchingReportKeysForSearch($search),
-            $this->matchingFilterValuesForSearch($search),
-            $perPage,
-            $status
-        );
+        if ($tagIds === []) {
+            $savedViews = $savedViewService->paginateForManagement(
+                $request->user(),
+                $search,
+                $reportKey,
+                $this->matchingReportKeysForSearch($search),
+                $this->matchingFilterValuesForSearch($search),
+                $perPage,
+                $status
+            );
+        } else {
+            $savedViews =
+                $savedViewService->paginateForManagementByTags(
+                    $request->user(),
+                    $search,
+                    $reportKey,
+                    $this->matchingReportKeysForSearch($search),
+                    $this->matchingFilterValuesForSearch($search),
+                    $perPage,
+                    $status,
+                    $tagIds
+                );
+        }
+
+        $savedViews->getCollection()
+            ->loadMissing('tags');
 
         $savedViews->getCollection()->transform(
             fn (ReportSavedView $savedView) =>
@@ -160,8 +214,11 @@ class ReportSavedViewController extends Controller
                 'report_key' => $reportKey,
                 'per_page' => $savedViews->perPage(),
                 'status' => $status,
+                'tag_ids' => $tagIds,
             ],
             'reportOptions' => $this->reportFilterOptions(),
+            'tagOptions' => app(ReportSavedViewTagService::class)
+                ->listForUser($request->user()),
             'importPreview' => $importPreview,
         ]);
     }
@@ -217,6 +274,8 @@ class ReportSavedViewController extends Controller
                 'nullable',
                 'in:active,archived,all',
             ],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'distinct'],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
@@ -224,6 +283,12 @@ class ReportSavedViewController extends Controller
             (string) ($validated['report_key'] ?? '')
         );
         $status = (string) ($validated['status'] ?? 'active');
+        $tagIds = collect($validated['tag_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
 
         if (
             $reportKey !== ''
@@ -232,14 +297,27 @@ class ReportSavedViewController extends Controller
             $reportKey = '';
         }
 
-        $savedViews = $savedViewService->exportForManagement(
-            $request->user(),
-            $search,
-            $reportKey,
-            $this->matchingReportKeysForSearch($search),
-            $this->matchingFilterValuesForSearch($search),
-            $status
-        );
+        if ($tagIds === []) {
+            $savedViews = $savedViewService->exportForManagement(
+                $request->user(),
+                $search,
+                $reportKey,
+                $this->matchingReportKeysForSearch($search),
+                $this->matchingFilterValuesForSearch($search),
+                $status
+            );
+        } else {
+            $savedViews =
+                $savedViewService->exportForManagementByTags(
+                    $request->user(),
+                    $search,
+                    $reportKey,
+                    $this->matchingReportKeysForSearch($search),
+                    $this->matchingFilterValuesForSearch($search),
+                    $status,
+                    $tagIds
+                );
+        }
 
         $formattedSavedViews = $savedViews->map(
             fn (ReportSavedView $savedView) =>
@@ -380,13 +458,37 @@ class ReportSavedViewController extends Controller
 
         $name = mb_substr($savedView->name . ' - نسخة', 0, 120);
 
-        ReportSavedView::query()->create([
-            'user_id' => $request->user()->id,
-            'report_key' => $savedView->report_key,
-            'name' => $name,
-            'filters' => $savedView->filters ?? [],
-            'is_default' => false,
-        ]);
+        DB::transaction(
+            function () use (
+                $request,
+                $savedView,
+                $name
+            ): void {
+                $duplicate =
+                    ReportSavedView::query()->create([
+                        'user_id' =>
+                            $request->user()->id,
+                        'report_key' =>
+                            $savedView->report_key,
+                        'name' => $name,
+                        'filters' =>
+                            $savedView->filters ?? [],
+                        'is_default' => false,
+                    ]);
+
+                $duplicate->tags()->sync(
+                    $savedView->tags()
+                        ->where(
+                            'report_saved_view_tags.user_id',
+                            $request->user()->id
+                        )
+                        ->pluck(
+                            'report_saved_view_tags.id'
+                        )
+                        ->all()
+                );
+            }
+        );
 
         return redirect()
             ->route('reports.saved-views.index')
@@ -708,6 +810,13 @@ class ReportSavedViewController extends Controller
             'is_archived' => $isArchived,
             'is_active' => ! $isArchived,
             'archived_at' => $savedView->archived_at,
+            'tags' => $savedView->tags
+                ->map(fn ($tag): object => (object) [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'color' => $tag->color,
+                ])
+                ->values(),
             'report_url' => $isArchived
                 ? null
                 : $this->reportUrl(

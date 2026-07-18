@@ -204,3 +204,16 @@
 - Next: Phase 80B — Implement Saved View Tags.
 - Risks: none identified.
 
+## 2026-07-18T15:34:42+03:00 — Phase 80B
+
+- Title: Implement Saved View Tags.
+- Starting commit: `a999163`.
+- Branch: `main`.
+- Workflow: direct `main` only.
+- Pre-commit full suite:
+  `1637 passed / 15050 assertions`.
+- Database, models, services, routes, lifecycle behavior,
+  management filtering, UI controls, and tests implemented.
+- CSV schema, writer, parser, and format version unchanged.
+- Next: Phase 80C — Finalize Saved View Tags.
+

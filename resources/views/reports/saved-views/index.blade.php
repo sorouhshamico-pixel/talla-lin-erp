@@ -61,6 +61,28 @@
                     </select>
                 </div>
 
+
+                <div class="form-group">
+                    <label for="report_saved_views_tag_ids">
+                        الوسوم
+                    </label>
+                    <select id="report_saved_views_tag_ids"
+                            name="tag_ids[]"
+                            multiple
+                            data-testid="report-saved-views-tag-filter">
+                        @foreach (($tagOptions ?? collect()) as $tagOption)
+                            <option value="{{ $tagOption->id }}"
+                                @selected(in_array(
+                                    $tagOption->id,
+                                    $filters['tag_ids'] ?? [],
+                                    true
+                                ))>
+                                {{ $tagOption->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="report_saved_views_per_page">عدد النتائج في الصفحة</label>
                     <select id="report_saved_views_per_page"
@@ -80,6 +102,7 @@
                             'search' => $filters['search'] ?? '',
                             'report_key' => $filters['report_key'] ?? '',
                             'status' => $filters['status'] ?? 'active',
+                            'tag_ids' => $filters['tag_ids'] ?? [],
                         ], fn ($value) => $value !== null && $value !== '');
                     @endphp
 
@@ -206,6 +229,58 @@
             </div>
         @endif
 
+
+        <div class="card"
+             data-testid="report-saved-view-tag-manager"
+             style="margin-bottom: 16px;">
+            <h2>إدارة وسوم العروض المحفوظة</h2>
+
+            <form method="POST"
+                  action="{{ route('reports.saved-view-tags.store') }}">
+                @csrf
+
+                <div class="form-group">
+                    <label for="report_saved_view_tag_name">
+                        اسم الوسم
+                    </label>
+                    <input id="report_saved_view_tag_name"
+                           name="name"
+                           maxlength="40"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="report_saved_view_tag_color">
+                        اللون
+                    </label>
+                    <input id="report_saved_view_tag_color"
+                           type="color"
+                           name="color"
+                           value="#64748B">
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    إنشاء وسم
+                </button>
+            </form>
+
+            @if (($tagOptions ?? collect())->isNotEmpty())
+                <div style="margin-top: 12px;">
+                    @foreach ($tagOptions as $tagOption)
+                        <span data-testid="report-saved-view-tag-badge"
+                              style="display:inline-block;
+                                     padding:4px 8px;
+                                     margin:2px;
+                                     border:1px solid
+                                     {{ $tagOption->color ?? '#64748B' }};">
+                            {{ $tagOption->name }}
+                        </span>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
         <div class="card" data-testid="report-saved-views-card">
             <div class="card-body">
                 <div class="report-meta">
@@ -257,6 +332,54 @@
                     </div>
                 @endif
 
+
+                @if (
+                    $savedViews->count() > 0
+                    && ($tagOptions ?? collect())->isNotEmpty()
+                )
+                    <div class="card"
+                         style="margin-bottom: 16px;">
+                        <h3>تعيين الوسوم للعروض</h3>
+
+                        @foreach ($savedViews as $savedView)
+                            <form method="POST"
+                                  action="{{ route(
+                                      'reports.saved-views.tags.sync',
+                                      $savedView->id
+                                  ) }}"
+                                  style="margin-bottom: 10px;">
+                                @csrf
+                                @method('PUT')
+
+                                <strong>
+                                    {{ $savedView->name }}
+                                </strong>
+
+                                <select name="tag_ids[]" multiple>
+                                    @foreach ($tagOptions as $tagOption)
+                                        <option value="{{ $tagOption->id }}"
+                                            @selected(
+                                                collect($savedView->tags)
+                                                    ->pluck('id')
+                                                    ->contains(
+                                                        $tagOption->id
+                                                    )
+                                            )>
+                                            {{ $tagOption->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary"
+                                        data-testid="report-saved-view-tags-sync-button">
+                                    حفظ الوسوم
+                                </button>
+                            </form>
+                        @endforeach
+                    </div>
+                @endif
+
                 @if ($savedViews->count() === 0)
                     <div class="empty-state" data-testid="report-saved-views-empty">
                         @if (($filters['search'] ?? '') !== '' || ($filters['report_key'] ?? '') !== '' || ($filters['status'] ?? 'active') !== 'active')
@@ -278,6 +401,77 @@
                         @endif
                     </div>
                 @else
+
+                    @if (($tagOptions ?? collect())->isNotEmpty())
+                        <div class="filter-actions"
+                             style="margin-bottom: 16px;">
+                            <form method="POST"
+                                  action="{{ route(
+                                      'reports.saved-views.bulk-attach-tags'
+                                  ) }}">
+                                @csrf
+
+                                @foreach ($savedViews as $savedView)
+                                    <label>
+                                        <input type="checkbox"
+                                               name="saved_view_ids[]"
+                                               value="{{ $savedView->id }}">
+                                        {{ $savedView->name }}
+                                    </label>
+                                @endforeach
+
+                                <select name="tag_ids[]"
+                                        multiple
+                                        required>
+                                    @foreach ($tagOptions as $tagOption)
+                                        <option value="{{ $tagOption->id }}">
+                                            {{ $tagOption->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary"
+                                        data-testid="report-saved-views-bulk-attach-tags-button">
+                                    إسناد الوسوم للمحدد
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{{ route(
+                                      'reports.saved-views.bulk-detach-tags'
+                                  ) }}">
+                                @csrf
+                                @method('DELETE')
+
+                                @foreach ($savedViews as $savedView)
+                                    <label>
+                                        <input type="checkbox"
+                                               name="saved_view_ids[]"
+                                               value="{{ $savedView->id }}">
+                                        {{ $savedView->name }}
+                                    </label>
+                                @endforeach
+
+                                <select name="tag_ids[]"
+                                        multiple
+                                        required>
+                                    @foreach ($tagOptions as $tagOption)
+                                        <option value="{{ $tagOption->id }}">
+                                            {{ $tagOption->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary"
+                                        data-testid="report-saved-views-bulk-detach-tags-button">
+                                    إزالة الوسوم من المحدد
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+
                     <div class="filter-actions" style="margin-bottom: 16px;">
                         <form id="report_saved_views_bulk_delete_form"
                               method="POST"
