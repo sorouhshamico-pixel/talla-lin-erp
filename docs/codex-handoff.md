@@ -1,28 +1,30 @@
 # Project Handoff — Talla Lin ERP
 
-## Latest validated implementation
+## Latest validated phase
 
 ```text
-Phase: Phase 80B — Implement Saved View Tags
-Starting commit: a999163
-Pre-commit suite: 1637 passed / 15050 assertions
+Phase: Phase 80C — Finalize Saved View Tags
+Baseline commit: 4e7cbf2
+Pre-commit suite: 1643 passed / 15126 assertions
 Branch: main
 Workflow: main only
-Status: awaiting commit, migration, post-commit validation, and push
+Runtime changes: none
+Database changes: none
+Migration changes: none
+Status: awaiting commit, post-commit validation, and push
 ```
 
-## Implemented capability
+## Finalized capability
 
-- user-scoped normalized tags;
-- tag CRUD and saved-view assignments;
-- management filtering by tags;
-- active, archived, and all status support;
-- duplicate copies tags;
-- archive and restore preserve tags;
-- permanent deletion cascades assignments;
-- management UI for filtering and assignments;
-- CSV boundary unchanged.
+- user-scoped normalized saved-view tags;
+- tag CRUD and assignments;
+- tag-aware management filtering;
+- active, archived, and all modes;
+- duplicate, archive, restore, and delete lifecycle;
+- individual and bulk assignment UI;
+- unchanged CSV schema, writer, parser, and version;
+- imports remain untagged.
 
 ## Next phase
 
-Phase 80C — Finalize Saved View Tags.
+Phase 81A — Select Next Saved View Management Contract.

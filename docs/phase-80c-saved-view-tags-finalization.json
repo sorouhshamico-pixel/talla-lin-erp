@@ -1,0 +1,70 @@
+{
+    "phase": "Phase 80C",
+    "title": "Finalize Saved View Tags",
+    "type": "finalization",
+    "baseline": {
+        "phase": "Phase 80B",
+        "commit": "4e7cbf2",
+        "full_suite": {
+            "tests": 1637,
+            "assertions": 15050
+        },
+        "migrations_applied": true,
+        "workflow": "direct main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "migration_changes_expected": false,
+        "csv_contract_changes_expected": false,
+        "documentation_and_tests_only": true
+    },
+    "finalized_contract": {
+        "schema": {
+            "tags_table": "report_saved_view_tags",
+            "pivot_table": "report_saved_view_tag",
+            "user_scoped_normalized_name": true,
+            "optional_hex_color": true,
+            "cascade_saved_view_assignments": true
+        },
+        "ownership": {
+            "tag_crud_user_scoped": true,
+            "single_sync_user_scoped": true,
+            "bulk_attach_user_scoped": true,
+            "bulk_detach_user_scoped": true,
+            "foreign_ids_ignored_or_rejected": true
+        },
+        "management": {
+            "any_selected_tag_semantics": true,
+            "active_archived_all_modes": true,
+            "tag_filter_context_preserved": true,
+            "individual_assignment_ui": true,
+            "bulk_assignment_ui": true
+        },
+        "lifecycle": {
+            "duplicate_copies_tags": true,
+            "archive_preserves_tags": true,
+            "restore_preserves_tags": true,
+            "permanent_delete_removes_pivot_rows": true
+        },
+        "csv_boundary": {
+            "schema_unchanged": true,
+            "format_version_unchanged": true,
+            "writer_unchanged": true,
+            "parser_unchanged": true,
+            "tags_not_exported": true,
+            "imports_create_untagged_rows": true
+        }
+    },
+    "preserved_behavior": {
+        "historical_source_contracts": true,
+        "phase_80a_contract": true,
+        "phase_80b_implementation_tests": true,
+        "main_only_workflow": true
+    },
+    "next_recommendation": {
+        "phase": "Phase 81A",
+        "title": "Select Next Saved View Management Contract",
+        "workflow": "direct main only"
+    }
+}
