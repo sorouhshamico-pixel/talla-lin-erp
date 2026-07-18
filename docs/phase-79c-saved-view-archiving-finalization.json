@@ -1,0 +1,97 @@
+{
+    "phase": "Phase 79C",
+    "title": "Finalize Saved View Archiving",
+    "type": "finalization",
+    "baseline": {
+        "phase": "Phase 79B",
+        "commit": "0e51cea",
+        "full_suite": "1613 passed / 14831 assertions",
+        "migration": "applied locally",
+        "workflow": "direct main only"
+    },
+    "scope": {
+        "runtime_changes_expected": false,
+        "database_changes_expected": false,
+        "migration_changes_expected": false,
+        "historical_test_stabilization": true
+    },
+    "finalized_database_contract": {
+        "table": "report_saved_views",
+        "column": "archived_at",
+        "type": "nullable timestamp",
+        "index": "report_saved_views_user_archived_at_index",
+        "existing_rows_active": true
+    },
+    "finalized_model_contract": {
+        "fillable": "archived_at",
+        "cast": "datetime",
+        "helpers": [
+            "isArchived",
+            "isActive"
+        ]
+    },
+    "finalized_management_contract": {
+        "statuses": [
+            "active",
+            "archived",
+            "all"
+        ],
+        "default_status": "active",
+        "status_persists_in_pagination": true,
+        "status_persists_in_return_queries": true,
+        "filtered_export_respects_status": true
+    },
+    "finalized_lifecycle_contract": {
+        "single_archive": true,
+        "single_restore": true,
+        "bulk_archive": true,
+        "bulk_restore": true,
+        "archive_clears_default": true,
+        "restore_does_not_restore_default": true,
+        "operations_are_idempotent": true,
+        "authenticated_user_scope": true,
+        "foreign_rows_ignored_without_disclosure": true
+    },
+    "finalized_action_contract": {
+        "archived_apply_rejected": true,
+        "archived_edit_rejected": true,
+        "archived_duplicate_rejected": true,
+        "archived_update_rejected": true,
+        "archived_make_default_rejected": true,
+        "archived_restore_allowed": true,
+        "archived_permanent_delete_allowed": true,
+        "archived_selected_export_allowed": true
+    },
+    "finalized_csv_contract": {
+        "schema_change": false,
+        "format_version_change": false,
+        "archived_at_exported": false,
+        "writer_changed": false,
+        "parser_changed": false,
+        "imported_rows_active": true
+    },
+    "preserved_behavior": {
+        "selected_export": true,
+        "filtered_export": true,
+        "import_preview_apply": true,
+        "single_bulk_delete": true,
+        "delete_all": true,
+        "management_search_pagination": true,
+        "historical_source_contracts": true,
+        "main_only_workflow": true
+    },
+    "locked_runtime_files": [
+        "database/migrations/2026_07_16_160000_add_archived_at_to_report_saved_views_table.php",
+        "app/Models/ReportSavedView.php",
+        "app/Services/ReportSavedViewService.php",
+        "app/Http/Controllers/ReportSavedViewController.php",
+        "routes/web.php",
+        "resources/views/reports/saved-views/index.blade.php"
+    ],
+    "next_recommendation": {
+        "phase": "Phase 80A",
+        "title": "Select Next Saved View Management Contract",
+        "workflow": "direct main only"
+    },
+    "generated_at": "2026-07-16T16:35:14+03:00"
+}

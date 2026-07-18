@@ -247,8 +247,7 @@ class ReportSavedViewPhase79AArchivingContractTest extends TestCase
             'Do not create a Codex worktree.',
             '### 9. Commit directly on main',
             '### 10. Push only main',
-            'Phase 79B — Implement Saved View Archiving',
-            'Phase 79C — Finalize Saved View Archiving',
+            'Only push completed, fully validated commits to `origin/main`.',
         ] as $marker) {
             $this->assertStringContainsString($marker, $agents);
         }

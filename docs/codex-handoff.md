@@ -1,28 +1,30 @@
 # Project Handoff — Talla Lin ERP
 
-## Latest validated implementation phase
+## Latest validated finalization phase
 
 ```text
-Phase: Phase 79B — Implement Saved View Archiving
+Phase: Phase 79C — Finalize Saved View Archiving
 Branch: main
-Starting stable commit: 399bd33
-Pre-commit suite: 1613 passed / 14831 assertions
+Starting commit: 0e51cea
+Pre-commit suite: 1619 passed / 14915 assertions
+Runtime changes: none
+Database changes: none
 Workflow: direct main only
-Codex remote branch: absent
 Registered worktrees: 1
-Status: awaiting commit, post-commit validation, migration, and push
+Status: awaiting commit, committed validation, and push
 ```
 
-## Implemented behavior
+## Finalized capability
 
-- nullable `archived_at` and composite index;
-- active, archived, and all management modes;
-- single and bulk archive/restore;
-- active-only report-facing actions;
-- selected archived export support;
-- CSV schema, import, deletion, and pagination preserved;
-- historical source-contract markers preserved.
+- active and archived saved-view lifecycle;
+- individual and selected archive/restore;
+- authenticated-user isolation;
+- default-state clearing on archive;
+- no automatic default restoration;
+- archived direct-action restrictions;
+- selected archived CSV export;
+- unchanged CSV schema, writer, parser, and import behavior.
 
 ## Next phase
 
-Phase 79C — Finalize Saved View Archiving.
+Phase 80A — Select Next Saved View Management Contract.

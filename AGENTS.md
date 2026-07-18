@@ -184,9 +184,9 @@ destructive recovery action.
 
 ## Current stable state
 
-- Phase: Phase 79B — Implement Saved View Archiving.
+- Phase: Phase 79C — Finalize Saved View Archiving.
 - Commit: the commit containing this file.
-- Baseline: Phase 79A at `399bd33`.
+- Baseline: Phase 79B at `0e51cea`.
 - Baseline full suite:
-  `1602 passed / 14693 assertions`.
-- Next phase: Phase 79C — Finalize Saved View Archiving.
+  `1613 passed / 14831 assertions`.
+- Next phase: Phase 80A — Select Next Saved View Management Contract.

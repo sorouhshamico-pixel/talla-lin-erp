@@ -149,3 +149,30 @@
 - Next: Phase 79C — Finalize Saved View Archiving.
 - Risks: none identified.
 
+## 2026-07-18T13:11:23+03:00 — Phase 79C
+
+- Title: Finalize Saved View Archiving.
+- Starting commit: `0e51cea`.
+- Branch: `main`.
+- Workflow: direct `main` only.
+- Runtime files changed: none.
+- Database or migration files changed: none.
+- Historical workflow test stabilized:
+  - `tests/Feature/ReportSavedViewPhase79AArchivingContractTest.php`
+- Added:
+  - `docs/phase-79c-saved-view-archiving-finalization.json`
+  - `docs/phase-79c-saved-view-archiving-finalization.md`
+  - `tests/Feature/ReportSavedViewPhase79CArchivingFinalizationTest.php`
+- Updated:
+  - `AGENTS.md`
+  - `docs/codex-development-log.md`
+  - `docs/codex-handoff.md`
+  - `docs/CODEX_PROJECT_STATE.md`
+- Pre-commit full suite:
+  `1619 passed / 14915 assertions`.
+- Registered worktrees: `1`.
+- Codex remote branch: absent.
+- Push target: `origin/main` only.
+- Next: Phase 80A — Select Next Saved View Management Contract.
+- Risks: none identified.
+
