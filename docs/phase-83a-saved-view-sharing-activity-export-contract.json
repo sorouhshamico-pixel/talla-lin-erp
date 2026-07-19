@@ -1,0 +1,134 @@
+{
+  "phase": "Phase 83A",
+  "title": "Prepare Saved View Sharing Activity Export Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 82B Stage 5",
+    "commit": "f1fb3ac",
+    "tests": 1725,
+    "assertions": 15663,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "export_contract": {
+    "formats": [
+      "csv"
+    ],
+    "audiences": {
+      "owner": {
+        "scope_column": "owner_user_id",
+        "authenticated_user_only": true,
+        "may_export_foreign_owner_activity": false
+      },
+      "recipient": {
+        "scope_column": "recipient_user_id",
+        "authenticated_user_only": true,
+        "may_export_other_recipient_activity": false
+      }
+    },
+    "filters": {
+      "owner": [
+        "action",
+        "recipient_user_id",
+        "report_saved_view_id",
+        "date_from",
+        "date_to"
+      ],
+      "recipient": [
+        "action",
+        "report_saved_view_id",
+        "date_from",
+        "date_to"
+      ],
+      "semantics_match_history_queries": true
+    },
+    "ordering": [
+      "created_at descending",
+      "id descending"
+    ],
+    "csv": {
+      "encoding": "UTF-8 with BOM",
+      "delimiter": ",",
+      "line_ending": "LF",
+      "filename_patterns": {
+        "owner": "saved-view-sharing-activity-owner-YYYYMMDD-HHMMSS.csv",
+        "recipient": "saved-view-sharing-activity-recipient-YYYYMMDD-HHMMSS.csv"
+      },
+      "columns": [
+        "activity_id",
+        "created_at",
+        "action",
+        "source_saved_view_id",
+        "source_name",
+        "source_report_key",
+        "actor_user_id",
+        "actor_name",
+        "owner_user_id",
+        "owner_name",
+        "recipient_user_id",
+        "recipient_name",
+        "permission_before",
+        "permission_after",
+        "copied_saved_view_id"
+      ],
+      "deleted_reference_behavior": {
+        "nullable_ids": true,
+        "snapshot_values_preserved": true,
+        "missing_user_names_empty": true
+      },
+      "metadata_policy": {
+        "full_metadata_column_exported": false,
+        "copied_saved_view_id_extracted": true,
+        "filters_payload_exported": false
+      }
+    },
+    "authorization": {
+      "authentication_required": true,
+      "owner_and_recipient_exports_separate": true,
+      "authorization_failure_returns_forbidden": true,
+      "empty_export_allowed": true
+    },
+    "performance": {
+      "streamed_response_required": true,
+      "unbounded_collection_loading_forbidden": true,
+      "chunked_or_cursor_iteration_required": true
+    },
+    "compatibility": {
+      "activity_table_unchanged": true,
+      "activity_actions_unchanged": true,
+      "sharing_permissions_unchanged": true,
+      "saved_view_csv_format_unchanged": true,
+      "saved_view_format_version_unchanged": true
+    }
+  },
+  "planned_artifacts": {
+    "service": "App\\Services\\ReportSavedViewShareActivityExportService",
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityExportController",
+    "owner_route": "reports.saved-view-share-activities.owner.export",
+    "recipient_route": "reports.shared-saved-view-activities.export",
+    "implementation_test": "tests/Feature/ReportSavedViewPhase83BSharingActivityExportImplementationTest.php"
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 83B",
+    "title": "Implement Saved View Sharing Activity Export",
+    "classification": "medium",
+    "execution": "single validated stage"
+  }
+}
