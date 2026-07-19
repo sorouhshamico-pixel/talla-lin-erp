@@ -196,10 +196,12 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
 
     Route::post('/reports/saved-views', [ReportController::class, 'storeSavedView'])->name('reports.index.saved-views.store');
     Route::delete('/reports/saved-views/bulk-destroy', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkDestroy'])->name('reports.saved-views.bulk-destroy');
+    Route::get('/reports/saved-view-share-activities', [\App\Http\Controllers\ReportSavedViewShareActivityController::class, 'ownerIndex'])->name('reports.saved-view-share-activities.owner.index');
     Route::get('/reports/saved-views/{savedView}/shares', [\App\Http\Controllers\ReportSavedViewShareController::class, 'index'])->name('reports.saved-views.shares.index');
     Route::post('/reports/saved-views/{savedView}/shares', [\App\Http\Controllers\ReportSavedViewShareController::class, 'store'])->name('reports.saved-views.shares.store');
     Route::patch('/reports/saved-view-shares/{share}', [\App\Http\Controllers\ReportSavedViewShareController::class, 'update'])->name('reports.saved-view-shares.update');
     Route::delete('/reports/saved-view-shares/{share}', [\App\Http\Controllers\ReportSavedViewShareController::class, 'destroy'])->name('reports.saved-view-shares.destroy');
+    Route::get('/reports/shared-saved-view-activities', [\App\Http\Controllers\ReportSavedViewShareActivityController::class, 'recipientIndex'])->name('reports.shared-saved-view-activities.index');
     Route::get('/reports/shared-saved-views', [\App\Http\Controllers\SharedReportSavedViewController::class, 'index'])->name('reports.shared-saved-views.index');
     Route::post('/reports/shared-saved-views/{share}/copy', [\App\Http\Controllers\SharedReportSavedViewController::class, 'copy'])->name('reports.shared-saved-views.copy');
     Route::get('/reports/shared-saved-views/{share}/apply', [\App\Http\Controllers\SharedReportSavedViewController::class, 'apply'])->name('reports.shared-saved-views.apply');
