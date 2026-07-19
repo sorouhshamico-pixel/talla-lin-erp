@@ -2,6 +2,23 @@
 
 ## Latest completed phase
 
+Phase 81C — Finalize Saved View Sharing
+
+- Baseline implementation: Phase 81B
+- Baseline commit: `d44cf27`
+- Scope: documentation and locking tests only
+- Runtime changes: none
+- Database changes: none
+- Migration changes: none
+- CSV/import/export changes: none
+- Permission semantics changes: none
+- Next recommended phase: Phase 82A — Prepare Saved View Sharing Activity Contract
+
+
+# Current Project State
+
+## Latest completed phase
+
 Phase 81B — Implement Saved View Sharing
 
 - Baseline commit before implementation: `c419894`

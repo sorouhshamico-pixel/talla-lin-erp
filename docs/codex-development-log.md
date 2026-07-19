@@ -1,3 +1,20 @@
+## Phase 81C — Finalize Saved View Sharing
+
+Finalized the Saved View Sharing feature through documentation and locking tests only.
+
+Locked contracts include:
+
+- `view` and `use` permissions
+- owner-only share management
+- recipient active-share listing
+- apply authorization
+- independent recipient copies
+- archive suspension and restoration behavior
+- permanent-delete cascade
+- unchanged CSV/import/export contracts
+- main-only workflow
+
+
 # Codex Development Log
 
 ## 2026-07-16T14:44:39+03:00 — Phase 77C

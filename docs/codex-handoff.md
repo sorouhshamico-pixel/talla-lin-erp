@@ -1,5 +1,16 @@
 # Codex Handoff
 
+Phase 81C completed: Finalize Saved View Sharing.
+
+The Phase 81B runtime implementation is now locked by finalization documents and regression tests. Phase 81C does not modify runtime behavior, schema, migrations, routes, views, CSV format, or permission semantics.
+
+Next recommended phase:
+
+Phase 82A — Prepare Saved View Sharing Activity Contract.
+
+
+# Codex Handoff
+
 Phase 81B completed: Saved View Sharing.
 
 Current implementation includes:

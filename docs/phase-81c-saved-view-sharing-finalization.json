@@ -1,0 +1,84 @@
+{
+  "phase": "Phase 81C",
+  "title": "Finalize Saved View Sharing",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 81B",
+    "commit": "d44cf27",
+    "tests": 1676,
+    "assertions": 15317,
+    "migration_applied": true,
+    "working_tree_clean": true
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "csv_format_changes_expected": false,
+    "permission_semantics_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_contract": {
+    "table": "report_saved_view_shares",
+    "permissions": [
+      "view",
+      "use"
+    ],
+    "owner_operations": [
+      "list recipients",
+      "share",
+      "update permission",
+      "revoke"
+    ],
+    "recipient_operations": [
+      "list active received shares",
+      "apply use-permission shares",
+      "copy a share to an independent private saved view"
+    ],
+    "ownership": {
+      "source_mutation_by_recipient": false,
+      "foreign_share_management": false,
+      "self_sharing": false
+    },
+    "archive_behavior": {
+      "share_row_preserved": true,
+      "recipient_listing_hidden_while_archived": true,
+      "apply_blocked_while_archived": true,
+      "copy_blocked_while_archived": true,
+      "restoration_reactivates_access": true
+    },
+    "copy_behavior": {
+      "independent_saved_view": true,
+      "active": true,
+      "non_default": true,
+      "owner_tags_copied": false,
+      "source_shares_copied": false
+    },
+    "delete_behavior": {
+      "permanent_source_delete_cascades_shares": true
+    },
+    "csv_import_export": {
+      "sharing_columns_added": false,
+      "format_version_changed": false,
+      "new_and_imported_views_private_by_default": true
+    },
+    "workflow": {
+      "branch": "main",
+      "phase_branch_allowed": false,
+      "codex_worktree_allowed": false,
+      "push_target": "origin/main"
+    }
+  },
+  "artifacts": {
+    "json": "docs/phase-81c-saved-view-sharing-finalization.json",
+    "markdown": "docs/phase-81c-saved-view-sharing-finalization.md",
+    "test": "tests/Feature/ReportSavedViewPhase81CSharingFinalizationTest.php"
+  },
+  "next_recommendation": {
+    "phase": "Phase 82A",
+    "title": "Prepare Saved View Sharing Activity Contract",
+    "scope": "Prepare a contract for auditable sharing activity without changing runtime behavior."
+  }
+}

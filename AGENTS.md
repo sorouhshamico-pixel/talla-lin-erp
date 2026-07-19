@@ -212,3 +212,13 @@ destructive recovery action.
 - CSV schemas, parser behavior, writer behavior, and format versions remain unchanged.
 - Existing saved views and imported rows remain private by default.
 - Phase 81B was implemented as five validated stages because it is a large phase.
+
+## Phase 81C — Finalize Saved View Sharing
+
+- Phase 81C finalizes and locks the Saved View Sharing implementation from Phase 81B.
+- This phase is documentation and tests only.
+- Do not change runtime behavior, database schema, migrations, routes, views, CSV format, import/export format version, or permission semantics.
+- The locked sharing permissions remain `view` and `use`.
+- Archived source views preserve share rows but block recipient listing, apply, and copy until restoration.
+- Recipient copies remain independent, active, non-default, and do not inherit owner tags or source shares.
+- Continue the main-only workflow and push only `origin/main`.
