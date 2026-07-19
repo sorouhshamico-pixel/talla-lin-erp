@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ReportSavedView;
 use App\Models\ReportSavedViewShare;
+use App\Models\ReportSavedViewShareActivity;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,12 @@ use Illuminate\Validation\ValidationException;
 
 class ReportSavedViewShareService
 {
+    public function __construct(
+        private readonly ReportSavedViewShareActivityService
+            $activityService
+    ) {
+    }
+
     public function listRecipients(
         User $owner,
         ReportSavedView $savedView
@@ -60,20 +67,82 @@ class ReportSavedViewShareService
             $permission
         );
 
-        $share = ReportSavedViewShare::query()
-            ->firstOrNew([
-                'report_saved_view_id' =>
-                    $savedView->id,
-                'recipient_user_id' =>
-                    $recipient->id,
-            ]);
+        return DB::transaction(
+            function () use (
+                $owner,
+                $savedView,
+                $recipient,
+                $permission
+            ): ReportSavedViewShare {
+                $share = ReportSavedViewShare::query()
+                    ->where(
+                        'report_saved_view_id',
+                        $savedView->id
+                    )
+                    ->where(
+                        'recipient_user_id',
+                        $recipient->id
+                    )
+                    ->lockForUpdate()
+                    ->first();
 
-        $share->forceFill([
-            'owner_user_id' => $owner->id,
-            'permission' => $permission,
-        ])->save();
+                if ($share === null) {
+                    $share = ReportSavedViewShare::query()
+                        ->create([
+                            'report_saved_view_id' =>
+                                $savedView->id,
+                            'owner_user_id' =>
+                                $owner->id,
+                            'recipient_user_id' =>
+                                $recipient->id,
+                            'permission' =>
+                                $permission,
+                        ]);
 
-        return $share->refresh();
+                    $this->activityService->record(
+                        ReportSavedViewShareActivity::ACTION_SHARED,
+                        $owner,
+                        $owner,
+                        $recipient,
+                        $savedView,
+                        $share,
+                        null,
+                        $permission
+                    );
+
+                    return $share->refresh();
+                }
+
+                $permissionBefore =
+                    $share->permission;
+
+                if (
+                    $permissionBefore
+                    === $permission
+                ) {
+                    return $share->refresh();
+                }
+
+                $share->forceFill([
+                    'owner_user_id' => $owner->id,
+                    'permission' => $permission,
+                ])->save();
+
+                $this->activityService->record(
+                    ReportSavedViewShareActivity::
+                        ACTION_PERMISSION_UPDATED,
+                    $owner,
+                    $owner,
+                    $recipient,
+                    $savedView,
+                    $share,
+                    $permissionBefore,
+                    $permission
+                );
+
+                return $share->refresh();
+            }
+        );
     }
 
     public function updatePermission(
@@ -86,14 +155,60 @@ class ReportSavedViewShareService
             $share
         );
 
-        $share->forceFill([
-            'permission' =>
-                $this->validatePermission(
-                    $permission
-                ),
-        ])->save();
+        $permission = $this->validatePermission(
+            $permission
+        );
 
-        return $share->refresh();
+        return DB::transaction(
+            function () use (
+                $owner,
+                $share,
+                $permission
+            ): ReportSavedViewShare {
+                $lockedShare = ReportSavedViewShare::query()
+                    ->whereKey($share->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $this->authorizeShareOwner(
+                    $owner,
+                    $lockedShare
+                );
+
+                $lockedShare->loadMissing([
+                    'recipient',
+                    'savedView',
+                ]);
+
+                $permissionBefore =
+                    $lockedShare->permission;
+
+                if (
+                    $permissionBefore
+                    === $permission
+                ) {
+                    return $lockedShare->refresh();
+                }
+
+                $lockedShare->forceFill([
+                    'permission' => $permission,
+                ])->save();
+
+                $this->activityService->record(
+                    ReportSavedViewShareActivity::
+                        ACTION_PERMISSION_UPDATED,
+                    $owner,
+                    $owner,
+                    $lockedShare->recipient,
+                    $lockedShare->savedView,
+                    $lockedShare,
+                    $permissionBefore,
+                    $permission
+                );
+
+                return $lockedShare->refresh();
+            }
+        );
     }
 
     public function revoke(
@@ -105,7 +220,40 @@ class ReportSavedViewShareService
             $share
         );
 
-        return (bool) $share->delete();
+        return DB::transaction(
+            function () use (
+                $owner,
+                $share
+            ): bool {
+                $lockedShare = ReportSavedViewShare::query()
+                    ->whereKey($share->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $this->authorizeShareOwner(
+                    $owner,
+                    $lockedShare
+                );
+
+                $lockedShare->loadMissing([
+                    'recipient',
+                    'savedView',
+                ]);
+
+                $this->activityService->record(
+                    ReportSavedViewShareActivity::ACTION_REVOKED,
+                    $owner,
+                    $owner,
+                    $lockedShare->recipient,
+                    $lockedShare->savedView,
+                    $lockedShare,
+                    $lockedShare->permission,
+                    null
+                );
+
+                return (bool) $lockedShare->delete();
+            }
+        );
     }
 
     public function listReceived(
@@ -144,9 +292,20 @@ class ReportSavedViewShareService
                 $recipient,
                 $share
             ): ReportSavedView {
-                $source = $share->savedView;
+                $lockedShare =
+                    ReportSavedViewShare::query()
+                        ->whereKey($share->id)
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
-                return ReportSavedView::query()->create([
+                $lockedShare = $this->receivedShare(
+                    $recipient,
+                    $lockedShare
+                );
+
+                $source = $lockedShare->savedView;
+
+                $copy = ReportSavedView::query()->create([
                     'user_id' => $recipient->id,
                     'report_key' => $source->report_key,
                     'name' => $this->copyName(
@@ -157,8 +316,49 @@ class ReportSavedViewShareService
                     'is_default' => false,
                     'archived_at' => null,
                 ]);
+
+                $this->activityService->record(
+                    ReportSavedViewShareActivity::ACTION_COPIED,
+                    $recipient,
+                    $lockedShare->owner,
+                    $recipient,
+                    $source,
+                    $lockedShare,
+                    $lockedShare->permission,
+                    $lockedShare->permission,
+                    [
+                        'copied_saved_view_id' =>
+                            $copy->id,
+                    ]
+                );
+
+                return $copy;
             }
         );
+    }
+
+    public function recordApplied(
+        User $recipient,
+        ReportSavedViewShare $share
+    ): ReportSavedViewShare {
+        $share = $this->receivedShare(
+            $recipient,
+            $share,
+            true
+        );
+
+        $this->activityService->record(
+            ReportSavedViewShareActivity::ACTION_APPLIED,
+            $recipient,
+            $share->owner,
+            $recipient,
+            $share->savedView,
+            $share,
+            $share->permission,
+            $share->permission
+        );
+
+        return $share;
     }
 
     public function receivedShare(

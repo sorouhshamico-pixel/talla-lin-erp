@@ -99,6 +99,11 @@ class SharedReportSavedViewController extends Controller
             404
         );
 
+        $shareService->recordApplied(
+            $request->user(),
+            $share
+        );
+
         return redirect()->route(
             $routeName,
             $savedView->filters ?? []

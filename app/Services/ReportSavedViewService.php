@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\ReportSavedView;
+use App\Models\ReportSavedViewShare;
+use App\Models\ReportSavedViewShareActivity;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +14,12 @@ use InvalidArgumentException;
 
 class ReportSavedViewService
 {
+    public function __construct(
+        private readonly ReportSavedViewShareActivityService
+            $activityService
+    ) {
+    }
+
     public function list(User $user, ?string $reportKey = null): Collection
     {
         return ReportSavedView::query()
@@ -450,15 +458,34 @@ class ReportSavedViewService
         int $savedViewId
     ): bool {
         return DB::transaction(
-            fn (): bool =>
-                ReportSavedView::query()
+            function () use ($user, $savedViewId): bool {
+                $savedView = ReportSavedView::query()
                     ->where('user_id', $user->id)
                     ->whereKey($savedViewId)
                     ->whereNull('archived_at')
-                    ->update([
-                        'archived_at' => now(),
-                        'is_default' => false,
-                    ]) > 0
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($savedView === null) {
+                    return false;
+                }
+
+                $shares = $this->lockedSharesFor($savedView);
+
+                $savedView->forceFill([
+                    'archived_at' => now(),
+                    'is_default' => false,
+                ])->save();
+
+                $this->recordLifecycleActivities(
+                    $user,
+                    $savedView,
+                    $shares,
+                    ReportSavedViewShareActivity::ACTION_SOURCE_ARCHIVED
+                );
+
+                return true;
+            }
         );
     }
 
@@ -467,15 +494,34 @@ class ReportSavedViewService
         int $savedViewId
     ): bool {
         return DB::transaction(
-            fn (): bool =>
-                ReportSavedView::query()
+            function () use ($user, $savedViewId): bool {
+                $savedView = ReportSavedView::query()
                     ->where('user_id', $user->id)
                     ->whereKey($savedViewId)
                     ->whereNotNull('archived_at')
-                    ->update([
-                        'archived_at' => null,
-                        'is_default' => false,
-                    ]) > 0
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($savedView === null) {
+                    return false;
+                }
+
+                $shares = $this->lockedSharesFor($savedView);
+
+                $savedView->forceFill([
+                    'archived_at' => null,
+                    'is_default' => false,
+                ])->save();
+
+                $this->recordLifecycleActivities(
+                    $user,
+                    $savedView,
+                    $shares,
+                    ReportSavedViewShareActivity::ACTION_SOURCE_RESTORED
+                );
+
+                return true;
+            }
         );
     }
 
@@ -493,15 +539,33 @@ class ReportSavedViewService
         }
 
         return DB::transaction(
-            fn (): int =>
-                ReportSavedView::query()
+            function () use ($user, $selectedIds): int {
+                $savedViews = ReportSavedView::query()
                     ->where('user_id', $user->id)
                     ->whereIn('id', $selectedIds)
                     ->whereNull('archived_at')
-                    ->update([
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($savedViews as $savedView) {
+                    $shares = $this->lockedSharesFor($savedView);
+
+                    $savedView->forceFill([
                         'archived_at' => now(),
                         'is_default' => false,
-                    ])
+                    ])->save();
+
+                    $this->recordLifecycleActivities(
+                        $user,
+                        $savedView,
+                        $shares,
+                        ReportSavedViewShareActivity::ACTION_SOURCE_ARCHIVED
+                    );
+                }
+
+                return $savedViews->count();
+            }
         );
     }
 
@@ -519,32 +583,123 @@ class ReportSavedViewService
         }
 
         return DB::transaction(
-            fn (): int =>
-                ReportSavedView::query()
+            function () use ($user, $selectedIds): int {
+                $savedViews = ReportSavedView::query()
                     ->where('user_id', $user->id)
                     ->whereIn('id', $selectedIds)
                     ->whereNotNull('archived_at')
-                    ->update([
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($savedViews as $savedView) {
+                    $shares = $this->lockedSharesFor($savedView);
+
+                    $savedView->forceFill([
                         'archived_at' => null,
                         'is_default' => false,
-                    ])
+                    ])->save();
+
+                    $this->recordLifecycleActivities(
+                        $user,
+                        $savedView,
+                        $shares,
+                        ReportSavedViewShareActivity::ACTION_SOURCE_RESTORED
+                    );
+                }
+
+                return $savedViews->count();
+            }
         );
     }
 
     public function delete(User $user, int $savedViewId): void
     {
-        ReportSavedView::query()
-            ->where('user_id', $user->id)
-            ->whereKey($savedViewId)
-            ->delete();
+        DB::transaction(
+            function () use ($user, $savedViewId): void {
+                $savedView = ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->whereKey($savedViewId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($savedView === null) {
+                    return;
+                }
+
+                $shares = $this->lockedSharesFor($savedView);
+
+                $this->recordLifecycleActivities(
+                    $user,
+                    $savedView,
+                    $shares,
+                    ReportSavedViewShareActivity::ACTION_SOURCE_DELETED
+                );
+
+                $savedView->delete();
+            }
+        );
     }
 
     public function deleteForReport(User $user, string $reportKey): void
     {
-        ReportSavedView::query()
-            ->where('user_id', $user->id)
-            ->where('report_key', $reportKey)
-            ->delete();
+        DB::transaction(
+            function () use ($user, $reportKey): void {
+                $savedViews = ReportSavedView::query()
+                    ->where('user_id', $user->id)
+                    ->where('report_key', $reportKey)
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($savedViews as $savedView) {
+                    $shares = $this->lockedSharesFor($savedView);
+
+                    $this->recordLifecycleActivities(
+                        $user,
+                        $savedView,
+                        $shares,
+                        ReportSavedViewShareActivity::ACTION_SOURCE_DELETED
+                    );
+
+                    $savedView->delete();
+                }
+            }
+        );
+    }
+
+    private function lockedSharesFor(
+        ReportSavedView $savedView
+    ): Collection {
+        return ReportSavedViewShare::query()
+            ->where(
+                'report_saved_view_id',
+                $savedView->id
+            )
+            ->with('recipient')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+    }
+
+    private function recordLifecycleActivities(
+        User $actor,
+        ReportSavedView $savedView,
+        Collection $shares,
+        string $action
+    ): void {
+        foreach ($shares as $share) {
+            $this->activityService->record(
+                $action,
+                $actor,
+                $actor,
+                $share->recipient,
+                $savedView,
+                $share,
+                $share->permission,
+                $share->permission
+            );
+        }
     }
 
     private function normalizeManagementStatus(
