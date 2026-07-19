@@ -1,0 +1,276 @@
+{
+  "phase": "Phase 82A",
+  "title": "Prepare Saved View Sharing Activity Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 81C",
+    "commit": "b53de24",
+    "tests": 1682,
+    "assertions": 15398,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "view_changes_expected": false,
+    "csv_format_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "purpose": {
+    "summary": "Define an immutable audit activity model for saved view sharing.",
+    "goals": [
+      "Record meaningful sharing lifecycle events.",
+      "Preserve actor, owner, recipient, source, and permission context.",
+      "Support owner-scoped and recipient-scoped activity history.",
+      "Keep the source sharing feature behavior unchanged.",
+      "Keep CSV import and export formats unchanged."
+    ],
+    "non_goals": [
+      "Do not implement the activity table in Phase 82A.",
+      "Do not add runtime activity writes in Phase 82A.",
+      "Do not expose new routes or UI in Phase 82A.",
+      "Do not alter sharing permission semantics.",
+      "Do not replace application logs."
+    ]
+  },
+  "proposed_storage": {
+    "table": "report_saved_view_share_activities",
+    "model": "App\\Models\\ReportSavedViewShareActivity",
+    "service": "App\\Services\\ReportSavedViewShareActivityService",
+    "immutability": true,
+    "timestamps": {
+      "created_at": true,
+      "updated_at": false
+    },
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint",
+        "nullable": false,
+        "purpose": "Primary key."
+      },
+      {
+        "name": "report_saved_view_share_id",
+        "type": "foreignId",
+        "nullable": true,
+        "on_delete": "set null",
+        "purpose": "Optional surviving reference to the share row."
+      },
+      {
+        "name": "report_saved_view_id",
+        "type": "foreignId",
+        "nullable": true,
+        "on_delete": "set null",
+        "purpose": "Optional surviving reference to the source saved view."
+      },
+      {
+        "name": "actor_user_id",
+        "type": "foreignId",
+        "nullable": true,
+        "on_delete": "set null",
+        "purpose": "User who performed the action."
+      },
+      {
+        "name": "owner_user_id",
+        "type": "foreignId",
+        "nullable": true,
+        "on_delete": "set null",
+        "purpose": "Owner of the shared source at event time."
+      },
+      {
+        "name": "recipient_user_id",
+        "type": "foreignId",
+        "nullable": true,
+        "on_delete": "set null",
+        "purpose": "Recipient affected by the activity."
+      },
+      {
+        "name": "action",
+        "type": "string",
+        "length": 40,
+        "nullable": false,
+        "purpose": "Stable machine-readable event type."
+      },
+      {
+        "name": "permission_before",
+        "type": "string",
+        "length": 16,
+        "nullable": true,
+        "purpose": "Permission before a change."
+      },
+      {
+        "name": "permission_after",
+        "type": "string",
+        "length": 16,
+        "nullable": true,
+        "purpose": "Permission after a change."
+      },
+      {
+        "name": "source_name_snapshot",
+        "type": "string",
+        "length": 120,
+        "nullable": true,
+        "purpose": "Saved view name at event time."
+      },
+      {
+        "name": "source_report_key_snapshot",
+        "type": "string",
+        "length": 120,
+        "nullable": true,
+        "purpose": "Report key at event time."
+      },
+      {
+        "name": "metadata",
+        "type": "json",
+        "nullable": true,
+        "purpose": "Small structured event-specific context."
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": false,
+        "purpose": "Immutable occurrence time."
+      }
+    ],
+    "indexes": [
+      [
+        "report_saved_view_share_id",
+        "created_at"
+      ],
+      [
+        "report_saved_view_id",
+        "created_at"
+      ],
+      [
+        "owner_user_id",
+        "created_at"
+      ],
+      [
+        "recipient_user_id",
+        "created_at"
+      ],
+      [
+        "actor_user_id",
+        "created_at"
+      ],
+      [
+        "action",
+        "created_at"
+      ]
+    ]
+  },
+  "actions": {
+    "allowed": [
+      "shared",
+      "permission_updated",
+      "revoked",
+      "applied",
+      "copied",
+      "source_archived",
+      "source_restored",
+      "source_deleted"
+    ],
+    "definitions": {
+      "shared": "Owner creates a new recipient share.",
+      "permission_updated": "Owner changes view/use permission.",
+      "revoked": "Owner removes recipient access.",
+      "applied": "Recipient applies a use-permission share.",
+      "copied": "Recipient creates an independent private copy.",
+      "source_archived": "Source becomes archived while shares exist.",
+      "source_restored": "Archived source becomes active again.",
+      "source_deleted": "Source is permanently deleted."
+    },
+    "idempotency": {
+      "repeat_share_without_change": "No new activity.",
+      "repeat_share_with_permission_change": "Record permission_updated.",
+      "failed_or_unauthorized_action": "No activity.",
+      "validation_failure": "No activity."
+    }
+  },
+  "write_boundaries": {
+    "transactional": true,
+    "write_after_success_only": true,
+    "activity_failure_policy": "Fail the business transaction; do not silently lose audit history.",
+    "direct_model_writes": false,
+    "service_owned_writes": true,
+    "recipient_source_mutation": false
+  },
+  "read_boundaries": {
+    "owner": [
+      "May read activities for sources they own.",
+      "May read recipient and actor context for owned-source activities."
+    ],
+    "recipient": [
+      "May read activities that directly affect their own received shares.",
+      "Must not read activities for other recipients."
+    ],
+    "foreign_user": [
+      "No access."
+    ],
+    "ordering": "created_at descending, then id descending",
+    "pagination": {
+      "default": 25,
+      "minimum": 5,
+      "maximum": 100
+    },
+    "filters": [
+      "action",
+      "recipient_user_id for owner scope",
+      "report_saved_view_id",
+      "date_from",
+      "date_to"
+    ]
+  },
+  "retention_and_privacy": {
+    "activity_rows_survive_share_delete": true,
+    "activity_rows_survive_source_delete": true,
+    "user_foreign_keys_set_null_on_user_delete": true,
+    "snapshots_preserve_minimum_context": true,
+    "filters_payload_snapshot_allowed": false,
+    "sensitive_request_payload_allowed": false,
+    "ip_address_required": false,
+    "user_agent_required": false
+  },
+  "integration_boundaries": {
+    "sharing_permissions": [
+      "view",
+      "use"
+    ],
+    "archive_semantics_unchanged": true,
+    "copy_semantics_unchanged": true,
+    "tags_semantics_unchanged": true,
+    "csv_import_export_unchanged": true,
+    "format_version_unchanged": true,
+    "existing_saved_views_private_by_default": true,
+    "existing_shares_backfilled": false
+  },
+  "implementation_plan": {
+    "next_phase": "Phase 82B",
+    "classification": "large",
+    "split_required": true,
+    "recommended_stages": [
+      "Database, model, immutable writer service, and foundation tests.",
+      "Integrate successful share, permission, revoke, apply, and copy events.",
+      "Integrate archive, restore, and permanent delete events.",
+      "Owner and recipient activity query endpoints and interfaces.",
+      "Full regression, documentation, migration, commit, and push."
+    ]
+  },
+  "workflow": {
+    "branch": "main",
+    "phase_branch_allowed": false,
+    "codex_worktree_allowed": false,
+    "push_target": "origin/main",
+    "commit_after_full_suite": true
+  },
+  "artifacts": {
+    "json": "docs/phase-82a-saved-view-sharing-activity-contract.json",
+    "markdown": "docs/phase-82a-saved-view-sharing-activity-contract.md",
+    "test": "tests/Feature/ReportSavedViewPhase82ASharingActivityContractTest.php"
+  }
+}
