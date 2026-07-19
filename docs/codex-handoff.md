@@ -89,3 +89,23 @@ Workflow policy:
 - no repeated full suite after commit
 - immediate push of every successful phase
 - each pushed phase becomes the next baseline
+
+## Phase 83 — Sharing Activity Export Completed
+
+Phase 83 is finalized.
+
+Current implementation includes:
+
+- owner activity CSV export
+- recipient activity CSV export
+- strict authenticated scoping
+- streamed response output
+- cursor-based iteration
+- UTF-8 BOM encoding
+- 15 stable columns
+- copied saved view identifier extraction
+- no full metadata or filters payload export
+
+Next recommended phase:
+
+Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.

@@ -289,3 +289,13 @@ Stage 5.
 Execution policy is now explicit: run the full suite once before commit,
 push every successful phase immediately, and do not repeat the full suite
 after commit.
+
+## Phase 83C — Finalize Saved View Sharing Activity Export
+
+Baseline: `5b56257`
+
+Finalized the Saved View Sharing Activity Export capability implemented in
+Phase 83B. Added finalization documents and locking tests only. Runtime,
+database, migrations, routes, controllers, services, views, sharing
+permissions, saved-view CSV format, and format-version behavior remain
+unchanged in Phase 83C.

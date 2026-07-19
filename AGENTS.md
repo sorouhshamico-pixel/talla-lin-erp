@@ -246,3 +246,17 @@ Workflow policy:
 Next recommended phase:
 
 Phase 83A — Prepare Saved View Sharing Activity Export Contract.
+
+## Phase 83C — Sharing Activity Export Finalized
+
+Phase 83 is complete.
+
+Baseline implementation commit: `5b56257`.
+
+The implementation includes owner-scoped and recipient-scoped streamed
+CSV exports, deterministic filtering and ordering, UTF-8 BOM output,
+15 locked columns, and strict metadata boundaries.
+
+Next recommended phase:
+
+Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.

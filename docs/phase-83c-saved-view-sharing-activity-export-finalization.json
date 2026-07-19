@@ -1,0 +1,119 @@
+{
+  "phase": "Phase 83C",
+  "title": "Finalize Saved View Sharing Activity Export",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 83B",
+    "commit": "5b56257",
+    "tests": 1739,
+    "assertions": 15745,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "service": "App\\Services\\ReportSavedViewShareActivityExportService",
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityExportController",
+    "routes": {
+      "owner": "reports.saved-view-share-activities.owner.export",
+      "recipient": "reports.shared-saved-view-activities.export"
+    },
+    "format": "csv",
+    "encoding": "UTF-8 with BOM",
+    "delimiter": ",",
+    "line_ending": "LF",
+    "streaming": {
+      "streamed_response": true,
+      "cursor_iteration": true,
+      "unbounded_collection_loading": false
+    },
+    "audience_scopes": {
+      "owner": "owner_user_id equals authenticated user id",
+      "recipient": "recipient_user_id equals authenticated user id"
+    },
+    "filters": {
+      "owner": [
+        "action",
+        "recipient_user_id",
+        "report_saved_view_id",
+        "date_from",
+        "date_to"
+      ],
+      "recipient": [
+        "action",
+        "report_saved_view_id",
+        "date_from",
+        "date_to"
+      ]
+    },
+    "ordering": [
+      "created_at descending",
+      "id descending"
+    ],
+    "columns": [
+      "activity_id",
+      "created_at",
+      "action",
+      "source_saved_view_id",
+      "source_name",
+      "source_report_key",
+      "actor_user_id",
+      "actor_name",
+      "owner_user_id",
+      "owner_name",
+      "recipient_user_id",
+      "recipient_name",
+      "permission_before",
+      "permission_after",
+      "copied_saved_view_id"
+    ],
+    "metadata_policy": {
+      "full_metadata_exported": false,
+      "filters_payload_exported": false,
+      "copied_saved_view_id_extracted": true
+    },
+    "deleted_reference_behavior": {
+      "nullable_ids": true,
+      "source_snapshots_preserved": true,
+      "missing_user_names_empty": true
+    },
+    "empty_export_allowed": true,
+    "download_filename_prefixes": {
+      "owner": "saved-view-sharing-activity-owner-",
+      "recipient": "saved-view-sharing-activity-recipient-"
+    },
+    "compatibility": {
+      "activity_schema_unchanged": true,
+      "activity_actions_unchanged": true,
+      "sharing_permissions_unchanged": true,
+      "saved_view_csv_unchanged": true,
+      "saved_view_format_version_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "artifacts": {
+    "json": "docs/phase-83c-saved-view-sharing-activity-export-finalization.json",
+    "markdown": "docs/phase-83c-saved-view-sharing-activity-export-finalization.md",
+    "test": "tests/Feature/ReportSavedViewPhase83CSharingActivityExportFinalizationTest.php"
+  },
+  "next_recommendation": {
+    "phase": "Phase 84A",
+    "title": "Prepare Saved View Sharing Activity Retention Policy Contract",
+    "scope": "Define retention, pruning, and compliance boundaries without changing runtime behavior."
+  }
+}

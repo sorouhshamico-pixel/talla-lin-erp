@@ -78,3 +78,24 @@ Phase 82B now contains:
 Stage 5 is documentation and locking tests only.
 
 Next: Phase 83A — Prepare Saved View Sharing Activity Export Contract.
+
+# Phase 83C — Finalize Saved View Sharing Activity Export
+
+Baseline commit: `5b56257`
+
+Baseline suite: 1739 passed / 15745 assertions.
+
+Phase 83 now includes:
+
+- owner-scoped CSV export
+- recipient-scoped CSV export
+- streamed responses
+- cursor iteration
+- UTF-8 BOM
+- deterministic ordering
+- 15 locked columns
+- metadata and filters-payload exclusion
+
+Stage 83C is documentation and locking tests only.
+
+Next: Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.
