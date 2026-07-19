@@ -1,3 +1,26 @@
+# Codex Handoff
+
+Phase 81B completed: Saved View Sharing.
+
+Current implementation includes:
+
+- `report_saved_view_shares` migration and model
+- owner-scoped sharing service
+- owner share management page
+- recipient received-shares page
+- `view` and `use` permissions
+- apply authorization
+- independent recipient copy
+- archive suspension and restoration behavior
+- no sharing fields in CSV import/export
+
+Next recommended phase:
+
+Phase 81C — Finalize Saved View Sharing
+
+Phase 81C should add final implementation documentation and locking tests only. It should not change runtime behavior, database schema, migrations, CSV format, or permission semantics.
+
+
 # Project Handoff — Talla Lin ERP
 
 ## Latest phase

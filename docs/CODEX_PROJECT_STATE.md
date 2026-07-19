@@ -1,3 +1,22 @@
+# Current Project State
+
+## Latest completed phase
+
+Phase 81B — Implement Saved View Sharing
+
+- Baseline commit before implementation: `c419894`
+- Workflow: direct `main` only
+- Database table: `report_saved_view_shares`
+- Permissions: `view`, `use`
+- Owner operations: share, change permission, revoke, list recipients
+- Recipient operations: list active received shares, apply `use` shares, copy to own account
+- Archive behavior: share rows are preserved; recipient access resumes after restoration
+- Copy behavior: independent, active, non-default, without owner tags or shares
+- CSV/import/export format: unchanged
+- Migration: applied
+- Phase 81C is the recommended next phase for sharing finalization and documentation lock.
+
+
 # Project State — Talla Lin ERP
 
 ## Latest phase

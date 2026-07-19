@@ -199,3 +199,16 @@ destructive recovery action.
   Phase 81B — Implement Saved View Sharing.
 - Large-phase policy:
   split Phase 81B into small validated stages.
+
+## Phase 81B — Saved View Sharing
+
+- Phase 81B implements owner-scoped sharing for report saved views.
+- The sharing table is `report_saved_view_shares`.
+- Supported permissions are `view` and `use`.
+- Only the owner may create, update, revoke, or list recipients.
+- Recipients may list received active shares, apply a `use` share, and copy a share into an independent saved view.
+- Recipient copies are active, non-default, private, and do not inherit owner tags or shares.
+- Archived sources remain shared in storage but are hidden and cannot be applied or copied until restored.
+- CSV schemas, parser behavior, writer behavior, and format versions remain unchanged.
+- Existing saved views and imported rows remain private by default.
+- Phase 81B was implemented as five validated stages because it is a large phase.

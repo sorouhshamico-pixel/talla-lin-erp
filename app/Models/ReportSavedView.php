@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ReportSavedView extends Model
 {
@@ -39,6 +40,28 @@ class ReportSavedView extends Model
             ReportSavedViewTag::class,
             'report_saved_view_tag'
         );
+    }
+
+    public function shares(): HasMany
+    {
+        return $this->hasMany(
+            ReportSavedViewShare::class
+        );
+    }
+
+    public function sharedWithUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'report_saved_view_shares',
+            'report_saved_view_id',
+            'recipient_user_id'
+        )
+            ->withPivot([
+                'owner_user_id',
+                'permission',
+            ])
+            ->withTimestamps();
     }
 
     public function user(): BelongsTo

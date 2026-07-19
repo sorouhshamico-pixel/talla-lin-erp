@@ -247,3 +247,14 @@
   small validated stages.
 - Next: Phase 81B — Implement Saved View Sharing.
 
+## Phase 81B — Implement Saved View Sharing
+
+Implemented Saved View Sharing in five validated stages:
+
+1. Added the share migration, model, relationships, ownership service, and foundation tests.
+2. Added authenticated routes, owner and recipient controllers, and authorization tests.
+3. Added owner and recipient management interfaces.
+4. Added recipient copy behavior and archive, tag, duplicate, CSV, import, and export boundaries.
+5. Applied the migration, ran complete validation, updated documentation, committed, and pushed to `origin/main`.
+
+The implementation preserves owner control, prevents recipients from mutating source views, and keeps CSV/import/export contracts unchanged.
