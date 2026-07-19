@@ -222,3 +222,27 @@ destructive recovery action.
 - Archived source views preserve share rows but block recipient listing, apply, and copy until restoration.
 - Recipient copies remain independent, active, non-default, and do not inherit owner tags or source shares.
 - Continue the main-only workflow and push only `origin/main`.
+
+## Phase 82B — Saved View Sharing Activity
+
+Phase 82B is finalized.
+
+Baseline implementation commits:
+
+- Stage 3: `14da213`
+- Stage 4: `f719301`
+
+The implementation includes immutable sharing activity records, eight
+locked actions, lifecycle retention, owner-scoped history, recipient-scoped
+history, filtering, pagination, and HTML/JSON interfaces.
+
+Workflow policy:
+
+- run the full suite once before commit
+- do not repeat the full suite after commit
+- push every successful phase directly to `origin/main`
+- use each successful pushed phase as the next baseline
+
+Next recommended phase:
+
+Phase 83A — Prepare Saved View Sharing Activity Export Contract.

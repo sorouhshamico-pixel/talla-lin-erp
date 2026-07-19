@@ -57,3 +57,24 @@ Status: awaiting commit and push
 Phase 81B — Implement Saved View Sharing
 Large phase: split into small validated stages
 ```
+
+# Phase 82B Stage 5 — Finalize Saved View Sharing Activity
+
+Baseline commit: `f719301`
+
+Baseline suite: 1719 passed / 15619 assertions.
+
+Phase 82B now contains:
+
+- immutable activity storage
+- eight sharing activity actions
+- successful-action-only transactional writes
+- owner and recipient history
+- action, recipient, source, and date filters
+- HTML and JSON history interfaces
+- deletion-safe snapshots
+- unchanged sharing, CSV, and format-version boundaries
+
+Stage 5 is documentation and locking tests only.
+
+Next: Phase 83A — Prepare Saved View Sharing Activity Export Contract.
