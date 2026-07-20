@@ -1,0 +1,126 @@
+{
+  "phase": "Phase 89C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Presets",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 89B",
+    "commit": "b2f6d4c3c43630ada934554c230e32c7352f8092",
+    "tests": 1842,
+    "assertions": 16670,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "administration_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+    "administration_route": "reports.saved-view-share-activity-retention.index",
+    "permission_required": "manage_saved_view_share_activity_retention",
+    "presets": [
+      {
+        "key": "all",
+        "label": "All executions",
+        "filters": {}
+      },
+      {
+        "key": "failed",
+        "label": "Failed executions",
+        "filters": {
+          "status": "failed"
+        }
+      },
+      {
+        "key": "conflicted",
+        "label": "Conflicted executions",
+        "filters": {
+          "status": "conflicted"
+        }
+      },
+      {
+        "key": "manual",
+        "label": "Manual executions",
+        "filters": {
+          "type": "manual_execution"
+        }
+      },
+      {
+        "key": "scheduled",
+        "label": "Scheduled executions",
+        "filters": {
+          "type": "scheduled_execution"
+        }
+      },
+      {
+        "key": "command",
+        "label": "Command executions",
+        "filters": {
+          "type": "command_execution"
+        }
+      }
+    ],
+    "behavior": {
+      "links_use_get": true,
+      "links_target_existing_administration_route": true,
+      "query_parameters_only": true,
+      "active_preset_indicated": true,
+      "presets_do_not_trigger_export": true,
+      "manual_filters_preserved": true,
+      "clear_filters_preserved": true,
+      "no_javascript_required": true
+    },
+    "persistence": {
+      "database": false,
+      "session": false,
+      "cache": false,
+      "local_storage": false
+    },
+    "implementation_scope": {
+      "view_modified": true,
+      "phase_89b_test_added": true,
+      "controller_changed": false,
+      "service_changed": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false
+    },
+    "privacy": {
+      "no_export_rows_embedded": true,
+      "no_context_rendering": true,
+      "no_full_activity_metadata": true,
+      "no_credentials_or_secrets": true
+    },
+    "compatibility": {
+      "administration_controller_unchanged": true,
+      "administration_route_unchanged": true,
+      "export_controller_unchanged": true,
+      "export_service_unchanged": true,
+      "export_routes_unchanged": true,
+      "manual_filters_unchanged": true,
+      "row_limits_unchanged": true,
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "retention_policy_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 90A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Date Range Shortcuts Contract",
+    "classification": "medium"
+  }
+}
