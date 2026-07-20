@@ -1,0 +1,127 @@
+{
+  "phase": "Phase 91C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 91B",
+    "commit": "1b3c615e2e0a60753d72e2be0029e6e49efc2eef",
+    "tests": 1872,
+    "assertions": 16999,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+    "view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+    "administration_route": "reports.saved-view-share-activity-retention.index",
+    "permission_required": "manage_saved_view_share_activity_retention",
+    "filters": [
+      "type",
+      "status",
+      "actor_user_id",
+      "started_from",
+      "started_to"
+    ],
+    "summary_fields": [
+      "total_count",
+      "succeeded_count",
+      "failed_count",
+      "conflicted_count",
+      "manual_preview_count",
+      "manual_execution_count",
+      "scheduled_execution_count",
+      "command_execution_count",
+      "candidate_count_sum",
+      "deleted_count_sum",
+      "average_duration_ms",
+      "oldest_started_at",
+      "newest_started_at"
+    ],
+    "aggregation": {
+      "server_side": true,
+      "aggregate_query": true,
+      "execution_rows_not_loaded": true,
+      "null_candidate_counts_treated_as_zero": true,
+      "null_deleted_counts_treated_as_zero": true,
+      "null_durations_excluded_from_average": true,
+      "average_duration_rounded_to_integer": true,
+      "timestamps_serialized_as_iso_8601": true
+    },
+    "empty_state": {
+      "total_count": 0,
+      "candidate_count_sum": 0,
+      "deleted_count_sum": 0,
+      "average_duration_ms": null,
+      "oldest_started_at": null,
+      "newest_started_at": null
+    },
+    "behavior": {
+      "html_page_receives_summary": true,
+      "current_filter_context_visible": true,
+      "json_status_response_unchanged": true,
+      "presets_supported": true,
+      "date_range_shortcuts_supported": true,
+      "manual_filters_supported": true,
+      "summary_does_not_trigger_export": true,
+      "summary_not_subject_to_export_row_limits": true
+    },
+    "implementation_scope": {
+      "existing_export_service_modified": true,
+      "existing_administration_controller_modified": true,
+      "existing_administration_view_modified": true,
+      "phase_91b_test_added": true,
+      "new_service_added": false,
+      "new_controller_added": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "model_changed": false
+    },
+    "privacy": {
+      "no_context_rendering": true,
+      "no_failure_message_rendering": true,
+      "no_failure_class_rendering": true,
+      "no_actor_profile_rendering": true,
+      "no_credentials_or_secrets": true
+    },
+    "compatibility": {
+      "validated_filters_unchanged": true,
+      "query_ordering_unchanged": true,
+      "export_serialization_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "export_logging_unchanged": true,
+      "export_row_limits_unchanged": true,
+      "preset_links_unchanged": true,
+      "date_range_shortcuts_unchanged": true,
+      "retention_status_json_unchanged": true,
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "retention_policy_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 92A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Performance Contract",
+    "classification": "medium"
+  }
+}
