@@ -483,3 +483,43 @@ Route::get('/reports/saved-view-rollout-target/markdown', function () {
 Route::get('/reports/saved-view-rollout-target/json', function () {
     return response()->json(ReportSavedViewRolloutTarget::summary());
 })->middleware('auth')->name('reports.saved-view-rollout-target.json');
+
+/*
+ * Phase 86B retention execution history.
+ */
+Route::get(
+    '/reports/saved-view-share-activity-retention/history',
+    function (\Illuminate\Http\Request $request) {
+        $query = \App\Models\ReportSavedViewShareActivityRetentionExecution::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+
+        foreach (['type', 'status', 'actor_user_id'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->where($filter, $request->input($filter));
+            }
+        }
+
+        if ($request->filled('started_from')) {
+            $query->where('started_at', '>=', $request->input('started_from'));
+        }
+
+        if ($request->filled('started_to')) {
+            $query->where('started_at', '<=', $request->input('started_to'));
+        }
+
+        $perPage = min(
+            max((int) $request->integer('per_page', 25), 1),
+            100
+        );
+
+        return response()->json(
+            $query->paginate($perPage)
+        );
+    }
+)->middleware([
+    'auth',
+    'can:manage_saved_view_share_activity_retention',
+])->name(
+    'reports.saved-view-share-activity-retention.history'
+);
