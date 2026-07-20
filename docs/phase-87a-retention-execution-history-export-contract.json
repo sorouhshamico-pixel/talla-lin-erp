@@ -1,0 +1,144 @@
+{
+  "phase": "Phase 87A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 86C",
+    "commit": "edcbcab",
+    "tests": 1802,
+    "assertions": 16251,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "export_contract": {
+    "purpose": "Provide controlled export of retention execution history for operational review.",
+    "permission_required": "manage_saved_view_share_activity_retention",
+    "authentication_required": true,
+    "formats": [
+      "csv",
+      "json"
+    ],
+    "default_format": "csv",
+    "route_names": {
+      "csv": "reports.saved-view-share-activity-retention.history.export.csv",
+      "json": "reports.saved-view-share-activity-retention.history.export.json"
+    },
+    "filters": [
+      "type",
+      "status",
+      "actor_user_id",
+      "started_from",
+      "started_to"
+    ],
+    "ordering": [
+      "created_at desc",
+      "id desc"
+    ],
+    "columns": [
+      "id",
+      "type",
+      "status",
+      "actor_user_id",
+      "requested_days",
+      "requested_chunk_size",
+      "candidate_count",
+      "deleted_count",
+      "cutoff_at",
+      "duration_ms",
+      "failure_class",
+      "failure_message",
+      "started_at",
+      "finished_at",
+      "created_at"
+    ],
+    "excluded_fields": [
+      "context",
+      "updated_at"
+    ],
+    "csv": {
+      "utf8_bom": true,
+      "delimiter": ",",
+      "line_ending": "CRLF",
+      "filename_prefix": "saved-view-retention-execution-history",
+      "streaming_required": true
+    },
+    "json": {
+      "top_level_keys": [
+        "exported_at",
+        "filters",
+        "count",
+        "items"
+      ],
+      "streaming_required": false,
+      "maximum_rows": 10000
+    },
+    "limits": {
+      "csv_maximum_rows": 100000,
+      "json_maximum_rows": 10000,
+      "timeout_seconds": 120
+    },
+    "privacy": {
+      "no_full_activity_metadata": true,
+      "no_filters_payload": true,
+      "no_context_export": true,
+      "no_credentials_or_secrets": true,
+      "failure_message_included": true
+    },
+    "audit": {
+      "export_request_logged": true,
+      "actor_user_id_logged": true,
+      "format_logged": true,
+      "filters_logged": true,
+      "exported_count_logged": true,
+      "duration_logged": true,
+      "creates_execution_history_row": false,
+      "creates_sharing_activity_row": false
+    },
+    "error_responses": {
+      "forbidden": 403,
+      "validation_error": 422,
+      "row_limit_exceeded": 422
+    },
+    "planned_implementation": {
+      "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionExecutionHistoryExportController",
+      "service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+      "test": "tests/Feature/ReportSavedViewPhase87BRetentionExecutionHistoryExportImplementationTest.php"
+    },
+    "compatibility": {
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "history_writer_unchanged": true,
+      "history_read_route_unchanged": true,
+      "retention_policy_unchanged": true,
+      "retention_administration_unchanged": true,
+      "retention_command_signature_unchanged": true,
+      "scheduler_contract_unchanged": true,
+      "sharing_activity_schema_unchanged": true,
+      "sharing_activity_export_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 87B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export",
+    "classification": "medium",
+    "execution": "single validated stage"
+  }
+}
