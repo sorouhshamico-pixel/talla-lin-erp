@@ -33,6 +33,62 @@
             CSV is limited to 100000 rows and JSON is limited to 10000 rows.
         </p>
 
+        @php
+            $exportPresets = [
+                'all' => [
+                    'label' => 'All executions',
+                    'filters' => [],
+                ],
+                'failed' => [
+                    'label' => 'Failed executions',
+                    'filters' => ['status' => 'failed'],
+                ],
+                'conflicted' => [
+                    'label' => 'Conflicted executions',
+                    'filters' => ['status' => 'conflicted'],
+                ],
+                'manual' => [
+                    'label' => 'Manual executions',
+                    'filters' => ['type' => 'manual_execution'],
+                ],
+                'scheduled' => [
+                    'label' => 'Scheduled executions',
+                    'filters' => ['type' => 'scheduled_execution'],
+                ],
+                'command' => [
+                    'label' => 'Command executions',
+                    'filters' => ['type' => 'command_execution'],
+                ],
+            ];
+
+            $activePreset = request('preset', 'all');
+        @endphp
+
+        <nav aria-label="Retention execution history export presets">
+            <h3>Presets</h3>
+
+            <ul>
+                @foreach ($exportPresets as $presetKey => $preset)
+                    <li>
+                        <a
+                            href="{{ route(
+                                'reports.saved-view-share-activity-retention.index',
+                                array_merge(
+                                    ['preset' => $presetKey],
+                                    $preset['filters']
+                                )
+                            ) }}"
+                            @if ($activePreset === $presetKey)
+                                aria-current="page"
+                            @endif
+                        >
+                            {{ $preset['label'] }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
+
         <form
             method="GET"
             action="{{ route('reports.saved-view-share-activity-retention.history.export.csv') }}"
