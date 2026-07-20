@@ -523,3 +523,32 @@ Route::get(
 ])->name(
     'reports.saved-view-share-activity-retention.history'
 );
+
+/*
+ * Phase 87B retention execution history export.
+ */
+Route::get(
+    '/reports/saved-view-share-activity-retention/history/export/csv',
+    [
+        \App\Http\Controllers\ReportSavedViewShareActivityRetentionExecutionHistoryExportController::class,
+        'csv',
+    ]
+)->middleware([
+    'auth',
+    'can:manage_saved_view_share_activity_retention',
+])->name(
+    'reports.saved-view-share-activity-retention.history.export.csv'
+);
+
+Route::get(
+    '/reports/saved-view-share-activity-retention/history/export/json',
+    [
+        \App\Http\Controllers\ReportSavedViewShareActivityRetentionExecutionHistoryExportController::class,
+        'json',
+    ]
+)->middleware([
+    'auth',
+    'can:manage_saved_view_share_activity_retention',
+])->name(
+    'reports.saved-view-share-activity-retention.history.export.json'
+);
