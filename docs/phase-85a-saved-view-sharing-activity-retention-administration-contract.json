@@ -1,0 +1,139 @@
+{
+  "phase": "Phase 85A",
+  "title": "Prepare Saved View Sharing Activity Retention Administration Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 84C",
+    "commit": "2df38da",
+    "tests": 1765,
+    "assertions": 15941,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "view_changes_expected": false,
+    "policy_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "administration_contract": {
+    "purpose": "Provide authenticated operational visibility and guarded manual retention controls.",
+    "authorization": {
+      "authentication_required": true,
+      "permission_required": "manage_saved_view_share_activity_retention",
+      "owner_scope_not_sufficient": true,
+      "recipient_scope_not_sufficient": true,
+      "cross_user_operational_access_requires_permission": true
+    },
+    "read_interface": {
+      "status_page_required": true,
+      "json_response_supported": true,
+      "shows": [
+        "retention_enabled",
+        "retention_days",
+        "chunk_size",
+        "schedule",
+        "candidate_count",
+        "oldest_activity_at",
+        "newest_activity_at",
+        "last_manual_preview",
+        "last_manual_execution"
+      ],
+      "does_not_show": [
+        "full_activity_metadata",
+        "filters_payload",
+        "database_credentials",
+        "environment_secrets"
+      ]
+    },
+    "manual_preview": {
+      "supported": true,
+      "deletes_rows": false,
+      "requires_days": true,
+      "minimum_days": 30,
+      "maximum_days": 3650,
+      "reports_candidate_count": true,
+      "reports_cutoff": true,
+      "reports_duration": true
+    },
+    "manual_execution": {
+      "supported": true,
+      "confirmation_required": true,
+      "confirmation_token": "PRUNE",
+      "requires_days": true,
+      "supports_chunk_size": true,
+      "minimum_chunk_size": 1,
+      "maximum_chunk_size": 10000,
+      "reports_deleted_count": true,
+      "reports_cutoff": true,
+      "reports_duration": true
+    },
+    "configuration_visibility": {
+      "read_only": true,
+      "web_interface_must_not_write_env": true,
+      "web_interface_must_not_write_config_files": true,
+      "configuration_changes_remain_deployment_managed": true
+    },
+    "audit": {
+      "manual_preview_logged": true,
+      "manual_execution_logged": true,
+      "actor_user_id_logged": true,
+      "requested_days_logged": true,
+      "requested_chunk_size_logged": true,
+      "candidate_or_deleted_count_logged": true,
+      "cutoff_logged": true,
+      "duration_logged": true,
+      "manual_operation_creates_activity_row": false
+    },
+    "concurrency": {
+      "single_manual_execution_lock_required": true,
+      "lock_name": "saved-view-share-activity-retention-prune",
+      "lock_timeout_seconds": 0,
+      "overlapping_manual_execution_forbidden": true,
+      "manual_and_scheduled_overlap_forbidden": true
+    },
+    "responses": {
+      "success": 200,
+      "forbidden": 403,
+      "validation_error": 422,
+      "lock_conflict": 409
+    },
+    "planned_interfaces": {
+      "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+      "service": "App\\Services\\ReportSavedViewShareActivityRetentionAdminService",
+      "status_route": "reports.saved-view-share-activity-retention.index",
+      "preview_route": "reports.saved-view-share-activity-retention.preview",
+      "execute_route": "reports.saved-view-share-activity-retention.execute",
+      "view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "test": "tests/Feature/ReportSavedViewPhase85BRetentionAdministrationImplementationTest.php"
+    },
+    "compatibility": {
+      "retention_service_unchanged": true,
+      "retention_command_unchanged": true,
+      "scheduler_unchanged": true,
+      "activity_schema_unchanged": true,
+      "activity_export_unchanged": true,
+      "sharing_permissions_unchanged": true,
+      "saved_view_csv_unchanged": true,
+      "saved_view_format_version_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 85B",
+    "title": "Implement Saved View Sharing Activity Retention Administration",
+    "classification": "medium",
+    "execution": "single validated stage"
+  }
+}
