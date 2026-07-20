@@ -1,0 +1,120 @@
+{
+  "phase": "Phase 88A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Administration Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 87C",
+    "commit": "811fdf60db903ba783bf1869b9770ca606748b65",
+    "tests": 1818,
+    "assertions": 16416,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "administration_contract": {
+    "purpose": "Expose guarded export controls from the existing retention administration page without changing the export engine.",
+    "authorization": {
+      "authentication_required": true,
+      "permission_required": "manage_saved_view_share_activity_retention",
+      "same_permission_as_export_routes": true,
+      "owner_scope_not_sufficient": true,
+      "recipient_scope_not_sufficient": true
+    },
+    "existing_interface_reuse": {
+      "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+      "status_route": "reports.saved-view-share-activity-retention.index",
+      "view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "csv_route": "reports.saved-view-share-activity-retention.history.export.csv",
+      "json_route": "reports.saved-view-share-activity-retention.history.export.json",
+      "new_controller_required": false,
+      "new_service_required": false,
+      "new_route_required": false
+    },
+    "controls": {
+      "formats": [
+        "csv",
+        "json"
+      ],
+      "default_format": "csv",
+      "filters": [
+        "type",
+        "status",
+        "actor_user_id",
+        "started_from",
+        "started_to"
+      ],
+      "filter_values_forwarded_as_query_string": true,
+      "empty_filters_omitted": true,
+      "server_side_validation_remains_authoritative": true,
+      "server_side_row_limits_remain_authoritative": true
+    },
+    "presentation": {
+      "export_section_required": true,
+      "csv_action_required": true,
+      "json_action_required": true,
+      "filter_form_required": true,
+      "clear_filters_action_required": true,
+      "shows_csv_maximum_rows": 100000,
+      "shows_json_maximum_rows": 10000,
+      "shows_privacy_notice": true,
+      "shows_context_exclusion": true,
+      "shows_updated_at_exclusion": true
+    },
+    "privacy": {
+      "no_context_rendering": true,
+      "no_full_activity_metadata": true,
+      "no_filters_payload": true,
+      "no_credentials_or_secrets": true,
+      "no_client_side_export_data_materialization": true
+    },
+    "behavior": {
+      "export_downloads_are_get_requests": true,
+      "export_request_does_not_mutate_history": true,
+      "export_request_does_not_create_sharing_activity": true,
+      "existing_retention_preview_unchanged": true,
+      "existing_retention_execution_unchanged": true
+    },
+    "planned_implementation": {
+      "modified_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "controller_changes_expected": false,
+      "service_changes_expected": false,
+      "route_changes_expected": false,
+      "test": "tests/Feature/ReportSavedViewPhase88BRetentionExecutionHistoryExportAdministrationImplementationTest.php"
+    },
+    "compatibility": {
+      "export_controller_unchanged": true,
+      "export_service_unchanged": true,
+      "export_routes_unchanged": true,
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "history_read_route_unchanged": true,
+      "retention_administration_routes_unchanged": true,
+      "retention_policy_unchanged": true,
+      "retention_command_signature_unchanged": true,
+      "scheduler_contract_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 88B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Administration",
+    "classification": "small",
+    "execution": "single validated stage"
+  }
+}
