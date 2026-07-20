@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ReportSavedViewShareActivityRetentionAdminService;
+use App\Services\ReportSavedViewShareActivityRetentionExecutionHistoryExportService;
 use App\Services\ReportSavedViewShareActivityRetentionExecutionHistoryService;
 use App\Services\ReportSavedViewShareActivityRetentionService;
 use Illuminate\Http\JsonResponse;
@@ -13,12 +14,35 @@ use RuntimeException;
 
 class ReportSavedViewShareActivityRetentionAdminController extends Controller
 {
-    public function index(Request $request, ReportSavedViewShareActivityRetentionAdminService $service): View|JsonResponse
-    {
+    public function index(
+        Request $request,
+        ReportSavedViewShareActivityRetentionAdminService $service,
+        ReportSavedViewShareActivityRetentionExecutionHistoryExportService $export
+    ): View|JsonResponse {
         $status = $service->status();
-        return $request->expectsJson()
-            ? response()->json($status)
-            : view('reports.saved-views.share-activity-retention', ['status' => $status]);
+
+        if ($request->expectsJson()) {
+            return response()->json($status);
+        }
+
+        $filters = $export->validatedFilters(
+            $request->only([
+                'type',
+                'status',
+                'actor_user_id',
+                'started_from',
+                'started_to',
+            ])
+        );
+
+        return view(
+            'reports.saved-views.share-activity-retention',
+            [
+                'status' => $status,
+                'exportFilters' => $filters,
+                'exportSummary' => $export->summary($filters),
+            ]
+        );
     }
 
     public function preview(

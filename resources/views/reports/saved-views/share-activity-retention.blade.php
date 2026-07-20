@@ -298,6 +298,54 @@
             </div>
         </form>
 
+        <section aria-labelledby="retention-history-summary-heading">
+            <h3 id="retention-history-summary-heading">
+                Current export summary
+            </h3>
+
+            @if ($exportSummary['total_count'] === 0)
+                <p>No execution history matches the current filters.</p>
+            @else
+                <dl>
+                    <dt>Total executions</dt>
+                    <dd>{{ $exportSummary['total_count'] }}</dd>
+                    <dt>Succeeded</dt>
+                    <dd>{{ $exportSummary['succeeded_count'] }}</dd>
+                    <dt>Failed</dt>
+                    <dd>{{ $exportSummary['failed_count'] }}</dd>
+                    <dt>Conflicted</dt>
+                    <dd>{{ $exportSummary['conflicted_count'] }}</dd>
+                    <dt>Manual previews</dt>
+                    <dd>{{ $exportSummary['manual_preview_count'] }}</dd>
+                    <dt>Manual executions</dt>
+                    <dd>{{ $exportSummary['manual_execution_count'] }}</dd>
+                    <dt>Scheduled executions</dt>
+                    <dd>{{ $exportSummary['scheduled_execution_count'] }}</dd>
+                    <dt>Command executions</dt>
+                    <dd>{{ $exportSummary['command_execution_count'] }}</dd>
+                    <dt>Candidate count total</dt>
+                    <dd>{{ $exportSummary['candidate_count_sum'] }}</dd>
+                    <dt>Deleted count total</dt>
+                    <dd>{{ $exportSummary['deleted_count_sum'] }}</dd>
+                    <dt>Average duration (ms)</dt>
+                    <dd>{{ $exportSummary['average_duration_ms'] ?? 'None' }}</dd>
+                    <dt>Oldest started at</dt>
+                    <dd>{{ $exportSummary['oldest_started_at'] ?? 'None' }}</dd>
+                    <dt>Newest started at</dt>
+                    <dd>{{ $exportSummary['newest_started_at'] ?? 'None' }}</dd>
+                </dl>
+            @endif
+
+            <p>
+                Current filters:
+                type={{ $exportFilters['type'] ?? 'all' }},
+                status={{ $exportFilters['status'] ?? 'all' }},
+                actor={{ $exportFilters['actor_user_id'] ?? 'all' }},
+                started_from={{ $exportFilters['started_from'] ?? 'none' }},
+                started_to={{ $exportFilters['started_to'] ?? 'none' }}.
+            </p>
+        </section>
+
         <p>
             Privacy notice: context and updated_at are excluded from exports.
             Export requests do not modify retention history or create sharing activity.
