@@ -1,0 +1,128 @@
+{
+  "phase": "Phase 90C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Date Range Shortcuts",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 90B",
+    "commit": "3ee97bb9f291885bd80c9bd0d99bd09d5ac45484",
+    "tests": 1857,
+    "assertions": 16828,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "administration_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+    "administration_route": "reports.saved-view-share-activity-retention.index",
+    "permission_required": "manage_saved_view_share_activity_retention",
+    "shortcuts": [
+      {
+        "key": "today",
+        "label": "Today",
+        "window": "current UTC calendar day"
+      },
+      {
+        "key": "last_7_days",
+        "label": "Last 7 days",
+        "window": "rolling 7 days ending now"
+      },
+      {
+        "key": "last_30_days",
+        "label": "Last 30 days",
+        "window": "rolling 30 days ending now"
+      },
+      {
+        "key": "this_month",
+        "label": "This month",
+        "window": "current UTC calendar month"
+      },
+      {
+        "key": "previous_month",
+        "label": "Previous month",
+        "window": "previous UTC calendar month"
+      },
+      {
+        "key": "clear_dates",
+        "label": "Clear date range",
+        "window": "no started_from or started_to filters"
+      }
+    ],
+    "time_semantics": {
+      "timezone": "UTC",
+      "generated_server_side": true,
+      "format": "Y-m-d\\TH:i",
+      "started_from_inclusive": true,
+      "started_to_inclusive": true,
+      "carbon_clock": "Illuminate\\Support\\Carbon::now('UTC')"
+    },
+    "behavior": {
+      "links_use_get": true,
+      "links_target_existing_administration_route": true,
+      "started_from_and_started_to_applied_as_query_parameters": true,
+      "preset_preserved": true,
+      "type_preserved": true,
+      "status_preserved": true,
+      "actor_user_id_preserved": true,
+      "active_shortcut_indicated": true,
+      "shortcuts_do_not_trigger_export": true,
+      "manual_date_editing_preserved": true,
+      "no_javascript_required": true
+    },
+    "persistence": {
+      "database": false,
+      "session": false,
+      "cache": false,
+      "local_storage": false
+    },
+    "implementation_scope": {
+      "view_modified": true,
+      "phase_90b_test_added": true,
+      "controller_changed": false,
+      "service_changed": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false
+    },
+    "privacy": {
+      "no_export_rows_embedded": true,
+      "no_context_rendering": true,
+      "no_full_activity_metadata": true,
+      "no_credentials_or_secrets": true
+    },
+    "compatibility": {
+      "preset_links_unchanged": true,
+      "manual_filters_unchanged": true,
+      "administration_controller_unchanged": true,
+      "administration_route_unchanged": true,
+      "export_controller_unchanged": true,
+      "export_service_unchanged": true,
+      "export_routes_unchanged": true,
+      "row_limits_unchanged": true,
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "retention_policy_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 91A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Contract",
+    "classification": "medium"
+  }
+}
