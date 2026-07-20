@@ -89,6 +89,121 @@
             </ul>
         </nav>
 
+        @php
+            $utcNow = \Illuminate\Support\Carbon::now('UTC');
+
+            $preservedDateShortcutFilters = array_filter([
+                'preset' => request('preset'),
+                'type' => request('type'),
+                'status' => request('status'),
+                'actor_user_id' => request('actor_user_id'),
+            ], static fn ($value) => $value !== null && $value !== '');
+
+            $dateRangeShortcuts = [
+                'today' => [
+                    'label' => 'Today',
+                    'started_from' => $utcNow
+                        ->copy()
+                        ->startOfDay()
+                        ->format('Y-m-d\TH:i'),
+                    'started_to' => $utcNow
+                        ->copy()
+                        ->endOfDay()
+                        ->format('Y-m-d\TH:i'),
+                ],
+                'last_7_days' => [
+                    'label' => 'Last 7 days',
+                    'started_from' => $utcNow
+                        ->copy()
+                        ->subDays(7)
+                        ->format('Y-m-d\TH:i'),
+                    'started_to' => $utcNow
+                        ->copy()
+                        ->format('Y-m-d\TH:i'),
+                ],
+                'last_30_days' => [
+                    'label' => 'Last 30 days',
+                    'started_from' => $utcNow
+                        ->copy()
+                        ->subDays(30)
+                        ->format('Y-m-d\TH:i'),
+                    'started_to' => $utcNow
+                        ->copy()
+                        ->format('Y-m-d\TH:i'),
+                ],
+                'this_month' => [
+                    'label' => 'This month',
+                    'started_from' => $utcNow
+                        ->copy()
+                        ->startOfMonth()
+                        ->format('Y-m-d\TH:i'),
+                    'started_to' => $utcNow
+                        ->copy()
+                        ->endOfMonth()
+                        ->format('Y-m-d\TH:i'),
+                ],
+                'previous_month' => [
+                    'label' => 'Previous month',
+                    'started_from' => $utcNow
+                        ->copy()
+                        ->subMonthNoOverflow()
+                        ->startOfMonth()
+                        ->format('Y-m-d\TH:i'),
+                    'started_to' => $utcNow
+                        ->copy()
+                        ->subMonthNoOverflow()
+                        ->endOfMonth()
+                        ->format('Y-m-d\TH:i'),
+                ],
+                'clear_dates' => [
+                    'label' => 'Clear date range',
+                    'started_from' => null,
+                    'started_to' => null,
+                ],
+            ];
+
+            $activeDateShortcut = request('date_shortcut');
+        @endphp
+
+        <nav aria-label="Retention execution history export date range shortcuts">
+            <h3>Date range shortcuts</h3>
+
+            <ul>
+                @foreach ($dateRangeShortcuts as $shortcutKey => $shortcut)
+                    @php
+                        $shortcutParameters = array_merge(
+                            $preservedDateShortcutFilters,
+                            ['date_shortcut' => $shortcutKey]
+                        );
+
+                        if ($shortcut['started_from'] !== null) {
+                            $shortcutParameters['started_from'] =
+                                $shortcut['started_from'];
+                        }
+
+                        if ($shortcut['started_to'] !== null) {
+                            $shortcutParameters['started_to'] =
+                                $shortcut['started_to'];
+                        }
+                    @endphp
+
+                    <li>
+                        <a
+                            href="{{ route(
+                                'reports.saved-view-share-activity-retention.index',
+                                $shortcutParameters
+                            ) }}"
+                            @if ($activeDateShortcut === $shortcutKey)
+                                aria-current="page"
+                            @endif
+                        >
+                            {{ $shortcut['label'] }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
+
         <form
             method="GET"
             action="{{ route('reports.saved-view-share-activity-retention.history.export.csv') }}"
