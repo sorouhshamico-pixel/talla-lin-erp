@@ -1,0 +1,145 @@
+{
+  "phase": "Phase 86A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 85C",
+    "commit": "9a3e59e",
+    "tests": 1786,
+    "assertions": 16115,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "execution_history_contract": {
+    "purpose": "Persist retention preview and execution outcomes for operational traceability.",
+    "table": "report_saved_view_share_activity_retention_executions",
+    "model": "App\\Models\\ReportSavedViewShareActivityRetentionExecution",
+    "writer_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryService",
+    "record_types": [
+      "manual_preview",
+      "manual_execution",
+      "scheduled_execution",
+      "command_execution"
+    ],
+    "statuses": [
+      "succeeded",
+      "failed",
+      "conflicted"
+    ],
+    "columns": {
+      "id": "big integer primary key",
+      "type": "string",
+      "status": "string",
+      "actor_user_id": "nullable foreign key users.id set null",
+      "requested_days": "integer",
+      "requested_chunk_size": "nullable integer",
+      "candidate_count": "nullable unsigned big integer",
+      "deleted_count": "nullable unsigned big integer",
+      "cutoff_at": "nullable timestamp",
+      "duration_ms": "nullable unsigned big integer",
+      "failure_class": "nullable string",
+      "failure_message": "nullable text",
+      "context": "nullable json",
+      "started_at": "timestamp",
+      "finished_at": "nullable timestamp",
+      "created_at": "timestamp",
+      "updated_at": "timestamp"
+    },
+    "constraints": {
+      "requested_days_minimum": 30,
+      "requested_days_maximum": 3650,
+      "requested_chunk_size_minimum": 1,
+      "requested_chunk_size_maximum": 10000,
+      "failure_message_maximum_characters": 2000,
+      "context_must_not_include_full_activity_metadata": true,
+      "context_must_not_include_filters_payload": true,
+      "context_must_not_include_secrets": true
+    },
+    "immutability": {
+      "rows_append_only": true,
+      "updates_after_completion_forbidden": true,
+      "deletes_through_normal_model_operations_forbidden": true,
+      "status_transition_allowed": "pending lifecycle is not used; insert final row only"
+    },
+    "recording": {
+      "manual_preview_recorded": true,
+      "manual_execution_recorded": true,
+      "scheduled_execution_recorded": true,
+      "command_execution_recorded": true,
+      "conflict_recorded": true,
+      "failure_recorded": true,
+      "activity_rows_created": false
+    },
+    "failure_handling": {
+      "history_write_failure_must_not_hide_primary_failure": true,
+      "history_write_failure_logged": true,
+      "primary_operation_result_remains_authoritative": true
+    },
+    "read_interface": {
+      "permission_required": "manage_saved_view_share_activity_retention",
+      "pagination_required": true,
+      "default_page_size": 25,
+      "maximum_page_size": 100,
+      "ordering": [
+        "created_at desc",
+        "id desc"
+      ],
+      "filters": [
+        "type",
+        "status",
+        "actor_user_id",
+        "started_from",
+        "started_to"
+      ]
+    },
+    "export": {
+      "included_in_phase_86": false,
+      "future_phase_possible": true
+    },
+    "planned_implementation": {
+      "migration": "create_report_saved_view_share_activity_retention_executions_table",
+      "model": "App\\Models\\ReportSavedViewShareActivityRetentionExecution",
+      "service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryService",
+      "integration_points": [
+        "ReportSavedViewShareActivityRetentionAdminService",
+        "ReportSavedViewShareActivityRetentionService",
+        "PruneReportSavedViewShareActivities",
+        "scheduled pruning path"
+      ],
+      "test": "tests/Feature/ReportSavedViewPhase86BRetentionExecutionHistoryImplementationTest.php"
+    },
+    "compatibility": {
+      "retention_policy_unchanged": true,
+      "retention_administration_unchanged": true,
+      "retention_command_signature_unchanged": true,
+      "scheduler_unchanged": true,
+      "activity_schema_unchanged": true,
+      "activity_export_unchanged": true,
+      "sharing_permissions_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 86B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History",
+    "classification": "medium",
+    "execution": "single validated stage"
+  }
+}
