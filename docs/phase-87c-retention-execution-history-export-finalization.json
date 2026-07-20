@@ -1,0 +1,120 @@
+{
+  "phase": "Phase 87C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 87B",
+    "commit": "0dfd2baf8a34387081f4044db2971de1422c63c7",
+    "tests": 1813,
+    "assertions": 16354,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionExecutionHistoryExportController",
+    "service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "permission_required": "manage_saved_view_share_activity_retention",
+    "authentication_required": true,
+    "formats": [
+      "csv",
+      "json"
+    ],
+    "routes": {
+      "csv": "reports.saved-view-share-activity-retention.history.export.csv",
+      "json": "reports.saved-view-share-activity-retention.history.export.json"
+    },
+    "filters": [
+      "type",
+      "status",
+      "actor_user_id",
+      "started_from",
+      "started_to"
+    ],
+    "ordering": [
+      "created_at desc",
+      "id desc"
+    ],
+    "columns": [
+      "id",
+      "type",
+      "status",
+      "actor_user_id",
+      "requested_days",
+      "requested_chunk_size",
+      "candidate_count",
+      "deleted_count",
+      "cutoff_at",
+      "duration_ms",
+      "failure_class",
+      "failure_message",
+      "started_at",
+      "finished_at",
+      "created_at"
+    ],
+    "excluded_fields": [
+      "context",
+      "updated_at"
+    ],
+    "csv": {
+      "maximum_rows": 100000,
+      "utf8_bom": true,
+      "line_ending": "CRLF",
+      "streamed_download": true,
+      "filename_prefix": "saved-view-retention-execution-history"
+    },
+    "json": {
+      "maximum_rows": 10000,
+      "top_level_keys": [
+        "exported_at",
+        "filters",
+        "count",
+        "items"
+      ]
+    },
+    "audit": {
+      "export_request_logged": true,
+      "actor_user_id_logged": true,
+      "format_logged": true,
+      "filters_logged": true,
+      "exported_count_logged": true,
+      "duration_logged": true,
+      "creates_execution_history_row": false,
+      "creates_sharing_activity_row": false
+    },
+    "compatibility": {
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "history_writer_unchanged": true,
+      "history_read_route_unchanged": true,
+      "retention_policy_unchanged": true,
+      "retention_administration_unchanged": true,
+      "retention_command_signature_unchanged": true,
+      "scheduler_contract_unchanged": true,
+      "sharing_activity_schema_unchanged": true,
+      "sharing_activity_export_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 88A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Administration Contract",
+    "classification": "medium"
+  }
+}
