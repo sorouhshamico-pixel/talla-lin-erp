@@ -1,0 +1,141 @@
+{
+  "phase": "Phase 89A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Presets Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 88C",
+    "commit": "c1efd0de98516595c8175d46405e87a7692c8cfc",
+    "tests": 1832,
+    "assertions": 16574,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "presets_contract": {
+    "purpose": "Provide safe, fixed export filter shortcuts on the existing retention administration page.",
+    "authorization": {
+      "authentication_required": true,
+      "permission_required": "manage_saved_view_share_activity_retention",
+      "same_authorization_as_administration_page": true,
+      "same_authorization_as_export_routes": true
+    },
+    "implementation_model": {
+      "fixed_application_presets": true,
+      "user_created_presets": false,
+      "database_persistence": false,
+      "session_persistence": false,
+      "cache_persistence": false,
+      "new_model_required": false,
+      "new_service_required": false,
+      "new_controller_required": false,
+      "new_route_required": false
+    },
+    "presets": [
+      {
+        "key": "all",
+        "label": "All executions",
+        "filters": {}
+      },
+      {
+        "key": "failed",
+        "label": "Failed executions",
+        "filters": {
+          "status": "failed"
+        }
+      },
+      {
+        "key": "conflicted",
+        "label": "Conflicted executions",
+        "filters": {
+          "status": "conflicted"
+        }
+      },
+      {
+        "key": "manual",
+        "label": "Manual executions",
+        "filters": {
+          "type": "manual_execution"
+        }
+      },
+      {
+        "key": "scheduled",
+        "label": "Scheduled executions",
+        "filters": {
+          "type": "scheduled_execution"
+        }
+      },
+      {
+        "key": "command",
+        "label": "Command executions",
+        "filters": {
+          "type": "command_execution"
+        }
+      }
+    ],
+    "behavior": {
+      "presets_link_to_existing_administration_route": true,
+      "presets_apply_query_parameters_only": true,
+      "presets_do_not_trigger_export_automatically": true,
+      "manual_filter_editing_remains_available": true,
+      "clear_filters_preserved": true,
+      "unknown_preset_has_no_special_server_behavior": true,
+      "server_side_export_validation_remains_authoritative": true
+    },
+    "presentation": {
+      "preset_section_required": true,
+      "active_preset_indication_required": true,
+      "labels_visible": true,
+      "links_are_get_requests": true,
+      "no_javascript_required": true
+    },
+    "privacy": {
+      "no_export_rows_embedded": true,
+      "no_context_rendering": true,
+      "no_full_activity_metadata": true,
+      "no_credentials_or_secrets": true
+    },
+    "planned_implementation": {
+      "modified_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "test": "tests/Feature/ReportSavedViewPhase89BRetentionExecutionHistoryExportPresetsImplementationTest.php",
+      "controller_changes_expected": false,
+      "service_changes_expected": false,
+      "route_changes_expected": false,
+      "database_changes_expected": false
+    },
+    "compatibility": {
+      "administration_controller_unchanged": true,
+      "administration_route_unchanged": true,
+      "export_controller_unchanged": true,
+      "export_service_unchanged": true,
+      "export_routes_unchanged": true,
+      "manual_filters_unchanged": true,
+      "row_limits_unchanged": true,
+      "history_table_unchanged": true,
+      "history_model_unchanged": true,
+      "retention_policy_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 89B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Presets",
+    "classification": "small",
+    "execution": "single validated stage"
+  }
+}
