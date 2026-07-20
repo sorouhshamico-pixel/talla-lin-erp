@@ -1,0 +1,121 @@
+{
+  "phase": "Phase 92A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Performance Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 91C",
+    "commit": "fec63654486ed17d5163aa42ab7d9bd02c2bd9ec",
+    "tests": 1877,
+    "assertions": 17079,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "performance_contract": {
+    "purpose": "Protect the filtered retention execution history summary from avoidable query, memory, and rendering regressions.",
+    "target_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "target_method": "summary",
+    "query_budget": {
+      "maximum_summary_queries": 1,
+      "execution_rows_loaded": 0,
+      "pagination_queries": 0,
+      "export_limit_count_queries": 0,
+      "n_plus_one_queries": 0
+    },
+    "aggregation": {
+      "single_aggregate_select_required": true,
+      "database_side_counts_required": true,
+      "database_side_sums_required": true,
+      "database_side_average_required": true,
+      "database_side_minimum_required": true,
+      "database_side_maximum_required": true,
+      "eloquent_collection_aggregation_forbidden": true,
+      "chunking_for_summary_forbidden": true,
+      "cursor_iteration_for_summary_forbidden": true
+    },
+    "filtering": {
+      "shared_filter_application_required": true,
+      "type_filter_supported": true,
+      "status_filter_supported": true,
+      "actor_user_id_filter_supported": true,
+      "started_from_filter_supported": true,
+      "started_to_filter_supported": true,
+      "filter_validation_unchanged": true,
+      "inclusive_date_boundaries_unchanged": true
+    },
+    "database": {
+      "new_table_required": false,
+      "new_column_required": false,
+      "new_migration_required": false,
+      "index_changes_required": false,
+      "existing_indexes_must_be_reused": true
+    },
+    "controller_and_view": {
+      "summary_computed_once_per_html_request": true,
+      "summary_not_computed_for_json_status_request": true,
+      "summary_not_recomputed_in_view": true,
+      "view_receives_plain_summary_array": true,
+      "view_does_not_execute_queries": true,
+      "no_javascript_aggregation": true
+    },
+    "limits": {
+      "csv_limit_not_applied": true,
+      "json_limit_not_applied": true,
+      "summary_timeout_seconds": 30,
+      "summary_result_size_is_constant": true
+    },
+    "observability": {
+      "no_new_audit_row": true,
+      "no_new_sharing_activity": true,
+      "no_export_log_entry": true,
+      "no_sensitive_filter_logging": true
+    },
+    "planned_implementation": {
+      "expected_runtime_change": "tests and defensive service assertions only",
+      "modified_service_allowed": true,
+      "modified_controller_allowed": false,
+      "modified_view_allowed": false,
+      "route_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "test": "tests/Feature/ReportSavedViewPhase92BRetentionExecutionHistoryExportSummaryPerformanceImplementationTest.php"
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filter_semantics_unchanged": true,
+      "summary_empty_state_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "export_limits_unchanged": true,
+      "presets_unchanged": true,
+      "date_range_shortcuts_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 92B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Performance Guards",
+    "classification": "small",
+    "execution": "single validated stage"
+  }
+}
