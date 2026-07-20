@@ -328,6 +328,27 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reports/saved-views', [\App\Http\Controllers\ReportSavedViewController::class, 'destroyAll'])->name('reports.saved-views.destroy-all');
     Route::patch('/reports/saved-views/{savedView}/default', [\App\Http\Controllers\ReportSavedViewController::class, 'makeDefault'])->name('reports.saved-views.make-default');
     Route::delete('/reports/saved-views/{savedView}', [\App\Http\Controllers\ReportSavedViewController::class, 'destroy'])->name('reports.saved-views.destroy');
+
+    /* Phase 85B saved view sharing activity retention administration. */
+    Route::middleware(
+        'can:manage_saved_view_share_activity_retention'
+    )->group(function (): void {
+        Route::get(
+            '/reports/saved-view-share-activity-retention',
+            [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'index']
+        )->name('reports.saved-view-share-activity-retention.index');
+
+        Route::post(
+            '/reports/saved-view-share-activity-retention/preview',
+            [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'preview']
+        )->name('reports.saved-view-share-activity-retention.preview');
+
+        Route::post(
+            '/reports/saved-view-share-activity-retention/execute',
+            [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'execute']
+        )->name('reports.saved-view-share-activity-retention.execute');
+    });
+
 });
 Route::post('/reports/sales-invoice-aging/saved-views', [\App\Http\Controllers\SalesInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.sales-invoice-aging.saved-views.store');
 Route::post('/reports/customer-sales-invoice-aging/saved-views', [\App\Http\Controllers\CustomerSalesInvoiceAgingReportController::class, 'storeSavedView'])->middleware('auth')->name('reports.customer-sales-invoice-aging.saved-views.store');
