@@ -14,6 +14,8 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
 {
     public const CSV_MAXIMUM_ROWS = 100000;
     public const JSON_MAXIMUM_ROWS = 10000;
+    public const SUMMARY_MAXIMUM_QUERIES = 1;
+    public const SUMMARY_TIMEOUT_SECONDS = 30;
 
     /**
      * @var list<string>
@@ -131,31 +133,30 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
                     ReportSavedViewShareActivityRetentionExecution::TYPE_COMMAND_EXECUTION,
                 ]
             )
+            ->toBase()
             ->first();
 
-        $averageDuration = $aggregate?->getAttribute(
-            'average_duration_ms'
-        );
+        $averageDuration = $aggregate?->average_duration_ms;
 
         return [
-            'total_count' => (int) ($aggregate?->getAttribute('total_count') ?? 0),
-            'succeeded_count' => (int) ($aggregate?->getAttribute('succeeded_count') ?? 0),
-            'failed_count' => (int) ($aggregate?->getAttribute('failed_count') ?? 0),
-            'conflicted_count' => (int) ($aggregate?->getAttribute('conflicted_count') ?? 0),
-            'manual_preview_count' => (int) ($aggregate?->getAttribute('manual_preview_count') ?? 0),
-            'manual_execution_count' => (int) ($aggregate?->getAttribute('manual_execution_count') ?? 0),
-            'scheduled_execution_count' => (int) ($aggregate?->getAttribute('scheduled_execution_count') ?? 0),
-            'command_execution_count' => (int) ($aggregate?->getAttribute('command_execution_count') ?? 0),
-            'candidate_count_sum' => (int) ($aggregate?->getAttribute('candidate_count_sum') ?? 0),
-            'deleted_count_sum' => (int) ($aggregate?->getAttribute('deleted_count_sum') ?? 0),
+            'total_count' => (int) ($aggregate?->total_count ?? 0),
+            'succeeded_count' => (int) ($aggregate?->succeeded_count ?? 0),
+            'failed_count' => (int) ($aggregate?->failed_count ?? 0),
+            'conflicted_count' => (int) ($aggregate?->conflicted_count ?? 0),
+            'manual_preview_count' => (int) ($aggregate?->manual_preview_count ?? 0),
+            'manual_execution_count' => (int) ($aggregate?->manual_execution_count ?? 0),
+            'scheduled_execution_count' => (int) ($aggregate?->scheduled_execution_count ?? 0),
+            'command_execution_count' => (int) ($aggregate?->command_execution_count ?? 0),
+            'candidate_count_sum' => (int) ($aggregate?->candidate_count_sum ?? 0),
+            'deleted_count_sum' => (int) ($aggregate?->deleted_count_sum ?? 0),
             'average_duration_ms' => $averageDuration === null
                 ? null
                 : (int) round((float) $averageDuration),
             'oldest_started_at' => $this->serializeSummaryTimestamp(
-                $aggregate?->getAttribute('oldest_started_at')
+                $aggregate?->oldest_started_at
             ),
             'newest_started_at' => $this->serializeSummaryTimestamp(
-                $aggregate?->getAttribute('newest_started_at')
+                $aggregate?->newest_started_at
             ),
         ];
     }
