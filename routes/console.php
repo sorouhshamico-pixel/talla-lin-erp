@@ -7,6 +7,7 @@ use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -88,3 +89,29 @@ Artisan::command('reports:saved-view-rollout-target {--json : Output the locked 
 
     return self::SUCCESS;
 })->purpose('Show the locked report saved view rollout target.');
+
+/*
+ * Phase 84B saved view sharing activity retention scheduler.
+ */
+if (
+    (bool) config(
+        'reports.saved_view_share_activity_retention.enabled',
+        false
+    )
+) {
+    $retentionSchedule = (string) config(
+        'reports.saved_view_share_activity_retention.schedule',
+        'daily'
+    );
+
+    $retentionEvent = Schedule::command(
+        'reports:prune-saved-view-share-activities'
+    );
+
+    match ($retentionSchedule) {
+        'hourly' => $retentionEvent->hourly(),
+        'weekly' => $retentionEvent->weekly(),
+        'monthly' => $retentionEvent->monthly(),
+        default => $retentionEvent->daily(),
+    };
+}
