@@ -99,3 +99,25 @@ Phase 83 now includes:
 Stage 83C is documentation and locking tests only.
 
 Next: Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.
+
+# Phase 84C — Finalize Saved View Sharing Activity Retention Policy
+
+Baseline commit: `fe41d7d`
+
+Baseline suite: 1759 passed / 15881 assertions.
+
+Phase 84 now includes:
+
+- retain-forever default
+- optional configured retention
+- dry-run support
+- 30 to 3650 day bounds
+- chunk size validation
+- chunked transactional deletion
+- Artisan command registration
+- conditional scheduler registration
+- execution metrics and logs
+
+Stage 84C is documentation and locking tests only.
+
+Next: Phase 85A — Prepare Saved View Sharing Activity Retention Administration Contract.

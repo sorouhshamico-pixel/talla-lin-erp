@@ -109,3 +109,22 @@ Current implementation includes:
 Next recommended phase:
 
 Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.
+
+## Phase 84 — Sharing Activity Retention Completed
+
+Phase 84 is finalized.
+
+Current implementation includes:
+
+- retention disabled by default
+- configurable retention period
+- dry-run
+- chunked transactional pruning
+- command registration through `bootstrap/app.php`
+- conditional scheduler registration
+- execution counts, cutoff, duration, and logs
+- no activity rows created by pruning
+
+Next recommended phase:
+
+Phase 85A — Prepare Saved View Sharing Activity Retention Administration Contract.

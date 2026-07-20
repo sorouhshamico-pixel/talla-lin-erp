@@ -260,3 +260,17 @@ CSV exports, deterministic filtering and ordering, UTF-8 BOM output,
 Next recommended phase:
 
 Phase 84A — Prepare Saved View Sharing Activity Retention Policy Contract.
+
+## Phase 84C — Sharing Activity Retention Finalized
+
+Phase 84 is complete.
+
+Baseline implementation commit: `fe41d7d`.
+
+The implementation includes explicit retention configuration, dry-run,
+chunked transactional pruning, command registration, conditional scheduler
+registration, and execution observability.
+
+Next recommended phase:
+
+Phase 85A — Prepare Saved View Sharing Activity Retention Administration Contract.

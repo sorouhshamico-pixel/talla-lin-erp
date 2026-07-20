@@ -1,0 +1,120 @@
+{
+  "phase": "Phase 84C",
+  "title": "Finalize Saved View Sharing Activity Retention Policy",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 84B",
+    "commit": "fe41d7d",
+    "tests": 1759,
+    "assertions": 15881,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "command_changes_expected": false,
+    "scheduler_changes_expected": false,
+    "configuration_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "service": "App\\Services\\ReportSavedViewShareActivityRetentionService",
+    "command_class": "App\\Console\\Commands\\PruneReportSavedViewShareActivities",
+    "command": "reports:prune-saved-view-share-activities",
+    "command_options": [
+      "--days=",
+      "--dry-run",
+      "--chunk="
+    ],
+    "command_registration": "bootstrap/app.php withCommands",
+    "configuration": {
+      "enabled_key": "reports.saved_view_share_activity_retention.enabled",
+      "days_key": "reports.saved_view_share_activity_retention.days",
+      "chunk_size_key": "reports.saved_view_share_activity_retention.chunk_size",
+      "schedule_key": "reports.saved_view_share_activity_retention.schedule",
+      "default_enabled": false,
+      "default_days": null,
+      "default_chunk_size": 500,
+      "default_schedule": "daily"
+    },
+    "retention_bounds": {
+      "minimum_days": 30,
+      "maximum_days": 3650,
+      "minimum_chunk_size": 1,
+      "maximum_chunk_size": 10000
+    },
+    "default_policy": {
+      "retain_forever": true,
+      "automatic_pruning_enabled": false
+    },
+    "eligibility": {
+      "column": "created_at",
+      "comparison": "strictly older than cutoff",
+      "cutoff_is_exclusive": true,
+      "future_rows_retained": true
+    },
+    "execution": {
+      "dry_run_supported": true,
+      "manual_execution_supported": true,
+      "conditional_scheduler_supported": true,
+      "chunked_query_builder_delete": true,
+      "transaction_per_chunk": true,
+      "single_unbounded_delete_forbidden": true
+    },
+    "observability": {
+      "candidate_count_reported": true,
+      "deleted_count_reported": true,
+      "cutoff_reported": true,
+      "duration_reported": true,
+      "success_logged": true,
+      "failure_logged": true,
+      "pruning_creates_activity_rows": false
+    },
+    "scheduler": {
+      "registration_file": "routes/console.php",
+      "enabled_only_when_configured": true,
+      "supported_schedules": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "fallback_schedule": "daily"
+    },
+    "immutability_boundary": {
+      "normal_model_updates_forbidden": true,
+      "normal_model_deletes_forbidden": true,
+      "retention_query_builder_delete_is_policy_exception": true
+    },
+    "compatibility": {
+      "activity_schema_unchanged": true,
+      "activity_actions_unchanged": true,
+      "activity_export_unchanged": true,
+      "sharing_permissions_unchanged": true,
+      "saved_view_csv_unchanged": true,
+      "saved_view_format_version_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "artifacts": {
+    "json": "docs/phase-84c-saved-view-sharing-activity-retention-policy-finalization.json",
+    "markdown": "docs/phase-84c-saved-view-sharing-activity-retention-policy-finalization.md",
+    "test": "tests/Feature/ReportSavedViewPhase84CSharingActivityRetentionFinalizationTest.php"
+  },
+  "next_recommendation": {
+    "phase": "Phase 85A",
+    "title": "Prepare Saved View Sharing Activity Retention Administration Contract",
+    "scope": "Define authenticated operational visibility and controls without changing runtime behavior."
+  }
+}

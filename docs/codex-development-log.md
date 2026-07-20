@@ -299,3 +299,12 @@ Phase 83B. Added finalization documents and locking tests only. Runtime,
 database, migrations, routes, controllers, services, views, sharing
 permissions, saved-view CSV format, and format-version behavior remain
 unchanged in Phase 83C.
+
+## Phase 84C — Finalize Saved View Sharing Activity Retention Policy
+
+Baseline: `fe41d7d`
+
+Finalized the sharing activity retention policy implemented in Phase 84B.
+Added finalization documents and locking tests only. Runtime behavior,
+database schema, migrations, routes, controllers, services, commands,
+scheduler behavior, and configuration remain unchanged in Phase 84C.
