@@ -274,3 +274,17 @@ registration, and execution observability.
 Next recommended phase:
 
 Phase 85A — Prepare Saved View Sharing Activity Retention Administration Contract.
+
+## Phase 85C — Retention Administration Finalized
+
+Phase 85 is complete.
+
+Baseline implementation commit: `fd7fbe3`.
+
+The implementation includes owner-gated retention administration,
+HTML and JSON status interfaces, manual preview, guarded execution,
+concurrency locking, and audit context.
+
+Next recommended phase:
+
+Phase 86A — Prepare Saved View Sharing Activity Retention Execution History Contract.

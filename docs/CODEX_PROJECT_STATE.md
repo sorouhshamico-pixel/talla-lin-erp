@@ -121,3 +121,24 @@ Phase 84 now includes:
 Stage 84C is documentation and locking tests only.
 
 Next: Phase 85A — Prepare Saved View Sharing Activity Retention Administration Contract.
+
+# Phase 85C — Finalize Saved View Sharing Activity Retention Administration
+
+Baseline commit: `fd7fbe3`
+
+Baseline suite: 1780 passed / 16047 assertions.
+
+Phase 85 now includes:
+
+- explicit retention administration ability
+- protected routes
+- HTML and JSON status
+- manual preview
+- PRUNE-confirmed manual execution
+- concurrency lock
+- audit logging
+- cached last operation results
+
+Stage 85C is documentation and locking tests only.
+
+Next: Phase 86A — Prepare Saved View Sharing Activity Retention Execution History Contract.

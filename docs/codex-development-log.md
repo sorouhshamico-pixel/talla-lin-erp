@@ -308,3 +308,12 @@ Finalized the sharing activity retention policy implemented in Phase 84B.
 Added finalization documents and locking tests only. Runtime behavior,
 database schema, migrations, routes, controllers, services, commands,
 scheduler behavior, and configuration remain unchanged in Phase 84C.
+
+## Phase 85C — Finalize Saved View Sharing Activity Retention Administration
+
+Baseline: `fd7fbe3`
+
+Finalized retention administration implemented in Phase 85B.
+Added finalization documents and locking tests only. No runtime,
+database, migration, route, controller, service, view, or provider
+changes were introduced in Phase 85C.

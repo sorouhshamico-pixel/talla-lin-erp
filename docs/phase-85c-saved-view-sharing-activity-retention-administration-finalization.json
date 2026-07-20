@@ -1,0 +1,116 @@
+{
+  "phase": "Phase 85C",
+  "title": "Finalize Saved View Sharing Activity Retention Administration",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 85B",
+    "commit": "fd7fbe3",
+    "tests": 1780,
+    "assertions": 16047,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "route_changes_expected": false,
+    "controller_changes_expected": false,
+    "service_changes_expected": false,
+    "view_changes_expected": false,
+    "provider_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "ability": "manage_saved_view_share_activity_retention",
+    "ability_registration": "App\\Providers\\AppServiceProvider",
+    "ability_rule": "owner role through User::isOwner",
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+    "service": "App\\Services\\ReportSavedViewShareActivityRetentionAdminService",
+    "view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+    "routes": {
+      "index": "reports.saved-view-share-activity-retention.index",
+      "preview": "reports.saved-view-share-activity-retention.preview",
+      "execute": "reports.saved-view-share-activity-retention.execute"
+    },
+    "middleware": [
+      "auth",
+      "can:manage_saved_view_share_activity_retention"
+    ],
+    "status_interface": {
+      "supports_html": true,
+      "supports_json": true,
+      "configuration_is_read_only": true,
+      "shows": [
+        "retention_enabled",
+        "retention_days",
+        "chunk_size",
+        "schedule",
+        "candidate_count",
+        "oldest_activity_at",
+        "newest_activity_at",
+        "last_manual_preview",
+        "last_manual_execution"
+      ]
+    },
+    "manual_preview": {
+      "deletes_rows": false,
+      "minimum_days": 30,
+      "maximum_days": 3650,
+      "audited": true,
+      "stores_last_result": true
+    },
+    "manual_execution": {
+      "confirmation_token": "PRUNE",
+      "minimum_days": 30,
+      "maximum_days": 3650,
+      "minimum_chunk_size": 1,
+      "maximum_chunk_size": 10000,
+      "audited": true,
+      "stores_last_result": true
+    },
+    "concurrency": {
+      "lock_name": "saved-view-share-activity-retention-prune",
+      "lock_ttl_seconds": 3600,
+      "conflict_status": 409,
+      "overlap_forbidden": true
+    },
+    "audit_context": [
+      "actor_user_id",
+      "requested_days",
+      "requested_chunk_size",
+      "candidate_count",
+      "deleted_count",
+      "cutoff",
+      "duration_ms"
+    ],
+    "responses": {
+      "success": 200,
+      "forbidden": 403,
+      "validation_error": 422,
+      "lock_conflict": 409
+    },
+    "compatibility": {
+      "retention_service_unchanged": true,
+      "retention_command_unchanged": true,
+      "scheduler_unchanged": true,
+      "activity_schema_unchanged": true,
+      "activity_export_unchanged": true,
+      "sharing_permissions_unchanged": true,
+      "saved_view_csv_unchanged": true,
+      "saved_view_format_version_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 86A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Contract",
+    "scope": "Define persistent execution history without changing runtime behavior."
+  }
+}
