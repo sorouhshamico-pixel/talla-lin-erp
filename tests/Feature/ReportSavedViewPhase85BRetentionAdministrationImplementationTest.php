@@ -269,8 +269,24 @@ class ReportSavedViewPhase85BRetentionAdministrationImplementationTest
             'Retention configuration is read-only',
             $viewSource
         );
+        $this->assertStringContainsString(
+            'method="GET"',
+            $viewSource
+        );
         $this->assertStringNotContainsString(
-            '<form',
+            'method="POST"',
+            $viewSource
+        );
+        $this->assertStringNotContainsString(
+            "@method('PUT')",
+            $viewSource
+        );
+        $this->assertStringNotContainsString(
+            "@method('PATCH')",
+            $viewSource
+        );
+        $this->assertStringNotContainsString(
+            "@method('DELETE')",
             $viewSource
         );
     }
