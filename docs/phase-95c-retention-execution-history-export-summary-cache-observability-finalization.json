@@ -1,0 +1,116 @@
+{
+  "phase": "Phase 95C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Cache Observability",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 95B",
+    "commit": "98dc62ba8784985d89b84ab49bd31a0efc8646fa",
+    "tests": 1937,
+    "assertions": 17679,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "export_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "history_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryService",
+    "events": {
+      "summary_cache_hit": "saved_view_retention.summary_cache.hit",
+      "summary_cache_miss": "saved_view_retention.summary_cache.miss",
+      "summary_cache_fallback": "saved_view_retention.summary_cache.fallback",
+      "generation_read_fallback": "saved_view_retention.summary_cache.generation_read_fallback",
+      "generation_rotated": "saved_view_retention.summary_cache.generation_rotated",
+      "generation_rotation_failed": "saved_view_retention.summary_cache.generation_rotation_failed"
+    },
+    "levels": {
+      "summary_cache_hit": "debug",
+      "summary_cache_miss": "debug",
+      "summary_cache_fallback": "warning",
+      "generation_read_fallback": "warning",
+      "generation_rotated": "debug",
+      "generation_rotation_failed": "warning"
+    },
+    "allowed_context": [
+      "event",
+      "cache_key_prefix",
+      "generation_present",
+      "filter_count",
+      "ttl_seconds",
+      "fallback_reason_class",
+      "operation_type",
+      "operation_status"
+    ],
+    "forbidden_context": [
+      "raw_cache_key",
+      "generation_token",
+      "raw_filters",
+      "actor_user_id",
+      "history_payload",
+      "failure_message",
+      "failure_stack_trace"
+    ],
+    "behavior": {
+      "cache_miss_logged_from_live_summary_callback": true,
+      "cache_hit_logged_after_cached_value_returned": true,
+      "cache_fallback_logged_before_live_summary_fallback": true,
+      "generation_read_fallback_logged_before_default_generation": true,
+      "generation_rotated_logged_after_successful_cache_put": true,
+      "generation_rotation_failed_logged_after_cache_put_failure": true,
+      "logging_failure_does_not_change_summary_behavior": true,
+      "logging_failure_does_not_change_history_write_behavior": true
+    },
+    "performance": {
+      "additional_database_queries": 0,
+      "additional_model_hydration": 0,
+      "cache_hit_summary_queries": 0,
+      "cache_miss_summary_queries": 1,
+      "generation_rotation_database_queries_unchanged": true
+    },
+    "implementation_scope": {
+      "export_service_modified": true,
+      "history_service_modified": true,
+      "phase_95b_test_added": true,
+      "controller_changed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "model_changed": false
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filters_unchanged": true,
+      "summary_cache_ttl_unchanged": true,
+      "generation_strategy_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "history_write_behavior_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 96A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Contract",
+    "classification": "medium"
+  }
+}
