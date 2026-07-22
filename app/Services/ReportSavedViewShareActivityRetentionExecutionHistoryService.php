@@ -10,6 +10,11 @@ use Throwable;
 
 class ReportSavedViewShareActivityRetentionExecutionHistoryService
 {
+    public const SUMMARY_CACHE_EVENT_GENERATION_ROTATED =
+        'saved_view_retention.summary_cache.generation_rotated';
+    public const SUMMARY_CACHE_EVENT_GENERATION_ROTATION_FAILED =
+        'saved_view_retention.summary_cache.generation_rotation_failed';
+
     public function success(
         string $type,
         ?int $actorUserId,
@@ -95,8 +100,44 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryService
                     ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_GENERATION_TTL_SECONDS
                 )
             );
+
+            $this->observe(
+                'debug',
+                self::SUMMARY_CACHE_EVENT_GENERATION_ROTATED,
+                [
+                    'cache_key_prefix' =>
+                        ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_KEY_PREFIX,
+                    'ttl_seconds' =>
+                        ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_GENERATION_TTL_SECONDS,
+                ]
+            );
+        } catch (Throwable $exception) {
+            $this->observe(
+                'warning',
+                self::SUMMARY_CACHE_EVENT_GENERATION_ROTATION_FAILED,
+                [
+                    'cache_key_prefix' =>
+                        ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_KEY_PREFIX,
+                    'fallback_reason_class' =>
+                        $exception::class,
+                ]
+            );
+        }
+    }
+
+    private function observe(
+        string $level,
+        string $event,
+        array $context
+    ): void {
+        try {
+            Log::log(
+                $level,
+                $event,
+                array_merge(['event' => $event], $context)
+            );
         } catch (Throwable) {
-            // A cache outage must not turn a successful history write into a failure.
+            // Observability must never change history-write behavior.
         }
     }
 }

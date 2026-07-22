@@ -25,6 +25,14 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
         'reports:saved-view-retention:execution-history-summary:generation:v1';
     public const SUMMARY_CACHE_GENERATION_TTL_SECONDS = 86400;
     public const SUMMARY_CACHE_DEFAULT_GENERATION = '0';
+    public const SUMMARY_CACHE_EVENT_HIT =
+        'saved_view_retention.summary_cache.hit';
+    public const SUMMARY_CACHE_EVENT_MISS =
+        'saved_view_retention.summary_cache.miss';
+    public const SUMMARY_CACHE_EVENT_FALLBACK =
+        'saved_view_retention.summary_cache.fallback';
+    public const SUMMARY_CACHE_EVENT_GENERATION_READ_FALLBACK =
+        'saved_view_retention.summary_cache.generation_read_fallback';
 
     /**
      * @var list<string>
@@ -115,17 +123,66 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
     public function summary(array $filters): array
     {
         $normalizedFilters = $this->normalizedSummaryFilters($filters);
+        $cacheMiss = false;
 
         try {
-            return Cache::remember(
+            $summary = Cache::remember(
                 $this->summaryCacheKey(
                     $normalizedFilters,
                     $this->summaryCacheGeneration()
                 ),
                 now()->addSeconds(self::SUMMARY_CACHE_TTL_SECONDS),
-                fn (): array => $this->liveSummary($normalizedFilters)
+                function () use (
+                    $normalizedFilters,
+                    &$cacheMiss
+                ): array {
+                    $cacheMiss = true;
+
+                    $this->observe(
+                        'debug',
+                        self::SUMMARY_CACHE_EVENT_MISS,
+                        [
+                            'cache_key_prefix' =>
+                                self::SUMMARY_CACHE_KEY_PREFIX,
+                            'filter_count' =>
+                                count($normalizedFilters),
+                            'ttl_seconds' =>
+                                self::SUMMARY_CACHE_TTL_SECONDS,
+                        ]
+                    );
+
+                    return $this->liveSummary($normalizedFilters);
+                }
             );
-        } catch (Throwable) {
+
+            if (! $cacheMiss) {
+                $this->observe(
+                    'debug',
+                    self::SUMMARY_CACHE_EVENT_HIT,
+                    [
+                        'cache_key_prefix' =>
+                            self::SUMMARY_CACHE_KEY_PREFIX,
+                        'filter_count' => count($normalizedFilters),
+                        'ttl_seconds' =>
+                            self::SUMMARY_CACHE_TTL_SECONDS,
+                    ]
+                );
+            }
+
+            return $summary;
+        } catch (Throwable $exception) {
+            $this->observe(
+                'warning',
+                self::SUMMARY_CACHE_EVENT_FALLBACK,
+                [
+                    'cache_key_prefix' =>
+                        self::SUMMARY_CACHE_KEY_PREFIX,
+                    'filter_count' => count($normalizedFilters),
+                    'fallback_reason_class' =>
+                        $exception::class,
+                ]
+            );
+
             return $this->liveSummary($normalizedFilters);
         }
     }
@@ -244,8 +301,36 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
             return is_string($generation) && $generation !== ''
                 ? $generation
                 : self::SUMMARY_CACHE_DEFAULT_GENERATION;
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            $this->observe(
+                'warning',
+                self::SUMMARY_CACHE_EVENT_GENERATION_READ_FALLBACK,
+                [
+                    'cache_key_prefix' =>
+                        self::SUMMARY_CACHE_KEY_PREFIX,
+                    'generation_present' => false,
+                    'fallback_reason_class' =>
+                        $exception::class,
+                ]
+            );
+
             return self::SUMMARY_CACHE_DEFAULT_GENERATION;
+        }
+    }
+
+    private function observe(
+        string $level,
+        string $event,
+        array $context
+    ): void {
+        try {
+            Log::log(
+                $level,
+                $event,
+                array_merge(['event' => $event], $context)
+            );
+        } catch (Throwable) {
+            // Observability must never change Summary behavior.
         }
     }
 
