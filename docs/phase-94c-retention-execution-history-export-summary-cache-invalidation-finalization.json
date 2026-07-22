@@ -1,0 +1,110 @@
+{
+  "phase": "Phase 94C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Cache Invalidation",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 94B",
+    "commit": "db55ad131f7d13114c56d4364706c6a88df3dafc",
+    "tests": 1919,
+    "assertions": 17515,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "export_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "history_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryService",
+    "generation": {
+      "key": "reports:saved-view-retention:execution-history-summary:generation:v1",
+      "ttl_seconds": 86400,
+      "default_generation": "0",
+      "token_format": "UUID",
+      "summary_key_includes_generation": true,
+      "summary_digest_algorithm": "sha256"
+    },
+    "write_behavior": {
+      "success_write_rotates_generation": true,
+      "failure_write_rotates_generation": true,
+      "conflict_write_rotates_generation": true,
+      "rotation_occurs_after_successful_create": true,
+      "failed_create_does_not_rotate_generation": true,
+      "cache_rotation_failure_does_not_fail_history_write": true
+    },
+    "read_behavior": {
+      "missing_generation_uses_default": true,
+      "generation_read_failure_uses_default": true,
+      "cache_hit_summary_queries": 0,
+      "cache_miss_summary_queries": 1,
+      "json_status_skips_summary_generation": true,
+      "csv_export_skips_summary_generation": true,
+      "json_export_skips_summary_generation": true
+    },
+    "cache_operations": {
+      "cache_put_used_for_generation": true,
+      "cache_flush_forbidden": true,
+      "cache_tags_required": false,
+      "filter_key_enumeration_forbidden": true,
+      "old_entries_expire_by_existing_summary_ttl": true
+    },
+    "privacy": {
+      "generation_contains_no_filter_values": true,
+      "generation_contains_no_actor_user_id": true,
+      "generation_contains_no_history_payload": true,
+      "sensitive_filters_not_logged": true
+    },
+    "performance": {
+      "single_query_budget_preserved": true,
+      "zero_model_hydration_preserved": true,
+      "generation_cache_queries": 0,
+      "summary_payload_size_constant": true
+    },
+    "implementation_scope": {
+      "export_service_modified": true,
+      "history_service_modified": true,
+      "phase_93b_regression_test_updated": true,
+      "phase_94b_test_added": true,
+      "controller_changed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "model_changed": false
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filters_unchanged": true,
+      "summary_ttl_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "history_write_error_logging_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "presets_unchanged": true,
+      "date_range_shortcuts_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 95A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Observability Contract",
+    "classification": "medium"
+  }
+}
