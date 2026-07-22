@@ -1,0 +1,113 @@
+{
+  "phase": "Phase 93C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Caching",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 93B",
+    "commit": "002ebb57ffe0ecbf9eba0af740bb2c567e077d95",
+    "tests": 1903,
+    "assertions": 17352,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "summary_method": "summary",
+    "cache_policy": {
+      "ttl_seconds": 30,
+      "default_laravel_cache_store": true,
+      "cache_forever_forbidden": true,
+      "cache_tags_required": false,
+      "distributed_lock_required": false
+    },
+    "cache_key": {
+      "prefix": "reports:saved-view-retention:execution-history-summary:v1",
+      "sha256_digest": true,
+      "normalized_filters": true,
+      "filter_order_independent": true,
+      "null_empty_and_missing_filters_equivalent": true,
+      "raw_filter_values_not_exposed": true
+    },
+    "filters": [
+      "type",
+      "status",
+      "actor_user_id",
+      "started_from",
+      "started_to"
+    ],
+    "request_behavior": {
+      "cache_miss_summary_queries": 1,
+      "cache_hit_summary_queries": 0,
+      "json_status_request_skips_summary_cache": true,
+      "csv_export_skips_summary_cache": true,
+      "json_export_skips_summary_cache": true
+    },
+    "failure_behavior": {
+      "cache_failure_falls_back_to_live_summary": true,
+      "cache_failure_does_not_break_page": true,
+      "sensitive_filters_not_logged": true,
+      "live_summary_failure_behavior_unchanged": true
+    },
+    "cache_value": {
+      "plain_summary_array": true,
+      "payload_unchanged": true,
+      "models_forbidden": true,
+      "builders_forbidden": true,
+      "closures_forbidden": true,
+      "iso_8601_timestamps_preserved": true
+    },
+    "performance": {
+      "single_query_budget_preserved": true,
+      "zero_model_hydration_preserved": true,
+      "constant_result_size_preserved": true,
+      "cache_key_generation_queries": 0
+    },
+    "implementation_scope": {
+      "existing_export_service_modified": true,
+      "phase_93b_test_added": true,
+      "controller_changed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "model_changed": false
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filter_semantics_unchanged": true,
+      "summary_empty_state_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "export_limits_unchanged": true,
+      "presets_unchanged": true,
+      "date_range_shortcuts_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 94A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Invalidation Contract",
+    "classification": "medium"
+  }
+}
