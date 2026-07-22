@@ -1,0 +1,114 @@
+{
+  "phase": "Phase 94A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Invalidation Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 93C",
+    "commit": "f497728ebaf351c1a60014f09bdbe0d8ac2680c0",
+    "tests": 1908,
+    "assertions": 17422,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "invalidation_contract": {
+    "purpose": "Make newly recorded retention execution history visible to all cached summary filter combinations immediately after a successful history write.",
+    "writer_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryService",
+    "writer_method": "write",
+    "summary_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "summary_method": "summary",
+    "strategy": {
+      "type": "generation token",
+      "generation_key": "reports:saved-view-retention:execution-history-summary:generation:v1",
+      "generation_token_format": "random UUID",
+      "generation_ttl_seconds": 86400,
+      "summary_key_includes_generation_token": true,
+      "cache_tags_required": false,
+      "cache_flush_forbidden": true,
+      "enumerating_filter_keys_forbidden": true
+    },
+    "write_behavior": {
+      "invalidate_after_successful_history_create": true,
+      "success_write_invalidates": true,
+      "failure_write_invalidates": true,
+      "conflict_write_invalidates": true,
+      "failed_history_create_does_not_invalidate": true,
+      "invalidation_occurs_after_database_write": true,
+      "invalidation_failure_does_not_fail_history_write": true
+    },
+    "read_behavior": {
+      "generation_token_read_before_summary_key_generation": true,
+      "missing_generation_token_uses_stable_default": true,
+      "generation_cache_failure_falls_back_to_stable_default": true,
+      "summary_cache_failure_still_falls_back_to_live_summary": true,
+      "json_status_request_skips_generation_token": true,
+      "exports_skip_generation_token": true
+    },
+    "freshness": {
+      "new_generation_makes_previous_summary_keys_unreachable": true,
+      "next_html_summary_request_observes_new_history": true,
+      "old_summary_entries_expire_by_existing_30_second_ttl": true,
+      "manual_global_cache_flush_not_required": true
+    },
+    "privacy": {
+      "generation_token_contains_no_filter_values": true,
+      "generation_token_contains_no_user_id": true,
+      "generation_token_contains_no_history_payload": true,
+      "sensitive_filters_not_logged": true
+    },
+    "performance": {
+      "cache_hit_summary_database_queries": 0,
+      "cache_miss_summary_database_queries": 1,
+      "generation_token_database_queries": 0,
+      "history_write_database_queries_unchanged": true,
+      "no_model_hydration_regression": true
+    },
+    "planned_implementation": {
+      "modified_export_service": "app/Services/ReportSavedViewShareActivityRetentionExecutionHistoryExportService.php",
+      "modified_history_service": "app/Services/ReportSavedViewShareActivityRetentionExecutionHistoryService.php",
+      "test": "tests/Feature/ReportSavedViewPhase94BRetentionExecutionHistoryExportSummaryCacheInvalidationImplementationTest.php",
+      "controller_changes_expected": false,
+      "view_changes_expected": false,
+      "route_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filters_unchanged": true,
+      "summary_ttl_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "history_write_error_logging_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "presets_unchanged": true,
+      "date_range_shortcuts_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 94B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Invalidation",
+    "classification": "small",
+    "execution": "single validated stage"
+  }
+}
