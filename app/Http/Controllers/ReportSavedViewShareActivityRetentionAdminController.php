@@ -41,6 +41,8 @@ class ReportSavedViewShareActivityRetentionAdminController extends Controller
                 'status' => $status,
                 'exportFilters' => $filters,
                 'exportSummary' => $export->summary($filters),
+                'exportSummaryCacheDiagnostics' =>
+                    $export->summaryCacheDiagnostics(),
             ]
         );
     }

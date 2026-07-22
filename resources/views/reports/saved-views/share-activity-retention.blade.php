@@ -346,6 +346,93 @@
             </p>
         </section>
 
+        <section aria-labelledby="retention-summary-cache-diagnostics-heading">
+            <h3 id="retention-summary-cache-diagnostics-heading">
+                Summary cache diagnostics
+            </h3>
+
+            @php
+                $diagnosticsGenerationSource =
+                    $exportSummaryCacheDiagnostics['generation_source'];
+            @endphp
+
+            @if ($diagnosticsGenerationSource === 'fallback')
+                <p role="alert">
+                    Cache diagnostics are using fallback values because the
+                    cache store could not be read.
+                </p>
+            @elseif ($diagnosticsGenerationSource === 'default')
+                <p>
+                    No generated cache version is currently stored. The
+                    default generation is active.
+                </p>
+            @else
+                <p>
+                    The generated cache version is available.
+                </p>
+            @endif
+
+            <dl>
+                <dt>Cache store</dt>
+                <dd>{{ $exportSummaryCacheDiagnostics['cache_store'] }}</dd>
+
+                <dt>Cache read</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['cache_read_available']
+                        ? 'Available'
+                        : 'Unavailable' }}
+                </dd>
+
+                <dt>Generation</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['generation_present']
+                        ? 'Present'
+                        : 'Missing' }}
+                </dd>
+
+                <dt>Generation source</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['generation_source'] }}
+                </dd>
+
+                <dt>Summary TTL seconds</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['summary_ttl_seconds'] }}
+                </dd>
+
+                <dt>Generation TTL seconds</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['generation_ttl_seconds'] }}
+                </dd>
+
+                <dt>Observability</dt>
+                <dd>
+                    {{ $exportSummaryCacheDiagnostics['observability_enabled']
+                        ? 'Enabled'
+                        : 'Disabled' }}
+                </dd>
+
+                <dt>Cache key prefix</dt>
+                <dd>
+                    <code>
+                        {{ $exportSummaryCacheDiagnostics['cache_key_prefix'] }}
+                    </code>
+                </dd>
+
+                <dt>Generation key prefix</dt>
+                <dd>
+                    <code>
+                        {{ $exportSummaryCacheDiagnostics['generation_key_prefix'] }}
+                    </code>
+                </dd>
+            </dl>
+
+            <p>
+                This section is read-only and never exposes raw cache keys or
+                generation tokens.
+            </p>
+        </section>
+
         <p>
             Privacy notice: context and updated_at are excluded from exports.
             Export requests do not modify retention history or create sharing activity.
