@@ -160,7 +160,10 @@ class ReportSavedViewPhase93BRetentionExecutionHistoryExportSummaryCachingImplem
         );
 
         $this->assertIsString($source);
-        $this->assertStringContainsString("hash('sha256', \$encoded)", $source);
+        $this->assertStringContainsString(
+            "hash('sha256', \$generation . '|' . \$encoded)",
+            $source
+        );
         $this->assertStringContainsString('Cache::remember(', $source);
         $this->assertStringContainsString('catch (Throwable)', $source);
     }

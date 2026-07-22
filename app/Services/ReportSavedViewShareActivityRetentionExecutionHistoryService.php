@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\ReportSavedViewShareActivityRetentionExecution;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ReportSavedViewShareActivityRetentionExecutionHistoryService
@@ -68,13 +70,33 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryService
     private function write(array $attributes): void
     {
         try {
-            ReportSavedViewShareActivityRetentionExecution::query()->create($attributes);
+            ReportSavedViewShareActivityRetentionExecution::query()
+                ->create($attributes);
         } catch (Throwable $exception) {
             Log::error('Retention execution history write failed.', [
                 'history_error' => $exception->getMessage(),
                 'operation_type' => $attributes['type'] ?? null,
                 'operation_status' => $attributes['status'] ?? null,
             ]);
+
+            return;
+        }
+
+        $this->invalidateSummaryCache();
+    }
+
+    private function invalidateSummaryCache(): void
+    {
+        try {
+            Cache::put(
+                ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_GENERATION_KEY,
+                (string) Str::uuid(),
+                now()->addSeconds(
+                    ReportSavedViewShareActivityRetentionExecutionHistoryExportService::SUMMARY_CACHE_GENERATION_TTL_SECONDS
+                )
+            );
+        } catch (Throwable) {
+            // A cache outage must not turn a successful history write into a failure.
         }
     }
 }

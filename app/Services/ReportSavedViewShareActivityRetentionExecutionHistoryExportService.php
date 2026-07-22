@@ -21,6 +21,10 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
     public const SUMMARY_CACHE_TTL_SECONDS = 30;
     public const SUMMARY_CACHE_KEY_PREFIX =
         'reports:saved-view-retention:execution-history-summary:v1';
+    public const SUMMARY_CACHE_GENERATION_KEY =
+        'reports:saved-view-retention:execution-history-summary:generation:v1';
+    public const SUMMARY_CACHE_GENERATION_TTL_SECONDS = 86400;
+    public const SUMMARY_CACHE_DEFAULT_GENERATION = '0';
 
     /**
      * @var list<string>
@@ -114,7 +118,10 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
 
         try {
             return Cache::remember(
-                $this->summaryCacheKey($normalizedFilters),
+                $this->summaryCacheKey(
+                    $normalizedFilters,
+                    $this->summaryCacheGeneration()
+                ),
                 now()->addSeconds(self::SUMMARY_CACHE_TTL_SECONDS),
                 fn (): array => $this->liveSummary($normalizedFilters)
             );
@@ -213,8 +220,10 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
         return $normalized;
     }
 
-    private function summaryCacheKey(array $filters): string
-    {
+    private function summaryCacheKey(
+        array $filters,
+        string $generation
+    ): string {
         $encoded = json_encode(
             $filters,
             JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
@@ -222,7 +231,22 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
 
         return self::SUMMARY_CACHE_KEY_PREFIX
             . ':'
-            . hash('sha256', $encoded);
+            . hash('sha256', $generation . '|' . $encoded);
+    }
+
+    private function summaryCacheGeneration(): string
+    {
+        try {
+            $generation = Cache::get(
+                self::SUMMARY_CACHE_GENERATION_KEY
+            );
+
+            return is_string($generation) && $generation !== ''
+                ? $generation
+                : self::SUMMARY_CACHE_DEFAULT_GENERATION;
+        } catch (Throwable) {
+            return self::SUMMARY_CACHE_DEFAULT_GENERATION;
+        }
     }
 
     private function applyFilters(
