@@ -47,6 +47,14 @@ class ReportSavedViewShareActivityRetentionAdminController extends Controller
         );
     }
 
+    public function summaryCacheDiagnostics(
+        ReportSavedViewShareActivityRetentionExecutionHistoryExportService $export
+    ): JsonResponse {
+        return response()->json(
+            $export->summaryCacheDiagnostics()
+        );
+    }
+
     public function preview(
         Request $request,
         ReportSavedViewShareActivityRetentionAdminService $service,

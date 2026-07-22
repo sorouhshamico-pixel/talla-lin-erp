@@ -337,6 +337,7 @@ Route::middleware('auth')->group(function () {
             '/reports/saved-view-share-activity-retention',
             [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'index']
         )->name('reports.saved-view-share-activity-retention.index');
+    Route::get('/reports/saved-view-share-activity-retention/summary-cache-diagnostics', [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'summaryCacheDiagnostics'])->name('reports.saved-view-share-activity-retention.summary-cache-diagnostics')->middleware(EnsurePartyPermission::class . ':manage_saved_view_share_activity_retention');
 
         Route::post(
             '/reports/saved-view-share-activity-retention/preview',

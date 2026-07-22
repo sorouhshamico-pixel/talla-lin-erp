@@ -351,6 +351,22 @@
                 Summary cache diagnostics
             </h3>
 
+            <button
+                id="retention-summary-cache-diagnostics-refresh"
+                type="button"
+                data-url="{{ route(
+                    'reports.saved-view-share-activity-retention.summary-cache-diagnostics'
+                ) }}"
+            >
+                Refresh diagnostics
+            </button>
+
+            <p
+                id="retention-summary-cache-diagnostics-refresh-status"
+                role="status"
+                aria-live="polite"
+            ></p>
+
             @php
                 $diagnosticsGenerationSource =
                     $exportSummaryCacheDiagnostics['generation_source'];
@@ -374,39 +390,39 @@
 
             <dl>
                 <dt>Cache store</dt>
-                <dd>{{ $exportSummaryCacheDiagnostics['cache_store'] }}</dd>
+                <dd id="diagnostics-cache-store">{{ $exportSummaryCacheDiagnostics['cache_store'] }}</dd>
 
                 <dt>Cache read</dt>
-                <dd>
+                <dd id="diagnostics-cache-read-available">
                     {{ $exportSummaryCacheDiagnostics['cache_read_available']
                         ? 'Available'
                         : 'Unavailable' }}
                 </dd>
 
                 <dt>Generation</dt>
-                <dd>
+                <dd id="diagnostics-generation-present">
                     {{ $exportSummaryCacheDiagnostics['generation_present']
                         ? 'Present'
                         : 'Missing' }}
                 </dd>
 
                 <dt>Generation source</dt>
-                <dd>
+                <dd id="diagnostics-generation-source">
                     {{ $exportSummaryCacheDiagnostics['generation_source'] }}
                 </dd>
 
                 <dt>Summary TTL seconds</dt>
-                <dd>
+                <dd id="diagnostics-summary-ttl-seconds">
                     {{ $exportSummaryCacheDiagnostics['summary_ttl_seconds'] }}
                 </dd>
 
                 <dt>Generation TTL seconds</dt>
-                <dd>
+                <dd id="diagnostics-generation-ttl-seconds">
                     {{ $exportSummaryCacheDiagnostics['generation_ttl_seconds'] }}
                 </dd>
 
                 <dt>Observability</dt>
-                <dd>
+                <dd id="diagnostics-observability-enabled">
                     {{ $exportSummaryCacheDiagnostics['observability_enabled']
                         ? 'Enabled'
                         : 'Disabled' }}
@@ -414,14 +430,14 @@
 
                 <dt>Cache key prefix</dt>
                 <dd>
-                    <code>
+                    <code id="diagnostics-cache-key-prefix">
                         {{ $exportSummaryCacheDiagnostics['cache_key_prefix'] }}
                     </code>
                 </dd>
 
                 <dt>Generation key prefix</dt>
                 <dd>
-                    <code>
+                    <code id="diagnostics-generation-key-prefix">
                         {{ $exportSummaryCacheDiagnostics['generation_key_prefix'] }}
                     </code>
                 </dd>

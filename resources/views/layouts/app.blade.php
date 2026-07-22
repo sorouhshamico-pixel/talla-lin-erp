@@ -202,5 +202,102 @@
     <div class="page">
         @yield('content')
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const button = document.getElementById(
+            'retention-summary-cache-diagnostics-refresh'
+        );
+        const statusElement = document.getElementById(
+            'retention-summary-cache-diagnostics-refresh-status'
+        );
+
+        if (!button || !statusElement) {
+            return;
+        }
+
+        let refreshInProgress = false;
+
+        const setText = (id, value) => {
+            const element = document.getElementById(id);
+
+            if (element) {
+                element.textContent = String(value);
+            }
+        };
+
+        button.addEventListener('click', async () => {
+            if (refreshInProgress) {
+                return;
+            }
+
+            refreshInProgress = true;
+            button.disabled = true;
+            statusElement.textContent = 'Refreshing diagnostics...';
+
+            try {
+                const response = await fetch(button.dataset.url, {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Diagnostics refresh failed.');
+                }
+
+                const diagnostics = await response.json();
+
+                setText('diagnostics-cache-store', diagnostics.cache_store);
+                setText(
+                    'diagnostics-cache-read-available',
+                    diagnostics.cache_read_available
+                        ? 'Available'
+                        : 'Unavailable'
+                );
+                setText(
+                    'diagnostics-generation-present',
+                    diagnostics.generation_present
+                        ? 'Present'
+                        : 'Missing'
+                );
+                setText(
+                    'diagnostics-generation-source',
+                    diagnostics.generation_source
+                );
+                setText(
+                    'diagnostics-summary-ttl-seconds',
+                    diagnostics.summary_ttl_seconds
+                );
+                setText(
+                    'diagnostics-generation-ttl-seconds',
+                    diagnostics.generation_ttl_seconds
+                );
+                setText(
+                    'diagnostics-observability-enabled',
+                    diagnostics.observability_enabled
+                        ? 'Enabled'
+                        : 'Disabled'
+                );
+                setText(
+                    'diagnostics-cache-key-prefix',
+                    diagnostics.cache_key_prefix
+                );
+                setText(
+                    'diagnostics-generation-key-prefix',
+                    diagnostics.generation_key_prefix
+                );
+
+                statusElement.textContent = 'Diagnostics refreshed.';
+            } catch (error) {
+                statusElement.textContent =
+                    'Unable to refresh diagnostics. Try again.';
+            } finally {
+                refreshInProgress = false;
+                button.disabled = false;
+            }
+        });
+    });
+    </script>
 </body>
 </html>
