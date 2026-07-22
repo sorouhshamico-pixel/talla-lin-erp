@@ -105,6 +105,54 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
 
     /**
      * @return array{
+     *     cache_key_prefix: string,
+     *     summary_ttl_seconds: int,
+     *     generation_key_prefix: string,
+     *     generation_ttl_seconds: int,
+     *     generation_present: bool,
+     *     generation_source: string,
+     *     cache_store: string,
+     *     cache_read_available: bool,
+     *     observability_enabled: bool
+     * }
+     */
+    public function summaryCacheDiagnostics(): array
+    {
+        $generationPresent = false;
+        $generationSource = 'default';
+        $cacheReadAvailable = true;
+
+        try {
+            $generation = Cache::get(
+                self::SUMMARY_CACHE_GENERATION_KEY
+            );
+
+            if (is_string($generation) && $generation !== '') {
+                $generationPresent = true;
+                $generationSource = 'cache';
+            }
+        } catch (Throwable) {
+            $generationSource = 'fallback';
+            $cacheReadAvailable = false;
+        }
+
+        return [
+            'cache_key_prefix' => self::SUMMARY_CACHE_KEY_PREFIX,
+            'summary_ttl_seconds' => self::SUMMARY_CACHE_TTL_SECONDS,
+            'generation_key_prefix' =>
+                self::SUMMARY_CACHE_GENERATION_KEY,
+            'generation_ttl_seconds' =>
+                self::SUMMARY_CACHE_GENERATION_TTL_SECONDS,
+            'generation_present' => $generationPresent,
+            'generation_source' => $generationSource,
+            'cache_store' => (string) config('cache.default'),
+            'cache_read_available' => $cacheReadAvailable,
+            'observability_enabled' => true,
+        ];
+    }
+
+    /**
+     * @return array{
      *     total_count: int,
      *     succeeded_count: int,
      *     failed_count: int,
