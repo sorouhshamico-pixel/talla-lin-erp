@@ -9,11 +9,19 @@ use App\Services\ReportSavedViewShareActivityRetentionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use RuntimeException;
+use Throwable;
 
 class ReportSavedViewShareActivityRetentionAdminController extends Controller
 {
+    private const DIAGNOSTICS_REFRESH_SUCCEEDED_EVENT =
+        'saved_view_retention.summary_cache_diagnostics.refresh_succeeded';
+
+    private const DIAGNOSTICS_REFRESH_FAILED_EVENT =
+        'saved_view_retention.summary_cache_diagnostics.refresh_failed';
+
     public function index(
         Request $request,
         ReportSavedViewShareActivityRetentionAdminService $service,
@@ -50,9 +58,37 @@ class ReportSavedViewShareActivityRetentionAdminController extends Controller
     public function summaryCacheDiagnostics(
         ReportSavedViewShareActivityRetentionExecutionHistoryExportService $export
     ): JsonResponse {
-        return response()->json(
-            $export->summaryCacheDiagnostics()
+        try {
+            $diagnostics = $export->summaryCacheDiagnostics();
+        } catch (Throwable $exception) {
+            $this->observe(
+                'warning',
+                self::DIAGNOSTICS_REFRESH_FAILED_EVENT,
+                [
+                    'failure_reason_class' => $exception::class,
+                ]
+            );
+
+            throw $exception;
+        }
+
+        $this->observe(
+            'debug',
+            self::DIAGNOSTICS_REFRESH_SUCCEEDED_EVENT,
+            [
+                'cache_store' => $diagnostics['cache_store'],
+                'cache_read_available' =>
+                    $diagnostics['cache_read_available'],
+                'generation_present' =>
+                    $diagnostics['generation_present'],
+                'generation_source' =>
+                    $diagnostics['generation_source'],
+                'observability_enabled' =>
+                    $diagnostics['observability_enabled'],
+            ]
         );
+
+        return response()->json($diagnostics);
     }
 
     public function preview(
@@ -104,5 +140,23 @@ class ReportSavedViewShareActivityRetentionAdminController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    private function observe(
+        string $level,
+        string $event,
+        array $context
+    ): void {
+        try {
+            Log::log(
+                $level,
+                $event,
+                array_merge(
+                    ['event' => $event],
+                    $context
+                )
+            );
+        } catch (Throwable) {
+        }
     }
 }
