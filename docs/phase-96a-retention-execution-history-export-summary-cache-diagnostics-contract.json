@@ -1,0 +1,109 @@
+{
+  "phase": "Phase 96A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 95C",
+    "commit": "a395b4ece09c3bc89a2adedb053bf398c56a1677",
+    "tests": 1942,
+    "assertions": 17747,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "diagnostics_contract": {
+    "purpose": "Provide a bounded, privacy-safe diagnostic snapshot of Summary cache configuration and generation availability without computing the Summary or querying the database.",
+    "target_service": "App\\Services\\ReportSavedViewShareActivityRetentionExecutionHistoryExportService",
+    "planned_method": "summaryCacheDiagnostics",
+    "return_shape": {
+      "cache_key_prefix": "string",
+      "summary_ttl_seconds": "integer",
+      "generation_key_prefix": "string",
+      "generation_ttl_seconds": "integer",
+      "generation_present": "boolean",
+      "generation_source": "cache|default|fallback",
+      "cache_store": "string",
+      "cache_read_available": "boolean",
+      "observability_enabled": "boolean"
+    },
+    "behavior": {
+      "does_not_compute_summary": true,
+      "does_not_execute_database_queries": true,
+      "does_not_hydrate_models": true,
+      "reads_generation_at_most_once": true,
+      "missing_generation_uses_default_source": true,
+      "cache_read_failure_uses_fallback_source": true,
+      "cache_read_failure_does_not_throw": true,
+      "returns_plain_array": true
+    },
+    "privacy": {
+      "raw_generation_token_forbidden": true,
+      "raw_cache_key_forbidden": true,
+      "raw_filters_forbidden": true,
+      "actor_user_id_forbidden": true,
+      "history_payload_forbidden": true,
+      "exception_message_forbidden": true,
+      "stack_trace_forbidden": true
+    },
+    "access": {
+      "public_service_method": true,
+      "controller_endpoint_required": false,
+      "route_required": false,
+      "view_required": false,
+      "authorization_change_required": false
+    },
+    "performance": {
+      "maximum_cache_reads": 1,
+      "maximum_database_queries": 0,
+      "maximum_model_hydration": 0,
+      "constant_result_size": true
+    },
+    "planned_implementation": {
+      "modified_export_service": "app/Services/ReportSavedViewShareActivityRetentionExecutionHistoryExportService.php",
+      "test": "tests/Feature/ReportSavedViewPhase96BRetentionExecutionHistoryExportSummaryCacheDiagnosticsImplementationTest.php",
+      "history_service_changes_expected": false,
+      "controller_changes_expected": false,
+      "view_changes_expected": false,
+      "route_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false
+    },
+    "compatibility": {
+      "summary_payload_unchanged": true,
+      "summary_filters_unchanged": true,
+      "summary_cache_ttl_unchanged": true,
+      "generation_strategy_unchanged": true,
+      "observability_events_unchanged": true,
+      "administration_html_unchanged": true,
+      "administration_json_unchanged": true,
+      "history_write_behavior_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 96B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics",
+    "classification": "small",
+    "execution": "single validated stage"
+  }
+}
