@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\ReportSavedViewShareActivityRetentionExecution;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +18,9 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
     public const JSON_MAXIMUM_ROWS = 10000;
     public const SUMMARY_MAXIMUM_QUERIES = 1;
     public const SUMMARY_TIMEOUT_SECONDS = 30;
+    public const SUMMARY_CACHE_TTL_SECONDS = 30;
+    public const SUMMARY_CACHE_KEY_PREFIX =
+        'reports:saved-view-retention:execution-history-summary:v1';
 
     /**
      * @var list<string>
@@ -105,6 +110,21 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
      */
     public function summary(array $filters): array
     {
+        $normalizedFilters = $this->normalizedSummaryFilters($filters);
+
+        try {
+            return Cache::remember(
+                $this->summaryCacheKey($normalizedFilters),
+                now()->addSeconds(self::SUMMARY_CACHE_TTL_SECONDS),
+                fn (): array => $this->liveSummary($normalizedFilters)
+            );
+        } catch (Throwable) {
+            return $this->liveSummary($normalizedFilters);
+        }
+    }
+
+    private function liveSummary(array $filters): array
+    {
         $aggregate = $this->applyFilters(
             ReportSavedViewShareActivityRetentionExecution::query(),
             $filters
@@ -159,6 +179,50 @@ class ReportSavedViewShareActivityRetentionExecutionHistoryExportService
                 $aggregate?->newest_started_at
             ),
         ];
+    }
+
+    /**
+     * @return array<string, int|string>
+     */
+    private function normalizedSummaryFilters(array $filters): array
+    {
+        $normalized = [];
+
+        foreach ([
+            'type',
+            'status',
+            'actor_user_id',
+            'started_from',
+            'started_to',
+        ] as $filter) {
+            if (
+                ! array_key_exists($filter, $filters)
+                || $filters[$filter] === null
+                || $filters[$filter] === ''
+            ) {
+                continue;
+            }
+
+            $normalized[$filter] = $filter === 'actor_user_id'
+                ? (int) $filters[$filter]
+                : (string) $filters[$filter];
+        }
+
+        ksort($normalized);
+
+        return $normalized;
+    }
+
+    private function summaryCacheKey(array $filters): string
+    {
+        $encoded = json_encode(
+            $filters,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
+        );
+
+        return self::SUMMARY_CACHE_KEY_PREFIX
+            . ':'
+            . hash('sha256', $encoded);
     }
 
     private function applyFilters(
