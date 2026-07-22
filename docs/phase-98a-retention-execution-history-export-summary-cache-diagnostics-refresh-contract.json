@@ -1,0 +1,127 @@
+{
+  "phase": "Phase 98A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 97C",
+    "commit": "d4ff639482e1dc3aa3e16b107f03fa075f7aaba9",
+    "tests": 1973,
+    "assertions": 18093,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "javascript_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "refresh_contract": {
+    "purpose": "Allow an authorized administrator to refresh the existing Summary cache diagnostics snapshot without reloading the full administration page or recomputing the export Summary.",
+    "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+    "planned_controller_method": "summaryCacheDiagnostics",
+    "service_method": "summaryCacheDiagnostics",
+    "planned_route": {
+      "method": "GET",
+      "uri": "reports/saved-view-share-activity-retention/summary-cache-diagnostics",
+      "name": "reports.saved-view-share-activity-retention.summary-cache-diagnostics"
+    },
+    "response": {
+      "format": "json",
+      "status_code": 200,
+      "payload": "existing diagnostics payload unchanged",
+      "wrapper_required": false,
+      "summary_included": false,
+      "retention_status_included": false
+    },
+    "authorization": {
+      "permission": "manage_saved_view_share_activity_retention",
+      "existing_middleware_reused": true,
+      "new_permission_required": false,
+      "guest_access_forbidden": true,
+      "unauthorized_access_forbidden": true
+    },
+    "view_behavior": {
+      "refresh_button_present": true,
+      "button_label": "Refresh diagnostics",
+      "button_type": "button",
+      "full_page_reload_required": false,
+      "summary_recomputation_required": false,
+      "diagnostics_section_updated_in_place": true,
+      "loading_state_required": true,
+      "success_state_required": true,
+      "failure_state_required": true,
+      "button_disabled_while_loading": true
+    },
+    "client_behavior": {
+      "fetch_method": "GET",
+      "accept_header": "application/json",
+      "csrf_token_required": false,
+      "automatic_polling": false,
+      "minimum_refresh_interval_seconds": 0,
+      "concurrent_requests_prevented": true,
+      "raw_html_from_server_inserted": false,
+      "text_content_updates_required": true
+    },
+    "privacy": {
+      "raw_generation_token_forbidden": true,
+      "raw_cache_key_forbidden": true,
+      "raw_filters_forbidden": true,
+      "actor_user_id_forbidden": true,
+      "history_payload_forbidden": true,
+      "exception_message_forbidden": true,
+      "stack_trace_forbidden": true
+    },
+    "performance": {
+      "maximum_cache_reads_per_refresh": 1,
+      "maximum_database_queries_per_refresh": 0,
+      "maximum_model_hydration_per_refresh": 0,
+      "summary_queries_per_refresh": 0,
+      "constant_response_size": true
+    },
+    "planned_implementation": {
+      "modified_controller": "app/Http/Controllers/ReportSavedViewShareActivityRetentionAdminController.php",
+      "modified_routes": "routes/web.php",
+      "modified_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "test": "tests/Feature/ReportSavedViewPhase98BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshImplementationTest.php",
+      "export_service_changes_expected": false,
+      "history_service_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    },
+    "compatibility": {
+      "existing_html_page_load_unchanged": true,
+      "existing_summary_unchanged": true,
+      "existing_json_status_payload_unchanged": true,
+      "preview_endpoint_unchanged": true,
+      "execute_endpoint_unchanged": true,
+      "csv_export_unchanged": true,
+      "json_export_unchanged": true,
+      "diagnostics_payload_unchanged": true,
+      "summary_cache_behavior_unchanged": true,
+      "observability_events_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 98B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh",
+    "classification": "medium",
+    "execution": "single validated stage"
+  }
+}
