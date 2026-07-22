@@ -1,0 +1,111 @@
+{
+  "phase": "Phase 99A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Observability Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 98C",
+    "commit": "adbc975e94a6d6fe5e501245caf3236441f47c26",
+    "tests": 1989,
+    "assertions": 18302,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "observability_contract": {
+    "purpose": "Record privacy-safe server-side observability for diagnostics refresh requests without changing the existing diagnostics payload, cache reads, database queries, or client behavior.",
+    "planned_events": {
+      "success": "saved_view_retention.summary_cache_diagnostics.refresh_succeeded",
+      "failure": "saved_view_retention.summary_cache_diagnostics.refresh_failed"
+    },
+    "planned_levels": {
+      "success": "debug",
+      "failure": "warning"
+    },
+    "planned_location": {
+      "controller": "App\\Http\\Controllers\\ReportSavedViewShareActivityRetentionAdminController",
+      "method": "summaryCacheDiagnostics"
+    },
+    "success_context": {
+      "event": true,
+      "cache_store": true,
+      "cache_read_available": true,
+      "generation_present": true,
+      "generation_source": true,
+      "observability_enabled": true
+    },
+    "failure_context": {
+      "event": true,
+      "failure_reason_class": true
+    },
+    "forbidden_context": {
+      "raw_generation_token": true,
+      "raw_cache_key": true,
+      "raw_filters": true,
+      "actor_user_id": true,
+      "history_payload": true,
+      "exception_message": true,
+      "stack_trace": true,
+      "request_headers": true,
+      "session_id": true
+    },
+    "failure_behavior": {
+      "service_exception_propagates": true,
+      "existing_http_error_behavior_preserved": true,
+      "logging_failure_is_swallowed": true,
+      "logging_failure_changes_response": false
+    },
+    "performance": {
+      "additional_cache_reads": 0,
+      "additional_database_queries": 0,
+      "additional_model_hydration": 0,
+      "summary_queries": 0,
+      "diagnostics_service_calls_per_request": 1
+    },
+    "compatibility": {
+      "route_unchanged": true,
+      "permission_unchanged": true,
+      "json_payload_unchanged": true,
+      "status_code_unchanged": true,
+      "view_unchanged": true,
+      "layout_unchanged": true,
+      "client_refresh_behavior_unchanged": true,
+      "automatic_polling_absent": true,
+      "summary_cache_behavior_unchanged": true,
+      "diagnostics_payload_unchanged": true
+    },
+    "planned_implementation": {
+      "modified_controller": "app/Http/Controllers/ReportSavedViewShareActivityRetentionAdminController.php",
+      "test": "tests/Feature/ReportSavedViewPhase99BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshObservabilityImplementationTest.php",
+      "service_changes_expected": false,
+      "route_changes_expected": false,
+      "view_changes_expected": false,
+      "layout_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 99B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Observability",
+    "classification": "small"
+  }
+}
