@@ -101,9 +101,9 @@ Authorization Middleware:
 
 `can:manage_saved_view_share_activity_retention`
 
-Guest JSON response:
+Guest response:
 
-401.
+302 redirect to Login.
 
 Authenticated user without permission:
 
@@ -118,6 +118,8 @@ Phase 107B must not Mock the final Health class directly.
 Controller tests must instantiate the real Health class with a mocked Event Dispatcher to produce healthy or unhealthy results deterministically.
 
 Route Source Guards must isolate the exact Route block by Route name before checking for forbidden Middleware, so adjacent Routes do not create false positives.
+
+Guest endpoint tests must assert redirect to the Login Route because the project's Web Authentication Middleware returns HTTP 302 for unauthenticated requests.
 
 ## Failure behavior
 

@@ -127,8 +127,12 @@ class ReportSavedViewPhase107ARetentionExecutionHistoryExportSummaryCacheDiagnos
             $contract['authorization']['middleware']
         );
         $this->assertSame(
-            401,
+            302,
             $contract['authorization']['guest_status_for_json_request']
+        );
+        $this->assertSame(
+            'redirect_to_login',
+            $contract['authorization']['guest_behavior']
         );
         $this->assertSame(
             403,
@@ -148,6 +152,10 @@ class ReportSavedViewPhase107ARetentionExecutionHistoryExportSummaryCacheDiagnos
         $this->assertSame(
             'extract_exact_route_block_by_route_name',
             $contract['testability']['source_guard_strategy']
+        );
+        $this->assertSame(
+            'assert_redirect_to_login',
+            $contract['testability']['guest_request_assertion']
         );
     }
 

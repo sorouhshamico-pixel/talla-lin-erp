@@ -71,8 +71,9 @@
       "authentication_required": true,
       "permission_required": "manage_saved_view_share_activity_retention",
       "middleware": "can:manage_saved_view_share_activity_retention",
-      "guest_status_for_json_request": 401,
-      "unauthorized_status": 403
+      "guest_status_for_json_request": 302,
+      "unauthorized_status": 403,
+      "guest_behavior": "redirect_to_login"
     },
     "failure_behavior": {
       "health_class_exception_handled_by_health_class": true,
@@ -148,7 +149,8 @@
       "direct_class_mocking_allowed": false,
       "controller_test_strategy": "instantiate_real_health_class_with_mocked_dispatcher",
       "route_test_strategy": "inspect_registered_route_and_test_guest_json_response",
-      "source_guard_strategy": "extract_exact_route_block_by_route_name"
+      "source_guard_strategy": "extract_exact_route_block_by_route_name",
+      "guest_request_assertion": "assert_redirect_to_login"
     }
   },
   "workflow": {
