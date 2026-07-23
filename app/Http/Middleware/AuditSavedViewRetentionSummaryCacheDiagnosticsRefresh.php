@@ -21,6 +21,8 @@ class AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh
     private const RATE_LIMIT_NAME =
         'saved-view-retention-summary-cache-diagnostics-refresh';
 
+    private const ALLOWED_SAMPLE_RATE_PERCENT = 25;
+
     public function handle(Request $request, Closure $next): Response
     {
         Context::add(
@@ -54,9 +56,26 @@ class AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh
             );
         }
 
-        $this->audit($event, $context);
+        if ($limited || $this->shouldAuditAllowed()) {
+            $this->audit($event, $context);
+        }
 
         return $response;
+    }
+
+    private function shouldAuditAllowed(): bool
+    {
+        $correlationId = Context::get('correlation_id');
+
+        if (! is_string($correlationId) || ! Str::isUuid($correlationId)) {
+            return true;
+        }
+
+        $bucket = hexdec(
+            substr(hash('sha256', $correlationId), 0, 8)
+        ) % 100;
+
+        return $bucket < self::ALLOWED_SAMPLE_RATE_PERCENT;
     }
 
     private function audit(string $event, array $context): void

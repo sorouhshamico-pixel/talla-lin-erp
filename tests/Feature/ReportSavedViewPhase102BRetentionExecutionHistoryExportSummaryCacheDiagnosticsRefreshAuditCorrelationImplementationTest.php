@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
@@ -15,6 +16,12 @@ use Tests\TestCase;
 class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditCorrelationImplementationTest
     extends TestCase
 {
+    private const SAMPLED_CORRELATION_ID_ONE =
+        '00000000-0000-4000-8000-000000000010';
+
+    private const SAMPLED_CORRELATION_ID_TWO =
+        '00000000-0000-4000-8000-000000000015';
+
     protected function tearDown(): void
     {
         Context::flush();
@@ -24,6 +31,10 @@ class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnos
 
     public function test_allowed_request_adds_one_uuid_to_laravel_context(): void
     {
+        $this->forceSampledCorrelationIds([
+            self::SAMPLED_CORRELATION_ID_ONE,
+        ]);
+
         Log::shouldReceive('info')
             ->once()
             ->withArgs(function (
@@ -113,6 +124,11 @@ class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnos
 
     public function test_separate_requests_replace_context_with_distinct_ids(): void
     {
+        $this->forceSampledCorrelationIds([
+            self::SAMPLED_CORRELATION_ID_ONE,
+            self::SAMPLED_CORRELATION_ID_TWO,
+        ]);
+
         Log::shouldReceive('info')->twice();
 
         $middleware =
@@ -139,6 +155,10 @@ class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnos
 
     public function test_client_headers_are_never_used_as_correlation_source(): void
     {
+        $this->forceSampledCorrelationIds([
+            self::SAMPLED_CORRELATION_ID_ONE,
+        ]);
+
         $request = $this->request();
         $request->headers->set(
             'X-Request-ID',
@@ -172,6 +192,10 @@ class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnos
 
     public function test_audit_failure_preserves_response_and_context(): void
     {
+        $this->forceSampledCorrelationIds([
+            self::SAMPLED_CORRELATION_ID_ONE,
+        ]);
+
         Log::shouldReceive('info')
             ->once()
             ->andThrow(new RuntimeException('audit unavailable'));
@@ -233,6 +257,20 @@ class ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnos
         ] as $needle) {
             $this->assertStringNotContainsString($needle, $source);
         }
+    }
+
+    private function forceSampledCorrelationIds(array $ids): void
+    {
+        $queue = array_map(
+            static fn (string $id) => Uuid::fromString($id),
+            $ids
+        );
+
+        Str::createUuidsUsing(
+            static function () use (&$queue) {
+                return array_shift($queue);
+            }
+        );
     }
 
     private function request(): Request

@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
@@ -13,8 +16,20 @@ use Tests\TestCase;
 class ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest
     extends TestCase
 {
+    private const SAMPLED_CORRELATION_ID =
+        '00000000-0000-4000-8000-000000000010';
+
+    protected function tearDown(): void
+    {
+        Str::createUuidsNormally();
+        Context::flush();
+
+        parent::tearDown();
+    }
+
     public function test_allowed_response_writes_locked_audit_context(): void
     {
+        $this->forceSampledCorrelationId();
         $request = $this->request();
 
         Log::shouldReceive('info')
@@ -139,6 +154,8 @@ class ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnos
 
     public function test_audit_failure_never_changes_allowed_response(): void
     {
+        $this->forceSampledCorrelationId();
+
         Log::shouldReceive('info')
             ->once()
             ->andThrow(new RuntimeException('audit unavailable'));
@@ -253,6 +270,15 @@ class ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnos
         ] as $needle) {
             $this->assertStringNotContainsString($needle, $source);
         }
+    }
+
+    private function forceSampledCorrelationId(): void
+    {
+        Str::createUuidsUsing(
+            static fn () => Uuid::fromString(
+                self::SAMPLED_CORRELATION_ID
+            )
+        );
     }
 
     private function request(): Request
