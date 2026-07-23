@@ -57,13 +57,22 @@ class ReportSavedViewPhase108ARetentionExecutionHistoryExportSummaryCacheDiagnos
         $contract = $this->document()['health_presentation_contract'];
 
         $this->assertSame(
-            'resources/views/reports/saved-view-share-activity-retention.blade.php',
+            'resources/views/reports/saved-views/'
+            . 'share-activity-retention.blade.php',
             $contract['placement']['view']
         );
         $this->assertTrue($contract['placement']['partial_required']);
         $this->assertSame(
-            'resources/views/reports/partials/'
-            . 'saved-view-retention-audit-metrics-health.blade.php',
+            'after_summary_cache_diagnostics_section_before_privacy_notice',
+            $contract['placement']['position']
+        );
+        $this->assertSame(
+            'Privacy notice: context and updated_at are excluded from exports.',
+            $contract['placement']['insertion_anchor']
+        );
+        $this->assertSame(
+            'resources/views/reports/saved-views/partials/'
+            . 'share-activity-retention-audit-metrics-health.blade.php',
             $contract['placement']['partial']
         );
 
@@ -96,6 +105,18 @@ class ReportSavedViewPhase108ARetentionExecutionHistoryExportSummaryCacheDiagnos
         );
         $this->assertFalse(
             $contract['client_behavior']['retry_loop_added']
+        );
+        $this->assertSame(
+            'partial_inline_script',
+            $contract['client_behavior']['script_location']
+        );
+        $this->assertSame(
+            'same-origin',
+            $contract['client_behavior']['fetch_credentials']
+        );
+        $this->assertSame(
+            'application/json',
+            $contract['client_behavior']['accept_header']
         );
 
         $this->assertSame(
@@ -175,15 +196,20 @@ class ReportSavedViewPhase108ARetentionExecutionHistoryExportSummaryCacheDiagnos
             $document['health_presentation_contract']['planned_implementation'];
 
         $this->assertSame(
-            'resources/views/reports/partials/'
-            . 'saved-view-retention-audit-metrics-health.blade.php',
+            'resources/views/reports/saved-views/partials/'
+            . 'share-activity-retention-audit-metrics-health.blade.php',
             $implementation['new_partial']
         );
         $this->assertSame(
-            'resources/views/reports/saved-view-share-activity-retention.blade.php',
+            'resources/views/reports/saved-views/'
+            . 'share-activity-retention.blade.php',
             $implementation['parent_view']
         );
         $this->assertSame(3, $implementation['maximum_modified_files']);
+        $this->assertSame(
+            'Privacy notice: context and updated_at are excluded from exports.',
+            $implementation['parent_view_insertion_anchor']
+        );
 
         foreach ([
             'modified_endpoint_controller',

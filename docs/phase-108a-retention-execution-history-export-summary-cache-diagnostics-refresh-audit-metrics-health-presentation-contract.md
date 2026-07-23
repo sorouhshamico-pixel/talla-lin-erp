@@ -25,19 +25,23 @@ The presentation must not change the endpoint, Health calculation, Route authori
 
 Parent View:
 
-`resources/views/reports/saved-view-share-activity-retention.blade.php`
+`resources/views/reports/saved-views/share-activity-retention.blade.php`
 
 Section:
 
-Summary Cache Diagnostics.
+The existing `retention-summary-cache-diagnostics-heading` section.
 
 Position:
 
-After the existing Summary Cache Diagnostics controls.
+After the complete Summary Cache Diagnostics section and before the existing Privacy Notice paragraph.
+
+Parent insertion anchor:
+
+`Privacy notice: context and updated_at are excluded from exports.`
 
 Required Partial:
 
-`resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php`
+`resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php`
 
 ## Presentation
 
@@ -83,6 +87,10 @@ Behavior:
 - No retry loop
 - No page reload
 - No additional timeout mechanism
+- Fetch credentials: `same-origin`
+- Accept header: `application/json`
+- Script location: inside the new Partial
+- DOM initialization: immediate when ready or through `DOMContentLoaded`
 
 ## States
 
@@ -134,8 +142,8 @@ The implementation must not change the Health endpoint, Health class, Controller
 
 Phase 108B may modify only:
 
-- `resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php`
-- `resources/views/reports/saved-view-share-activity-retention.blade.php`
+- `resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php`
+- `resources/views/reports/saved-views/share-activity-retention.blade.php`
 - One focused Phase 108B implementation test
 
 Maximum modified files: three.

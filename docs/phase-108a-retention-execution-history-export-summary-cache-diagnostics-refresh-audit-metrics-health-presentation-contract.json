@@ -32,11 +32,13 @@
   "health_presentation_contract": {
     "purpose": "Present the existing audit metrics health endpoint inside the retention administration interface as a read-only status panel without changing the endpoint, health calculation, route authorization, audit behavior, rate limiting, or persistence.",
     "placement": {
-      "view": "resources/views/reports/saved-view-share-activity-retention.blade.php",
-      "section": "summary_cache_diagnostics",
-      "position": "after_summary_cache_diagnostics_controls",
+      "view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
+      "section": "retention_summary_cache_diagnostics",
+      "position": "after_summary_cache_diagnostics_section_before_privacy_notice",
       "partial_required": true,
-      "partial": "resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php"
+      "partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "parent_anchor": "<section aria-labelledby=\"retention-summary-cache-diagnostics-heading\">",
+      "insertion_anchor": "Privacy notice: context and updated_at are excluded from exports."
     },
     "presentation": {
       "title": "Audit Metrics Health",
@@ -67,7 +69,11 @@
       "request_timeout_added": false,
       "polling_added": false,
       "retry_loop_added": false,
-      "page_reload_required": false
+      "page_reload_required": false,
+      "script_location": "partial_inline_script",
+      "dom_ready_strategy": "DOMContentLoaded_or_immediate_when_document_ready",
+      "fetch_credentials": "same-origin",
+      "accept_header": "application/json"
     },
     "states": {
       "loading": {
@@ -135,8 +141,8 @@
       "log_writes": 0
     },
     "planned_implementation": {
-      "new_partial": "resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php",
-      "parent_view": "resources/views/reports/saved-view-share-activity-retention.blade.php",
+      "new_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "parent_view": "resources/views/reports/saved-views/share-activity-retention.blade.php",
       "new_test": "tests/Feature/ReportSavedViewPhase108BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationImplementationTest.php",
       "maximum_modified_files": 3,
       "modified_endpoint_controller": false,
@@ -150,7 +156,8 @@
       "modified_provider": false,
       "database_changes_expected": false,
       "migration_changes_expected": false,
-      "model_changes_expected": false
+      "model_changes_expected": false,
+      "parent_view_insertion_anchor": "Privacy notice: context and updated_at are excluded from exports."
     }
   },
   "workflow": {
