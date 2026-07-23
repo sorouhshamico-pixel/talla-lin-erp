@@ -1,0 +1,160 @@
+{
+  "phase": "Phase 106A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 105C",
+    "commit": "35232de783979a5f0b51020e7ae21d492d4ce0d1",
+    "tests": 2104,
+    "assertions": 19982,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "metrics_health_contract": {
+    "purpose": "Expose a read-only application health assessment for the audit metrics pipeline by validating configuration and Event Discovery wiring without dispatching events, writing logs, querying databases, reading or writing cache, or changing request behavior.",
+    "health_service": {
+      "class": "App\\Support\\SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricsHealth",
+      "method": "status",
+      "return_type": "array",
+      "side_effect_free": true,
+      "throws": false
+    },
+    "checks": {
+      "listener_discovered": {
+        "type": "boolean",
+        "expected": true
+      },
+      "listener_count": {
+        "type": "integer",
+        "expected": 1
+      },
+      "channel_configured": {
+        "type": "boolean",
+        "expected": true
+      },
+      "channel_driver": {
+        "type": "string",
+        "expected": "daily"
+      },
+      "channel_level": {
+        "type": "string",
+        "expected": "info"
+      },
+      "channel_retention_days": {
+        "type": "integer",
+        "expected": 14
+      },
+      "channel_path_matches": {
+        "type": "boolean",
+        "expected": true
+      },
+      "healthy": {
+        "type": "boolean",
+        "derived": true
+      }
+    },
+    "healthy_rule": {
+      "all_checks_must_pass": true,
+      "listener_count_must_equal": 1,
+      "channel_path": "storage/logs/saved-view-retention-audit-metrics.log",
+      "channel_name": "saved_view_retention_audit_metrics"
+    },
+    "failure_behavior": {
+      "missing_listener_returns_unhealthy": true,
+      "invalid_channel_returns_unhealthy": true,
+      "unexpected_exception_returns_unhealthy": true,
+      "exception_details_exposed": false,
+      "throws_to_caller": false
+    },
+    "privacy": {
+      "correlation_id_exposed": false,
+      "raw_user_id_exposed": false,
+      "raw_ip_address_exposed": false,
+      "session_id_exposed": false,
+      "request_headers_exposed": false,
+      "cookies_exposed": false,
+      "retry_after_exposed": false,
+      "sampling_bucket_exposed": false,
+      "diagnostics_payload_exposed": false,
+      "cache_key_exposed": false,
+      "filesystem_contents_exposed": false
+    },
+    "compatibility": {
+      "listener_changed": false,
+      "event_changed": false,
+      "middleware_changed": false,
+      "logging_configuration_changed": false,
+      "event_dispatch_count_changed": false,
+      "metric_log_write_count_changed": false,
+      "sampling_rate_changed": false,
+      "sampling_algorithm_changed": false,
+      "limited_audit_coverage_changed": false,
+      "audit_log_calls_changed": false,
+      "route_changed": false,
+      "permission_changed": false,
+      "response_body_changed": false,
+      "response_headers_changed": false,
+      "rate_limit_changed": false,
+      "diagnostics_service_execution_changed": false,
+      "correlation_behavior_changed": false
+    },
+    "performance": {
+      "event_dispatches": 0,
+      "log_writes": 0,
+      "additional_database_queries": 0,
+      "additional_cache_reads": 0,
+      "additional_cache_writes": 0,
+      "additional_model_hydration": 0,
+      "filesystem_reads": 0
+    },
+    "planned_implementation": {
+      "new_health_class": "app/Support/SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricsHealth.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase106BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthImplementationTest.php",
+      "maximum_modified_files": 2,
+      "modified_listener": false,
+      "modified_event": false,
+      "modified_middleware": false,
+      "modified_logging_configuration": false,
+      "modified_bootstrap": false,
+      "modified_route": false,
+      "modified_controller": false,
+      "modified_service": false,
+      "modified_provider": false,
+      "modified_view": false,
+      "modified_layout": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 106B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health",
+    "classification": "small"
+  }
+}
