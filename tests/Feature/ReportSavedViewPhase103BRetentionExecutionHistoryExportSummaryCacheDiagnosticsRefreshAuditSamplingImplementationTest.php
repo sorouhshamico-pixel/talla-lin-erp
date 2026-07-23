@@ -172,7 +172,11 @@ class ReportSavedViewPhase103BRetentionExecutionHistoryExportSummaryCacheDiagnos
         );
         $this->assertStringContainsString('% 100', $source);
         $this->assertStringContainsString(
-            'if ($limited || $this->shouldAuditAllowed())',
+            '$auditAttempted = $limited || $this->shouldAuditAllowed();',
+            $source
+        );
+        $this->assertStringContainsString(
+            'if ($auditAttempted)',
             $source
         );
 

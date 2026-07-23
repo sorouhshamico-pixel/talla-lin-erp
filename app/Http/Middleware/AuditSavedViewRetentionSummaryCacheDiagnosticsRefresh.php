@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Context;
@@ -56,9 +57,24 @@ class AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh
             );
         }
 
-        if ($limited || $this->shouldAuditAllowed()) {
-            $this->audit($event, $context);
+        $auditAttempted = $limited || $this->shouldAuditAllowed();
+        $auditSucceeded = false;
+
+        if ($auditAttempted) {
+            $auditSucceeded = $this->audit($event, $context);
         }
+
+        $outcome = $limited
+            ? 'limited'
+            : ($auditAttempted ? 'allowed_sampled' : 'allowed_unsampled');
+
+        $this->recordMetric(
+            $outcome,
+            $auditAttempted,
+            $auditSucceeded,
+            (string) $request->route()?->getName(),
+            $request->getMethod()
+        );
 
         return $response;
     }
@@ -78,10 +94,35 @@ class AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh
         return $bucket < self::ALLOWED_SAMPLE_RATE_PERCENT;
     }
 
-    private function audit(string $event, array $context): void
+    private function audit(string $event, array $context): bool
     {
         try {
             Log::info($event, $context);
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    private function recordMetric(
+        string $outcome,
+        bool $auditAttempted,
+        bool $auditSucceeded,
+        string $routeName,
+        string $requestMethod
+    ): void {
+        try {
+            event(
+                new SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded(
+                    outcome: $outcome,
+                    auditAttempted: $auditAttempted,
+                    auditSucceeded: $auditSucceeded,
+                    rateLimitName: self::RATE_LIMIT_NAME,
+                    routeName: $routeName,
+                    requestMethod: $requestMethod,
+                )
+            );
         } catch (Throwable) {
         }
     }
