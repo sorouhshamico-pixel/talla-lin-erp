@@ -185,6 +185,17 @@ class ReportSavedViewPhase103ARetentionExecutionHistoryExportSummaryCacheDiagnos
         $this->assertTrue(
             $migration['phase_101b_limited_cases_unchanged']
         );
+        $this->assertTrue(
+            $migration['phase_102b_test_update_required']
+        );
+        $this->assertTrue(
+            $migration[
+                'phase_102b_allowed_cases_use_forced_sampled_correlation_id'
+            ]
+        );
+        $this->assertTrue(
+            $migration['phase_102b_limited_cases_unchanged']
+        );
         $this->assertFalse(
             $migration['production_test_environment_exception_added']
         );
@@ -223,10 +234,15 @@ class ReportSavedViewPhase103ARetentionExecutionHistoryExportSummaryCacheDiagnos
         $this->assertSame(
             'tests/Feature/'
             . 'ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest.php',
-            $implementation['updated_compatibility_test']
+            $implementation['updated_phase_101b_compatibility_test']
         );
         $this->assertSame(
-            3,
+            'tests/Feature/'
+            . 'ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditCorrelationImplementationTest.php',
+            $implementation['updated_phase_102b_compatibility_test']
+        );
+        $this->assertSame(
+            4,
             $implementation['maximum_modified_files']
         );
         $this->assertFalse(

@@ -99,7 +99,7 @@ Route method, URI, name, permission, Controller payload, Response Headers, Rate 
 
 Phase 101B allowed-request tests currently require exactly one `Log::info()` call. Sampling intentionally skips that call for unsampled allowed requests.
 
-Phase 103B must therefore update the Phase 101B compatibility test so its allowed-request and allowed-audit-failure cases install a deterministic Correlation ID that belongs to the 25 percent sampled bucket.
+Phase 103B must therefore update both the Phase 101B and Phase 102B compatibility tests so every allowed-request case that expects `Log::info()` installs a deterministic Correlation ID that belongs to the 25 percent sampled bucket.
 
 This update preserves the historical test intent:
 
@@ -115,11 +115,12 @@ Phase 103B may modify only:
 
 - `app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php`
 - `tests/Feature/ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest.php`
+- `tests/Feature/ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditCorrelationImplementationTest.php`
 - One focused Phase 103B implementation test
 
-Maximum modified files: three.
+Maximum modified files: four.
 
-The Phase 101B test update is a compatibility migration, not a relaxation of Runtime behavior.
+The Phase 101B and Phase 102B test updates are compatibility migrations, not relaxations of Runtime behavior.
 
 Phase 103B must not modify Bootstrap, Routes, Controller, Services, Provider, Views, Layout, database, migrations, or Models.
 
