@@ -1,0 +1,139 @@
+{
+  "phase": "Phase 104A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 103C",
+    "commit": "69573469febb096e9e14a579823437c7459f08ec",
+    "tests": 2070,
+    "assertions": 19456,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "audit_metrics_contract": {
+    "purpose": "Expose privacy-safe request-local audit outcome metrics through a Laravel domain event without adding log calls, persistence, cache operations, response fields, or changes to sampling, rate limiting, diagnostics execution, or correlation behavior.",
+    "transport": {
+      "mechanism": "laravel_domain_event",
+      "event_class": "App\\Events\\SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded",
+      "dispatch_count_per_request": 1,
+      "listeners_required": false,
+      "queue_required": false,
+      "database_persistence": false,
+      "cache_persistence": false
+    },
+    "metric_dimensions": {
+      "outcome_values": [
+        "allowed_sampled",
+        "allowed_unsampled",
+        "limited"
+      ],
+      "audit_attempted": "boolean",
+      "audit_succeeded": "boolean",
+      "rate_limit_name": "saved-view-retention-summary-cache-diagnostics-refresh",
+      "route_name": "reports.saved-view-share-activity-retention.summary-cache-diagnostics",
+      "request_method": "GET"
+    },
+    "metric_rules": {
+      "allowed_sampled": {
+        "audit_attempted": true,
+        "audit_succeeded_reflects_log_result": true
+      },
+      "allowed_unsampled": {
+        "audit_attempted": false,
+        "audit_succeeded": false
+      },
+      "limited": {
+        "audit_attempted": true,
+        "audit_succeeded_reflects_log_result": true
+      },
+      "audit_failure_preserves_response": true,
+      "event_dispatch_failure_preserves_response": true,
+      "event_dispatch_happens_after_audit_decision": true
+    },
+    "privacy": {
+      "correlation_id_in_event_payload": false,
+      "raw_user_id_in_event_payload": false,
+      "raw_ip_address_in_event_payload": false,
+      "session_id_in_event_payload": false,
+      "request_headers_in_event_payload": false,
+      "cookies_in_event_payload": false,
+      "retry_after_value_in_event_payload": false,
+      "sampling_bucket_in_event_payload": false,
+      "diagnostics_payload_in_event_payload": false,
+      "cache_key_in_event_payload": false
+    },
+    "compatibility": {
+      "existing_log_info_call_count_changed": false,
+      "existing_log_event_names_changed": false,
+      "existing_log_context_arrays_changed": false,
+      "phase_101b_log_expectations_changed": false,
+      "phase_102b_log_expectations_changed": false,
+      "phase_103b_sampling_expectations_changed": false,
+      "sampling_rate_changed": false,
+      "sampling_algorithm_changed": false,
+      "limited_audit_coverage_changed": false,
+      "route_changed": false,
+      "permission_changed": false,
+      "response_body_changed": false,
+      "response_headers_changed": false,
+      "rate_limit_changed": false,
+      "diagnostics_service_execution_changed": false,
+      "correlation_behavior_changed": false
+    },
+    "performance": {
+      "additional_database_queries": 0,
+      "additional_cache_reads": 0,
+      "additional_cache_writes": 0,
+      "additional_model_hydration": 0,
+      "additional_summary_queries": 0,
+      "domain_events_dispatched_per_request": 1
+    },
+    "planned_implementation": {
+      "modified_middleware": "app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php",
+      "new_event": "app/Events/SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase104BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsImplementationTest.php",
+      "maximum_modified_files": 3,
+      "modified_phase_101b_test": false,
+      "modified_phase_102b_test": false,
+      "modified_phase_103b_test": false,
+      "modified_bootstrap": false,
+      "modified_route": false,
+      "modified_controller": false,
+      "modified_service": false,
+      "modified_provider": false,
+      "modified_view": false,
+      "modified_layout": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 104B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics",
+    "classification": "medium"
+  }
+}
