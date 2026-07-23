@@ -81,8 +81,15 @@ class ReportSavedViewPhase107ARetentionExecutionHistoryExportSummaryCacheDiagnos
             $contract['route']['name']
         );
         $this->assertSame(
-            ['auth', 'permission:reports.view'],
+            [
+                'auth',
+                'can:manage_saved_view_share_activity_retention',
+            ],
             $contract['route']['middleware_order']
+        );
+        $this->assertSame(
+            'inside_existing_auth_and_manage_saved_view_share_activity_retention_group',
+            $contract['route']['placement']
         );
         $this->assertFalse($contract['route']['rate_limiter_added']);
 
@@ -112,13 +119,35 @@ class ReportSavedViewPhase107ARetentionExecutionHistoryExportSummaryCacheDiagnos
             $contract['authorization']['authentication_required']
         );
         $this->assertSame(
-            'reports.view',
+            'manage_saved_view_share_activity_retention',
             $contract['authorization']['permission_required']
         );
-        $this->assertSame(302, $contract['authorization']['guest_status']);
+        $this->assertSame(
+            'can:manage_saved_view_share_activity_retention',
+            $contract['authorization']['middleware']
+        );
+        $this->assertSame(
+            401,
+            $contract['authorization']['guest_status_for_json_request']
+        );
         $this->assertSame(
             403,
             $contract['authorization']['unauthorized_status']
+        );
+
+        $this->assertTrue(
+            $contract['testability']['health_class_is_final']
+        );
+        $this->assertFalse(
+            $contract['testability']['direct_class_mocking_allowed']
+        );
+        $this->assertSame(
+            'instantiate_real_health_class_with_mocked_dispatcher',
+            $contract['testability']['controller_test_strategy']
+        );
+        $this->assertSame(
+            'extract_exact_route_block_by_route_name',
+            $contract['testability']['source_guard_strategy']
         );
     }
 
@@ -168,6 +197,16 @@ class ReportSavedViewPhase107ARetentionExecutionHistoryExportSummaryCacheDiagnos
         );
         $this->assertSame('routes/web.php', $implementation['route_file']);
         $this->assertSame(3, $implementation['maximum_modified_files']);
+        $this->assertSame(
+            'inside_existing_auth_and_manage_saved_view_share_activity_retention_group',
+            $implementation['route_placement']
+        );
+        $this->assertFalse(
+            $implementation['controller_test_uses_final_class_mock']
+        );
+        $this->assertTrue(
+            $implementation['controller_test_uses_real_health_instance']
+        );
 
         foreach ([
             'modified_health_class',

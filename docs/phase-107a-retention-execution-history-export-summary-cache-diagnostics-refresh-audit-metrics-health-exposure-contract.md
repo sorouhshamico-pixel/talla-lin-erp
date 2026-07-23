@@ -42,7 +42,9 @@ JSON.
 Middleware order:
 
 - `auth`
-- `permission:reports.view`
+- `can:manage_saved_view_share_activity_retention`
+
+The Route is placed inside the existing authenticated retention administration group and inherits the same administrative authorization boundary.
 
 No new Rate Limiter is added.
 
@@ -93,15 +95,29 @@ Authentication is required.
 
 Permission:
 
-`reports.view`
+`manage_saved_view_share_activity_retention`
 
-Guest response:
+Authorization Middleware:
 
-302 redirect.
+`can:manage_saved_view_share_activity_retention`
+
+Guest JSON response:
+
+401.
 
 Authenticated user without permission:
 
 403.
+
+## Testability
+
+The Health class is `final`.
+
+Phase 107B must not Mock the final Health class directly.
+
+Controller tests must instantiate the real Health class with a mocked Event Dispatcher to produce healthy or unhealthy results deterministically.
+
+Route Source Guards must isolate the exact Route block by Route name before checking for forbidden Middleware, so adjacent Routes do not create false positives.
 
 ## Failure behavior
 
