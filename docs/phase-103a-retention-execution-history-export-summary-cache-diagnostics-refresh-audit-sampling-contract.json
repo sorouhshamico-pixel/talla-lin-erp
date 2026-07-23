@@ -109,7 +109,20 @@
       "modified_layout": false,
       "database_changes_expected": false,
       "migration_changes_expected": false,
-      "model_changes_expected": false
+      "model_changes_expected": false,
+      "updated_compatibility_test": "tests/Feature/ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest.php",
+      "maximum_modified_files": 3,
+      "historical_test_update_is_behavioral_relaxation": false
+    },
+    "compatibility_migration": {
+      "reason": "Phase 101B allowed-request tests require one Log::info call. Deterministic allowed-event sampling may intentionally skip that call.",
+      "historical_runtime_contract_changed": false,
+      "historical_test_intent_preserved": true,
+      "phase_101b_test_update_required": true,
+      "phase_101b_allowed_cases_use_forced_sampled_correlation_id": true,
+      "phase_101b_limited_cases_unchanged": true,
+      "production_test_environment_exception_added": false,
+      "sampling_disabled_in_tests": false
     }
   },
   "workflow": {

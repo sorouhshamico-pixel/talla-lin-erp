@@ -95,14 +95,33 @@ The implementation adds:
 
 Route method, URI, name, permission, Controller payload, Response Headers, Rate Limit name and threshold, Retry-After behavior, Correlation behavior, limited Audit coverage, View, Layout, JavaScript behavior, Summary Cache behavior, Diagnostics Observability, History schema, and History Model remain unchanged.
 
+## Compatibility migration
+
+Phase 101B allowed-request tests currently require exactly one `Log::info()` call. Sampling intentionally skips that call for unsampled allowed requests.
+
+Phase 103B must therefore update the Phase 101B compatibility test so its allowed-request and allowed-audit-failure cases install a deterministic Correlation ID that belongs to the 25 percent sampled bucket.
+
+This update preserves the historical test intent:
+
+- Sampled allowed requests still write the original Audit Event and Context
+- Audit logging failures still preserve the response
+- Limited-request tests remain unchanged
+- No production exception is added for the test environment
+- Sampling is not disabled during tests
+
 ## Planned implementation
 
 Phase 103B may modify only:
 
 - `app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php`
+- `tests/Feature/ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest.php`
 - One focused Phase 103B implementation test
 
-It must not modify Bootstrap, Routes, Controller, Services, Provider, Views, Layout, database, migrations, or Models.
+Maximum modified files: three.
+
+The Phase 101B test update is a compatibility migration, not a relaxation of Runtime behavior.
+
+Phase 103B must not modify Bootstrap, Routes, Controller, Services, Provider, Views, Layout, database, migrations, or Models.
 
 ## Workflow
 

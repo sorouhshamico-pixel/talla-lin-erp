@@ -163,6 +163,36 @@ class ReportSavedViewPhase103ARetentionExecutionHistoryExportSummaryCacheDiagnos
         }
     }
 
+    public function test_phase_101b_compatibility_migration_is_locked(): void
+    {
+        $migration = $this->document()
+            ['audit_sampling_contract']['compatibility_migration'];
+
+        $this->assertFalse(
+            $migration['historical_runtime_contract_changed']
+        );
+        $this->assertTrue(
+            $migration['historical_test_intent_preserved']
+        );
+        $this->assertTrue(
+            $migration['phase_101b_test_update_required']
+        );
+        $this->assertTrue(
+            $migration[
+                'phase_101b_allowed_cases_use_forced_sampled_correlation_id'
+            ]
+        );
+        $this->assertTrue(
+            $migration['phase_101b_limited_cases_unchanged']
+        );
+        $this->assertFalse(
+            $migration['production_test_environment_exception_added']
+        );
+        $this->assertFalse(
+            $migration['sampling_disabled_in_tests']
+        );
+    }
+
     public function test_scope_workflow_and_next_phase_are_locked(): void
     {
         $document = $this->document();
@@ -189,6 +219,21 @@ class ReportSavedViewPhase103ARetentionExecutionHistoryExportSummaryCacheDiagnos
         ] as $key) {
             $this->assertFalse($implementation[$key], $key);
         }
+
+        $this->assertSame(
+            'tests/Feature/'
+            . 'ReportSavedViewPhase101BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditTrailImplementationTest.php',
+            $implementation['updated_compatibility_test']
+        );
+        $this->assertSame(
+            3,
+            $implementation['maximum_modified_files']
+        );
+        $this->assertFalse(
+            $implementation[
+                'historical_test_update_is_behavioral_relaxation'
+            ]
+        );
 
         $this->assertSame(
             'once before commit',
