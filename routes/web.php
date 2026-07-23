@@ -341,6 +341,15 @@ Route::middleware('auth')->group(function () {
         ->middleware('audit.saved-view-retention-summary-cache-diagnostics-refresh')
         ->middleware('throttle:saved-view-retention-summary-cache-diagnostics-refresh');
 
+    Route::get(
+        '/reports/saved-view-share-activity-retention/'
+        . 'summary-cache-diagnostics/audit-metrics-health',
+        \App\Http\Controllers\Reports\SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricsHealthController::class
+    )->name(
+        'reports.saved-view-share-activity-retention.'
+        . 'summary-cache-diagnostics.audit-metrics-health'
+    );
+
         Route::post(
             '/reports/saved-view-share-activity-retention/preview',
             [\App\Http\Controllers\ReportSavedViewShareActivityRetentionAdminController::class, 'preview']
