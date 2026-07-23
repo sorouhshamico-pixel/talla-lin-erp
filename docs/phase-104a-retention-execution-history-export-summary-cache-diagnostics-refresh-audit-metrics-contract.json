@@ -108,10 +108,10 @@
       "modified_middleware": "app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php",
       "new_event": "app/Events/SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded.php",
       "new_test": "tests/Feature/ReportSavedViewPhase104BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsImplementationTest.php",
-      "maximum_modified_files": 3,
+      "maximum_modified_files": 4,
       "modified_phase_101b_test": false,
       "modified_phase_102b_test": false,
-      "modified_phase_103b_test": false,
+      "modified_phase_103b_test": true,
       "modified_bootstrap": false,
       "modified_route": false,
       "modified_controller": false,
@@ -121,7 +121,17 @@
       "modified_layout": false,
       "database_changes_expected": false,
       "migration_changes_expected": false,
-      "model_changes_expected": false
+      "model_changes_expected": false,
+      "phase_103b_update_scope": "source_guard_only"
+    },
+    "compatibility_migration": {
+      "phase_103b_test_update_required": true,
+      "update_type": "source_guard_only",
+      "sampling_behavior_expectations_changed": false,
+      "log_expectations_changed": false,
+      "fixture_expectations_changed": false,
+      "historical_runtime_contract_relaxed": false,
+      "production_test_environment_exception_added": false
     }
   },
   "workflow": {

@@ -145,6 +145,30 @@ class ReportSavedViewPhase104ARetentionExecutionHistoryExportSummaryCacheDiagnos
         );
     }
 
+    public function test_phase_103b_source_guard_migration_is_locked(): void
+    {
+        $migration = $this->document()
+            ['audit_metrics_contract']['compatibility_migration'];
+
+        $this->assertTrue(
+            $migration['phase_103b_test_update_required']
+        );
+        $this->assertSame(
+            'source_guard_only',
+            $migration['update_type']
+        );
+
+        foreach ([
+            'sampling_behavior_expectations_changed',
+            'log_expectations_changed',
+            'fixture_expectations_changed',
+            'historical_runtime_contract_relaxed',
+            'production_test_environment_exception_added',
+        ] as $key) {
+            $this->assertFalse($migration[$key], $key);
+        }
+    }
+
     public function test_scope_workflow_and_next_phase_are_locked(): void
     {
         $document = $this->document();
@@ -161,12 +185,16 @@ class ReportSavedViewPhase104ARetentionExecutionHistoryExportSummaryCacheDiagnos
             . 'SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded.php',
             $implementation['new_event']
         );
-        $this->assertSame(3, $implementation['maximum_modified_files']);
+        $this->assertSame(4, $implementation['maximum_modified_files']);
+        $this->assertTrue($implementation['modified_phase_103b_test']);
+        $this->assertSame(
+            'source_guard_only',
+            $implementation['phase_103b_update_scope']
+        );
 
         foreach ([
             'modified_phase_101b_test',
             'modified_phase_102b_test',
-            'modified_phase_103b_test',
             'modified_bootstrap',
             'modified_route',
             'modified_controller',

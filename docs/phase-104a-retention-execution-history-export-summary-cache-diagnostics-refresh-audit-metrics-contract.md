@@ -123,6 +123,26 @@ The implementation must not change:
 - Diagnostics Service execution
 - Correlation behavior
 
+## Compatibility migration
+
+Phase 103B contains a Source Guard that locks the previous implementation shape:
+
+`if ($limited || $this->shouldAuditAllowed())`
+
+Phase 104B preserves the same Sampling behavior but must store the decision in `auditAttempted` so it can emit metrics.
+
+Phase 104B may therefore update only that Source Guard in the Phase 103B test.
+
+The migration must not change:
+
+- Sampling behavior expectations
+- Log expectations
+- Fixture buckets
+- Allowed or limited response assertions
+- Historical Runtime contracts
+
+No production exception may be added for the test environment.
+
 ## Performance
 
 The implementation adds:
@@ -140,11 +160,14 @@ Phase 104B may modify only:
 
 - `app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php`
 - `app/Events/SavedViewRetentionSummaryCacheDiagnosticsRefreshAuditMetricRecorded.php`
+- `tests/Feature/ReportSavedViewPhase103BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditSamplingImplementationTest.php`
 - One focused Phase 104B implementation test
 
-Maximum modified files: three.
+Maximum modified files: four.
 
-Phase 104B must not modify Phase 101B, Phase 102B, or Phase 103B tests.
+The Phase 103B test update is limited to the Source Guard for the Sampling decision shape.
+
+Phase 104B must not modify Phase 101B or Phase 102B tests.
 
 It must not modify Bootstrap, Routes, Controller, Services, Provider, Views, Layout, database, migrations, or Models.
 
