@@ -1,0 +1,168 @@
+{
+  "phase": "Phase 108A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 107C",
+    "commit": "ecbf3111d8ff57a96d7e96bb99c02a4197ad727d",
+    "tests": 2136,
+    "assertions": 20490,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "health_presentation_contract": {
+    "purpose": "Present the existing audit metrics health endpoint inside the retention administration interface as a read-only status panel without changing the endpoint, health calculation, route authorization, audit behavior, rate limiting, or persistence.",
+    "placement": {
+      "view": "resources/views/reports/saved-view-share-activity-retention.blade.php",
+      "section": "summary_cache_diagnostics",
+      "position": "after_summary_cache_diagnostics_controls",
+      "partial_required": true,
+      "partial": "resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php"
+    },
+    "presentation": {
+      "title": "Audit Metrics Health",
+      "initial_state": "loading",
+      "healthy_label": "Healthy",
+      "unhealthy_label": "Unhealthy",
+      "unavailable_label": "Unavailable",
+      "fields": [
+        "listener_discovered",
+        "listener_count",
+        "channel_configured",
+        "channel_driver",
+        "channel_level",
+        "channel_retention_days",
+        "channel_path_matches",
+        "healthy"
+      ],
+      "exact_field_count": 8,
+      "raw_json_visible": false,
+      "exception_details_visible": false
+    },
+    "client_behavior": {
+      "request_method": "GET",
+      "endpoint_route_name": "reports.saved-view-share-activity-retention.summary-cache-diagnostics.audit-metrics-health",
+      "automatic_request_on_page_load": true,
+      "manual_refresh_button": true,
+      "concurrent_requests_prevented": true,
+      "request_timeout_added": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "page_reload_required": false
+    },
+    "states": {
+      "loading": {
+        "status_text": "Loading health status...",
+        "refresh_disabled": true
+      },
+      "healthy": {
+        "status_text": "Audit metrics pipeline is healthy.",
+        "healthy_value": true
+      },
+      "unhealthy": {
+        "status_text": "Audit metrics pipeline requires attention.",
+        "healthy_value": false
+      },
+      "unavailable": {
+        "status_text": "Audit metrics health status is unavailable.",
+        "used_for_http_or_parse_failure": true
+      }
+    },
+    "accessibility": {
+      "status_region_role": "status",
+      "aria_live": "polite",
+      "button_type": "button",
+      "table_headers_present": true,
+      "color_only_status_forbidden": true
+    },
+    "privacy": {
+      "correlation_id_rendered": false,
+      "raw_user_id_rendered": false,
+      "raw_ip_address_rendered": false,
+      "session_id_rendered": false,
+      "request_headers_rendered": false,
+      "cookies_rendered": false,
+      "retry_after_rendered": false,
+      "sampling_bucket_rendered": false,
+      "diagnostics_payload_rendered": false,
+      "cache_key_rendered": false,
+      "filesystem_contents_rendered": false,
+      "exception_details_rendered": false
+    },
+    "compatibility": {
+      "health_endpoint_changed": false,
+      "health_class_changed": false,
+      "controller_changed": false,
+      "route_changed": false,
+      "authorization_changed": false,
+      "listener_changed": false,
+      "event_changed": false,
+      "middleware_changed": false,
+      "logging_configuration_changed": false,
+      "rate_limit_changed": false,
+      "audit_middleware_changed": false,
+      "existing_summary_cache_diagnostics_controls_changed": false,
+      "existing_form_submission_changed": false,
+      "existing_response_payload_changed": false
+    },
+    "performance": {
+      "requests_on_initial_load": 1,
+      "requests_per_manual_refresh": 1,
+      "polling_requests": 0,
+      "additional_database_queries": 0,
+      "additional_cache_reads": 0,
+      "additional_cache_writes": 0,
+      "event_dispatches": 0,
+      "log_writes": 0
+    },
+    "planned_implementation": {
+      "new_partial": "resources/views/reports/partials/saved-view-retention-audit-metrics-health.blade.php",
+      "parent_view": "resources/views/reports/saved-view-share-activity-retention.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase108BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationImplementationTest.php",
+      "maximum_modified_files": 3,
+      "modified_endpoint_controller": false,
+      "modified_health_class": false,
+      "modified_route": false,
+      "modified_listener": false,
+      "modified_event": false,
+      "modified_middleware": false,
+      "modified_logging_configuration": false,
+      "modified_layout": false,
+      "modified_provider": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 108B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation",
+    "classification": "medium"
+  }
+}
