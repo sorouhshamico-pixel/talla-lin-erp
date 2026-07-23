@@ -1,0 +1,141 @@
+{
+  "phase": "Phase 102A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Correlation Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 101C",
+    "commit": "6270658157ee9f3985753009d3d771a939c95bd3",
+    "tests": 2036,
+    "assertions": 18953,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "audit_correlation_contract": {
+    "purpose": "Define a privacy-safe per-request correlation identifier for diagnostics refresh audit events without changing the response payload, headers, rate limiting, diagnostics service execution, or existing observability events.",
+    "identifier": {
+      "context_key": "correlation_id",
+      "generation": "random_uuid",
+      "generated_once_per_request": true,
+      "stable_within_request": true,
+      "unique_across_requests": true,
+      "client_supplied_value_accepted": false,
+      "request_header_read": false,
+      "response_header_added": false,
+      "response_body_added": false,
+      "database_persisted": false,
+      "cache_persisted": false,
+      "session_persisted": false
+    },
+    "planned_context": {
+      "allowed_event_addition": [
+        "correlation_id"
+      ],
+      "limited_event_addition": [
+        "correlation_id"
+      ],
+      "existing_context_preserved": true
+    },
+    "format": {
+      "type": "uuid_v4",
+      "canonical_length": 36,
+      "lowercase": true,
+      "hyphenated": true,
+      "contains_user_data": false,
+      "contains_ip_data": false,
+      "contains_session_data": false,
+      "contains_timestamp": false
+    },
+    "forbidden_sources": [
+      "raw_user_id",
+      "raw_ip_address",
+      "raw_limiter_key",
+      "session_id",
+      "request_id_header",
+      "traceparent_header",
+      "x_request_id_header",
+      "cookies",
+      "authorization_header",
+      "diagnostics_payload",
+      "generation_token",
+      "cache_key"
+    ],
+    "behavior": {
+      "allowed_request_gets_one_correlation_id": true,
+      "limited_request_gets_one_correlation_id": true,
+      "audit_failure_does_not_change_response": true,
+      "correlation_generation_failure_is_swallowed": false,
+      "diagnostics_service_calls_unchanged": true,
+      "limited_request_calls_controller": false,
+      "limited_request_calls_diagnostics_service": false,
+      "existing_audit_events_unchanged": true,
+      "existing_observability_events_unchanged": true,
+      "rate_limit_behavior_unchanged": true
+    },
+    "performance": {
+      "additional_database_queries": 0,
+      "additional_cache_reads": 0,
+      "additional_cache_writes": 0,
+      "additional_model_hydration": 0,
+      "additional_summary_queries": 0
+    },
+    "compatibility": {
+      "route_method_unchanged": true,
+      "route_uri_unchanged": true,
+      "route_name_unchanged": true,
+      "permission_unchanged": true,
+      "controller_payload_unchanged": true,
+      "response_headers_unchanged": true,
+      "rate_limit_name_unchanged": true,
+      "rate_limit_threshold_unchanged": true,
+      "retry_after_behavior_unchanged": true,
+      "view_unchanged": true,
+      "layout_unchanged": true,
+      "javascript_behavior_unchanged": true,
+      "summary_cache_behavior_unchanged": true,
+      "diagnostics_observability_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    },
+    "planned_implementation": {
+      "modified_middleware": "app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php",
+      "test": "tests/Feature/ReportSavedViewPhase102BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditCorrelationImplementationTest.php",
+      "modified_bootstrap": false,
+      "modified_route": false,
+      "modified_controller": false,
+      "modified_service": false,
+      "modified_provider": false,
+      "modified_view": false,
+      "modified_layout": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 102B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Correlation",
+    "classification": "medium"
+  }
+}
