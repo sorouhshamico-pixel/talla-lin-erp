@@ -1,0 +1,127 @@
+{
+  "phase": "Phase 103A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Sampling Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 102C",
+    "commit": "39f88d0ba3717a9005e11933916ebbd65815f663",
+    "tests": 2052,
+    "assertions": 19198,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "audit_sampling_contract": {
+    "purpose": "Define deterministic privacy-safe sampling for allowed diagnostics refresh audit events while preserving complete audit coverage for limited requests and leaving responses, rate limiting, diagnostics execution, correlation, and observability unchanged.",
+    "policy": {
+      "allowed_event_sampling_enabled": true,
+      "allowed_sample_rate_percent": 25,
+      "limited_event_sampling_enabled": false,
+      "limited_event_recording_percent": 100,
+      "decision_source": "correlation_id",
+      "decision_algorithm": "sha256_modulo_100",
+      "deterministic_for_same_correlation_id": true,
+      "random_runtime_calls": 0,
+      "configuration_source": "class_constant",
+      "configuration_runtime_mutable": false
+    },
+    "decision": {
+      "sampled_when_bucket_less_than_percent": true,
+      "bucket_range_min": 0,
+      "bucket_range_max": 99,
+      "allowed_threshold_exclusive": 25,
+      "limited_requests_bypass_sampling": true,
+      "missing_correlation_id_behavior": "record",
+      "invalid_correlation_id_behavior": "record"
+    },
+    "audit_behavior": {
+      "sampled_allowed_event_name_unchanged": true,
+      "sampled_allowed_context_unchanged": true,
+      "unsampled_allowed_log_call_skipped": true,
+      "limited_event_name_unchanged": true,
+      "limited_context_unchanged": true,
+      "limited_log_call_always_executed": true,
+      "audit_failure_preserves_response": true,
+      "correlation_generation_unchanged": true
+    },
+    "privacy": {
+      "raw_correlation_id_added_to_audit_context": false,
+      "sampling_bucket_added_to_audit_context": false,
+      "sample_decision_added_to_response": false,
+      "raw_user_id_used": false,
+      "raw_ip_address_used": false,
+      "session_id_used": false,
+      "request_headers_used": false,
+      "cookies_used": false
+    },
+    "performance": {
+      "additional_database_queries": 0,
+      "additional_cache_reads": 0,
+      "additional_cache_writes": 0,
+      "additional_model_hydration": 0,
+      "additional_summary_queries": 0,
+      "hash_operations_per_allowed_request_maximum": 1,
+      "hash_operations_per_limited_request": 0
+    },
+    "compatibility": {
+      "route_method_unchanged": true,
+      "route_uri_unchanged": true,
+      "route_name_unchanged": true,
+      "permission_unchanged": true,
+      "controller_payload_unchanged": true,
+      "response_headers_unchanged": true,
+      "rate_limit_name_unchanged": true,
+      "rate_limit_threshold_unchanged": true,
+      "retry_after_behavior_unchanged": true,
+      "correlation_behavior_unchanged": true,
+      "limited_audit_coverage_unchanged": true,
+      "view_unchanged": true,
+      "layout_unchanged": true,
+      "javascript_behavior_unchanged": true,
+      "summary_cache_behavior_unchanged": true,
+      "diagnostics_observability_unchanged": true,
+      "history_schema_unchanged": true,
+      "history_model_unchanged": true
+    },
+    "planned_implementation": {
+      "modified_middleware": "app/Http/Middleware/AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh.php",
+      "test": "tests/Feature/ReportSavedViewPhase103BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditSamplingImplementationTest.php",
+      "modified_bootstrap": false,
+      "modified_route": false,
+      "modified_controller": false,
+      "modified_service": false,
+      "modified_provider": false,
+      "modified_view": false,
+      "modified_layout": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 103B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Sampling",
+    "classification": "medium"
+  }
+}
