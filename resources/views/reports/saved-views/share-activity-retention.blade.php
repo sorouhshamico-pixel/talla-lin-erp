@@ -449,6 +449,11 @@
             </p>
         </section>
 
+        @include(
+            'reports.saved-views.partials.'
+            . 'share-activity-retention-audit-metrics-health'
+        )
+
         <p>
             Privacy notice: context and updated_at are excluded from exports.
             Export requests do not modify retention history or create sharing activity.
