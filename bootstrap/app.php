@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\PruneReportSavedViewShareActivities;
+use App\Http\Middleware\AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh;
 use App\Http\Middleware\EnsurePartyPermission;
 
 use Illuminate\Foundation\Application;
@@ -18,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         PruneReportSavedViewShareActivities::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'audit.saved-view-retention-summary-cache-diagnostics-refresh' =>
+                AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
