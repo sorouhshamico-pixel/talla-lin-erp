@@ -1,0 +1,112 @@
+{
+  "phase": "Phase 100A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Rate Limiting Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 99C",
+    "commit": "c5f12701c604f53905aba08ba671d838a7fca272",
+    "tests": 2005,
+    "assertions": 18491,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "rate_limiting_contract": {
+    "purpose": "Protect the authenticated diagnostics refresh endpoint from excessive manual requests without changing diagnostics payload semantics, cache behavior, observability behavior, or client-side polling policy.",
+    "planned_strategy": {
+      "limiter_name": "saved-view-retention-summary-cache-diagnostics-refresh",
+      "maximum_attempts": 30,
+      "decay_seconds": 60,
+      "key_scope": "authenticated_user",
+      "guest_fallback": "ip_address",
+      "route_middleware": "throttle:saved-view-retention-summary-cache-diagnostics-refresh"
+    },
+    "planned_location": {
+      "rate_limiter_registration": "App\\Providers\\AppServiceProvider",
+      "protected_route": "reports.saved-view-share-activity-retention.summary-cache-diagnostics"
+    },
+    "response": {
+      "allowed_request_status_code": 200,
+      "limited_request_status_code": 429,
+      "allowed_payload_unchanged": true,
+      "limited_response_uses_framework_default": true,
+      "limited_response_contains_diagnostics_payload": false,
+      "retry_after_header_expected": true
+    },
+    "security": {
+      "authentication_remains_required": true,
+      "existing_permission_reused": true,
+      "new_permission_added": false,
+      "limiter_key_exposes_raw_user_data": false,
+      "raw_generation_token_exposed": false,
+      "raw_cache_key_exposed": false,
+      "raw_filters_exposed": false,
+      "history_payload_exposed": false
+    },
+    "behavior": {
+      "manual_refresh_only": true,
+      "automatic_polling_remains_absent": true,
+      "full_page_reload_remains_absent": true,
+      "concurrent_client_requests_still_prevented": true,
+      "successful_request_calls_diagnostics_service_once": true,
+      "limited_request_calls_diagnostics_service": false,
+      "successful_observability_events_unchanged": true,
+      "failure_observability_events_unchanged": true
+    },
+    "performance": {
+      "additional_database_queries": 0,
+      "additional_model_hydration": 0,
+      "additional_summary_queries": 0,
+      "successful_request_cache_reads_unchanged": true,
+      "limited_request_diagnostics_cache_reads": 0
+    },
+    "compatibility": {
+      "route_method_unchanged": true,
+      "route_uri_unchanged": true,
+      "route_name_unchanged": true,
+      "permission_unchanged": true,
+      "controller_payload_unchanged": true,
+      "view_unchanged": true,
+      "layout_unchanged": true,
+      "javascript_behavior_unchanged": true,
+      "diagnostics_payload_unchanged": true,
+      "summary_cache_behavior_unchanged": true,
+      "observability_context_unchanged": true
+    },
+    "planned_implementation": {
+      "modified_provider": "app/Providers/AppServiceProvider.php",
+      "modified_routes": "routes/web.php",
+      "test": "tests/Feature/ReportSavedViewPhase100BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshRateLimitingImplementationTest.php",
+      "controller_changes_expected": false,
+      "service_changes_expected": false,
+      "view_changes_expected": false,
+      "layout_changes_expected": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 100B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Rate Limiting",
+    "classification": "medium"
+  }
+}
