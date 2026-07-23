@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'saved_view_retention_audit_metrics' => [
+            'driver' => 'daily',
+            'path' => storage_path(
+                'logs/saved-view-retention-audit-metrics.log'
+            ),
+            'level' => 'info',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
