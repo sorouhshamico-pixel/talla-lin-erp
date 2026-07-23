@@ -4,7 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -21,6 +23,11 @@ class AuditSavedViewRetentionSummaryCacheDiagnosticsRefresh
 
     public function handle(Request $request, Closure $next): Response
     {
+        Context::add(
+            'correlation_id',
+            (string) Str::uuid()
+        );
+
         $response = $next($request);
 
         $limited = $response->getStatusCode()
