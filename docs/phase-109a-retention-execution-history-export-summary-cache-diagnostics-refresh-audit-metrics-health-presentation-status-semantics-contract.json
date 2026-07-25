@@ -1,0 +1,197 @@
+{
+  "phase": "Phase 109A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Status Semantics Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 108C",
+    "commit": "432a6ebe321c2caf0765a40ddded970d2aef3f0f",
+    "tests": 2152,
+    "assertions": 20776,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "status_semantics_contract": {
+    "purpose": "Define stable human-readable semantics for the existing eight-field Audit Metrics Health presentation without changing endpoint payloads, health calculation, authorization, request frequency, or persistence.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "overall_states": {
+      "loading": {
+        "message": "Loading health status...",
+        "classification": "pending",
+        "terminal": false
+      },
+      "healthy": {
+        "message": "Audit metrics pipeline is healthy.",
+        "classification": "success",
+        "terminal": true,
+        "condition": "payload.healthy === true"
+      },
+      "unhealthy": {
+        "message": "Audit metrics pipeline requires attention.",
+        "classification": "warning",
+        "terminal": true,
+        "condition": "payload.healthy === false"
+      },
+      "unavailable": {
+        "message": "Audit metrics health status is unavailable.",
+        "classification": "error",
+        "terminal": true,
+        "condition": "request_failure_or_invalid_payload"
+      }
+    },
+    "field_semantics": {
+      "listener_discovered": {
+        "label": "Listener discovered",
+        "type": "boolean",
+        "true_text": "Yes",
+        "false_text": "No",
+        "null_text": "Not available"
+      },
+      "listener_count": {
+        "label": "Listener count",
+        "type": "integer",
+        "minimum": 0,
+        "null_text": "Not available"
+      },
+      "channel_configured": {
+        "label": "Channel configured",
+        "type": "boolean",
+        "true_text": "Yes",
+        "false_text": "No",
+        "null_text": "Not available"
+      },
+      "channel_driver": {
+        "label": "Channel driver",
+        "type": "nullable_string",
+        "null_text": "Not available"
+      },
+      "channel_level": {
+        "label": "Channel level",
+        "type": "nullable_string",
+        "null_text": "Not available"
+      },
+      "channel_retention_days": {
+        "label": "Channel retention days",
+        "type": "nullable_integer",
+        "minimum": 0,
+        "null_text": "Not available"
+      },
+      "channel_path_matches": {
+        "label": "Channel path matches",
+        "type": "boolean",
+        "true_text": "Yes",
+        "false_text": "No",
+        "null_text": "Not available"
+      },
+      "healthy": {
+        "label": "Overall health",
+        "type": "boolean",
+        "true_text": "Yes",
+        "false_text": "No",
+        "null_text": "Not available"
+      }
+    },
+    "validation": {
+      "payload_must_be_object": true,
+      "arrays_rejected": true,
+      "all_eight_keys_required": true,
+      "extra_keys_ignored": true,
+      "boolean_fields_require_boolean": true,
+      "listener_count_requires_non_negative_integer": true,
+      "channel_retention_days_allows_null_or_non_negative_integer": true,
+      "channel_driver_allows_null_or_string": true,
+      "channel_level_allows_null_or_string": true,
+      "invalid_type_behavior": "unavailable",
+      "partial_rendering_for_invalid_payload_forbidden": true
+    },
+    "presentation_rules": {
+      "empty_string_treated_as_unavailable": true,
+      "zero_rendered_as_zero": true,
+      "false_rendered_as_no": true,
+      "true_rendered_as_yes": true,
+      "null_rendered_as_not_available": true,
+      "raw_boolean_rendering_forbidden": true,
+      "raw_null_rendering_forbidden": true,
+      "raw_object_rendering_forbidden": true,
+      "raw_array_rendering_forbidden": true,
+      "status_depends_on_healthy_field_only": true
+    },
+    "accessibility": {
+      "overall_message_in_status_region": true,
+      "status_region_role": "status",
+      "aria_live": "polite",
+      "textual_state_always_present": true,
+      "color_only_semantics_forbidden": true
+    },
+    "privacy": {
+      "unknown_extra_keys_rendered": false,
+      "raw_payload_rendered": false,
+      "exception_message_rendered": false,
+      "stack_trace_rendered": false,
+      "request_url_rendered": false,
+      "response_body_rendered": false
+    },
+    "compatibility": {
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase109BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationStatusSemanticsImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "endpoint_controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "layout_modified": false,
+      "provider_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 109B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Status Semantics",
+    "classification": "medium"
+  }
+}
