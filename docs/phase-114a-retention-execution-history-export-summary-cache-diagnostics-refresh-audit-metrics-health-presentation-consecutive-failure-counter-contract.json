@@ -1,0 +1,148 @@
+{
+  "phase": "Phase 114A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Consecutive Failure Counter Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 113C",
+    "commit": "37d842d4d503739301ef7d1af3e9bb4220214fc3",
+    "tests": 2238,
+    "assertions": 22108,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "consecutive_failure_counter_contract": {
+    "purpose": "Define client-side consecutive failure counting for the existing Audit Metrics Health presentation without changing endpoint payloads, authorization, request frequency, persistence, or backend behavior.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "counter_element": {
+      "id": "retention-audit-metrics-health-consecutive-failures",
+      "element": "span",
+      "prefix": "Consecutive failures:",
+      "initial_text": "0",
+      "aria_live": "off"
+    },
+    "state": {
+      "variable": "consecutiveFailures",
+      "initial_value": 0,
+      "minimum": 0,
+      "maximum": 999,
+      "integer_required": true,
+      "client_memory_only": true,
+      "local_storage_used": false,
+      "session_storage_used": false,
+      "database_used": false,
+      "cache_used": false
+    },
+    "classification": {
+      "validated_healthy_response": "success",
+      "validated_unhealthy_response": "success",
+      "http_error_response": "failure",
+      "network_failure": "failure",
+      "json_parse_failure": "failure",
+      "payload_validation_failure": "failure"
+    },
+    "update_rules": {
+      "request_start_changes_counter": false,
+      "success_resets_to_zero": true,
+      "failure_increments_by_one": true,
+      "counter_clamped_to_maximum": true,
+      "ignored_concurrent_request_changes_counter": false,
+      "updates_once_per_executed_request": true,
+      "http_error_counted_once": true,
+      "network_failure_counted_once": true,
+      "parse_failure_counted_once": true,
+      "validation_failure_counted_once": true
+    },
+    "display": {
+      "zero": "0",
+      "positive_integer": "decimal_integer",
+      "invalid_value": "0",
+      "suffix": null,
+      "relative_wording_forbidden": true
+    },
+    "accessibility": {
+      "textual_prefix_required": true,
+      "automatic_announcement_forbidden": true,
+      "counter_outside_health_status_region": true,
+      "health_status_messages_unchanged": true,
+      "visual_state_not_required_to_understand_counter": true
+    },
+    "privacy": {
+      "failure_reason_rendered": false,
+      "exception_message_rendered": false,
+      "response_body_rendered": false,
+      "response_headers_rendered": false,
+      "request_url_rendered": false,
+      "user_identifier_rendered": false,
+      "session_identifier_rendered": false,
+      "correlation_id_rendered": false
+    },
+    "compatibility": {
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase114BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationConsecutiveFailureCounterImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 114B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Consecutive Failure Counter",
+    "classification": "medium"
+  }
+}
