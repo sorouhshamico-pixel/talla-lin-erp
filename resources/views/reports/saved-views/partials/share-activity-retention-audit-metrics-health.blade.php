@@ -28,6 +28,16 @@
         Loading
     </p>
 
+    <p>
+        Last checked:
+        <time
+            id="retention-audit-metrics-health-updated-at"
+            aria-live="off"
+        >
+            Not updated yet
+        </time>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -106,6 +116,32 @@
         const indicator = document.getElementById(
             'retention-audit-metrics-health-indicator'
         );
+        const updatedAt = document.getElementById(
+            'retention-audit-metrics-health-updated-at'
+        );
+
+        const timestampFormatter = typeof Intl !== 'undefined'
+            && typeof Intl.DateTimeFormat === 'function'
+            ? new Intl.DateTimeFormat(undefined, {
+                dateStyle: 'medium',
+                timeStyle: 'medium',
+            })
+            : null;
+
+        const updateTimestamp = () => {
+            const completedAt = new Date();
+
+            if (Number.isNaN(completedAt.getTime())) {
+                updatedAt.textContent = 'Not updated yet';
+
+                return;
+            }
+
+            updatedAt.dateTime = completedAt.toISOString();
+            updatedAt.textContent = timestampFormatter
+                ? timestampFormatter.format(completedAt)
+                : completedAt.toLocaleString();
+        };
 
         const stateClasses = [
             'is-loading',
@@ -290,6 +326,7 @@
             } catch (error) {
                 setUnavailable();
             } finally {
+                updateTimestamp();
                 requestInFlight = false;
                 refresh.disabled = false;
             }
