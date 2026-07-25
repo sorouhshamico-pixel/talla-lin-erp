@@ -38,6 +38,16 @@
         </time>
     </p>
 
+    <p>
+        Last request duration:
+        <span
+            id="retention-audit-metrics-health-request-duration"
+            aria-live="off"
+        >
+            Not measured yet
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -119,6 +129,47 @@
         const updatedAt = document.getElementById(
             'retention-audit-metrics-health-updated-at'
         );
+        const requestDuration = document.getElementById(
+            'retention-audit-metrics-health-request-duration'
+        );
+
+        const millisecondFormatter = typeof Intl !== 'undefined'
+            && typeof Intl.NumberFormat === 'function'
+            ? new Intl.NumberFormat(undefined, {
+                maximumFractionDigits: 0,
+            })
+            : null;
+
+        const secondFormatter = typeof Intl !== 'undefined'
+            && typeof Intl.NumberFormat === 'function'
+            ? new Intl.NumberFormat(undefined, {
+                maximumFractionDigits: 2,
+            })
+            : null;
+
+        const formatRequestDuration = (durationMilliseconds) => {
+            if (
+                !Number.isFinite(durationMilliseconds)
+                || durationMilliseconds < 0
+            ) {
+                return 'Not measured yet';
+            }
+
+            if (durationMilliseconds < 1000) {
+                const milliseconds = millisecondFormatter
+                    ? millisecondFormatter.format(durationMilliseconds)
+                    : durationMilliseconds.toFixed(0);
+
+                return `${milliseconds} ms`;
+            }
+
+            const seconds = durationMilliseconds / 1000;
+            const formattedSeconds = secondFormatter
+                ? secondFormatter.format(seconds)
+                : seconds.toFixed(2);
+
+            return `${formattedSeconds} s`;
+        };
 
         const timestampFormatter = typeof Intl !== 'undefined'
             && typeof Intl.DateTimeFormat === 'function'
@@ -297,6 +348,8 @@
             status.textContent = 'Loading health status...';
             applyVisualState('loading');
 
+            const requestStartedAt = performance['now']();
+
             try {
                 const response = await fetch(panel.dataset.url, {
                     method: 'GET',
@@ -326,6 +379,15 @@
             } catch (error) {
                 setUnavailable();
             } finally {
+                const requestCompletedAt = performance['now']();
+                const durationMilliseconds = Math.max(
+                    0,
+                    requestCompletedAt - requestStartedAt
+                );
+
+                requestDuration.textContent = formatRequestDuration(
+                    durationMilliseconds
+                );
                 updateTimestamp();
                 requestInFlight = false;
                 refresh.disabled = false;
