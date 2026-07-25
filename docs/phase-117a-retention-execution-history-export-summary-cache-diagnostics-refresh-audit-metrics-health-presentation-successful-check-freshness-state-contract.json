@@ -1,0 +1,165 @@
+{
+  "phase": "Phase 117A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Successful Check Freshness State Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 116C",
+    "commit": "1fa4460c3efb43ea480f808dccfe12cfb5561f0b",
+    "tests": 2290,
+    "assertions": 23018,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "freshness_state_contract": {
+    "purpose": "Define a client-side freshness state for the most recent validated healthy Audit Metrics Health check using the existing successful check age state without changing endpoint payloads, authorization, request frequency, persistence, or backend behavior.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "element": {
+      "id": "retention-audit-metrics-health-successful-check-freshness",
+      "element": "span",
+      "prefix": "Successful check freshness:",
+      "initial_text": "Unavailable",
+      "aria_live": "off"
+    },
+    "state_values": {
+      "fresh": {
+        "text": "Fresh",
+        "minimum_age_minutes": 0,
+        "maximum_age_minutes_inclusive": 14
+      },
+      "stale": {
+        "text": "Stale",
+        "minimum_age_minutes": 15
+      },
+      "unavailable": {
+        "text": "Unavailable",
+        "used_when_no_valid_success_date": true
+      }
+    },
+    "source": {
+      "state_variable": "lastSuccessfulCheckAt",
+      "current_time_argument": "currentTime",
+      "age_minutes_calculation": "Math.floor(Math.max(0, currentTime.getTime() - lastSuccessfulCheckAt.getTime()) / 60000)",
+      "server_timestamp_used": false,
+      "payload_timestamp_used": false,
+      "response_header_timestamp_used": false,
+      "rendered_age_text_parsed": false
+    },
+    "update_rules": {
+      "request_start_clears_previous_value": false,
+      "validated_healthy_response_updates": true,
+      "validated_unhealthy_response_updates": false,
+      "http_error_response_updates": false,
+      "network_failure_updates": false,
+      "json_parse_failure_updates": false,
+      "payload_validation_failure_updates": false,
+      "ignored_concurrent_request_updates": false,
+      "updates_with_same_completed_date_as_successful_check": true,
+      "updates_once_per_validated_healthy_request": true,
+      "background_timer_updates": false,
+      "polling_updates": false
+    },
+    "visual_state": {
+      "data_attribute_target": "retention-audit-metrics-health-successful-check-freshness",
+      "data_attribute": "data-freshness-state",
+      "allowed_values": [
+        "fresh",
+        "stale",
+        "unavailable"
+      ],
+      "initial_value": "unavailable",
+      "css_class_changes_required": false,
+      "panel_health_state_changed": false,
+      "indicator_state_changed": false
+    },
+    "accessibility": {
+      "textual_prefix_required": true,
+      "automatic_announcement_forbidden": true,
+      "element_outside_health_status_region": true,
+      "text_not_color_only": true,
+      "last_successful_check_remains_primary_timestamp": true,
+      "successful_check_age_remains_primary_age": true,
+      "health_status_messages_unchanged": true
+    },
+    "privacy": {
+      "server_timestamp_rendered": false,
+      "payload_timestamp_rendered": false,
+      "response_header_rendered": false,
+      "request_url_rendered": false,
+      "exception_message_rendered": false,
+      "user_identifier_rendered": false,
+      "session_identifier_rendered": false,
+      "correlation_id_rendered": false
+    },
+    "compatibility": {
+      "successful_check_age_changed": false,
+      "last_successful_check_changed": false,
+      "consecutive_failure_counter_changed": false,
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase117BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationSuccessfulCheckFreshnessStateImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 117B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Successful Check Freshness State",
+    "classification": "medium"
+  }
+}
