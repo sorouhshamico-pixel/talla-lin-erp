@@ -48,6 +48,16 @@
         </span>
     </p>
 
+    <p>
+        Last response:
+        <span
+            id="retention-audit-metrics-health-response-status"
+            aria-live="off"
+        >
+            Not received yet
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -132,6 +142,28 @@
         const requestDuration = document.getElementById(
             'retention-audit-metrics-health-request-duration'
         );
+        const responseStatus = document.getElementById(
+            'retention-audit-metrics-health-response-status'
+        );
+
+        const formatResponseStatus = (response) => {
+            if (
+                !response
+                || !Number.isInteger(response.status)
+                || response.status < 100
+                || response.status > 599
+            ) {
+                return 'Not received yet';
+            }
+
+            const statusText = typeof response.statusText === 'string'
+                ? response.statusText.trim()
+                : '';
+
+            return statusText === ''
+                ? String(response.status)
+                : `${response.status} ${statusText}`;
+        };
 
         const millisecondFormatter = typeof Intl !== 'undefined'
             && typeof Intl.NumberFormat === 'function'
@@ -349,6 +381,7 @@
             applyVisualState('loading');
 
             const requestStartedAt = performance['now']();
+            let responseReceived = false;
 
             try {
                 const response = await fetch(panel.dataset.url, {
@@ -358,6 +391,9 @@
                         Accept: 'application/json',
                     },
                 });
+
+                responseReceived = true;
+                responseStatus.textContent = formatResponseStatus(response);
 
                 if (!response.ok) {
                     throw new Error('Health request failed');
@@ -377,6 +413,10 @@
                     payload.healthy ? 'healthy' : 'unhealthy'
                 );
             } catch (error) {
+                if (!responseReceived) {
+                    responseStatus.textContent = 'Network error';
+                }
+
                 setUnavailable();
             } finally {
                 const requestCompletedAt = performance['now']();
