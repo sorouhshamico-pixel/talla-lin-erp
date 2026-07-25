@@ -1,0 +1,156 @@
+{
+  "phase": "Phase 110A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Visual State Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 109C",
+    "commit": "3688ec34797b7bc0d232f9bedcb394ee1e14c1a1",
+    "tests": 2169,
+    "assertions": 21048,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "visual_state_contract": {
+    "purpose": "Define stable, accessible visual-state metadata for the existing Audit Metrics Health presentation without changing status text, payload validation, endpoint behavior, authorization, request frequency, or persistence.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "state_attribute": {
+      "element": "retention-audit-metrics-health",
+      "attribute": "data-health-state",
+      "allowed_values": [
+        "loading",
+        "healthy",
+        "unhealthy",
+        "unavailable"
+      ],
+      "initial_value": "loading",
+      "unknown_value_forbidden": true,
+      "attribute_removed_forbidden": true
+    },
+    "state_transitions": {
+      "request_start": "loading",
+      "validated_healthy_payload": "healthy",
+      "validated_unhealthy_payload": "unhealthy",
+      "request_or_parse_failure": "unavailable",
+      "invalid_payload": "unavailable"
+    },
+    "status_indicator": {
+      "required": true,
+      "element_id": "retention-audit-metrics-health-indicator",
+      "aria_hidden": true,
+      "text_labels": {
+        "loading": "Loading",
+        "healthy": "Healthy",
+        "unhealthy": "Requires attention",
+        "unavailable": "Unavailable"
+      },
+      "textual_state_required": true,
+      "color_only_forbidden": true
+    },
+    "class_semantics": {
+      "panel_base_class": "retention-audit-metrics-health-panel",
+      "indicator_base_class": "retention-audit-metrics-health-indicator",
+      "state_classes": {
+        "loading": "is-loading",
+        "healthy": "is-healthy",
+        "unhealthy": "is-unhealthy",
+        "unavailable": "is-unavailable"
+      },
+      "exactly_one_state_class": true,
+      "stale_state_classes_removed_before_apply": true,
+      "inline_style_updates_forbidden": true
+    },
+    "accessibility": {
+      "existing_status_region_preserved": true,
+      "status_role_preserved": "status",
+      "aria_live_preserved": "polite",
+      "indicator_aria_hidden": true,
+      "status_message_remains_primary_announcement": true,
+      "visual_state_not_required_to_understand_health": true
+    },
+    "behavior": {
+      "loading_applied_before_fetch": true,
+      "healthy_applied_after_validated_payload": true,
+      "unhealthy_applied_after_validated_payload": true,
+      "unavailable_applied_on_failure": true,
+      "state_update_before_field_rendering_forbidden": false,
+      "request_frequency_changed": false,
+      "concurrent_request_behavior_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "page_reload_added": false
+    },
+    "privacy": {
+      "payload_values_in_css_classes": false,
+      "unknown_keys_in_attributes": false,
+      "exception_messages_in_attributes": false,
+      "request_urls_in_attributes": false,
+      "response_bodies_in_attributes": false,
+      "user_identifiers_in_attributes": false,
+      "correlation_ids_in_attributes": false
+    },
+    "compatibility": {
+      "status_messages_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase110BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationVisualStateImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "endpoint_controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "layout_modified": false,
+      "provider_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 110B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Visual State",
+    "classification": "medium"
+  }
+}
