@@ -78,6 +78,16 @@
         </time>
     </p>
 
+    <p>
+        Successful check age:
+        <span
+            id="retention-audit-metrics-health-successful-check-age"
+            aria-live="off"
+        >
+            Not available
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -171,8 +181,12 @@
         const lastSuccessfulCheck = document.getElementById(
             'retention-audit-metrics-health-last-successful-check'
         );
+        const successfulCheckAge = document.getElementById(
+            'retention-audit-metrics-health-successful-check-age'
+        );
 
         let consecutiveFailures = 0;
+        let lastSuccessfulCheckAt = null;
 
         const renderConsecutiveFailures = () => {
             const safeValue = Number.isInteger(consecutiveFailures)
@@ -277,6 +291,51 @@
                 : completedAt.toLocaleString();
         };
 
+        const formatSuccessfulCheckAge = (
+            successfulCheckAt,
+            currentTime
+        ) => {
+            if (
+                !(successfulCheckAt instanceof Date)
+                || Number.isNaN(successfulCheckAt.getTime())
+                || !(currentTime instanceof Date)
+                || Number.isNaN(currentTime.getTime())
+            ) {
+                return 'Not available';
+            }
+
+            const ageMilliseconds = Math.max(
+                0,
+                currentTime.getTime() - successfulCheckAt.getTime()
+            );
+            const ageMinutes = Math.floor(ageMilliseconds / 60000);
+
+            if (ageMinutes < 1) {
+                return 'Less than 1 minute';
+            }
+
+            if (ageMinutes < 60) {
+                return `${Math.min(ageMinutes, 999)} minutes`;
+            }
+
+            if (ageMinutes < 1440) {
+                const ageHours = Math.floor(ageMinutes / 60);
+
+                return `${Math.min(ageHours, 999)} hours`;
+            }
+
+            const ageDays = Math.floor(ageMinutes / 1440);
+
+            return `${Math.min(ageDays, 999)} days`;
+        };
+
+        const updateSuccessfulCheckAge = (currentTime) => {
+            successfulCheckAge.textContent = formatSuccessfulCheckAge(
+                lastSuccessfulCheckAt,
+                currentTime
+            );
+        };
+
         const updateLastSuccessfulCheck = () => {
             const completedAt = new Date();
 
@@ -288,10 +347,12 @@
                 return;
             }
 
+            lastSuccessfulCheckAt = completedAt;
             lastSuccessfulCheck.dateTime = completedAt.toISOString();
             lastSuccessfulCheck.textContent = timestampFormatter
                 ? timestampFormatter.format(completedAt)
                 : completedAt.toLocaleString();
+            updateSuccessfulCheckAge(completedAt);
         };
 
         const stateClasses = [
