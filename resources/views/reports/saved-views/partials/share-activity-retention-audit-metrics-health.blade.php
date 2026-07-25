@@ -58,6 +58,16 @@
         </span>
     </p>
 
+    <p>
+        Consecutive failures:
+        <span
+            id="retention-audit-metrics-health-consecutive-failures"
+            aria-live="off"
+        >
+            0
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -145,6 +155,34 @@
         const responseStatus = document.getElementById(
             'retention-audit-metrics-health-response-status'
         );
+        const consecutiveFailureCounter = document.getElementById(
+            'retention-audit-metrics-health-consecutive-failures'
+        );
+
+        let consecutiveFailures = 0;
+
+        const renderConsecutiveFailures = () => {
+            const safeValue = Number.isInteger(consecutiveFailures)
+                && consecutiveFailures >= 0
+                ? Math.min(consecutiveFailures, 999)
+                : 0;
+
+            consecutiveFailures = safeValue;
+            consecutiveFailureCounter.textContent = String(safeValue);
+        };
+
+        const recordSuccessfulRequest = () => {
+            consecutiveFailures = 0;
+            renderConsecutiveFailures();
+        };
+
+        const recordFailedRequest = () => {
+            consecutiveFailures = Math.min(
+                consecutiveFailures + 1,
+                999
+            );
+            renderConsecutiveFailures();
+        };
 
         const formatResponseStatus = (response) => {
             if (
@@ -382,6 +420,7 @@
 
             const requestStartedAt = performance['now']();
             let responseReceived = false;
+            let requestSucceeded = false;
 
             try {
                 const response = await fetch(panel.dataset.url, {
@@ -412,6 +451,7 @@
                 applyVisualState(
                     payload.healthy ? 'healthy' : 'unhealthy'
                 );
+                requestSucceeded = true;
             } catch (error) {
                 if (!responseReceived) {
                     responseStatus.textContent = 'Network error';
@@ -419,6 +459,12 @@
 
                 setUnavailable();
             } finally {
+                if (requestSucceeded) {
+                    recordSuccessfulRequest();
+                } else {
+                    recordFailedRequest();
+                }
+
                 const requestCompletedAt = performance['now']();
                 const durationMilliseconds = Math.max(
                     0,
