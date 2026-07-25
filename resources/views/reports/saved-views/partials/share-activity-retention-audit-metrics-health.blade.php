@@ -115,16 +115,67 @@
 
         let requestInFlight = false;
 
-        const booleanLabel = (value) => value ? 'Yes' : 'No';
+        const booleanFields = [
+            'listener_discovered',
+            'channel_configured',
+            'channel_path_matches',
+            'healthy',
+        ];
+
+        const isNonNegativeInteger = (value) => (
+            Number.isInteger(value) && value >= 0
+        );
+
+        const isNullableString = (value) => (
+            value === null || typeof value === 'string'
+        );
+
+        const isValidPayload = (payload) => {
+            if (
+                payload === null
+                || typeof payload !== 'object'
+                || Array.isArray(payload)
+            ) {
+                return false;
+            }
+
+            if (!Object.keys(fields).every(
+                (key) => Object.prototype.hasOwnProperty.call(
+                    payload,
+                    key
+                )
+            )) {
+                return false;
+            }
+
+            if (!booleanFields.every(
+                (key) => typeof payload[key] === 'boolean'
+            )) {
+                return false;
+            }
+
+            if (!isNonNegativeInteger(payload.listener_count)) {
+                return false;
+            }
+
+            if (
+                payload.channel_retention_days !== null
+                && !isNonNegativeInteger(
+                    payload.channel_retention_days
+                )
+            ) {
+                return false;
+            }
+
+            return (
+                isNullableString(payload.channel_driver)
+                && isNullableString(payload.channel_level)
+            );
+        };
 
         const displayValue = (key, value) => {
-            if ([
-                'listener_discovered',
-                'channel_configured',
-                'channel_path_matches',
-                'healthy',
-            ].includes(key)) {
-                return booleanLabel(Boolean(value));
+            if (booleanFields.includes(key)) {
+                return value ? 'Yes' : 'No';
             }
 
             if (value === null || value === '') {
@@ -160,23 +211,6 @@
                 'Audit metrics health status is unavailable.';
         };
 
-        const hasExpectedShape = (payload) => {
-            if (
-                payload === null
-                || typeof payload !== 'object'
-                || Array.isArray(payload)
-            ) {
-                return false;
-            }
-
-            return Object.keys(fields).every(
-                (key) => Object.prototype.hasOwnProperty.call(
-                    payload,
-                    key
-                )
-            );
-        };
-
         const loadHealth = async () => {
             if (requestInFlight) {
                 return;
@@ -201,7 +235,7 @@
 
                 const payload = await response.json();
 
-                if (!hasExpectedShape(payload)) {
+                if (!isValidPayload(payload)) {
                     throw new Error('Unexpected health payload');
                 }
 
