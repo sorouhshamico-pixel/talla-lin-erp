@@ -68,6 +68,16 @@
         </span>
     </p>
 
+    <p>
+        Last successful check:
+        <time
+            id="retention-audit-metrics-health-last-successful-check"
+            aria-live="off"
+        >
+            No successful check yet
+        </time>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -157,6 +167,9 @@
         );
         const consecutiveFailureCounter = document.getElementById(
             'retention-audit-metrics-health-consecutive-failures'
+        );
+        const lastSuccessfulCheck = document.getElementById(
+            'retention-audit-metrics-health-last-successful-check'
         );
 
         let consecutiveFailures = 0;
@@ -260,6 +273,23 @@
 
             updatedAt.dateTime = completedAt.toISOString();
             updatedAt.textContent = timestampFormatter
+                ? timestampFormatter.format(completedAt)
+                : completedAt.toLocaleString();
+        };
+
+        const updateLastSuccessfulCheck = () => {
+            const completedAt = new Date();
+
+            if (Number.isNaN(completedAt.getTime())) {
+                lastSuccessfulCheck.removeAttribute('datetime');
+                lastSuccessfulCheck.textContent =
+                    'No successful check yet';
+
+                return;
+            }
+
+            lastSuccessfulCheck.dateTime = completedAt.toISOString();
+            lastSuccessfulCheck.textContent = timestampFormatter
                 ? timestampFormatter.format(completedAt)
                 : completedAt.toLocaleString();
         };
@@ -451,6 +481,11 @@
                 applyVisualState(
                     payload.healthy ? 'healthy' : 'unhealthy'
                 );
+
+                if (payload.healthy) {
+                    updateLastSuccessfulCheck();
+                }
+
                 requestSucceeded = true;
             } catch (error) {
                 if (!responseReceived) {
