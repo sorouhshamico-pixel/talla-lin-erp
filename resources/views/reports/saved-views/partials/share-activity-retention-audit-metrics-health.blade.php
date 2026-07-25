@@ -1,6 +1,8 @@
 <section
     id="retention-audit-metrics-health"
+    class="retention-audit-metrics-health-panel is-loading"
     aria-labelledby="retention-audit-metrics-health-heading"
+    data-health-state="loading"
     data-url="{{ route(
         'reports.saved-view-share-activity-retention.'
         . 'summary-cache-diagnostics.audit-metrics-health'
@@ -16,6 +18,14 @@
         aria-live="polite"
     >
         Loading health status...
+    </p>
+
+    <p
+        id="retention-audit-metrics-health-indicator"
+        class="retention-audit-metrics-health-indicator is-loading"
+        aria-hidden="true"
+    >
+        Loading
     </p>
 
     <button
@@ -93,6 +103,35 @@
         const refresh = document.getElementById(
             'retention-audit-metrics-health-refresh'
         );
+        const indicator = document.getElementById(
+            'retention-audit-metrics-health-indicator'
+        );
+
+        const stateClasses = [
+            'is-loading',
+            'is-healthy',
+            'is-unhealthy',
+            'is-unavailable',
+        ];
+
+        const indicatorLabels = {
+            loading: 'Loading',
+            healthy: 'Healthy',
+            unhealthy: 'Requires attention',
+            unavailable: 'Unavailable',
+        };
+
+        const applyVisualState = (state) => {
+            const stateClass = `is-${state}`;
+
+            panel.dataset.healthState = state;
+            panel.classList.remove(...stateClasses);
+            panel.classList.add(stateClass);
+
+            indicator.classList.remove(...stateClasses);
+            indicator.classList.add(stateClass);
+            indicator.textContent = indicatorLabels[state];
+        };
 
         const fields = {
             listener_discovered:
@@ -209,6 +248,7 @@
 
             status.textContent =
                 'Audit metrics health status is unavailable.';
+            applyVisualState('unavailable');
         };
 
         const loadHealth = async () => {
@@ -219,6 +259,7 @@
             requestInFlight = true;
             refresh.disabled = true;
             status.textContent = 'Loading health status...';
+            applyVisualState('loading');
 
             try {
                 const response = await fetch(panel.dataset.url, {
@@ -243,6 +284,9 @@
                 status.textContent = payload.healthy
                     ? 'Audit metrics pipeline is healthy.'
                     : 'Audit metrics pipeline requires attention.';
+                applyVisualState(
+                    payload.healthy ? 'healthy' : 'unhealthy'
+                );
             } catch (error) {
                 setUnavailable();
             } finally {
