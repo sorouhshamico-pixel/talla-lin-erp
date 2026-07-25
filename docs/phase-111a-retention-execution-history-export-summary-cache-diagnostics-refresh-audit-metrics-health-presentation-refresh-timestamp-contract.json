@@ -1,0 +1,132 @@
+{
+  "phase": "Phase 111A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Refresh Timestamp Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 110C",
+    "commit": "cccdfe0d83ff442def6478eaf89e15717d22055e",
+    "tests": 2186,
+    "assertions": 21315,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "refresh_timestamp_contract": {
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "timestamp_element": {
+      "id": "retention-audit-metrics-health-updated-at",
+      "element": "time",
+      "initial_text": "Not updated yet",
+      "initial_datetime_attribute": null,
+      "aria_live": "off"
+    },
+    "source": {
+      "clock": "client",
+      "constructor": "new Date()",
+      "timezone": "browser_local_timezone",
+      "server_timestamp_required": false,
+      "endpoint_payload_change_required": false
+    },
+    "update_rules": {
+      "request_start_updates_timestamp": false,
+      "healthy_completion_updates_timestamp": true,
+      "unhealthy_completion_updates_timestamp": true,
+      "request_failure_updates_timestamp": true,
+      "parse_failure_updates_timestamp": true,
+      "validation_failure_updates_timestamp": true,
+      "ignored_concurrent_request_updates_timestamp": false,
+      "updates_once_per_completed_request": true
+    },
+    "display": {
+      "prefix": "Last checked:",
+      "formatter": "Intl.DateTimeFormat",
+      "date_style": "medium",
+      "time_style": "medium",
+      "fallback": "Date.prototype.toLocaleString",
+      "invalid_date_text": "Not updated yet",
+      "relative_time_forbidden": true,
+      "countdown_forbidden": true,
+      "elapsed_timer_forbidden": true
+    },
+    "machine_readable": {
+      "attribute": "datetime",
+      "format": "ISO_8601",
+      "generator": "Date.prototype.toISOString",
+      "retained_after_success_or_failure": true
+    },
+    "accessibility": {
+      "semantic_time_element_required": true,
+      "textual_prefix_required": true,
+      "status_messages_unchanged": true,
+      "timestamp_outside_status_region": true,
+      "automatic_announcement_forbidden": true
+    },
+    "privacy": {
+      "server_time_exposed": false,
+      "request_duration_exposed": false,
+      "response_headers_exposed": false,
+      "endpoint_payload_timestamp_exposed": false,
+      "user_identifier_exposed": false,
+      "session_identifier_exposed": false,
+      "correlation_id_exposed": false
+    },
+    "compatibility": {
+      "status_messages_changed": false,
+      "visual_state_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase111BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationRefreshTimestampImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false
+  },
+  "next_recommendation": {
+    "phase": "Phase 111B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Refresh Timestamp"
+  }
+}
