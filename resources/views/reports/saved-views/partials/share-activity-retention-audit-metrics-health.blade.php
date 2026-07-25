@@ -88,6 +88,17 @@
         </span>
     </p>
 
+    <p>
+        Successful check freshness:
+        <span
+            id="retention-audit-metrics-health-successful-check-freshness"
+            data-freshness-state="unavailable"
+            aria-live="off"
+        >
+            Unavailable
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -183,6 +194,9 @@
         );
         const successfulCheckAge = document.getElementById(
             'retention-audit-metrics-health-successful-check-age'
+        );
+        const successfulCheckFreshness = document.getElementById(
+            'retention-audit-metrics-health-successful-check-freshness'
         );
 
         let consecutiveFailures = 0;
@@ -336,6 +350,51 @@
             );
         };
 
+        const formatSuccessfulCheckFreshness = (
+            successfulCheckAt,
+            currentTime
+        ) => {
+            if (
+                !(successfulCheckAt instanceof Date)
+                || Number.isNaN(successfulCheckAt.getTime())
+                || !(currentTime instanceof Date)
+                || Number.isNaN(currentTime.getTime())
+            ) {
+                return {
+                    state: 'unavailable',
+                    text: 'Unavailable',
+                };
+            }
+
+            const ageMinutes = Math.floor(
+                Math.max(
+                    0,
+                    currentTime.getTime() - successfulCheckAt.getTime()
+                ) / 60000
+            );
+
+            return ageMinutes <= 14
+                ? {
+                    state: 'fresh',
+                    text: 'Fresh',
+                }
+                : {
+                    state: 'stale',
+                    text: 'Stale',
+                };
+        };
+
+        const updateSuccessfulCheckFreshness = (currentTime) => {
+            const freshness = formatSuccessfulCheckFreshness(
+                lastSuccessfulCheckAt,
+                currentTime
+            );
+
+            successfulCheckFreshness.dataset.freshnessState =
+                freshness.state;
+            successfulCheckFreshness.textContent = freshness.text;
+        };
+
         const updateLastSuccessfulCheck = () => {
             const completedAt = new Date();
 
@@ -353,6 +412,7 @@
                 ? timestampFormatter.format(completedAt)
                 : completedAt.toLocaleString();
             updateSuccessfulCheckAge(completedAt);
+            updateSuccessfulCheckFreshness(completedAt);
         };
 
         const stateClasses = [
