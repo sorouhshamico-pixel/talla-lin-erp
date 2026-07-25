@@ -1,0 +1,143 @@
+{
+  "phase": "Phase 112A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Request Duration Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 111C",
+    "commit": "8078605483d11de44c02aafe300588fa13e79e5e",
+    "tests": 2202,
+    "assertions": 21564,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "request_duration_contract": {
+    "purpose": "Define client-side request duration semantics for the existing Audit Metrics Health presentation without changing endpoint payloads, authorization, request frequency, persistence, server timing, or Health calculation.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "duration_element": {
+      "id": "retention-audit-metrics-health-request-duration",
+      "element": "span",
+      "initial_text": "Not measured yet",
+      "aria_live": "off",
+      "prefix": "Last request duration:"
+    },
+    "measurement": {
+      "clock": "performance.now",
+      "start_point": "immediately_before_fetch",
+      "end_point": "request_finally_block",
+      "unit": "milliseconds",
+      "minimum": 0,
+      "negative_value_forbidden": true,
+      "server_timing_header_used": false,
+      "date_clock_used": false,
+      "endpoint_payload_duration_used": false
+    },
+    "formatting": {
+      "less_than_one_second": {
+        "threshold_ms": 1000,
+        "maximum_fraction_digits": 0,
+        "suffix": "ms"
+      },
+      "one_second_or_more": {
+        "divisor": 1000,
+        "maximum_fraction_digits": 2,
+        "suffix": "s"
+      },
+      "formatter": "Intl.NumberFormat",
+      "fallback": "Number.prototype.toFixed",
+      "invalid_value_text": "Not measured yet"
+    },
+    "update_rules": {
+      "request_start_clears_previous_duration": false,
+      "validated_healthy_completion_updates_duration": true,
+      "validated_unhealthy_completion_updates_duration": true,
+      "request_failure_updates_duration": true,
+      "parse_failure_updates_duration": true,
+      "validation_failure_updates_duration": true,
+      "ignored_concurrent_request_updates_duration": false,
+      "updates_once_per_completed_request": true
+    },
+    "accessibility": {
+      "textual_prefix_required": true,
+      "automatic_announcement_forbidden": true,
+      "duration_outside_status_region": true,
+      "status_messages_unchanged": true,
+      "visual_state_not_required_to_understand_duration": true
+    },
+    "privacy": {
+      "server_timing_header_exposed": false,
+      "request_start_timestamp_exposed": false,
+      "request_end_timestamp_exposed": false,
+      "response_headers_exposed": false,
+      "endpoint_payload_duration_exposed": false,
+      "user_identifier_exposed": false,
+      "session_identifier_exposed": false,
+      "correlation_id_exposed": false
+    },
+    "compatibility": {
+      "refresh_timestamp_changed": false,
+      "status_messages_changed": false,
+      "visual_state_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase112BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationRequestDurationImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 112B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Request Duration",
+    "classification": "medium"
+  }
+}
