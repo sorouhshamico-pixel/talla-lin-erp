@@ -1,0 +1,152 @@
+{
+  "phase": "Phase 113A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Response Status Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 112C",
+    "commit": "9cec7ec9468dd0b1b75ee286c1361d1c51124ea2",
+    "tests": 2220,
+    "assertions": 21830,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "model_changes_expected": false,
+    "service_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "layout_changes_expected": false,
+    "provider_changes_expected": false,
+    "bootstrap_changes_expected": false,
+    "middleware_changes_expected": false,
+    "event_changes_expected": false,
+    "listener_changes_expected": false,
+    "logging_configuration_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "response_status_contract": {
+    "purpose": "Define safe client-side presentation of the most recent HTTP response status for the existing Audit Metrics Health request without changing endpoint payloads, authorization, request frequency, persistence, or backend behavior.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "status_element": {
+      "id": "retention-audit-metrics-health-response-status",
+      "element": "span",
+      "prefix": "Last response:",
+      "initial_text": "Not received yet",
+      "aria_live": "off"
+    },
+    "source": {
+      "status_code": "Response.status",
+      "status_text": "Response.statusText",
+      "response_ok": "Response.ok",
+      "network_failure_without_response": true,
+      "payload_field_used": false,
+      "response_body_used": false,
+      "response_headers_used": false
+    },
+    "display": {
+      "successful_response": {
+        "format": "{status_code} {status_text}",
+        "example": "200 OK"
+      },
+      "http_error_response": {
+        "format": "{status_code} {status_text}",
+        "example": "503 Service Unavailable"
+      },
+      "empty_status_text": {
+        "format": "{status_code}",
+        "example": "204"
+      },
+      "network_failure": {
+        "text": "Network error"
+      },
+      "invalid_status": {
+        "text": "Not received yet"
+      },
+      "status_code_minimum": 100,
+      "status_code_maximum": 599,
+      "trim_status_text": true
+    },
+    "update_rules": {
+      "request_start_clears_previous_status": false,
+      "response_received_updates_before_json_parse": true,
+      "http_success_updates_status": true,
+      "http_error_updates_status": true,
+      "network_failure_updates_status": true,
+      "json_parse_failure_preserves_received_http_status": true,
+      "payload_validation_failure_preserves_received_http_status": true,
+      "ignored_concurrent_request_updates_status": false,
+      "updates_once_per_executed_request": true
+    },
+    "accessibility": {
+      "textual_prefix_required": true,
+      "automatic_announcement_forbidden": true,
+      "response_status_outside_status_region": true,
+      "health_status_messages_unchanged": true,
+      "visual_state_not_required_to_understand_response_status": true
+    },
+    "privacy": {
+      "response_body_rendered": false,
+      "response_headers_rendered": false,
+      "request_url_rendered": false,
+      "redirect_url_rendered": false,
+      "exception_message_rendered": false,
+      "stack_trace_rendered": false,
+      "user_identifier_rendered": false,
+      "session_identifier_rendered": false,
+      "correlation_id_rendered": false
+    },
+    "compatibility": {
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "field_rendering_changed": false,
+      "payload_validation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "health_class_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "cache_behavior_changed": false,
+      "event_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase113BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationResponseStatusImplementationTest.php",
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "listener_modified": false,
+      "event_modified": false,
+      "middleware_modified": false,
+      "logging_configuration_modified": false,
+      "database_changes_expected": false,
+      "migration_changes_expected": false,
+      "model_changes_expected": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 113B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Response Status",
+    "classification": "medium"
+  }
+}
