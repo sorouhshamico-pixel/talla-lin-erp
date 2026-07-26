@@ -129,6 +129,16 @@
         </span>
     </p>
 
+    <p>
+        Manual refresh success rate:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-success-rate"
+            aria-live="off"
+        >
+            Not available
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -237,6 +247,9 @@
         const manualRefreshFailureCounter = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-failures'
         );
+        const manualRefreshSuccessRate = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-success-rate'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -271,6 +284,7 @@
                 999
             );
             renderManualRefreshAttempts();
+            renderManualRefreshSuccessRate();
         };
 
         const renderManualRefreshSuccesses = () => {
@@ -289,6 +303,7 @@
                 999
             );
             renderManualRefreshSuccesses();
+            renderManualRefreshSuccessRate();
         };
 
         const renderManualRefreshFailures = () => {
@@ -301,12 +316,46 @@
             manualRefreshFailureCounter.textContent = String(safeValue);
         };
 
+        const manualRefreshRateFormatter =
+            typeof Intl !== 'undefined'
+            && typeof Intl.NumberFormat === 'function'
+                ? new Intl.NumberFormat(undefined, {
+                    maximumFractionDigits: 1,
+                })
+                : null;
+
+        const renderManualRefreshSuccessRate = () => {
+            if (
+                !Number.isInteger(manualRefreshAttempts)
+                || manualRefreshAttempts <= 0
+                || !Number.isInteger(manualRefreshSuccesses)
+                || manualRefreshSuccesses < 0
+            ) {
+                manualRefreshSuccessRate.textContent = 'Not available';
+                return;
+            }
+
+            const percentage = Math.min(
+                Math.max(
+                    (manualRefreshSuccesses / manualRefreshAttempts) * 100,
+                    0
+                ),
+                100
+            );
+            const formattedPercentage = manualRefreshRateFormatter
+                ? manualRefreshRateFormatter.format(percentage)
+                : percentage.toFixed(1).replace(/\.0$/, '');
+
+            manualRefreshSuccessRate.textContent = `${formattedPercentage}%`;
+        };
+
         const recordManualRefreshFailure = () => {
             manualRefreshFailures = Math.min(
                 manualRefreshFailures + 1,
                 999
             );
             renderManualRefreshFailures();
+            renderManualRefreshSuccessRate();
         };
 
         const recordSuccessfulRequest = () => {
