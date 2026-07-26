@@ -109,6 +109,16 @@
         </span>
     </p>
 
+    <p>
+        Manual refresh successes:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-successes"
+            aria-live="off"
+        >
+            0
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -211,10 +221,14 @@
         const manualRefreshAttemptCounter = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-attempts'
         );
+        const manualRefreshSuccessCounter = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-successes'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
         let manualRefreshAttempts = 0;
+        let manualRefreshSuccesses = 0;
         let manualRefreshRequested = false;
 
         const renderConsecutiveFailures = () => {
@@ -243,6 +257,24 @@
                 999
             );
             renderManualRefreshAttempts();
+        };
+
+        const renderManualRefreshSuccesses = () => {
+            const safeValue = Number.isInteger(manualRefreshSuccesses)
+                && manualRefreshSuccesses >= 0
+                ? Math.min(manualRefreshSuccesses, 999)
+                : 0;
+
+            manualRefreshSuccesses = safeValue;
+            manualRefreshSuccessCounter.textContent = String(safeValue);
+        };
+
+        const recordManualRefreshSuccess = () => {
+            manualRefreshSuccesses = Math.min(
+                manualRefreshSuccesses + 1,
+                999
+            );
+            renderManualRefreshSuccesses();
         };
 
         const recordSuccessfulRequest = () => {
@@ -634,6 +666,10 @@
 
                 if (!isValidPayload(payload)) {
                     throw new Error('Unexpected health payload');
+                }
+
+                if (isManualRefresh) {
+                    recordManualRefreshSuccess();
                 }
 
                 setFields(payload);
