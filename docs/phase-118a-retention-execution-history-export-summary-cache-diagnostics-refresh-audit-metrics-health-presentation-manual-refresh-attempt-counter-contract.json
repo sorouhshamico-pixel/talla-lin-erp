@@ -1,0 +1,86 @@
+{
+  "phase": "Phase 118A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Attempt Counter Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 117C",
+    "commit": "73746dc3580ceba54b855d2fde800e009c516e73",
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "manual_refresh_attempt_counter_contract": {
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "element": {
+      "id": "retention-audit-metrics-health-manual-refresh-attempts",
+      "element": "span",
+      "prefix": "Manual refresh attempts:",
+      "initial_text": "0",
+      "aria_live": "off"
+    },
+    "state": {
+      "variable": "manualRefreshAttempts",
+      "initial_value": 0,
+      "minimum": 0,
+      "maximum": 999,
+      "client_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "counting_rules": {
+      "initial_automatic_request_counts": false,
+      "accepted_manual_refresh_counts": true,
+      "ignored_concurrent_manual_refresh_counts": false,
+      "successful_manual_refresh_counts": true,
+      "unhealthy_manual_refresh_counts": true,
+      "http_error_manual_refresh_counts": true,
+      "network_failure_manual_refresh_counts": true,
+      "json_parse_failure_manual_refresh_counts": true,
+      "payload_validation_failure_manual_refresh_counts": true,
+      "increment_timing": "after concurrency guard and before request execution",
+      "increment_amount": 1,
+      "maximum_clamp": 999,
+      "updates_once_per_accepted_manual_attempt": true
+    },
+    "trigger_contract": {
+      "request_function_accepts_manual_flag": true,
+      "manual_flag_default": false,
+      "button_listener_passes_manual_true": true,
+      "initial_request_passes_manual_false": true
+    },
+    "compatibility": {
+      "existing_health_presentation_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "retry_loop_added": false,
+      "database_changed": false
+    },
+    "planned_implementation": {
+      "maximum_modified_files": 2,
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase118BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationManualRefreshAttemptCounterImplementationTest.php"
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false
+  },
+  "next_recommendation": {
+    "phase": "Phase 118B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Attempt Counter"
+  }
+}
