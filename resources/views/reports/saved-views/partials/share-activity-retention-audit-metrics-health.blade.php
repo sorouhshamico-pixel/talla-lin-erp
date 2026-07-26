@@ -119,6 +119,16 @@
         </span>
     </p>
 
+    <p>
+        Manual refresh failures:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-failures"
+            aria-live="off"
+        >
+            0
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -224,11 +234,15 @@
         const manualRefreshSuccessCounter = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-successes'
         );
+        const manualRefreshFailureCounter = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-failures'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
         let manualRefreshAttempts = 0;
         let manualRefreshSuccesses = 0;
+        let manualRefreshFailures = 0;
         let manualRefreshRequested = false;
 
         const renderConsecutiveFailures = () => {
@@ -275,6 +289,24 @@
                 999
             );
             renderManualRefreshSuccesses();
+        };
+
+        const renderManualRefreshFailures = () => {
+            const safeValue = Number.isInteger(manualRefreshFailures)
+                && manualRefreshFailures >= 0
+                ? Math.min(manualRefreshFailures, 999)
+                : 0;
+
+            manualRefreshFailures = safeValue;
+            manualRefreshFailureCounter.textContent = String(safeValue);
+        };
+
+        const recordManualRefreshFailure = () => {
+            manualRefreshFailures = Math.min(
+                manualRefreshFailures + 1,
+                999
+            );
+            renderManualRefreshFailures();
         };
 
         const recordSuccessfulRequest = () => {
@@ -686,6 +718,10 @@
 
                 requestSucceeded = true;
             } catch (error) {
+                if (isManualRefresh) {
+                    recordManualRefreshFailure();
+                }
+
                 if (!responseReceived) {
                     responseStatus.textContent = 'Network error';
                 }
