@@ -1,0 +1,125 @@
+{
+  "phase": "Phase 120C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Failure Counter",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 120B",
+    "commit": "d199074847a61ac01e4127cc2d7d7f0476e79df1",
+    "tests": 2350,
+    "assertions": 23893,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "element": {
+      "id": "retention-audit-metrics-health-manual-refresh-failures",
+      "element": "span",
+      "prefix": "Manual refresh failures:",
+      "initial_text": "0",
+      "aria_live": "off"
+    },
+    "state": {
+      "variable": "manualRefreshFailures",
+      "initial_value": 0,
+      "minimum": 0,
+      "maximum": 999,
+      "client_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "helpers": {
+      "renderer": "renderManualRefreshFailures",
+      "recorder": "recordManualRefreshFailure",
+      "invalid_value_normalizes_to_zero": true,
+      "maximum_clamp": 999
+    },
+    "classification": {
+      "validated_healthy_counts": false,
+      "validated_unhealthy_counts": false,
+      "http_error_counts": true,
+      "network_failure_counts": true,
+      "json_parse_failure_counts": true,
+      "payload_validation_failure_counts": true,
+      "initial_automatic_request_counts": false,
+      "ignored_concurrent_manual_request_counts": false
+    },
+    "update_order": {
+      "increment_occurs_inside_catch": true,
+      "increment_is_guarded_by_manual_request": true,
+      "increment_occurs_before_network_status_handling": true,
+      "increment_occurs_before_set_unavailable": true,
+      "increment_occurs_before_finally": true,
+      "increment_once_per_failed_manual_request": true,
+      "no_increment_in_finally": true
+    },
+    "legacy_contract": {
+      "load_health_signature": "const loadHealth = async () => {",
+      "refresh_listener": "refresh.addEventListener('click', loadHealth);",
+      "initial_load": "loadHealth();",
+      "preserved": true
+    },
+    "compatibility": {
+      "manual_refresh_attempt_counter_changed": false,
+      "manual_refresh_success_counter_changed": false,
+      "successful_check_freshness_changed": false,
+      "successful_check_age_changed": false,
+      "last_successful_check_changed": false,
+      "consecutive_failure_counter_changed": false,
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "payload_validation_changed": false,
+      "request_method_changed": false,
+      "credentials_changed": false,
+      "accept_header_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "timer_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "cache_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "implementation_scope": {
+      "partial_modified": true,
+      "phase_120b_test_added": true,
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "database_modified": false,
+      "migration_modified": false,
+      "model_modified": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 121A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Success Rate Contract",
+    "classification": "medium"
+  }
+}
