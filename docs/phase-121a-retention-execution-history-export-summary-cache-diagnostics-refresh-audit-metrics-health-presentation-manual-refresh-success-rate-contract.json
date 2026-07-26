@@ -1,0 +1,134 @@
+{
+  "phase": "Phase 121A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Success Rate Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 120C",
+    "commit": "60384c9ebc1a827a353e1ccf3e764a85a6bec1fd",
+    "tests": 2355,
+    "assertions": 23981,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "manual_refresh_success_rate_contract": {
+    "purpose": "Define a client-side derived percentage representing validated manual refresh successes divided by accepted manual refresh attempts.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "element": {
+      "id": "retention-audit-metrics-health-manual-refresh-success-rate",
+      "element": "span",
+      "prefix": "Manual refresh success rate:",
+      "initial_text": "Not available",
+      "aria_live": "off"
+    },
+    "source_counters": {
+      "attempts_variable": "manualRefreshAttempts",
+      "successes_variable": "manualRefreshSuccesses",
+      "failures_variable": "manualRefreshFailures",
+      "attempts_are_denominator": true,
+      "successes_are_numerator": true,
+      "failures_are_not_directly_used": true
+    },
+    "calculation": {
+      "formula": "(manualRefreshSuccesses / manualRefreshAttempts) * 100",
+      "zero_attempts_text": "Not available",
+      "minimum_percentage": 0,
+      "maximum_percentage": 100,
+      "maximum_fraction_digits": 1,
+      "suffix": "%",
+      "locale_aware_formatting": true,
+      "fallback_formatting": true
+    },
+    "update_rules": {
+      "render_after_manual_attempt_increment": true,
+      "render_after_manual_success_increment": true,
+      "render_after_manual_failure_increment": true,
+      "initial_automatic_request_does_not_change_rate": true,
+      "ignored_concurrent_manual_request_does_not_change_rate": true,
+      "page_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "examples": [
+      {
+        "attempts": 0,
+        "successes": 0,
+        "text": "Not available"
+      },
+      {
+        "attempts": 1,
+        "successes": 1,
+        "text": "100%"
+      },
+      {
+        "attempts": 1,
+        "successes": 0,
+        "text": "0%"
+      },
+      {
+        "attempts": 3,
+        "successes": 2,
+        "text": "66.7%"
+      }
+    ],
+    "legacy_contract": {
+      "load_health_signature": "const loadHealth = async () => {",
+      "refresh_listener": "refresh.addEventListener('click', loadHealth);",
+      "initial_load": "loadHealth();",
+      "must_remain_unchanged": true
+    },
+    "compatibility": {
+      "manual_refresh_attempt_counter_changed": false,
+      "manual_refresh_success_counter_changed": false,
+      "manual_refresh_failure_counter_changed": false,
+      "successful_check_freshness_changed": false,
+      "successful_check_age_changed": false,
+      "last_successful_check_changed": false,
+      "consecutive_failure_counter_changed": false,
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "payload_validation_changed": false,
+      "request_method_changed": false,
+      "credentials_changed": false,
+      "accept_header_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "polling_added": false,
+      "timer_added": false,
+      "retry_loop_added": false,
+      "database_changed": false,
+      "migration_changed": false
+    },
+    "planned_implementation": {
+      "maximum_modified_files": 2,
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase121BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationManualRefreshSuccessRateImplementationTest.php"
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 121B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Success Rate",
+    "classification": "medium"
+  }
+}
