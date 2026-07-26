@@ -99,6 +99,16 @@
         </span>
     </p>
 
+    <p>
+        Manual refresh attempts:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-attempts"
+            aria-live="off"
+        >
+            0
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -198,9 +208,14 @@
         const successfulCheckFreshness = document.getElementById(
             'retention-audit-metrics-health-successful-check-freshness'
         );
+        const manualRefreshAttemptCounter = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-attempts'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
+        let manualRefreshAttempts = 0;
+        let manualRefreshRequested = false;
 
         const renderConsecutiveFailures = () => {
             const safeValue = Number.isInteger(consecutiveFailures)
@@ -210,6 +225,24 @@
 
             consecutiveFailures = safeValue;
             consecutiveFailureCounter.textContent = String(safeValue);
+        };
+
+        const renderManualRefreshAttempts = () => {
+            const safeValue = Number.isInteger(manualRefreshAttempts)
+                && manualRefreshAttempts >= 0
+                ? Math.min(manualRefreshAttempts, 999)
+                : 0;
+
+            manualRefreshAttempts = safeValue;
+            manualRefreshAttemptCounter.textContent = String(safeValue);
+        };
+
+        const recordManualRefreshAttempt = () => {
+            manualRefreshAttempts = Math.min(
+                manualRefreshAttempts + 1,
+                999
+            );
+            renderManualRefreshAttempts();
         };
 
         const recordSuccessfulRequest = () => {
@@ -560,8 +593,16 @@
         };
 
         const loadHealth = async () => {
+            const isManualRefresh = manualRefreshRequested;
+
+            manualRefreshRequested = false;
+
             if (requestInFlight) {
                 return;
+            }
+
+            if (isManualRefresh) {
+                recordManualRefreshAttempt();
             }
 
             requestInFlight = true;
@@ -636,6 +677,9 @@
             }
         };
 
+        refresh.addEventListener('click', () => {
+            manualRefreshRequested = true;
+        });
         refresh.addEventListener('click', loadHealth);
         loadHealth();
     };
