@@ -139,6 +139,17 @@
         </span>
     </p>
 
+    <p>
+        Last manual refresh outcome:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-last-outcome"
+            data-outcome-state="unavailable"
+            aria-live="polite"
+        >
+            Not available
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -250,6 +261,9 @@
         const manualRefreshSuccessRate = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-success-rate'
         );
+        const manualRefreshLastOutcome = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-last-outcome'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -257,6 +271,33 @@
         let manualRefreshSuccesses = 0;
         let manualRefreshFailures = 0;
         let manualRefreshRequested = false;
+        let lastManualRefreshOutcome = 'unavailable';
+
+        const manualRefreshOutcomeLabels = {
+            unavailable: 'Not available',
+            healthy: 'Healthy',
+            unhealthy: 'Requires attention',
+            failed: 'Failed',
+        };
+
+        const renderLastManualRefreshOutcome = () => {
+            const safeState = Object.prototype.hasOwnProperty.call(
+                manualRefreshOutcomeLabels,
+                lastManualRefreshOutcome
+            )
+                ? lastManualRefreshOutcome
+                : 'unavailable';
+
+            lastManualRefreshOutcome = safeState;
+            manualRefreshLastOutcome.dataset.outcomeState = safeState;
+            manualRefreshLastOutcome.textContent =
+                manualRefreshOutcomeLabels[safeState];
+        };
+
+        const setLastManualRefreshOutcome = (outcome) => {
+            lastManualRefreshOutcome = outcome;
+            renderLastManualRefreshOutcome();
+        };
 
         const renderConsecutiveFailures = () => {
             const safeValue = Number.isInteger(consecutiveFailures)
@@ -761,6 +802,12 @@
                     payload.healthy ? 'healthy' : 'unhealthy'
                 );
 
+                if (isManualRefresh) {
+                    setLastManualRefreshOutcome(
+                        payload.healthy ? 'healthy' : 'unhealthy'
+                    );
+                }
+
                 if (payload.healthy) {
                     updateLastSuccessfulCheck();
                 }
@@ -769,6 +816,7 @@
             } catch (error) {
                 if (isManualRefresh) {
                     recordManualRefreshFailure();
+                    setLastManualRefreshOutcome('failed');
                 }
 
                 if (!responseReceived) {
