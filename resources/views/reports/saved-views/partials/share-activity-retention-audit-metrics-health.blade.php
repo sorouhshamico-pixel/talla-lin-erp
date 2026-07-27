@@ -160,6 +160,16 @@
         </time>
     </p>
 
+    <p>
+        Last manual refresh outcome age:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-last-outcome-age"
+            aria-live="off"
+        >
+            Not available
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -277,6 +287,9 @@
         const manualRefreshLastOutcomeAt = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-last-outcome-at'
         );
+        const manualRefreshLastOutcomeAge = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-last-outcome-age'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -337,9 +350,58 @@
                     : lastManualRefreshOutcomeAt.toLocaleString();
         };
 
+        const formatLastManualRefreshOutcomeAge = (
+            outcomeAt,
+            currentTime
+        ) => {
+            if (
+                !(outcomeAt instanceof Date)
+                || Number.isNaN(outcomeAt.getTime())
+                || !(currentTime instanceof Date)
+                || Number.isNaN(currentTime.getTime())
+            ) {
+                return 'Not available';
+            }
+
+            const ageMilliseconds = Math.max(
+                0,
+                currentTime.getTime() - outcomeAt.getTime()
+            );
+            const ageMinutes = Math.floor(ageMilliseconds / 60000);
+
+            if (ageMinutes < 1) {
+                return 'Less than 1 minute';
+            }
+
+            if (ageMinutes < 60) {
+                return `${Math.min(ageMinutes, 999)} minutes`;
+            }
+
+            if (ageMinutes < 1440) {
+                const ageHours = Math.floor(ageMinutes / 60);
+
+                return `${Math.min(ageHours, 999)} hours`;
+            }
+
+            const ageDays = Math.floor(ageMinutes / 1440);
+
+            return `${Math.min(ageDays, 999)} days`;
+        };
+
+        const renderLastManualRefreshOutcomeAge = (currentTime) => {
+            manualRefreshLastOutcomeAge.textContent =
+                formatLastManualRefreshOutcomeAge(
+                    lastManualRefreshOutcomeAt,
+                    currentTime
+                );
+        };
+
         const setLastManualRefreshOutcomeTimestamp = () => {
-            lastManualRefreshOutcomeAt = new Date();
+            const completedAt = new Date();
+
+            lastManualRefreshOutcomeAt = completedAt;
             renderLastManualRefreshOutcomeTimestamp();
+            renderLastManualRefreshOutcomeAge(completedAt);
         };
 
         const setLastManualRefreshOutcome = (outcome) => {
