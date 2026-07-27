@@ -150,6 +150,16 @@
         </span>
     </p>
 
+    <p>
+        Last manual refresh outcome at:
+        <time
+            id="retention-audit-metrics-health-manual-refresh-last-outcome-at"
+            aria-live="off"
+        >
+            Not available
+        </time>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -264,6 +274,9 @@
         const manualRefreshLastOutcome = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-last-outcome'
         );
+        const manualRefreshLastOutcomeAt = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-last-outcome-at'
+        );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -272,6 +285,7 @@
         let manualRefreshFailures = 0;
         let manualRefreshRequested = false;
         let lastManualRefreshOutcome = 'unavailable';
+        let lastManualRefreshOutcomeAt = null;
 
         const manualRefreshOutcomeLabels = {
             unavailable: 'Not available',
@@ -294,9 +308,44 @@
                 manualRefreshOutcomeLabels[safeState];
         };
 
+        const manualRefreshOutcomeTimestampFormatter =
+            typeof Intl !== 'undefined'
+            && typeof Intl.DateTimeFormat === 'function'
+                ? new Intl.DateTimeFormat(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'medium',
+                })
+                : null;
+
+        const renderLastManualRefreshOutcomeTimestamp = () => {
+            if (
+                !(lastManualRefreshOutcomeAt instanceof Date)
+                || Number.isNaN(lastManualRefreshOutcomeAt.getTime())
+            ) {
+                manualRefreshLastOutcomeAt.removeAttribute('datetime');
+                manualRefreshLastOutcomeAt.textContent = 'Not available';
+                return;
+            }
+
+            manualRefreshLastOutcomeAt.dateTime =
+                lastManualRefreshOutcomeAt.toISOString();
+            manualRefreshLastOutcomeAt.textContent =
+                manualRefreshOutcomeTimestampFormatter
+                    ? manualRefreshOutcomeTimestampFormatter.format(
+                        lastManualRefreshOutcomeAt
+                    )
+                    : lastManualRefreshOutcomeAt.toLocaleString();
+        };
+
+        const setLastManualRefreshOutcomeTimestamp = () => {
+            lastManualRefreshOutcomeAt = new Date();
+            renderLastManualRefreshOutcomeTimestamp();
+        };
+
         const setLastManualRefreshOutcome = (outcome) => {
             lastManualRefreshOutcome = outcome;
             renderLastManualRefreshOutcome();
+            setLastManualRefreshOutcomeTimestamp();
         };
 
         const renderConsecutiveFailures = () => {
