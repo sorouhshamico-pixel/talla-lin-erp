@@ -181,6 +181,15 @@
         </span>
     </p>
 
+    <p
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary"
+        data-summary-state="unavailable"
+        aria-live="polite"
+    >
+        Manual refresh outcome summary:
+        <span>Not available</span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -305,6 +314,11 @@
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-last-outcome-freshness'
             );
+        const manualRefreshOutcomeSummary = document.getElementById(
+            'retention-audit-metrics-health-manual-refresh-outcome-summary'
+        );
+        const manualRefreshOutcomeSummaryValue =
+            manualRefreshOutcomeSummary.querySelector('span');
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -345,6 +359,27 @@
                 })
                 : null;
 
+        const formatLastManualRefreshOutcomeTimestamp = (outcomeAt) => {
+            if (
+                !(outcomeAt instanceof Date)
+                || Number.isNaN(outcomeAt.getTime())
+            ) {
+                return 'Not available';
+            }
+
+            if (manualRefreshOutcomeTimestampFormatter) {
+                return manualRefreshOutcomeTimestampFormatter.format(
+                    outcomeAt
+                );
+            }
+
+            if (outcomeAt === lastManualRefreshOutcomeAt) {
+                return lastManualRefreshOutcomeAt.toLocaleString();
+            }
+
+            return outcomeAt.toLocaleString();
+        };
+
         const renderLastManualRefreshOutcomeTimestamp = () => {
             if (
                 !(lastManualRefreshOutcomeAt instanceof Date)
@@ -358,11 +393,9 @@
             manualRefreshLastOutcomeAt.dateTime =
                 lastManualRefreshOutcomeAt.toISOString();
             manualRefreshLastOutcomeAt.textContent =
-                manualRefreshOutcomeTimestampFormatter
-                    ? manualRefreshOutcomeTimestampFormatter.format(
-                        lastManualRefreshOutcomeAt
-                    )
-                    : lastManualRefreshOutcomeAt.toLocaleString();
+                formatLastManualRefreshOutcomeTimestamp(
+                    lastManualRefreshOutcomeAt
+                );
         };
 
         const formatLastManualRefreshOutcomeAge = (
@@ -460,6 +493,66 @@
                 freshness.text;
         };
 
+        const formatManualRefreshOutcomeSummary = (
+            outcome,
+            outcomeAt,
+            currentTime
+        ) => {
+            if (
+                !Object.prototype.hasOwnProperty.call(
+                    manualRefreshOutcomeLabels,
+                    outcome
+                )
+                || outcome === 'unavailable'
+                || !(outcomeAt instanceof Date)
+                || Number.isNaN(outcomeAt.getTime())
+            ) {
+                return { state: 'unavailable', text: 'Not available' };
+            }
+
+            const timestamp =
+                formatLastManualRefreshOutcomeTimestamp(outcomeAt);
+            const age = formatLastManualRefreshOutcomeAge(
+                outcomeAt,
+                currentTime
+            );
+            const freshness =
+                formatLastManualRefreshOutcomeFreshness(
+                    outcomeAt,
+                    currentTime
+                );
+
+            if (
+                timestamp === 'Not available'
+                || age === 'Not available'
+                || freshness.state === 'unavailable'
+            ) {
+                return { state: 'unavailable', text: 'Not available' };
+            }
+
+            return {
+                state: outcome,
+                text: [
+                    manualRefreshOutcomeLabels[outcome],
+                    timestamp,
+                    age,
+                    freshness.text,
+                ].join(' · '),
+            };
+        };
+
+        const renderManualRefreshOutcomeSummary = (currentTime) => {
+            const summary = formatManualRefreshOutcomeSummary(
+                lastManualRefreshOutcome,
+                lastManualRefreshOutcomeAt,
+                currentTime
+            );
+
+            manualRefreshOutcomeSummary.dataset.summaryState =
+                summary.state;
+            manualRefreshOutcomeSummaryValue.textContent = summary.text;
+        };
+
         const setLastManualRefreshOutcomeTimestamp = () => {
             const completedAt = new Date();
 
@@ -467,6 +560,7 @@
             renderLastManualRefreshOutcomeTimestamp();
             renderLastManualRefreshOutcomeAge(completedAt);
             renderLastManualRefreshOutcomeFreshness(completedAt);
+            renderManualRefreshOutcomeSummary(completedAt);
         };
 
         const setLastManualRefreshOutcome = (outcome) => {
