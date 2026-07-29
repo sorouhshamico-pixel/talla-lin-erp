@@ -170,6 +170,17 @@
         </span>
     </p>
 
+    <p>
+        Last manual refresh outcome freshness:
+        <span
+            id="retention-audit-metrics-health-manual-refresh-last-outcome-freshness"
+            data-freshness-state="unavailable"
+            aria-live="off"
+        >
+            Unavailable
+        </span>
+    </p>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -290,6 +301,10 @@
         const manualRefreshLastOutcomeAge = document.getElementById(
             'retention-audit-metrics-health-manual-refresh-last-outcome-age'
         );
+        const manualRefreshLastOutcomeFreshness =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-last-outcome-freshness'
+            );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -396,12 +411,62 @@
                 );
         };
 
+        const formatLastManualRefreshOutcomeFreshness = (
+            outcomeAt,
+            currentTime
+        ) => {
+            if (
+                !(outcomeAt instanceof Date)
+                || Number.isNaN(outcomeAt.getTime())
+                || !(currentTime instanceof Date)
+                || Number.isNaN(currentTime.getTime())
+            ) {
+                return {
+                    state: 'unavailable',
+                    text: 'Unavailable',
+                };
+            }
+
+            const ageMinutes = Math.floor(
+                Math.max(
+                    0,
+                    currentTime.getTime() - outcomeAt.getTime()
+                ) / 60000
+            );
+
+            return ageMinutes <= 14
+                ? {
+                    state: 'fresh',
+                    text: 'Fresh',
+                }
+                : {
+                    state: 'stale',
+                    text: 'Stale',
+                };
+        };
+
+        const renderLastManualRefreshOutcomeFreshness = (
+            currentTime
+        ) => {
+            const freshness =
+                formatLastManualRefreshOutcomeFreshness(
+                    lastManualRefreshOutcomeAt,
+                    currentTime
+                );
+
+            manualRefreshLastOutcomeFreshness.dataset.freshnessState =
+                freshness.state;
+            manualRefreshLastOutcomeFreshness.textContent =
+                freshness.text;
+        };
+
         const setLastManualRefreshOutcomeTimestamp = () => {
             const completedAt = new Date();
 
             lastManualRefreshOutcomeAt = completedAt;
             renderLastManualRefreshOutcomeTimestamp();
             renderLastManualRefreshOutcomeAge(completedAt);
+            renderLastManualRefreshOutcomeFreshness(completedAt);
         };
 
         const setLastManualRefreshOutcome = (outcome) => {
