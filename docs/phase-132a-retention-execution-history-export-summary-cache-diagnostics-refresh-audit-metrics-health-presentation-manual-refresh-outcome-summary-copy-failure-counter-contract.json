@@ -1,0 +1,172 @@
+{
+  "phase": "Phase 132A",
+  "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Failure Counter Contract",
+  "type": "contract",
+  "baseline": {
+    "phase": "Phase 131C",
+    "commit": "31ce8dad4c9254d9327033960f9300a152f8c6d1",
+    "tests": 2523,
+    "assertions": 26438,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "copy_failure_counter_contract": {
+    "purpose": "Define a client-side counter for rejected manual refresh outcome summary Clipboard writes.",
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "counter_element": {
+      "id": "retention-audit-metrics-health-manual-refresh-outcome-summary-copy-failures",
+      "element": "span",
+      "prefix": "Copy failures:",
+      "initial_value": "0",
+      "aria_live": "polite"
+    },
+    "state_management": {
+      "variable": "manualRefreshOutcomeSummaryCopyFailureCount",
+      "renderer": "renderManualRefreshOutcomeSummaryCopyFailures",
+      "recorder": "recordManualRefreshOutcomeSummaryCopyFailure",
+      "initial_value": 0,
+      "maximum_value": 999,
+      "client_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "counting_rules": {
+      "count_rejected_clipboard_write": true,
+      "count_resolved_clipboard_write": false,
+      "count_eligible_attempt_before_resolution": false,
+      "count_unavailable_summary_click": false,
+      "count_unsupported_clipboard_click": false,
+      "count_initialization": false,
+      "count_manual_refresh_completion": false,
+      "count_automatic_request": false,
+      "count_status_reset": false,
+      "increment_in_promise_failure_callback": true,
+      "increment_before_failure_status": true,
+      "increment_once_per_rejected_write": true
+    },
+    "render_rules": {
+      "integer_only": true,
+      "non_negative_only": true,
+      "clamped_to_maximum": true,
+      "rendered_on_initialization": true,
+      "timer_added": false,
+      "polling_added": false,
+      "timeout_added": false
+    },
+    "attempt_counter": {
+      "element_preserved": "retention-audit-metrics-health-manual-refresh-outcome-summary-copy-attempts",
+      "variable_preserved": "manualRefreshOutcomeSummaryCopyAttemptCount",
+      "renderer_preserved": "renderManualRefreshOutcomeSummaryCopyAttempts",
+      "recorder_preserved": "recordManualRefreshOutcomeSummaryCopyAttempt",
+      "maximum_value_preserved": 999,
+      "increment_before_clipboard_write_preserved": true
+    },
+    "success_counter": {
+      "element_preserved": "retention-audit-metrics-health-manual-refresh-outcome-summary-copy-successes",
+      "variable_preserved": "manualRefreshOutcomeSummaryCopySuccessCount",
+      "renderer_preserved": "renderManualRefreshOutcomeSummaryCopySuccesses",
+      "recorder_preserved": "recordManualRefreshOutcomeSummaryCopySuccess",
+      "maximum_value_preserved": 999,
+      "increment_in_promise_success_callback_preserved": true
+    },
+    "copy_behavior": {
+      "handler_preserved": "copyManualRefreshOutcomeSummary",
+      "status_resetter_preserved": "resetManualRefreshOutcomeSummaryCopyStatus",
+      "clipboard_api_preserved": "navigator.clipboard.writeText",
+      "promise_callbacks_preserved": true,
+      "success_literal_preserved": "setManualRefreshOutcomeSummaryCopyStatus('Copied');",
+      "failure_label_preserved": "Copy failed",
+      "unavailable_label_preserved": "Summary unavailable",
+      "fallback_added": false,
+      "try_catch_added_before_load_health": false
+    },
+    "availability_feedback": {
+      "formatter_preserved": "formatManualRefreshOutcomeSummaryCopyAvailability",
+      "feedback_renderer_preserved": "renderManualRefreshOutcomeSummaryCopyAvailabilityFeedback",
+      "states_preserved": [
+        "unavailable",
+        "available",
+        "unsupported"
+      ],
+      "messages_preserved": true
+    },
+    "legacy_contract": {
+      "load_health_signature": "const loadHealth = async () => {",
+      "refresh_listener": "refresh.addEventListener('click', loadHealth);",
+      "initial_load": "loadHealth();",
+      "phase_114b_through_120b_try_catch_ordering_preserved": true,
+      "phase_123b_literal_fallback_preserved": "lastManualRefreshOutcomeAt.toLocaleString();",
+      "phase_126b_summary_format_preserved": true,
+      "phase_127b_copy_handler_preserved": true,
+      "phase_128b_availability_feedback_preserved": true,
+      "phase_129b_status_reset_preserved": true,
+      "phase_130b_attempt_counter_preserved": true,
+      "phase_131b_success_counter_preserved": true,
+      "must_remain_unchanged": true
+    },
+    "compatibility": {
+      "manual_refresh_attempt_counter_changed": false,
+      "manual_refresh_success_counter_changed": false,
+      "manual_refresh_failure_counter_changed": false,
+      "manual_refresh_success_rate_changed": false,
+      "manual_refresh_last_outcome_changed": false,
+      "manual_refresh_last_outcome_timestamp_changed": false,
+      "manual_refresh_last_outcome_age_changed": false,
+      "manual_refresh_last_outcome_freshness_changed": false,
+      "manual_refresh_outcome_summary_changed": false,
+      "manual_refresh_outcome_summary_copy_changed": false,
+      "manual_refresh_outcome_summary_copy_availability_changed": false,
+      "manual_refresh_outcome_summary_copy_status_reset_changed": false,
+      "manual_refresh_outcome_summary_copy_attempt_counter_changed": false,
+      "manual_refresh_outcome_summary_copy_success_counter_changed": false,
+      "successful_check_freshness_changed": false,
+      "successful_check_age_changed": false,
+      "last_successful_check_changed": false,
+      "consecutive_failure_counter_changed": false,
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "payload_validation_changed": false,
+      "request_method_changed": false,
+      "credentials_changed": false,
+      "accept_header_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "cache_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "planned_implementation": {
+      "maximum_modified_files": 2,
+      "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+      "new_test": "tests/Feature/ReportSavedViewPhase132BRetentionExecutionHistoryExportSummaryCacheDiagnosticsRefreshAuditMetricsHealthPresentationManualRefreshOutcomeSummaryCopyFailureCounterImplementationTest.php"
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 132B",
+    "title": "Implement Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Failure Counter",
+    "classification": "medium"
+  }
+}
