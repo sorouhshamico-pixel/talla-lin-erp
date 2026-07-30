@@ -1,0 +1,154 @@
+{
+  "phase": "Phase 128C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Availability Feedback",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 128B",
+    "commit": "7b225cde6e29dcefab6bac654b39bde2b4c4b151",
+    "tests": 2468,
+    "assertions": 25595,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "feedback_element": {
+      "id": "retention-audit-metrics-health-manual-refresh-outcome-summary-copy-availability",
+      "element": "span",
+      "initial_text": "Copy unavailable until a manual refresh completes.",
+      "aria_live": "polite",
+      "data_attribute": "data-copy-availability",
+      "initial_state": "unavailable"
+    },
+    "states": {
+      "unavailable": {
+        "text": "Copy unavailable until a manual refresh completes.",
+        "button_disabled": true
+      },
+      "available": {
+        "text": "Summary ready to copy.",
+        "button_disabled": false
+      },
+      "unsupported": {
+        "text": "Clipboard access is unavailable in this browser context.",
+        "button_disabled": true
+      }
+    },
+    "sources": {
+      "summary_state": "manualRefreshOutcomeSummary.dataset.summaryState",
+      "summary_text": "manualRefreshOutcomeSummaryValue.textContent",
+      "secure_context": "window.isSecureContext",
+      "clipboard_object": "navigator.clipboard",
+      "write_text_function": "navigator.clipboard.writeText"
+    },
+    "state_management": {
+      "formatter": "formatManualRefreshOutcomeSummaryCopyAvailability",
+      "feedback_renderer": "renderManualRefreshOutcomeSummaryCopyAvailabilityFeedback",
+      "existing_renderer": "renderManualRefreshOutcomeSummaryCopyAvailability",
+      "existing_renderer_reused": true,
+      "client_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "render_rules": {
+      "unavailable_when_summary_unavailable": true,
+      "unsupported_when_context_not_secure": true,
+      "unsupported_when_clipboard_missing": true,
+      "available_when_summary_present_and_clipboard_supported": true,
+      "button_disabled_matches_state": true,
+      "rendered_on_initialization": true,
+      "rendered_when_summary_changes": true,
+      "rendered_after_copy_attempt": false,
+      "timer_added": false,
+      "polling_added": false,
+      "periodic_recalculation_added": false
+    },
+    "copy_behavior": {
+      "handler": "copyManualRefreshOutcomeSummary",
+      "clipboard_api": "navigator.clipboard.writeText",
+      "promise_callbacks_preserved": true,
+      "success_literal": "setManualRefreshOutcomeSummaryCopyStatus('Copied');",
+      "failure_label": "Copy failed",
+      "unavailable_label": "Summary unavailable",
+      "fallback_added": false,
+      "try_catch_added_before_load_health": false
+    },
+    "legacy_contract": {
+      "load_health_signature": "const loadHealth = async () => {",
+      "refresh_listener": "refresh.addEventListener('click', loadHealth);",
+      "initial_load": "loadHealth();",
+      "phase_114b_through_120b_try_catch_ordering_preserved": true,
+      "phase_123b_literal_fallback_preserved": "lastManualRefreshOutcomeAt.toLocaleString();",
+      "phase_126b_summary_format_preserved": true,
+      "phase_127b_copy_handler_preserved": true,
+      "preserved": true
+    },
+    "compatibility": {
+      "manual_refresh_attempt_counter_changed": false,
+      "manual_refresh_success_counter_changed": false,
+      "manual_refresh_failure_counter_changed": false,
+      "manual_refresh_success_rate_changed": false,
+      "manual_refresh_last_outcome_changed": false,
+      "manual_refresh_last_outcome_timestamp_changed": false,
+      "manual_refresh_last_outcome_age_changed": false,
+      "manual_refresh_last_outcome_freshness_changed": false,
+      "manual_refresh_outcome_summary_changed": false,
+      "manual_refresh_outcome_summary_copy_changed": false,
+      "successful_check_freshness_changed": false,
+      "successful_check_age_changed": false,
+      "last_successful_check_changed": false,
+      "consecutive_failure_counter_changed": false,
+      "response_status_changed": false,
+      "request_duration_changed": false,
+      "refresh_timestamp_changed": false,
+      "health_status_messages_changed": false,
+      "visual_state_changed": false,
+      "payload_validation_changed": false,
+      "request_method_changed": false,
+      "credentials_changed": false,
+      "accept_header_changed": false,
+      "endpoint_payload_changed": false,
+      "route_changed": false,
+      "controller_changed": false,
+      "authorization_changed": false,
+      "request_frequency_changed": false,
+      "database_changed": false,
+      "migration_changed": false,
+      "cache_behavior_changed": false,
+      "logging_behavior_changed": false
+    },
+    "implementation_scope": {
+      "partial_modified": true,
+      "phase_128b_test_added": true,
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "database_modified": false,
+      "migration_modified": false,
+      "model_modified": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false,
+    "successful_phase_pushed_immediately": true
+  },
+  "next_recommendation": {
+    "phase": "Phase 129A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Status Reset Contract",
+    "classification": "medium"
+  }
+}
