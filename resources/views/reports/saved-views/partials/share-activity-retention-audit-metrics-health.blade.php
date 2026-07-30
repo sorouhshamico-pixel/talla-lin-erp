@@ -247,6 +247,13 @@
         Last copy outcome: <span>Not available</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-at"
+        aria-live="polite"
+    >
+        Last copy outcome at: <span>Not available</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -408,6 +415,10 @@
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome'
             ).querySelector('span');
+        const manualRefreshOutcomeSummaryCopyLastOutcomeAt =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-at'
+            ).querySelector('span');
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -418,6 +429,7 @@
         let manualRefreshOutcomeSummaryCopySuccessCount = 0;
         let manualRefreshOutcomeSummaryCopyFailureCount = 0;
         let lastManualRefreshOutcomeSummaryCopyOutcome = 'unavailable';
+        let lastManualRefreshOutcomeSummaryCopyOutcomeAt = null;
         let manualRefreshRequested = false;
         let lastManualRefreshOutcome = 'unavailable';
         let lastManualRefreshOutcomeAt = null;
@@ -700,6 +712,8 @@
             renderManualRefreshOutcomeSummaryCopySuccesses();
             renderManualRefreshOutcomeSummaryCopySuccessRate();
             renderManualRefreshOutcomeSummaryCopyLastOutcome();
+            lastManualRefreshOutcomeSummaryCopyOutcomeAt = new Date();
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
         };
 
         const renderManualRefreshOutcomeSummaryCopyFailures = () => {
@@ -726,6 +740,8 @@
             renderManualRefreshOutcomeSummaryCopyFailures();
             renderManualRefreshOutcomeSummaryCopySuccessRate();
             renderManualRefreshOutcomeSummaryCopyLastOutcome();
+            lastManualRefreshOutcomeSummaryCopyOutcomeAt = new Date();
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
         };
 
         const renderManualRefreshOutcomeSummaryCopySuccessRate = () => {
@@ -766,6 +782,19 @@
             manualRefreshOutcomeSummaryCopyLastOutcome.textContent =
                 labels[lastManualRefreshOutcomeSummaryCopyOutcome]
                 ?? labels.unavailable;
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyLastOutcomeAt = () => {
+            const validDate =
+                lastManualRefreshOutcomeSummaryCopyOutcomeAt instanceof Date
+                && !Number.isNaN(
+                    lastManualRefreshOutcomeSummaryCopyOutcomeAt.getTime()
+                );
+
+            manualRefreshOutcomeSummaryCopyLastOutcomeAt.textContent =
+                validDate
+                    ? lastManualRefreshOutcomeSummaryCopyOutcomeAt.toLocaleString()
+                    : 'Not available';
         };
 
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
@@ -1457,6 +1486,7 @@
         renderManualRefreshOutcomeSummaryCopyFailures();
         renderManualRefreshOutcomeSummaryCopySuccessRate();
         renderManualRefreshOutcomeSummaryCopyLastOutcome();
+        renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
