@@ -226,6 +226,13 @@
         Copy successes: <span>0</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-failures"
+        aria-live="polite"
+    >
+        Copy failures: <span>0</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -375,6 +382,10 @@
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-successes'
             ).querySelector('span');
+        const manualRefreshOutcomeSummaryCopyFailures =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-failures'
+            ).querySelector('span');
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -383,6 +394,7 @@
         let manualRefreshFailures = 0;
         let manualRefreshOutcomeSummaryCopyAttemptCount = 0;
         let manualRefreshOutcomeSummaryCopySuccessCount = 0;
+        let manualRefreshOutcomeSummaryCopyFailureCount = 0;
         let manualRefreshRequested = false;
         let lastManualRefreshOutcome = 'unavailable';
         let lastManualRefreshOutcomeAt = null;
@@ -664,6 +676,29 @@
             renderManualRefreshOutcomeSummaryCopySuccesses();
         };
 
+        const renderManualRefreshOutcomeSummaryCopyFailures = () => {
+            const safeValue = Number.isInteger(
+                manualRefreshOutcomeSummaryCopyFailureCount
+            ) && manualRefreshOutcomeSummaryCopyFailureCount >= 0
+                ? Math.min(
+                    manualRefreshOutcomeSummaryCopyFailureCount,
+                    999
+                )
+                : 0;
+
+            manualRefreshOutcomeSummaryCopyFailureCount = safeValue;
+            manualRefreshOutcomeSummaryCopyFailures.textContent =
+                String(safeValue);
+        };
+
+        const recordManualRefreshOutcomeSummaryCopyFailure = () => {
+            manualRefreshOutcomeSummaryCopyFailureCount = Math.min(
+                manualRefreshOutcomeSummaryCopyFailureCount + 1,
+                999
+            );
+            renderManualRefreshOutcomeSummaryCopyFailures();
+        };
+
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
             const summaryState =
                 manualRefreshOutcomeSummary.dataset.summaryState;
@@ -769,6 +804,7 @@
                     setManualRefreshOutcomeSummaryCopyStatus('Copied');
                 },
                 () => {
+                    recordManualRefreshOutcomeSummaryCopyFailure();
                     setManualRefreshOutcomeSummaryCopyStatus(
                         'Copy failed'
                     );
@@ -1349,6 +1385,7 @@
         refresh.addEventListener('click', loadHealth);
         renderManualRefreshOutcomeSummaryCopyAttempts();
         renderManualRefreshOutcomeSummaryCopySuccesses();
+        renderManualRefreshOutcomeSummaryCopyFailures();
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
