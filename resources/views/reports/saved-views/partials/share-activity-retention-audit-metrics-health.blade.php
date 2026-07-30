@@ -233,6 +233,13 @@
         Copy failures: <span>0</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-success-rate"
+        aria-live="polite"
+    >
+        Copy success rate: <span>Not available</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -385,6 +392,10 @@
         const manualRefreshOutcomeSummaryCopyFailures =
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-failures'
+            ).querySelector('span');
+        const manualRefreshOutcomeSummaryCopySuccessRate =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-success-rate'
             ).querySelector('span');
 
         let consecutiveFailures = 0;
@@ -674,6 +685,7 @@
                 999
             );
             renderManualRefreshOutcomeSummaryCopySuccesses();
+            renderManualRefreshOutcomeSummaryCopySuccessRate();
         };
 
         const renderManualRefreshOutcomeSummaryCopyFailures = () => {
@@ -697,6 +709,35 @@
                 999
             );
             renderManualRefreshOutcomeSummaryCopyFailures();
+            renderManualRefreshOutcomeSummaryCopySuccessRate();
+        };
+
+        const renderManualRefreshOutcomeSummaryCopySuccessRate = () => {
+            const completedWrites =
+                manualRefreshOutcomeSummaryCopySuccessCount
+                + manualRefreshOutcomeSummaryCopyFailureCount;
+
+            if (completedWrites === 0) {
+                manualRefreshOutcomeSummaryCopySuccessRate.textContent =
+                    'Not available';
+                return;
+            }
+
+            const percentage = Math.min(
+                Math.max(
+                    (
+                        manualRefreshOutcomeSummaryCopySuccessCount
+                        / completedWrites
+                    ) * 100,
+                    0
+                ),
+                100
+            );
+
+            manualRefreshOutcomeSummaryCopySuccessRate.textContent =
+                Number.isFinite(percentage)
+                    ? `${percentage.toFixed(1)}%`
+                    : 'Not available';
         };
 
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
@@ -1386,6 +1427,7 @@
         renderManualRefreshOutcomeSummaryCopyAttempts();
         renderManualRefreshOutcomeSummaryCopySuccesses();
         renderManualRefreshOutcomeSummaryCopyFailures();
+        renderManualRefreshOutcomeSummaryCopySuccessRate();
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
