@@ -204,6 +204,14 @@
         aria-live="polite"
     ></span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-availability"
+        data-copy-availability="unavailable"
+        aria-live="polite"
+    >
+        Copy unavailable until a manual refresh completes.
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -340,6 +348,10 @@
         const manualRefreshOutcomeSummaryCopyStatus =
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-status'
+            );
+        const manualRefreshOutcomeSummaryCopyAvailability =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-availability'
             );
 
         let consecutiveFailures = 0;
@@ -570,7 +582,7 @@
                 status;
         };
 
-        const renderManualRefreshOutcomeSummaryCopyAvailability = () => {
+        const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
             const summaryState =
                 manualRefreshOutcomeSummary.dataset.summaryState;
             const summaryText =
@@ -579,11 +591,50 @@
                 summaryState !== 'unavailable'
                 && summaryText !== ''
                 && summaryText !== 'Not available';
-
-            manualRefreshOutcomeSummaryCopy.disabled =
-                !summaryAvailable;
+            const clipboardSupported =
+                window.isSecureContext
+                && navigator.clipboard
+                && typeof navigator.clipboard.writeText === 'function';
 
             if (!summaryAvailable) {
+                return {
+                    state: 'unavailable',
+                    text: 'Copy unavailable until a manual refresh completes.',
+                    disabled: true,
+                };
+            }
+
+            if (!clipboardSupported) {
+                return {
+                    state: 'unsupported',
+                    text: 'Clipboard access is unavailable in this browser context.',
+                    disabled: true,
+                };
+            }
+
+            return {
+                state: 'available',
+                text: 'Summary ready to copy.',
+                disabled: false,
+            };
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyAvailabilityFeedback = () => {
+            const availability =
+                formatManualRefreshOutcomeSummaryCopyAvailability();
+
+            manualRefreshOutcomeSummaryCopyAvailability.dataset.copyAvailability =
+                availability.state;
+            manualRefreshOutcomeSummaryCopyAvailability.textContent =
+                availability.text;
+            manualRefreshOutcomeSummaryCopy.disabled =
+                availability.disabled;
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyAvailability = () => {
+            renderManualRefreshOutcomeSummaryCopyAvailabilityFeedback();
+
+            if (manualRefreshOutcomeSummaryCopy.disabled) {
                 setManualRefreshOutcomeSummaryCopyStatus(
                     'Summary unavailable'
                 );
