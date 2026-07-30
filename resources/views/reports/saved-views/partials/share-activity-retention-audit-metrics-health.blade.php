@@ -582,6 +582,18 @@
                 status;
         };
 
+        const resetManualRefreshOutcomeSummaryCopyStatus = () => {
+            const availabilityState =
+                manualRefreshOutcomeSummaryCopyAvailability
+                    .dataset.copyAvailability;
+
+            setManualRefreshOutcomeSummaryCopyStatus(
+                availabilityState === 'available'
+                    ? ''
+                    : 'Summary unavailable'
+            );
+        };
+
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
             const summaryState =
                 manualRefreshOutcomeSummary.dataset.summaryState;
@@ -633,15 +645,7 @@
 
         const renderManualRefreshOutcomeSummaryCopyAvailability = () => {
             renderManualRefreshOutcomeSummaryCopyAvailabilityFeedback();
-
-            if (manualRefreshOutcomeSummaryCopy.disabled) {
-                setManualRefreshOutcomeSummaryCopyStatus(
-                    'Summary unavailable'
-                );
-                return;
-            }
-
-            setManualRefreshOutcomeSummaryCopyStatus('');
+            resetManualRefreshOutcomeSummaryCopyStatus();
         };
 
         const renderManualRefreshOutcomeSummary = (currentTime) => {
@@ -658,6 +662,8 @@
         };
 
         const copyManualRefreshOutcomeSummary = async () => {
+            resetManualRefreshOutcomeSummaryCopyStatus();
+
             const summaryState =
                 manualRefreshOutcomeSummary.dataset.summaryState;
             const summaryText =
