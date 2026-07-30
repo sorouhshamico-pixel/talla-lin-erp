@@ -240,6 +240,13 @@
         Copy success rate: <span>Not available</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome"
+        aria-live="polite"
+    >
+        Last copy outcome: <span>Not available</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -397,6 +404,10 @@
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-success-rate'
             ).querySelector('span');
+        const manualRefreshOutcomeSummaryCopyLastOutcome =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome'
+            ).querySelector('span');
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -406,6 +417,7 @@
         let manualRefreshOutcomeSummaryCopyAttemptCount = 0;
         let manualRefreshOutcomeSummaryCopySuccessCount = 0;
         let manualRefreshOutcomeSummaryCopyFailureCount = 0;
+        let lastManualRefreshOutcomeSummaryCopyOutcome = 'unavailable';
         let manualRefreshRequested = false;
         let lastManualRefreshOutcome = 'unavailable';
         let lastManualRefreshOutcomeAt = null;
@@ -684,8 +696,10 @@
                 manualRefreshOutcomeSummaryCopySuccessCount + 1,
                 999
             );
+            lastManualRefreshOutcomeSummaryCopyOutcome = 'success';
             renderManualRefreshOutcomeSummaryCopySuccesses();
             renderManualRefreshOutcomeSummaryCopySuccessRate();
+            renderManualRefreshOutcomeSummaryCopyLastOutcome();
         };
 
         const renderManualRefreshOutcomeSummaryCopyFailures = () => {
@@ -708,8 +722,10 @@
                 manualRefreshOutcomeSummaryCopyFailureCount + 1,
                 999
             );
+            lastManualRefreshOutcomeSummaryCopyOutcome = 'failure';
             renderManualRefreshOutcomeSummaryCopyFailures();
             renderManualRefreshOutcomeSummaryCopySuccessRate();
+            renderManualRefreshOutcomeSummaryCopyLastOutcome();
         };
 
         const renderManualRefreshOutcomeSummaryCopySuccessRate = () => {
@@ -738,6 +754,18 @@
                 Number.isFinite(percentage)
                     ? `${percentage.toFixed(1)}%`
                     : 'Not available';
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyLastOutcome = () => {
+            const labels = {
+                unavailable: 'Not available',
+                success: 'Success',
+                failure: 'Failure',
+            };
+
+            manualRefreshOutcomeSummaryCopyLastOutcome.textContent =
+                labels[lastManualRefreshOutcomeSummaryCopyOutcome]
+                ?? labels.unavailable;
         };
 
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
@@ -1428,6 +1456,7 @@
         renderManualRefreshOutcomeSummaryCopySuccesses();
         renderManualRefreshOutcomeSummaryCopyFailures();
         renderManualRefreshOutcomeSummaryCopySuccessRate();
+        renderManualRefreshOutcomeSummaryCopyLastOutcome();
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
