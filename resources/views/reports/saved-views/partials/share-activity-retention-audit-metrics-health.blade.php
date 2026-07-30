@@ -191,6 +191,20 @@
     </p>
 
     <button
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy"
+        type="button"
+        aria-live="off"
+        disabled
+    >
+        Copy summary
+    </button>
+
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-status"
+        aria-live="polite"
+    ></span>
+
+    <button
         id="retention-audit-metrics-health-refresh"
         type="button"
     >
@@ -319,6 +333,14 @@
         );
         const manualRefreshOutcomeSummaryValue =
             manualRefreshOutcomeSummary.querySelector('span');
+        const manualRefreshOutcomeSummaryCopy =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy'
+            );
+        const manualRefreshOutcomeSummaryCopyStatus =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-status'
+            );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -541,6 +563,36 @@
             };
         };
 
+        const setManualRefreshOutcomeSummaryCopyStatus = (
+            status
+        ) => {
+            manualRefreshOutcomeSummaryCopyStatus.textContent =
+                status;
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyAvailability = () => {
+            const summaryState =
+                manualRefreshOutcomeSummary.dataset.summaryState;
+            const summaryText =
+                manualRefreshOutcomeSummaryValue.textContent.trim();
+            const summaryAvailable =
+                summaryState !== 'unavailable'
+                && summaryText !== ''
+                && summaryText !== 'Not available';
+
+            manualRefreshOutcomeSummaryCopy.disabled =
+                !summaryAvailable;
+
+            if (!summaryAvailable) {
+                setManualRefreshOutcomeSummaryCopyStatus(
+                    'Summary unavailable'
+                );
+                return;
+            }
+
+            setManualRefreshOutcomeSummaryCopyStatus('');
+        };
+
         const renderManualRefreshOutcomeSummary = (currentTime) => {
             const summary = formatManualRefreshOutcomeSummary(
                 lastManualRefreshOutcome,
@@ -551,6 +603,47 @@
             manualRefreshOutcomeSummary.dataset.summaryState =
                 summary.state;
             manualRefreshOutcomeSummaryValue.textContent = summary.text;
+            renderManualRefreshOutcomeSummaryCopyAvailability();
+        };
+
+        const copyManualRefreshOutcomeSummary = async () => {
+            const summaryState =
+                manualRefreshOutcomeSummary.dataset.summaryState;
+            const summaryText =
+                manualRefreshOutcomeSummaryValue.textContent.trim();
+
+            if (
+                summaryState === 'unavailable'
+                || summaryText === ''
+                || summaryText === 'Not available'
+            ) {
+                setManualRefreshOutcomeSummaryCopyStatus(
+                    'Summary unavailable'
+                );
+                return;
+            }
+
+            if (
+                !window.isSecureContext
+                || !navigator.clipboard
+                || typeof navigator.clipboard.writeText !== 'function'
+            ) {
+                setManualRefreshOutcomeSummaryCopyStatus(
+                    'Copy failed'
+                );
+                return;
+            }
+
+            await navigator.clipboard.writeText(summaryText).then(
+                () => {
+                    setManualRefreshOutcomeSummaryCopyStatus('Copied');
+                },
+                () => {
+                    setManualRefreshOutcomeSummaryCopyStatus(
+                        'Copy failed'
+                    );
+                }
+            );
         };
 
         const setLastManualRefreshOutcomeTimestamp = () => {
@@ -1116,10 +1209,15 @@
             }
         };
 
+        manualRefreshOutcomeSummaryCopy.addEventListener(
+            'click',
+            copyManualRefreshOutcomeSummary
+        );
         refresh.addEventListener('click', () => {
             manualRefreshRequested = true;
         });
         refresh.addEventListener('click', loadHealth);
+        renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
 
