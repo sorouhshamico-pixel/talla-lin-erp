@@ -261,6 +261,14 @@
         Last copy outcome age: <span>Not available</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-freshness"
+        data-freshness-state="unavailable"
+        aria-live="polite"
+    >
+        Last copy outcome freshness: <span>Unavailable</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -430,6 +438,14 @@
             document.getElementById(
                 'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-age'
             ).querySelector('span');
+        const manualRefreshOutcomeSummaryCopyLastOutcomeFreshness =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-freshness'
+            );
+        const manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessValue =
+            manualRefreshOutcomeSummaryCopyLastOutcomeFreshness.querySelector(
+                'span'
+            );
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -728,6 +744,9 @@
             renderManualRefreshOutcomeSummaryCopyLastOutcomeAge(
                 lastManualRefreshOutcomeSummaryCopyOutcomeAt
             );
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
+                lastManualRefreshOutcomeSummaryCopyOutcomeAt
+            );
         };
 
         const renderManualRefreshOutcomeSummaryCopyFailures = () => {
@@ -757,6 +776,9 @@
             lastManualRefreshOutcomeSummaryCopyOutcomeAt = new Date();
             renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
             renderManualRefreshOutcomeSummaryCopyLastOutcomeAge(
+                lastManualRefreshOutcomeSummaryCopyOutcomeAt
+            );
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
                 lastManualRefreshOutcomeSummaryCopyOutcomeAt
             );
         };
@@ -860,6 +882,55 @@
                     lastManualRefreshOutcomeSummaryCopyOutcomeAt,
                     currentTime
                 );
+        };
+
+        const formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshness = (
+            outcomeAt,
+            currentTime
+        ) => {
+            if (
+                !(outcomeAt instanceof Date)
+                || Number.isNaN(outcomeAt.getTime())
+                || !(currentTime instanceof Date)
+                || Number.isNaN(currentTime.getTime())
+            ) {
+                return {
+                    state: 'unavailable',
+                    text: 'Unavailable',
+                };
+            }
+
+            const ageMinutes = Math.floor(
+                Math.max(
+                    0,
+                    currentTime.getTime() - outcomeAt.getTime()
+                ) / 60000
+            );
+
+            return ageMinutes <= 14
+                ? {
+                    state: 'fresh',
+                    text: 'Fresh',
+                }
+                : {
+                    state: 'stale',
+                    text: 'Stale',
+                };
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness = (
+            currentTime
+        ) => {
+            const freshness =
+                formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
+                    lastManualRefreshOutcomeSummaryCopyOutcomeAt,
+                    currentTime
+                );
+
+            manualRefreshOutcomeSummaryCopyLastOutcomeFreshness.dataset.freshnessState =
+                freshness.state;
+            manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessValue.textContent =
+                freshness.text;
         };
 
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
@@ -1553,6 +1624,7 @@
         renderManualRefreshOutcomeSummaryCopyLastOutcome();
         renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
         renderManualRefreshOutcomeSummaryCopyLastOutcomeAge(new Date());
+        renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(new Date());
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
