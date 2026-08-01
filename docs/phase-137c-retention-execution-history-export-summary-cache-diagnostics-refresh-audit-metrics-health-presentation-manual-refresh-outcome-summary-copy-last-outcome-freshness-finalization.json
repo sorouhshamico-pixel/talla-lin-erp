@@ -1,0 +1,134 @@
+{
+  "phase": "Phase 137C",
+  "title": "Finalize Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Last Outcome Freshness",
+  "type": "finalization",
+  "baseline": {
+    "phase": "Phase 137B",
+    "commit": "69e7bb7e59801eae188ed19fad15e1d99941428d",
+    "tests": 2615,
+    "assertions": 27748,
+    "working_tree_clean": true,
+    "registered_worktrees": 1
+  },
+  "scope": {
+    "runtime_changes_expected": false,
+    "database_changes_expected": false,
+    "migration_changes_expected": false,
+    "controller_changes_expected": false,
+    "route_changes_expected": false,
+    "view_changes_expected": false,
+    "health_class_changes_expected": false,
+    "documentation_and_tests_only": true
+  },
+  "locked_implementation": {
+    "target_partial": "resources/views/reports/saved-views/partials/share-activity-retention-audit-metrics-health.blade.php",
+    "freshness_element": {
+      "id": "retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-freshness",
+      "prefix": "Last copy outcome freshness:",
+      "initial_state": "unavailable",
+      "initial_text": "Unavailable",
+      "dataset_key": "freshnessState",
+      "aria_live": "polite"
+    },
+    "state_sources": {
+      "container": "manualRefreshOutcomeSummaryCopyLastOutcomeFreshness",
+      "value_element": "manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessValue",
+      "timestamp_variable": "lastManualRefreshOutcomeSummaryCopyOutcomeAt",
+      "formatter": "formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshness",
+      "renderer": "renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness",
+      "client_memory_only": true,
+      "persistent_storage_used": false
+    },
+    "formatting_rules": {
+      "invalid_state": "unavailable",
+      "invalid_text": "Unavailable",
+      "negative_age_clamped_to_zero": true,
+      "fresh_threshold_minutes_inclusive": 14,
+      "fresh_state": "fresh",
+      "fresh_text": "Fresh",
+      "stale_state": "stale",
+      "stale_text": "Stale",
+      "success_render_argument": "lastManualRefreshOutcomeSummaryCopyOutcomeAt",
+      "failure_render_argument": "lastManualRefreshOutcomeSummaryCopyOutcomeAt",
+      "initialization_render_argument": "new Date()",
+      "renderer_invocation_count": 3
+    },
+    "refresh_behavior": {
+      "timer_added": false,
+      "polling_added": false,
+      "timeout_added": false,
+      "automatic_refresh_added": false,
+      "automatic_reset_added": false,
+      "existing_render_paths_only": true
+    },
+    "preservation": {
+      "age_element": true,
+      "age_formatter": true,
+      "age_renderer": true,
+      "age_renderer_invocation_count": 3,
+      "timestamp_element": true,
+      "timestamp_variable": true,
+      "timestamp_renderer": true,
+      "timestamp_renderer_invocation_count": 3,
+      "resolved_timestamp_assignment_count": 1,
+      "rejected_timestamp_assignment_count": 1,
+      "attempt_counter": true,
+      "success_counter": true,
+      "failure_counter": true,
+      "success_rate": true,
+      "last_outcome": true,
+      "last_outcome_timestamp": true,
+      "last_outcome_age": true
+    },
+    "source_order": {
+      "phase_134b_success_adjacency": true,
+      "phase_134b_failure_adjacency": true,
+      "phase_135b_timestamp_after_last_outcome": true,
+      "phase_135b_timestamp_renderer_after_assignment": true,
+      "phase_136b_age_renderer_after_timestamp_renderer": true,
+      "phase_137b_freshness_renderer_after_age_renderer": true,
+      "must_remain_unchanged": true
+    },
+    "copy_behavior": {
+      "handler": "copyManualRefreshOutcomeSummary",
+      "status_resetter": "resetManualRefreshOutcomeSummaryCopyStatus",
+      "clipboard_api": "navigator.clipboard.writeText",
+      "promise_callbacks_preserved": true,
+      "success_literal": "setManualRefreshOutcomeSummaryCopyStatus('Copied');",
+      "failure_label": "Copy failed",
+      "unavailable_label": "Summary unavailable",
+      "fallback_added": false,
+      "try_catch_added_before_load_health": false
+    },
+    "legacy": {
+      "load_health_signature": "const loadHealth = async () => {",
+      "refresh_listener": "refresh.addEventListener('click', loadHealth);",
+      "initial_load": "loadHealth();",
+      "try_catch_ordering_preserved": true,
+      "phase_123b_literal": "lastManualRefreshOutcomeAt.toLocaleString();",
+      "must_remain_unchanged": true
+    },
+    "implementation_scope": {
+      "partial_modified": true,
+      "phase_137b_test_added": true,
+      "maximum_modified_files": 2,
+      "parent_view_modified": false,
+      "controller_modified": false,
+      "route_modified": false,
+      "health_class_modified": false,
+      "database_modified": false,
+      "migration_modified": false,
+      "model_modified": false
+    }
+  },
+  "workflow": {
+    "branch": "main",
+    "push_target": "origin/main",
+    "full_suite_runs": "once before commit",
+    "post_commit_full_suite": false
+  },
+  "next_recommendation": {
+    "phase": "Phase 138A",
+    "title": "Prepare Saved View Sharing Activity Retention Execution History Export Summary Cache Diagnostics Refresh Audit Metrics Health Presentation Manual Refresh Outcome Summary Copy Last Outcome Freshness Reason Contract"
+  }
+}
