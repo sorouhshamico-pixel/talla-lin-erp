@@ -269,6 +269,13 @@
         Last copy outcome freshness: <span>Unavailable</span>
     </span>
 
+    <span
+        id="retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-freshness-reason"
+        aria-live="polite"
+    >
+        Freshness reason: <span>No completed copy outcome yet.</span>
+    </span>
+
     <button
         id="retention-audit-metrics-health-refresh"
         type="button"
@@ -446,6 +453,10 @@
             manualRefreshOutcomeSummaryCopyLastOutcomeFreshness.querySelector(
                 'span'
             );
+        const manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason =
+            document.getElementById(
+                'retention-audit-metrics-health-manual-refresh-outcome-summary-copy-last-outcome-freshness-reason'
+            ).querySelector('span');
 
         let consecutiveFailures = 0;
         let lastSuccessfulCheckAt = null;
@@ -747,6 +758,9 @@
             renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
                 lastManualRefreshOutcomeSummaryCopyOutcomeAt
             );
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason(
+                lastManualRefreshOutcomeSummaryCopyOutcomeAt
+            );
         };
 
         const renderManualRefreshOutcomeSummaryCopyFailures = () => {
@@ -779,6 +793,9 @@
                 lastManualRefreshOutcomeSummaryCopyOutcomeAt
             );
             renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
+                lastManualRefreshOutcomeSummaryCopyOutcomeAt
+            );
+            renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason(
                 lastManualRefreshOutcomeSummaryCopyOutcomeAt
             );
         };
@@ -931,6 +948,37 @@
                 freshness.state;
             manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessValue.textContent =
                 freshness.text;
+        };
+
+        const formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason = (
+            outcomeAt,
+            currentTime
+        ) => {
+            const freshness =
+                formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(
+                    outcomeAt,
+                    currentTime
+                );
+
+            if (freshness.state === 'fresh') {
+                return 'The latest copy outcome is within the 14-minute freshness window.';
+            }
+
+            if (freshness.state === 'stale') {
+                return 'The latest copy outcome is older than the 14-minute freshness window.';
+            }
+
+            return 'No completed copy outcome yet.';
+        };
+
+        const renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason = (
+            currentTime
+        ) => {
+            manualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason.textContent =
+                formatManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason(
+                    lastManualRefreshOutcomeSummaryCopyOutcomeAt,
+                    currentTime
+                );
         };
 
         const formatManualRefreshOutcomeSummaryCopyAvailability = () => {
@@ -1625,6 +1673,9 @@
         renderManualRefreshOutcomeSummaryCopyLastOutcomeAt();
         renderManualRefreshOutcomeSummaryCopyLastOutcomeAge(new Date());
         renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshness(new Date());
+        renderManualRefreshOutcomeSummaryCopyLastOutcomeFreshnessReason(
+            new Date()
+        );
         renderManualRefreshOutcomeSummaryCopyAvailability();
         loadHealth();
     };
