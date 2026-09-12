@@ -65,6 +65,50 @@ class SalesOrderConversionTest extends TestCase
         $response->assertRedirect('/sales-orders/' . $salesOrder->id);
     }
 
+    public function test_accepted_quotation_cannot_be_converted_twice(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل تحويل مكرر',
+            'phone' => '0599999998',
+            'email' => 'double-conversion@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000002',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'accepted',
+            'total_amount' => 2500,
+            'notes' => 'محاولة تحويل مكررة',
+        ]);
+
+        $quotation->items()->create([
+            'description' => 'خرسانة جاهزة C30',
+            'quantity' => 10,
+            'unit_price' => 250,
+            'line_total' => 2500,
+        ]);
+
+        $this->actingAs($user)->post('/quotations/' . $quotation->id . '/convert-to-sales-order');
+
+        $this->assertDatabaseCount('sales_orders', 1);
+
+        $response = $this->actingAs($user)
+            ->from('/quotations/' . $quotation->id)
+            ->post('/quotations/' . $quotation->id . '/convert-to-sales-order');
+
+        $response->assertRedirect('/quotations/' . $quotation->id);
+        $response->assertSessionHasErrors('quotation_status');
+
+        $this->assertDatabaseCount('sales_orders', 1);
+    }
+
     public function test_non_accepted_quotation_cannot_be_converted_to_sales_order(): void
     {
         $user = User::factory()->create();

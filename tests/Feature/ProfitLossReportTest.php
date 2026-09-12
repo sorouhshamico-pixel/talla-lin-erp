@@ -239,6 +239,15 @@ class ProfitLossReportTest extends TestCase
         return 0;
     }
 
+    public function test_profit_loss_report_rejects_non_scalar_branch_id_filter(): void
+    {
+        $this->actingAsOwner();
+
+        $response = $this->get(route('reports.profit-loss', ['branch_id' => [1, 2]]));
+
+        $response->assertSessionHasErrors('branch_id');
+    }
+
     /**
      * @return array{0: int, 1: int}
      */

@@ -49,6 +49,33 @@ class DeliveryNoteConversionTest extends TestCase
         $response->assertRedirect('/delivery-notes/' . $deliveryNote->id);
     }
 
+    public function test_confirmed_sales_order_cannot_be_converted_twice(): void
+    {
+        $user = User::factory()->create();
+
+        $salesOrder = $this->createSalesOrder('confirmed');
+
+        $salesOrder->items()->create([
+            'description' => 'خرسانة جاهزة C30',
+            'quantity' => 10,
+            'unit_price' => 250,
+            'line_total' => 2500,
+        ]);
+
+        $this->actingAs($user)->post('/sales-orders/' . $salesOrder->id . '/convert-to-delivery-note');
+
+        $this->assertDatabaseCount('delivery_notes', 1);
+
+        $response = $this->actingAs($user)
+            ->from('/sales-orders/' . $salesOrder->id)
+            ->post('/sales-orders/' . $salesOrder->id . '/convert-to-delivery-note');
+
+        $response->assertRedirect('/sales-orders/' . $salesOrder->id);
+        $response->assertSessionHasErrors('sales_order_status');
+
+        $this->assertDatabaseCount('delivery_notes', 1);
+    }
+
     public function test_non_confirmed_sales_order_cannot_be_converted_to_delivery_note(): void
     {
         $user = User::factory()->create();

@@ -142,10 +142,16 @@ class ProfitLossReportController extends Controller
      */
     private function filters(Request $request): array
     {
+        $validated = $request->validate([
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date'],
+            'branch_id' => ['nullable', 'integer'],
+        ]);
+
         return [
-            'from_date' => $request->query('from_date'),
-            'to_date' => $request->query('to_date'),
-            'branch_id' => $request->query('branch_id'),
+            'from_date' => $validated['from_date'] ?? null,
+            'to_date' => $validated['to_date'] ?? null,
+            'branch_id' => $validated['branch_id'] ?? null,
         ];
     }
 

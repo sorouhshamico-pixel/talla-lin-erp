@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\DeliveryNote;
 use App\Models\SalesOrder;
+use DomainException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class DeliveryNoteConversionController extends Controller
 {
@@ -16,25 +19,49 @@ class DeliveryNoteConversionController extends Controller
                 ->withErrors(['sales_order_status' => 'لا يمكن إنشاء سند تسليم إلا من أمر بيع مؤكد.']);
         }
 
-        $salesOrder->load('items');
+        try {
+            $deliveryNote = DB::transaction(function () use ($salesOrder) {
+                $locked = SalesOrder::query()->whereKey($salesOrder->id)->lockForUpdate()->firstOrFail();
 
-        $deliveryNote = DeliveryNote::create([
-            'delivery_note_number' => $this->generateDeliveryNoteNumber(),
-            'sales_order_id' => $salesOrder->id,
-            'customer_id' => $salesOrder->customer_id,
-            'delivery_note_date' => now()->toDateString(),
-            'status' => 'draft',
-            'total_amount' => $salesOrder->total_amount,
-            'notes' => $salesOrder->notes,
-        ]);
+                if ($locked->status !== 'confirmed') {
+                    throw new DomainException('sales_order_not_confirmed');
+                }
 
-        foreach ($salesOrder->items as $item) {
-            $deliveryNote->items()->create([
-                'description' => $item->description,
-                'quantity' => $item->quantity,
-                'unit_price' => $item->unit_price,
-                'line_total' => $item->line_total,
-            ]);
+                if (DeliveryNote::query()->where('sales_order_id', $locked->id)->exists()) {
+                    throw new DomainException('sales_order_already_converted');
+                }
+
+                $locked->load('items');
+
+                $deliveryNote = DeliveryNote::create([
+                    'delivery_note_number' => $this->generateDeliveryNoteNumber(),
+                    'sales_order_id' => $locked->id,
+                    'customer_id' => $locked->customer_id,
+                    'delivery_note_date' => now()->toDateString(),
+                    'status' => 'draft',
+                    'total_amount' => $locked->total_amount,
+                    'notes' => $locked->notes,
+                ]);
+
+                foreach ($locked->items as $item) {
+                    $deliveryNote->items()->create([
+                        'description' => $item->description,
+                        'quantity' => $item->quantity,
+                        'unit_price' => $item->unit_price,
+                        'line_total' => $item->line_total,
+                    ]);
+                }
+
+                return $deliveryNote;
+            });
+        } catch (DomainException) {
+            return redirect()
+                ->route('sales-orders.show', $salesOrder)
+                ->withErrors(['sales_order_status' => 'تم تحويل أمر البيع هذا مسبقاً إلى سند تسليم.']);
+        } catch (UniqueConstraintViolationException) {
+            return redirect()
+                ->route('sales-orders.show', $salesOrder)
+                ->withErrors(['sales_order_status' => 'حدث تعارض أثناء إنشاء رقم سند التسليم، الرجاء إعادة المحاولة.']);
         }
 
         return redirect('/delivery-notes/' . $deliveryNote->id);
@@ -44,6 +71,7 @@ class DeliveryNoteConversionController extends Controller
     {
         $lastNumber = DeliveryNote::query()
             ->whereNotNull('delivery_note_number')
+            ->lockForUpdate()
             ->orderByDesc('id')
             ->value('delivery_note_number');
 
