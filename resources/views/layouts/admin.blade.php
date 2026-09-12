@@ -108,6 +108,25 @@
 
         .content {
             padding: 28px;
+            animation: admin-content-enter .22s ease-out both;
+        }
+
+        @keyframes admin-content-enter {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .content {
+                animation: none;
+            }
         }
 
         .card {
@@ -225,6 +244,8 @@
             }
         }
     </style>
+
+    @stack('styles')
 </head>
 <body>
     <div class="admin-shell">
@@ -305,5 +326,7 @@
             </main>
         </section>
     </div>
+
+    @stack('scripts')
 </body>
 </html>

@@ -1,11 +1,24 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>تفاصيل العميل</title>
-    <style>
-        body { font-family: Tahoma, Arial, sans-serif; background: #f6f7fb; color: #111827; margin: 0; padding: 24px; }
-        .container { max-width: 980px; margin: 0 auto; }
+@extends('layouts.admin')
+
+@php
+    $title = 'تفاصيل العميل';
+    $header = 'العملاء';
+@endphp
+
+@push('styles')
+<style>
+    .customer-page {
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .customer-page .container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
         .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(15, 23, 42, .05); }
         h1 { margin: 0 0 8px; font-size: 28px; }
         .muted { color: #6b7280; font-size: 14px; }
@@ -46,10 +59,11 @@
         .contact-log-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
         .contact-log-meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
         .contact-log-summary { white-space: pre-wrap; font-weight: 700; }
-
 </style>
-</head>
-<body>
+@endpush
+
+@section('content')
+<div class="customer-page">
 <div class="container" data-testid="customers-show">
     <div class="card">
         <h1>تفاصيل العميل</h1>
@@ -735,6 +749,5 @@
             <a href="{{ route('party-duplicates.index') }}" class="btn secondary" data-testid="customers-duplicates-center-link">فتح مركز التكرارات</a>
         </div>
     </div>
-
-</body>
-</html>
+</div>
+@endsection
