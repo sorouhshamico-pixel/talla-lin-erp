@@ -239,37 +239,34 @@ Route::get('/reports/customer-sales-invoice-aging', [\App\Http\Controllers\Custo
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-// Expense category activation toggle - Stage 11C
-Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controllers\ExpenseCategoryController::class, 'toggle'])
-    ->name('expense-categories.toggle');
+Route::middleware('auth')->group(function () {
+    // Expense category activation toggle - Stage 11C
+    Route::patch('/expense-categories/{expenseCategory}/toggle', [\App\Http\Controllers\ExpenseCategoryController::class, 'toggle'])
+        ->name('expense-categories.toggle');
 
+    // Expense category delete route - Stage 11C
+    Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
 
-// Expense category delete route - Stage 11C
-Route::delete('/expense-categories/{expenseCategory}', [\App\Http\Controllers\ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
+    Route::get('/revenue-categories', [RevenueCategoryController::class, 'index'])->name('revenue-categories.index');
+    Route::post('/revenue-categories', [RevenueCategoryController::class, 'store'])->name('revenue-categories.store');
+    Route::get('/revenue-categories/{revenueCategory}/edit', [RevenueCategoryController::class, 'edit'])->name('revenue-categories.edit');
+    Route::put('/revenue-categories/{revenueCategory}', [RevenueCategoryController::class, 'update'])->name('revenue-categories.update');
+    Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryController::class, 'toggle'])->name('revenue-categories.toggle');
+    Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
+    Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
+    Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
+    Route::get('/revenues/{revenue}/edit', [RevenueController::class, 'edit'])->name('revenues.edit');
+    Route::put('/revenues/{revenue}', [RevenueController::class, 'update'])->name('revenues.update');
+    Route::patch('/revenues/{revenue}/toggle-collection', [RevenueController::class, 'toggleCollection'])->name('revenues.toggle-collection');
+    Route::patch('/revenues/{revenue}/archive', [RevenueController::class, 'archive'])->name('revenues.archive');
+    Route::patch('/revenues/{revenue}/restore', [RevenueController::class, 'restore'])->name('revenues.restore');
 
-Route::get('/revenue-categories', [RevenueCategoryController::class, 'index'])->name('revenue-categories.index');
-Route::post('/revenue-categories', [RevenueCategoryController::class, 'store'])->name('revenue-categories.store');
-Route::get('/revenue-categories/{revenueCategory}/edit', [RevenueCategoryController::class, 'edit'])->name('revenue-categories.edit');
-Route::put('/revenue-categories/{revenueCategory}', [RevenueCategoryController::class, 'update'])->name('revenue-categories.update');
-Route::patch('/revenue-categories/{revenueCategory}/toggle', [RevenueCategoryController::class, 'toggle'])->name('revenue-categories.toggle');
-Route::get('/revenues', [RevenueController::class, 'index'])->name('revenues.index');
-Route::get('/revenues/create', [RevenueController::class, 'create'])->name('revenues.create');
-Route::post('/revenues', [RevenueController::class, 'store'])->name('revenues.store');
-Route::get('/revenues/{revenue}/edit', [RevenueController::class, 'edit'])->name('revenues.edit');
-Route::put('/revenues/{revenue}', [RevenueController::class, 'update'])->name('revenues.update');
-Route::patch('/revenues/{revenue}/toggle-collection', [RevenueController::class, 'toggleCollection'])->name('revenues.toggle-collection');
-Route::patch('/revenues/{revenue}/archive', [RevenueController::class, 'archive'])->name('revenues.archive');
-Route::patch('/revenues/{revenue}/restore', [RevenueController::class, 'restore'])->name('revenues.restore');
-
-Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
-Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');
-Route::get('/expenses/export/large-paid', [ExpenseController::class, 'exportLargePaid'])->name('expenses.export-large-paid');
-Route::get('/revenues/export', [\App\Http\Controllers\RevenueController::class, 'exportCsv'])
-    ->middleware(['auth'])
-    ->name('revenues.export');
-Route::get('/revenues/uncollected/export', [\App\Http\Controllers\RevenueController::class, 'exportUncollectedCsv'])
-    ->middleware(['auth'])
-    ->name('revenues.uncollected.export');
+    Route::get('/expenses/export/top-large', [ExpenseController::class, 'exportTopLarge'])->name('expenses.export-top-large');
+    Route::get('/expenses/export/large-unpaid', [ExpenseController::class, 'exportLargeUnpaid'])->name('expenses.export-large-unpaid');
+    Route::get('/expenses/export/large-paid', [ExpenseController::class, 'exportLargePaid'])->name('expenses.export-large-paid');
+    Route::get('/revenues/export', [\App\Http\Controllers\RevenueController::class, 'exportCsv'])->name('revenues.export');
+    Route::get('/revenues/uncollected/export', [\App\Http\Controllers\RevenueController::class, 'exportUncollectedCsv'])->name('revenues.uncollected.export');
+});
 
 
 Route::get('/reports/profit-loss', \App\Http\Controllers\ProfitLossReportController::class)
