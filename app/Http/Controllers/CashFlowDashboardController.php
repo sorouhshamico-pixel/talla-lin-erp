@@ -33,15 +33,23 @@ class CashFlowDashboardController extends Controller
         return view('reports.cash-flow-dashboard', $viewData);
     }
 
-    public function print(Request $request, ReportFilterPreferenceService $filterPreferences): View
-    {
+    public function print(
+        Request $request,
+        ReportFilterPreferenceService $filterPreferences,
+        ReportSavedViewService $savedViews
+    ): View {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
 
         return view('reports.cash-flow-dashboard-print', $this->dashboardData($request));
     }
 
-    public function export(Request $request, ReportFilterPreferenceService $filterPreferences)
-    {
+    public function export(
+        Request $request,
+        ReportFilterPreferenceService $filterPreferences,
+        ReportSavedViewService $savedViews
+    ) {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
         $request = $this->requestWithFilterPreferences($request, $filterPreferences, false);
 
         $data = $this->dashboardData($request);

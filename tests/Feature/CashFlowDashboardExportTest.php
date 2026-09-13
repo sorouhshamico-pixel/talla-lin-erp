@@ -7,6 +7,7 @@ use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Services\ReportSavedViewService;
 use Carbon\Carbon;
 use Database\Seeders\InitialSetupSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -104,6 +105,58 @@ class CashFlowDashboardExportTest extends TestCase
         $this->assertStringContainsString('-2000.00', $content);
         $this->assertStringContainsString('2000.00', $content);
         $this->assertStringContainsString('60.00%', $content);
+    }
+
+    public function test_cash_flow_dashboard_export_applies_users_default_saved_view(): void
+    {
+        $user = User::query()->firstOrFail();
+
+        SalesInvoice::query()->delete();
+        PurchaseInvoice::query()->delete();
+
+        $branchIds = DB::table('branches')->orderBy('id')->pluck('id')->all();
+        $this->assertGreaterThanOrEqual(2, count($branchIds), 'InitialSetupSeeder must create at least two branches.');
+        [$includedBranchId, $excludedBranchId] = $branchIds;
+
+        $customer = $this->createCustomer(['name' => 'عميل الفرع المضمّن', 'phone' => '0579852341']);
+
+        $this->createSalesInvoice([
+            'branch_id' => $includedBranchId,
+            'customer_id' => $customer->id,
+            'invoice_number' => 'SI-CASH-FLOW-DEFAULT-INCLUDED',
+            'remaining_amount' => 4000,
+            'grand_total' => 4000,
+            'subtotal' => 4000,
+            'due_at' => '2026-07-01 09:00:00',
+        ]);
+
+        $this->createSalesInvoice([
+            'branch_id' => $excludedBranchId,
+            'customer_id' => $customer->id,
+            'invoice_number' => 'SI-CASH-FLOW-DEFAULT-EXCLUDED',
+            'remaining_amount' => 9000,
+            'grand_total' => 9000,
+            'subtotal' => 9000,
+            'due_at' => '2026-07-01 09:00:00',
+        ]);
+
+        app(ReportSavedViewService::class)->save(
+            $user,
+            'cash-flow-dashboard',
+            'عرض الفرع الافتراضي',
+            ['branch_id' => $includedBranchId],
+            true
+        );
+
+        $response = $this->actingAs($user)->get(route('reports.cash-flow-dashboard.export'));
+
+        $response->assertOk();
+
+        $content = $response->streamedContent();
+
+        $this->assertStringContainsString('4000.00', $content);
+        $this->assertStringNotContainsString('9000.00', $content);
+        $this->assertStringNotContainsString('13000.00', $content);
     }
 
     private function createCustomer(array $overrides = []): Customer

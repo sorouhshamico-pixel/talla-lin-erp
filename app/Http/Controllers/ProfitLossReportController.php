@@ -42,8 +42,10 @@ class ProfitLossReportController extends Controller
         ]));
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request, ReportSavedViewService $savedViews): StreamedResponse
     {
+        $request = $this->requestWithDefaultSavedView($request, $savedViews);
+
         $filters = $this->filters($request);
         $summary = $this->summary($filters);
 

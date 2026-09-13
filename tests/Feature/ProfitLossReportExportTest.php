@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\ReportSavedViewService;
 use Database\Seeders\InitialSetupSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -128,6 +129,52 @@ class ProfitLossReportExportTest extends TestCase
 
         $this->assertStringNotContainsString('11000.00', $content);
         $this->assertStringNotContainsString('4000.00', $content);
+    }
+
+    public function test_profit_loss_report_export_applies_users_default_saved_view(): void
+    {
+        $this->actingAsOwner();
+
+        DB::table('expenses')->delete();
+        DB::table('revenues')->delete();
+
+        [$includedBranchId, $excludedBranchId] = $this->twoBranchIds();
+
+        $this->insertRevenue([
+            'code' => 'REV-EXPORT-DEFAULT-INCLUDED',
+            'description' => 'Revenue default view included',
+            'amount' => 6000,
+            'tax_amount' => 900,
+            'branch_id' => $includedBranchId,
+            'revenue_date' => '2026-01-10',
+        ]);
+
+        $this->insertRevenue([
+            'code' => 'REV-EXPORT-DEFAULT-EXCLUDED',
+            'description' => 'Revenue default view excluded',
+            'amount' => 13000,
+            'tax_amount' => 1950,
+            'branch_id' => $excludedBranchId,
+            'revenue_date' => '2026-01-10',
+        ]);
+
+        app(ReportSavedViewService::class)->save(
+            User::query()->firstOrFail(),
+            'profit-loss',
+            'عرض الفرع الافتراضي',
+            ['branch_id' => $includedBranchId],
+            true
+        );
+
+        $response = $this->get(route('reports.profit-loss.export'));
+
+        $response->assertOk();
+
+        $content = $response->streamedContent();
+
+        $this->assertStringContainsString('6000.00', $content);
+        $this->assertStringNotContainsString('13000.00', $content);
+        $this->assertStringNotContainsString('19000.00', $content);
     }
 
     /**
