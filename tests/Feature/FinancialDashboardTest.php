@@ -134,6 +134,46 @@ class FinancialDashboardTest extends TestCase
         $response->assertDontSee('60,000.00 ريال');
     }
 
+    public function test_financial_dashboard_excludes_archived_revenues(): void
+    {
+        $this->actingAsOwner();
+
+        DB::table('expenses')->delete();
+        DB::table('revenues')->delete();
+
+        $branchId = (int) DB::table('branches')->orderBy('id')->value('id');
+
+        $this->insertRevenue([
+            'code' => 'REV-ACTIVE-001',
+            'description' => 'Active current month revenue',
+            'amount' => 5000,
+            'tax_amount' => 750,
+            'branch_id' => $branchId,
+            'revenue_date' => '2026-06-10',
+            'is_collected' => false,
+        ]);
+
+        $this->insertRevenue([
+            'code' => 'REV-ARCHIVED-001',
+            'description' => 'Archived current month revenue',
+            'amount' => 9000,
+            'tax_amount' => 1350,
+            'branch_id' => $branchId,
+            'revenue_date' => '2026-06-15',
+            'is_collected' => false,
+            'archived_at' => now(),
+        ]);
+
+        $response = $this->get(route('reports.financial-dashboard'));
+
+        $response->assertOk();
+
+        // Only the active revenue's totals should be reflected, not
+        // active+archived combined (14,000.00).
+        $response->assertSee('5,000.00 ريال');
+        $response->assertDontSee('14,000.00 ريال');
+    }
+
     /**
      * @param array<string, mixed> $overrides
      */
@@ -154,7 +194,7 @@ class FinancialDashboardTest extends TestCase
             'is_collected' => $overrides['is_collected'],
             'reference_number' => null,
             'notes' => null,
-            'archived_at' => null,
+            'archived_at' => $overrides['archived_at'] ?? null,
             'created_at' => $now,
             'updated_at' => $now,
         ]);

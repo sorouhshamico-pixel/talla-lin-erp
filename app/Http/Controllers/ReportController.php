@@ -96,48 +96,93 @@ class ReportController extends Controller
             $expenseBaseQuery->where('payment_method', $filters['payment_method']);
         }
 
+        $salesTotals = (clone $salesBaseQuery)
+            ->selectRaw(
+                'COUNT(*) as count, ' .
+                'COALESCE(SUM(subtotal), 0) as subtotal, ' .
+                'COALESCE(SUM(discount_total), 0) as discount_total, ' .
+                'COALESCE(SUM(tax_total), 0) as tax_total, ' .
+                'COALESCE(SUM(grand_total), 0) as grand_total, ' .
+                'COALESCE(SUM(paid_amount), 0) as paid_amount, ' .
+                'COALESCE(SUM(remaining_amount), 0) as remaining_amount'
+            )
+            ->first();
+
         $sales = [
-            'count' => (clone $salesBaseQuery)->count(),
-            'subtotal' => round((float) (clone $salesBaseQuery)->sum('subtotal'), 2),
-            'discount_total' => round((float) (clone $salesBaseQuery)->sum('discount_total'), 2),
-            'tax_total' => round((float) (clone $salesBaseQuery)->sum('tax_total'), 2),
-            'grand_total' => round((float) (clone $salesBaseQuery)->sum('grand_total'), 2),
-            'paid_amount' => round((float) (clone $salesBaseQuery)->sum('paid_amount'), 2),
-            'remaining_amount' => round((float) (clone $salesBaseQuery)->sum('remaining_amount'), 2),
+            'count' => (int) $salesTotals->count,
+            'subtotal' => round((float) $salesTotals->subtotal, 2),
+            'discount_total' => round((float) $salesTotals->discount_total, 2),
+            'tax_total' => round((float) $salesTotals->tax_total, 2),
+            'grand_total' => round((float) $salesTotals->grand_total, 2),
+            'paid_amount' => round((float) $salesTotals->paid_amount, 2),
+            'remaining_amount' => round((float) $salesTotals->remaining_amount, 2),
         ];
+
+        $purchaseTotals = (clone $purchaseBaseQuery)
+            ->selectRaw(
+                'COUNT(*) as count, ' .
+                'COALESCE(SUM(subtotal), 0) as subtotal, ' .
+                'COALESCE(SUM(discount_total), 0) as discount_total, ' .
+                'COALESCE(SUM(tax_total), 0) as tax_total, ' .
+                'COALESCE(SUM(grand_total), 0) as grand_total, ' .
+                'COALESCE(SUM(paid_amount), 0) as paid_amount, ' .
+                'COALESCE(SUM(remaining_amount), 0) as remaining_amount'
+            )
+            ->first();
 
         $purchases = [
-            'count' => (clone $purchaseBaseQuery)->count(),
-            'subtotal' => round((float) (clone $purchaseBaseQuery)->sum('subtotal'), 2),
-            'discount_total' => round((float) (clone $purchaseBaseQuery)->sum('discount_total'), 2),
-            'tax_total' => round((float) (clone $purchaseBaseQuery)->sum('tax_total'), 2),
-            'grand_total' => round((float) (clone $purchaseBaseQuery)->sum('grand_total'), 2),
-            'paid_amount' => round((float) (clone $purchaseBaseQuery)->sum('paid_amount'), 2),
-            'remaining_amount' => round((float) (clone $purchaseBaseQuery)->sum('remaining_amount'), 2),
+            'count' => (int) $purchaseTotals->count,
+            'subtotal' => round((float) $purchaseTotals->subtotal, 2),
+            'discount_total' => round((float) $purchaseTotals->discount_total, 2),
+            'tax_total' => round((float) $purchaseTotals->tax_total, 2),
+            'grand_total' => round((float) $purchaseTotals->grand_total, 2),
+            'paid_amount' => round((float) $purchaseTotals->paid_amount, 2),
+            'remaining_amount' => round((float) $purchaseTotals->remaining_amount, 2),
         ];
 
+        $expenseTotals = (clone $expenseBaseQuery)
+            ->selectRaw(
+                'COUNT(*) as count, ' .
+                'COALESCE(SUM(amount), 0) as amount, ' .
+                'COALESCE(SUM(tax_amount), 0) as tax_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN amount ELSE 0 END), 0) as paid_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 0 ELSE amount END), 0) as unpaid_amount'
+            )
+            ->first();
+
         $expenses = [
-            'count' => (clone $expenseBaseQuery)->count(),
-            'amount' => round((float) (clone $expenseBaseQuery)->sum('amount'), 2),
-            'tax_amount' => round((float) (clone $expenseBaseQuery)->sum('tax_amount'), 2),
-            'paid_amount' => round((float) (clone $expenseBaseQuery)->where('is_paid', true)->sum('amount'), 2),
-            'unpaid_amount' => round((float) (clone $expenseBaseQuery)->where('is_paid', false)->sum('amount'), 2),
+            'count' => (int) $expenseTotals->count,
+            'amount' => round((float) $expenseTotals->amount, 2),
+            'tax_amount' => round((float) $expenseTotals->tax_amount, 2),
+            'paid_amount' => round((float) $expenseTotals->paid_amount, 2),
+            'unpaid_amount' => round((float) $expenseTotals->unpaid_amount, 2),
         ];
 
         $expenseCategoryBreakdown = $this->expenseCategoryBreakdown(clone $expenseBaseQuery);
         $expensePaymentBreakdown = $this->expensePaymentBreakdown(clone $expenseBaseQuery, $paymentMethods);
 
+        $inventoryTotals = (clone $inventoryBaseQuery)
+            ->selectRaw(
+                'COUNT(DISTINCT inventory_balances.product_id) as products_count, ' .
+                'COUNT(DISTINCT inventory_balances.product_variant_id) as variants_count, ' .
+                'COALESCE(SUM(inventory_balances.quantity_on_hand), 0) as quantity_on_hand, ' .
+                'COALESCE(SUM(inventory_balances.quantity_reserved), 0) as quantity_reserved, ' .
+                'COALESCE(SUM(inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved), 0) as available_quantity, ' .
+                'COALESCE(SUM(inventory_balances.quantity_on_hand * product_variants.cost_price), 0) as cost_value, ' .
+                'COALESCE(SUM(inventory_balances.quantity_on_hand * product_variants.sale_price), 0) as sale_value, ' .
+                'COALESCE(SUM(CASE WHEN (inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved) <= inventory_balances.reorder_level THEN 1 ELSE 0 END), 0) as low_stock_count'
+            )
+            ->first();
+
         $inventory = [
-            'products_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_id')->count('inventory_balances.product_id'),
-            'variants_count' => (clone $inventoryBaseQuery)->distinct('inventory_balances.product_variant_id')->count('inventory_balances.product_variant_id'),
-            'quantity_on_hand' => round((float) (clone $inventoryBaseQuery)->sum('inventory_balances.quantity_on_hand'), 3),
-            'quantity_reserved' => round((float) (clone $inventoryBaseQuery)->sum('inventory_balances.quantity_reserved'), 3),
-            'available_quantity' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved) as total')->value('total'), 3),
-            'cost_value' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand * product_variants.cost_price) as total')->value('total'), 2),
-            'sale_value' => round((float) (clone $inventoryBaseQuery)->selectRaw('SUM(inventory_balances.quantity_on_hand * product_variants.sale_price) as total')->value('total'), 2),
-            'low_stock_count' => (clone $inventoryBaseQuery)
-                ->whereRaw('(inventory_balances.quantity_on_hand - inventory_balances.quantity_reserved) <= inventory_balances.reorder_level')
-                ->count(),
+            'products_count' => (int) $inventoryTotals->products_count,
+            'variants_count' => (int) $inventoryTotals->variants_count,
+            'quantity_on_hand' => round((float) $inventoryTotals->quantity_on_hand, 3),
+            'quantity_reserved' => round((float) $inventoryTotals->quantity_reserved, 3),
+            'available_quantity' => round((float) $inventoryTotals->available_quantity, 3),
+            'cost_value' => round((float) $inventoryTotals->cost_value, 2),
+            'sale_value' => round((float) $inventoryTotals->sale_value, 2),
+            'low_stock_count' => (int) $inventoryTotals->low_stock_count,
         ];
 
         $grossProfitBeforeTax = round($sales['subtotal'] - $purchases['subtotal'], 2);

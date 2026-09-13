@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Customer;
 use App\Models\Quotation;
+use App\Models\SalesOrder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -203,6 +204,76 @@ class QuotationItemsTest extends TestCase
         $this->assertDatabaseHas('quotations', [
             'id' => $quotation->id,
             'total_amount' => 0,
+        ]);
+    }
+
+    public function test_items_cannot_be_added_updated_or_deleted_after_quotation_is_converted(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل بنود عرض سعر محوّل',
+            'phone' => '0566666666',
+            'email' => 'quotation-items-converted@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000001',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'accepted',
+            'notes' => 'اختبار منع تعديل البنود بعد التحويل',
+        ]);
+
+        $item = $quotation->items()->create([
+            'description' => 'بند قبل التحويل',
+            'quantity' => 2,
+            'unit_price' => 500,
+            'line_total' => 1000,
+        ]);
+
+        SalesOrder::create([
+            'sales_order_number' => 'SO-000001',
+            'quotation_id' => $quotation->id,
+            'customer_id' => $customer->id,
+            'sales_order_date' => now()->toDateString(),
+            'status' => 'draft',
+            'total_amount' => 1000,
+            'notes' => null,
+        ]);
+
+        $this->actingAs($user)->post('/quotations/' . $quotation->id . '/items', [
+            'description' => 'بند جديد بعد التحويل',
+            'quantity' => 1,
+            'unit_price' => 100,
+        ])->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseMissing('quotation_items', [
+            'description' => 'بند جديد بعد التحويل',
+        ]);
+
+        $this->actingAs($user)->patch('/quotations/' . $quotation->id . '/items/' . $item->id, [
+            'description' => 'محاولة تعديل بعد التحويل',
+            'quantity' => 5,
+            'unit_price' => 999,
+        ])->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotation_items', [
+            'id' => $item->id,
+            'description' => 'بند قبل التحويل',
+            'quantity' => 2,
+            'unit_price' => 500,
+        ]);
+
+        $this->actingAs($user)->delete('/quotations/' . $quotation->id . '/items/' . $item->id)
+            ->assertRedirect('/quotations/' . $quotation->id);
+
+        $this->assertDatabaseHas('quotation_items', [
+            'id' => $item->id,
         ]);
     }
 

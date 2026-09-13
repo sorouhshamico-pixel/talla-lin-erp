@@ -87,6 +87,7 @@ class FinancialDashboardController extends Controller
     {
         $query = DB::table($table);
 
+        $this->excludeArchivedRows($query, $table);
         $this->applyDateRange($query, $table, $preferredDateColumn, $fromDate, $toDate);
 
         return round((float) $query->sum('amount'), 2);
@@ -98,9 +99,18 @@ class FinancialDashboardController extends Controller
             return 0.0;
         }
 
-        return round((float) DB::table($table)
-            ->where($column, $value)
-            ->sum('amount'), 2);
+        $query = DB::table($table)->where($column, $value);
+
+        $this->excludeArchivedRows($query, $table);
+
+        return round((float) $query->sum('amount'), 2);
+    }
+
+    private function excludeArchivedRows(Builder $query, string $table): void
+    {
+        if (Schema::hasColumn($table, 'archived_at')) {
+            $query->whereNull('archived_at');
+        }
     }
 
     private function applyDateRange(Builder $query, string $table, string $preferredDateColumn, string $fromDate, string $toDate): void
