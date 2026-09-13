@@ -137,7 +137,7 @@ class SalesInvoiceController extends Controller
                     $invoice->invoice_number,
                     $invoice->issued_at?->format('Y-m-d'),
                     $invoice->customer?->name ?? '',
-                    $invoice->branch?->name_ar ?? $invoice->branch?->name ?? $invoice->branch?->name_en ?? '',
+                    $invoice->branch?->name ?? '',
                     $invoice->displayStatus(),
                     $invoice->displayPaymentStatus(),
                     number_format((float) $invoice->grand_total, 2, '.', ''),

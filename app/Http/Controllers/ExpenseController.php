@@ -20,6 +20,8 @@ class ExpenseController extends Controller
 {
     private const EXPENSE_CODE_PREFIX = 'EXP-';
 
+    private const LARGE_AMOUNT_THRESHOLD = 1000;
+
     public function index(Request $request): View
     {
         $filters = $this->expenseFilters($request);
@@ -107,7 +109,7 @@ class ExpenseController extends Controller
 
         $expenses = $this->filteredExpensesQuery($filters)
             // 11S CSV large amount filter
-            ->when($request->query('large_amount') === '1', fn ($query) => $query->where('amount', '>=', 1000))
+            ->when($request->query('large_amount') === '1', fn ($query) => $query->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD))
             ->latest('expense_date')
             ->latest('id')
             ->get();
@@ -142,7 +144,7 @@ class ExpenseController extends Controller
                     $expense->code,
                     $expense->expense_date?->format('Y-m-d'),
                     $expense->description,
-                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->branch?->name ?? '',
                     $expense->category?->name ?? '',
                     $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
@@ -165,7 +167,7 @@ class ExpenseController extends Controller
         $filters = $this->expenseFilters($request);
 
         $expenses = $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->orderByDesc('amount')
             ->orderByDesc('expense_date')
             ->orderByDesc('id')
@@ -202,7 +204,7 @@ class ExpenseController extends Controller
                     $expense->code,
                     $expense->expense_date?->format('Y-m-d'),
                     $expense->description,
-                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->branch?->name ?? '',
                     $expense->category?->name ?? '',
                     $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
@@ -225,7 +227,7 @@ class ExpenseController extends Controller
         $filters = $this->expenseFilters($request);
 
         $expenses = $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->where('is_paid', false)
             ->latest('expense_date')
             ->latest('id')
@@ -261,7 +263,7 @@ class ExpenseController extends Controller
                     $expense->code,
                     $expense->expense_date?->format('Y-m-d'),
                     $expense->description,
-                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->branch?->name ?? '',
                     $expense->category?->name ?? '',
                     $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
@@ -573,7 +575,7 @@ class ExpenseController extends Controller
         $this->applyNonDateExpenseFilters($expensesQuery, $filters);
 
         if (($filters['large_amount'] ?? null) === '1') {
-            $expensesQuery->where('amount', '>=', 1000);
+            $expensesQuery->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD);
         }
 
         return $expensesQuery;
@@ -582,7 +584,7 @@ class ExpenseController extends Controller
     private function largeUnpaidSummary(array $filters): array
     {
         $query = $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->where('is_paid', false);
 
         return $this->countAndSum($query, 'amount');
@@ -591,7 +593,7 @@ class ExpenseController extends Controller
     private function largePaidSummary(array $filters): array
     {
         $query = $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->where('is_paid', true);
 
         return $this->countAndSum($query, 'amount');
@@ -599,7 +601,7 @@ class ExpenseController extends Controller
     private function largeAmountTopExpenses(array $filters)
     {
         return $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->orderByDesc('amount')
             ->orderByDesc('expense_date')
             ->orderByDesc('id')
@@ -608,7 +610,7 @@ class ExpenseController extends Controller
     }
     private function largeAmountAlert(array $filters): array
     {
-        $threshold = 1000;
+        $threshold = self::LARGE_AMOUNT_THRESHOLD;
 
         $largeAmountQuery = $this->filteredExpensesQuery($filters)
             ->where('amount', '>=', $threshold);
@@ -879,7 +881,7 @@ class ExpenseController extends Controller
         $filters = $this->expenseFilters($request);
 
         $expenses = $this->filteredExpensesQuery($filters)
-            ->where('amount', '>=', 1000)
+            ->where('amount', '>=', self::LARGE_AMOUNT_THRESHOLD)
             ->where('is_paid', true)
             ->latest('expense_date')
             ->latest('id')
@@ -915,7 +917,7 @@ class ExpenseController extends Controller
                     $expense->code,
                     $expense->expense_date?->format('Y-m-d'),
                     $expense->description,
-                    $expense->branch?->name_ar ?? $expense->branch?->name ?? $expense->branch?->name_en ?? '',
+                    $expense->branch?->name ?? '',
                     $expense->category?->name ?? '',
                     $expense->supplier?->name ?? '',
                     $expense->displayPaymentMethod(),
