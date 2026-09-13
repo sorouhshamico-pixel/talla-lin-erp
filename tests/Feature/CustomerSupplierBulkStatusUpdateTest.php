@@ -52,6 +52,10 @@ class CustomerSupplierBulkStatusUpdateTest extends TestCase
             $data['branch_id'] = $branchId ?? $this->createBranchId($data['company_id'] ?? null);
         }
 
+        if (in_array('current_branch_id', $columns, true)) {
+            $data['current_branch_id'] = $branchId ?? $this->createBranchId($companyId ?? $data['company_id'] ?? null);
+        }
+
         foreach (['role', 'type', 'user_type'] as $field) {
             if (in_array($field, $columns, true)) {
                 $data[$field] = 'owner';
@@ -208,6 +212,37 @@ class CustomerSupplierBulkStatusUpdateTest extends TestCase
         }
 
         return $data;
+    }
+
+    private function createOtherCompanyId(): int
+    {
+        $columns = Schema::getColumnListing('companies');
+
+        $data = [
+            'name' => 'شركة أخرى لاختبار العزل',
+            'commercial_name' => 'شركة أخرى لاختبار العزل',
+            'email' => 'other-company-bulk-status-test@example.com',
+            'phone' => '0500000099',
+            'tax_number' => '300000000000099',
+            'vat_number' => '300000000000099',
+            'commercial_registration' => '1010000099',
+            'address' => 'جدة',
+            'city' => 'جدة',
+            'is_active' => true,
+        ];
+
+        if (in_array('created_at', $columns, true)) {
+            $data['created_at'] = now();
+        }
+
+        if (in_array('updated_at', $columns, true)) {
+            $data['updated_at'] = now();
+        }
+
+        $data = $this->fillRequiredColumns('companies', $data);
+        $data = array_intersect_key($data, array_flip($columns));
+
+        return (int) DB::table('companies')->insertGetId($data);
     }
 
     private function createCustomer(array $overrides = []): Customer
@@ -380,6 +415,66 @@ class CustomerSupplierBulkStatusUpdateTest extends TestCase
 
         $this->assertDatabaseHas('suppliers', [
             'id' => $second->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_bulk_status_update_does_not_affect_suppliers_in_another_company(): void
+    {
+        $this->signIn();
+
+        $ownCompanySupplier = $this->createSupplier(['is_active' => true]);
+
+        $otherCompanyId = $this->createOtherCompanyId();
+        $otherCompanySupplier = $this->createSupplier([
+            'is_active' => true,
+            'company_id' => $otherCompanyId,
+        ]);
+
+        $response = $this->patch(route('suppliers.bulk-status'), [
+            'ids' => [$ownCompanySupplier->id, $otherCompanySupplier->id],
+            'is_active' => '0',
+        ]);
+
+        $response->assertRedirect(route('suppliers.index'));
+
+        $this->assertDatabaseHas('suppliers', [
+            'id' => $ownCompanySupplier->id,
+            'is_active' => false,
+        ]);
+
+        $this->assertDatabaseHas('suppliers', [
+            'id' => $otherCompanySupplier->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_bulk_status_update_does_not_affect_customers_in_another_company(): void
+    {
+        $this->signIn();
+
+        $ownCompanyCustomer = $this->createCustomer(['is_active' => true]);
+
+        $otherCompanyId = $this->createOtherCompanyId();
+        $otherCompanyCustomer = $this->createCustomer([
+            'is_active' => true,
+            'company_id' => $otherCompanyId,
+        ]);
+
+        $response = $this->patch(route('customers.bulk-status'), [
+            'ids' => [$ownCompanyCustomer->id, $otherCompanyCustomer->id],
+            'is_active' => '0',
+        ]);
+
+        $response->assertRedirect(route('customers.index'));
+
+        $this->assertDatabaseHas('customers', [
+            'id' => $ownCompanyCustomer->id,
+            'is_active' => false,
+        ]);
+
+        $this->assertDatabaseHas('customers', [
+            'id' => $otherCompanyCustomer->id,
             'is_active' => true,
         ]);
     }

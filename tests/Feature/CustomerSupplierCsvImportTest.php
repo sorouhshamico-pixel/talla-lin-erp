@@ -68,6 +68,10 @@ class CustomerSupplierCsvImportTest extends TestCase
             $data['branch_id'] = $branchId ?? $this->createBranchId($data['company_id'] ?? null);
         }
 
+        if (in_array('current_branch_id', $columns, true)) {
+            $data['current_branch_id'] = $branchId ?? $this->createBranchId($companyId ?? $data['company_id'] ?? null);
+        }
+
         foreach (['role', 'type', 'user_type'] as $field) {
             if (in_array($field, $columns, true)) {
                 $data[$field] = 'owner';
@@ -294,6 +298,50 @@ class CustomerSupplierCsvImportTest extends TestCase
         $data = array_merge($data, $overrides);
 
         return Supplier::unguarded(fn () => Supplier::query()->create($data));
+    }
+
+    public function test_customer_import_is_rejected_when_user_has_no_resolvable_company(): void
+    {
+        $columns = Schema::getColumnListing('users');
+
+        $data = [
+            'name' => 'User Without Branch',
+            'email' => 'no-branch-csv-import-test@example.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ];
+
+        foreach (['role', 'type', 'user_type'] as $field) {
+            if (in_array($field, $columns, true)) {
+                $data[$field] = 'owner';
+            }
+        }
+
+        foreach (['is_active', 'active'] as $field) {
+            if (in_array($field, $columns, true)) {
+                $data[$field] = true;
+            }
+        }
+
+        $user = User::unguarded(fn () => User::query()->create($data));
+
+        $this->actingAs($user);
+
+        $csv = implode("\n", [
+            'اسم العميل,الهاتف,البريد الإلكتروني,المدينة,الحالة',
+            'عميل بلا شركة,0557000099,no-company-customer@example.com,الرياض,نشط',
+        ]);
+
+        $response = $this->post(route('customers.import'), [
+            'csv_file' => $this->uploadedCsv('customers.csv', $csv),
+        ]);
+
+        $response->assertRedirect(route('customers.index'));
+        $response->assertSessionHasErrors('csv_file');
+
+        $this->assertDatabaseMissing('customers', [
+            'phone' => '0557000099',
+        ]);
     }
 
     public function test_customers_can_be_imported_from_csv(): void

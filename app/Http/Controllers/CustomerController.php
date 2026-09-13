@@ -353,6 +353,14 @@ class CustomerController extends Controller
 
         $availableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('customers');
 
+        $companyId = $request->user()?->companyId();
+
+        if (in_array('company_id', $availableColumns, true) && ! $companyId) {
+            return redirect()
+                ->route('customers.index')
+                ->withErrors(['csv_file' => 'لا يمكن تحديد شركة حسابك. تأكد من تعيين فرع حالي لحسابك قبل الاستيراد.']);
+        }
+
         $filePath = $request->file('csv_file')->getRealPath();
         $handle = fopen($filePath, 'r');
 
@@ -434,17 +442,12 @@ class CustomerController extends Controller
                 $data['is_active'] = in_array(mb_strtolower((string) $value), ['1', 'true', 'yes', 'active', 'نشط', 'فعال'], true);
             }
 
-            if (in_array('company_id', $availableColumns, true)) {
-                $companyId = $request->user()?->company_id
-                    ?? \Illuminate\Support\Facades\DB::table('companies')->value('id');
-
-                if ($companyId) {
-                    $data['company_id'] = $companyId;
-                }
+            if (in_array('company_id', $availableColumns, true) && $companyId) {
+                $data['company_id'] = $companyId;
             }
 
             if (in_array('branch_id', $availableColumns, true)) {
-                $branchId = $request->user()?->branch_id;
+                $branchId = $request->user()?->current_branch_id;
 
                 if (! $branchId && \Illuminate\Support\Facades\Schema::hasTable('branches')) {
                     $branchQuery = \Illuminate\Support\Facades\DB::table('branches');
@@ -497,11 +500,10 @@ class CustomerController extends Controller
         $query = Customer::query()
             ->whereIn('id', $validated['ids']);
 
-        if (
-            \Illuminate\Support\Facades\Schema::hasColumn('customers', 'company_id')
-            && $request->user()?->company_id
-        ) {
-            $query->where('company_id', $request->user()->company_id);
+        $companyId = $request->user()?->companyId();
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('customers', 'company_id') && $companyId) {
+            $query->where('company_id', $companyId);
         }
 
         $updated = $query->update([
@@ -522,7 +524,7 @@ class CustomerController extends Controller
 
         PartyNote::unguarded(function () use ($request, $customer, $validated) {
             PartyNote::query()->create([
-                'company_id' => $request->user()?->company_id,
+                'company_id' => $request->user()?->companyId(),
                 'user_id' => $request->user()?->id,
                 'customer_id' => $customer->id,
                 'note' => $validated['note'],
@@ -556,7 +558,7 @@ class CustomerController extends Controller
 
         PartyAttachment::unguarded(function () use ($request, $customer, $file, $path) {
             PartyAttachment::query()->create([
-                'company_id' => $request->user()?->company_id,
+                'company_id' => $request->user()?->companyId(),
                 'user_id' => $request->user()?->id,
                 'customer_id' => $customer->id,
                 'original_name' => $file->getClientOriginalName(),
@@ -605,7 +607,7 @@ class CustomerController extends Controller
 
         PartyContactLog::unguarded(function () use ($request, $customer, $validated) {
             PartyContactLog::query()->create([
-                'company_id' => $request->user()?->company_id,
+                'company_id' => $request->user()?->companyId(),
                 'user_id' => $request->user()?->id,
                 'customer_id' => $customer->id,
                 'contact_type' => $validated['contact_type'],

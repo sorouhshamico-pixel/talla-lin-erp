@@ -53,6 +53,10 @@ class CustomerSupplierNotesManagementTest extends TestCase
             $data['branch_id'] = $branchId ?? $this->createBranchId($data['company_id'] ?? null);
         }
 
+        if (in_array('current_branch_id', $columns, true)) {
+            $data['current_branch_id'] = $branchId ?? $this->createBranchId($companyId ?? $data['company_id'] ?? null);
+        }
+
         foreach (['role', 'type', 'user_type'] as $field) {
             if (in_array($field, $columns, true)) {
                 $data[$field] = 'owner';
@@ -296,6 +300,7 @@ class CustomerSupplierNotesManagementTest extends TestCase
         $this->assertDatabaseHas('party_notes', [
             'customer_id' => $customer->id,
             'note' => 'هذه ملاحظة مهمة للعميل.',
+            'company_id' => $this->currentCompanyId,
         ]);
 
         $showResponse = $this->get(route('customers.show', $customer));
@@ -319,6 +324,7 @@ class CustomerSupplierNotesManagementTest extends TestCase
         $this->assertDatabaseHas('party_notes', [
             'supplier_id' => $supplier->id,
             'note' => 'هذه ملاحظة مهمة للمورد.',
+            'company_id' => $this->currentCompanyId,
         ]);
 
         $showResponse = $this->get(route('suppliers.show', $supplier));

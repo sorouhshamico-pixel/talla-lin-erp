@@ -44,6 +44,15 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class, 'current_branch_id');
     }
 
+    /**
+     * The company the user currently operates under, resolved through their
+     * current branch. The users table itself has no company_id column.
+     */
+    public function companyId(): ?int
+    {
+        return $this->currentBranch?->company_id;
+    }
+
     public function branches(): BelongsToMany
     {
         return $this->belongsToMany(Branch::class, 'user_branches')
