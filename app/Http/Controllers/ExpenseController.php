@@ -23,6 +23,7 @@ class ExpenseController extends Controller
     public function index(Request $request): View
     {
         $filters = $this->expenseFilters($request);
+        $filters['large_amount'] = $request->query('large_amount');
 
         $branches = Branch::query()
             ->where('is_active', true)
@@ -40,15 +41,7 @@ class ExpenseController extends Controller
 
         $expensesQuery = $this->filteredExpensesQuery($filters);
 
-        $expenseTotals = [
-            'count' => (clone $expensesQuery)->count(),
-            'amount' => round((float) (clone $expensesQuery)->sum('amount'), 2),
-            'tax_amount' => round((float) (clone $expensesQuery)->sum('tax_amount'), 2),
-            'paid_amount' => round((float) (clone $expensesQuery)->where('is_paid', true)->sum('amount'), 2),
-            'unpaid_amount' => round((float) (clone $expensesQuery)->where('is_paid', false)->sum('amount'), 2),
-        ];
-
-        $filters['large_amount'] = $request->query('large_amount');
+        $expenseTotals = $this->expenseTotals($expensesQuery);
 
         $largeAmountAlert = $this->largeAmountAlert($filters);
         $largeUnpaidSummary = $this->largeUnpaidSummary($filters);
@@ -58,11 +51,6 @@ class ExpenseController extends Controller
         $unpaidAlert = $this->unpaidExpenseAlert($filters);
         $monthlySummary = $this->monthlyExpenseSummary($filters);
         $missingAttachmentSummary = $this->missingAttachmentSummary($filters);
-        // 11Q large amount list filter
-        if (($filters['large_amount'] ?? null) === '1') {
-            $expensesQuery->where('amount', '>=', 1000);
-        }
-
 
         $expenses = $expensesQuery
             ->latest('expense_date')
@@ -79,11 +67,12 @@ class ExpenseController extends Controller
 
             if ($selectedSupplier) {
                 $supplierSummaryQuery = $this->filteredExpensesQuery($filters);
+                $summary = $this->countAndSum($supplierSummaryQuery, 'amount');
 
                 $selectedSupplierSummary = [
                     'supplier' => $selectedSupplier,
-                    'count' => (clone $supplierSummaryQuery)->count(),
-                    'amount' => round((float) (clone $supplierSummaryQuery)->sum('amount'), 2),
+                    'count' => $summary['count'],
+                    'amount' => $summary['amount'],
                 ];
             }
         }
@@ -529,6 +518,45 @@ class ExpenseController extends Controller
         ];
     }
 
+    /**
+     * @return array{count: int, amount: float}
+     */
+    private function countAndSum(Builder $query, string $sumColumn): array
+    {
+        $result = (clone $query)->withoutEagerLoads()
+            ->selectRaw("COUNT(*) as aggregate_count, COALESCE(SUM({$sumColumn}), 0) as aggregate_sum")
+            ->first();
+
+        return [
+            'count' => (int) $result->aggregate_count,
+            'amount' => round((float) $result->aggregate_sum, 2),
+        ];
+    }
+
+    /**
+     * @return array{count: int, amount: float, tax_amount: float, paid_amount: float, unpaid_amount: float}
+     */
+    private function expenseTotals(Builder $query): array
+    {
+        $totals = (clone $query)->withoutEagerLoads()
+            ->selectRaw(
+                'COUNT(*) as aggregate_count, ' .
+                'COALESCE(SUM(amount), 0) as aggregate_amount, ' .
+                'COALESCE(SUM(tax_amount), 0) as aggregate_tax_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN amount ELSE 0 END), 0) as aggregate_paid_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 0 ELSE amount END), 0) as aggregate_unpaid_amount'
+            )
+            ->first();
+
+        return [
+            'count' => (int) $totals->aggregate_count,
+            'amount' => round((float) $totals->aggregate_amount, 2),
+            'tax_amount' => round((float) $totals->aggregate_tax_amount, 2),
+            'paid_amount' => round((float) $totals->aggregate_paid_amount, 2),
+            'unpaid_amount' => round((float) $totals->aggregate_unpaid_amount, 2),
+        ];
+    }
+
     private function filteredExpensesQuery(array $filters): Builder
     {
         $expensesQuery = Expense::query()
@@ -557,10 +585,7 @@ class ExpenseController extends Controller
             ->where('amount', '>=', 1000)
             ->where('is_paid', false);
 
-        return [
-            'count' => (clone $query)->count(),
-            'amount' => round((float) (clone $query)->sum('amount'), 2),
-        ];
+        return $this->countAndSum($query, 'amount');
     }
 
     private function largePaidSummary(array $filters): array
@@ -569,10 +594,7 @@ class ExpenseController extends Controller
             ->where('amount', '>=', 1000)
             ->where('is_paid', true);
 
-        return [
-            'count' => (clone $query)->count(),
-            'amount' => round((float) (clone $query)->sum('amount'), 2),
-        ];
+        return $this->countAndSum($query, 'amount');
     }
     private function largeAmountTopExpenses(array $filters)
     {
@@ -600,10 +622,12 @@ class ExpenseController extends Controller
             fn ($value): bool => $value !== null && $value !== ''
         );
 
+        $summary = $this->countAndSum($largeAmountQuery, 'amount');
+
         return [
             'threshold' => $threshold,
-            'count' => (clone $largeAmountQuery)->count(),
-            'total_amount' => round((float) (clone $largeAmountQuery)->sum('amount'), 2),
+            'count' => $summary['count'],
+            'total_amount' => $summary['amount'],
             'highest' => (clone $largeAmountQuery)
                 ->orderByDesc('amount')
                 ->orderByDesc('expense_date')
@@ -622,9 +646,11 @@ class ExpenseController extends Controller
             ->oldest('id')
             ->first();
 
+        $summary = $this->countAndSum($unpaidQuery, 'amount');
+
         return [
-            'count' => (clone $unpaidQuery)->count(),
-            'total_amount' => round((float) (clone $unpaidQuery)->sum('amount'), 2),
+            'count' => $summary['count'],
+            'total_amount' => $summary['amount'],
             'oldest_expense' => $oldestExpense,
             'oldest_date' => $oldestExpense?->expense_date?->format('Y-m-d'),
         ];
@@ -659,11 +685,19 @@ class ExpenseController extends Controller
             ];
         }
 
+        $totals = (clone $monthlyQuery)->withoutEagerLoads()
+            ->selectRaw(
+                'COALESCE(SUM(amount), 0) as total_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN amount ELSE 0 END), 0) as paid_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 0 ELSE amount END), 0) as unpaid_amount'
+            )
+            ->first();
+
         return [
             'month_label' => now()->format('Y-m'),
-            'total_amount' => round((float) (clone $monthlyQuery)->sum('amount'), 2),
-            'paid_amount' => round((float) (clone $monthlyQuery)->where('is_paid', true)->sum('amount'), 2),
-            'unpaid_amount' => round((float) (clone $monthlyQuery)->where('is_paid', false)->sum('amount'), 2),
+            'total_amount' => round((float) $totals->total_amount, 2),
+            'paid_amount' => round((float) $totals->paid_amount, 2),
+            'unpaid_amount' => round((float) $totals->unpaid_amount, 2),
             'top_category' => $topCategory,
         ];
     }
@@ -674,9 +708,11 @@ class ExpenseController extends Controller
 
         $this->applyAttachmentStatusFilter($missingAttachmentQuery, 'without_attachment');
 
+        $summary = $this->countAndSum($missingAttachmentQuery, 'amount');
+
         return [
-            'count' => (clone $missingAttachmentQuery)->count(),
-            'total_amount' => round((float) (clone $missingAttachmentQuery)->sum('amount'), 2),
+            'count' => $summary['count'],
+            'total_amount' => $summary['amount'],
         ];
     }
 
