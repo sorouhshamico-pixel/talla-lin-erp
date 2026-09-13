@@ -43,13 +43,21 @@ class SupplierController extends Controller
             $suppliersQuery->where('is_active', $filters['is_active'] === '1');
         }
 
+        $summary = DB::table('suppliers')
+            ->selectRaw(
+                'COUNT(*) as total, ' .
+                'SUM(CASE WHEN is_active THEN 1 ELSE 0 END) as active, ' .
+                'SUM(CASE WHEN is_active THEN 0 ELSE 1 END) as inactive'
+            )
+            ->first();
+
         return view('suppliers.index', [
             'suppliers' => $suppliersQuery->get(),
             'filters' => $filters,
             'summary' => [
-                'total' => DB::table('suppliers')->count(),
-                'active' => DB::table('suppliers')->where('is_active', true)->count(),
-                'inactive' => DB::table('suppliers')->where('is_active', false)->count(),
+                'total' => (int) $summary->total,
+                'active' => (int) $summary->active,
+                'inactive' => (int) $summary->inactive,
             ],
         ]);
     }
@@ -126,11 +134,20 @@ class SupplierController extends Controller
 
     public function show(Supplier $supplier)
     {
-        $supplierExpenseQuery = $supplier->expenses();
+        $totals = $supplier->expenses()
+            ->selectRaw(
+                'COUNT(*) as total_count, ' .
+                'COALESCE(SUM(amount), 0) as total_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 1 ELSE 0 END), 0) as paid_count, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN amount ELSE 0 END), 0) as paid_amount, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 0 ELSE 1 END), 0) as unpaid_count, ' .
+                'COALESCE(SUM(CASE WHEN is_paid THEN 0 ELSE amount END), 0) as unpaid_amount'
+            )
+            ->first();
 
         $supplierExpenseSummary = [
-            'count' => (clone $supplierExpenseQuery)->count(),
-            'amount' => round((float) (clone $supplierExpenseQuery)->sum('amount'), 2),
+            'count' => (int) $totals->total_count,
+            'amount' => round((float) $totals->total_amount, 2),
         ];
 
         $supplierRecentExpenses = $supplier->expenses()
@@ -139,20 +156,14 @@ class SupplierController extends Controller
             ->limit(5)
             ->get();
 
-        $supplierUnpaidExpenseQuery = $supplier->expenses()
-            ->where('is_paid', false);
-
         $supplierUnpaidExpenseSummary = [
-            'count' => (clone $supplierUnpaidExpenseQuery)->count(),
-            'amount' => round((float) (clone $supplierUnpaidExpenseQuery)->sum('amount'), 2),
+            'count' => (int) $totals->unpaid_count,
+            'amount' => round((float) $totals->unpaid_amount, 2),
         ];
 
-        $supplierPaidExpenseQuery = $supplier->expenses()
-            ->where('is_paid', true);
-
         $supplierPaidExpenseSummary = [
-            'count' => (clone $supplierPaidExpenseQuery)->count(),
-            'amount' => round((float) (clone $supplierPaidExpenseQuery)->sum('amount'), 2),
+            'count' => (int) $totals->paid_count,
+            'amount' => round((float) $totals->paid_amount, 2),
         ];
 
         return view('suppliers.show', compact(

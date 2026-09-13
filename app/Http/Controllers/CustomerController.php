@@ -43,13 +43,21 @@ class CustomerController extends Controller
             $customersQuery->where('is_active', $filters['is_active'] === '1');
         }
 
+        $summary = DB::table('customers')
+            ->selectRaw(
+                'COUNT(*) as total, ' .
+                'SUM(CASE WHEN is_active THEN 1 ELSE 0 END) as active, ' .
+                'SUM(CASE WHEN is_active THEN 0 ELSE 1 END) as inactive'
+            )
+            ->first();
+
         return view('customers.index', [
             'customers' => $customersQuery->get(),
             'filters' => $filters,
             'summary' => [
-                'total' => DB::table('customers')->count(),
-                'active' => DB::table('customers')->where('is_active', true)->count(),
-                'inactive' => DB::table('customers')->where('is_active', false)->count(),
+                'total' => (int) $summary->total,
+                'active' => (int) $summary->active,
+                'inactive' => (int) $summary->inactive,
             ],
         ]);
     }
