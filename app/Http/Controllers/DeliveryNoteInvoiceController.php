@@ -7,6 +7,8 @@ use App\Models\DeliveryNote;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
+use DomainException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -45,59 +47,73 @@ class DeliveryNoteInvoiceController extends Controller
                 ]);
         }
 
-        $invoice = DB::transaction(function () use ($deliveryNote, $branch, $variant) {
-            $invoice = SalesInvoice::query()->create([
-                'company_id' => $branch->company_id,
-                'branch_id' => $branch->id,
-                'customer_id' => $deliveryNote->customer_id,
-                'delivery_note_id' => $deliveryNote->id,
-                'user_id' => auth()->id(),
-                'invoice_number' => $this->generateInvoiceNumber($branch->company_id),
-                'status' => 'draft',
-                'payment_status' => 'unpaid',
-                'currency' => 'SAR',
-                'subtotal' => 0,
-                'discount_total' => 0,
-                'tax_total' => 0,
-                'grand_total' => 0,
-                'paid_amount' => 0,
-                'remaining_amount' => 0,
-                'issued_at' => now(),
-                'notes' => $deliveryNote->notes,
-            ]);
+        try {
+            $invoice = DB::transaction(function () use ($deliveryNote, $branch, $variant) {
+                if (SalesInvoice::query()->where('delivery_note_id', $deliveryNote->id)->lockForUpdate()->exists()) {
+                    throw new DomainException('delivery_note_already_invoiced');
+                }
 
-            $subtotal = 0.0;
-
-            foreach ($deliveryNote->items as $index => $item) {
-                $lineSubtotal = round((float) $item->quantity * (float) $item->unit_price, 2);
-
-                $invoice->items()->create([
-                    'product_id' => $variant->product_id,
-                    'product_variant_id' => $variant->id,
-                    'description' => $item->description,
-                    'quantity' => (float) $item->quantity,
-                    'unit_price' => (float) $item->unit_price,
-                    'discount_amount' => 0,
-                    'tax_rate' => 0,
-                    'tax_amount' => 0,
-                    'line_subtotal' => $lineSubtotal,
-                    'line_total' => $lineSubtotal,
-                    'item_order' => $index + 1,
+                $invoice = SalesInvoice::query()->create([
+                    'company_id' => $branch->company_id,
+                    'branch_id' => $branch->id,
+                    'customer_id' => $deliveryNote->customer_id,
+                    'delivery_note_id' => $deliveryNote->id,
+                    'user_id' => auth()->id(),
+                    'invoice_number' => $this->generateInvoiceNumber($branch->company_id),
+                    'status' => 'draft',
+                    'payment_status' => 'unpaid',
+                    'currency' => 'SAR',
+                    'subtotal' => 0,
+                    'discount_total' => 0,
+                    'tax_total' => 0,
+                    'grand_total' => 0,
+                    'paid_amount' => 0,
+                    'remaining_amount' => 0,
+                    'issued_at' => now(),
+                    'notes' => $deliveryNote->notes,
                 ]);
 
-                $subtotal += $lineSubtotal;
-            }
+                $subtotal = 0.0;
 
-            $invoice->forceFill([
-                'subtotal' => round($subtotal, 2),
-                'discount_total' => 0,
-                'tax_total' => 0,
-                'grand_total' => round($subtotal, 2),
-                'remaining_amount' => round($subtotal, 2),
-            ])->save();
+                foreach ($deliveryNote->items as $index => $item) {
+                    $lineSubtotal = round((float) $item->quantity * (float) $item->unit_price, 2);
 
-            return $invoice;
-        });
+                    $invoice->items()->create([
+                        'product_id' => $variant->product_id,
+                        'product_variant_id' => $variant->id,
+                        'description' => $item->description,
+                        'quantity' => (float) $item->quantity,
+                        'unit_price' => (float) $item->unit_price,
+                        'discount_amount' => 0,
+                        'tax_rate' => 0,
+                        'tax_amount' => 0,
+                        'line_subtotal' => $lineSubtotal,
+                        'line_total' => $lineSubtotal,
+                        'item_order' => $index + 1,
+                    ]);
+
+                    $subtotal += $lineSubtotal;
+                }
+
+                $invoice->forceFill([
+                    'subtotal' => round($subtotal, 2),
+                    'discount_total' => 0,
+                    'tax_total' => 0,
+                    'grand_total' => round($subtotal, 2),
+                    'remaining_amount' => round($subtotal, 2),
+                ])->save();
+
+                return $invoice;
+            });
+        } catch (DomainException) {
+            return redirect()
+                ->route('delivery-notes.show', $deliveryNote)
+                ->withErrors(['delivery_note_id' => 'تم إنشاء فاتورة لهذا السند مسبقًا.']);
+        } catch (UniqueConstraintViolationException) {
+            return redirect()
+                ->route('delivery-notes.show', $deliveryNote)
+                ->withErrors(['delivery_note_id' => 'حدث تعارض أثناء إنشاء الفاتورة، الرجاء إعادة المحاولة.']);
+        }
 
         return redirect()
             ->route('sales-invoices.show', $invoice)
@@ -125,10 +141,10 @@ class DeliveryNoteInvoiceController extends Controller
 
         return ProductVariant::query()->firstOrCreate(
             [
-                'sku' => 'DELIVERY-NOTE-SERVICE-VARIANT',
+                'product_id' => $product->id,
             ],
             [
-                'product_id' => $product->id,
+                'sku' => 'DELIVERY-NOTE-SERVICE-VARIANT-' . $companyId,
                 'sale_price' => 0,
                 'cost_price' => 0,
                 'is_active' => true,
@@ -140,6 +156,7 @@ class DeliveryNoteInvoiceController extends Controller
     {
         $nextNumber = SalesInvoice::query()
             ->where('company_id', $companyId)
+            ->lockForUpdate()
             ->count() + 1;
 
         return 'INV-' . str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT);

@@ -76,4 +76,28 @@ class ReportSavedViewEditFilterDisplayTest extends TestCase
         $response->assertSee('حتى تاريخ');
         $response->assertSee('2026-07-31');
     }
+
+    public function test_edit_page_translates_date_from_and_date_to_filter_labels(): void
+    {
+        $user = User::query()->firstOrFail();
+
+        $savedView = ReportSavedView::query()->create([
+            'user_id' => $user->id,
+            'report_key' => 'cash-flow-dashboard',
+            'name' => 'عرض فلاتر التاريخ',
+            'filters' => [
+                'date_from' => '2026-07-01',
+                'date_to' => '2026-07-31',
+            ],
+            'is_default' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('reports.saved-views.edit', $savedView->id));
+
+        $response->assertOk();
+        $response->assertSee('من تاريخ');
+        $response->assertSee('إلى تاريخ');
+        $response->assertDontSee('date_from');
+        $response->assertDontSee('date_to');
+    }
 }

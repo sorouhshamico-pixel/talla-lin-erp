@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
+use App\Models\Company;
 use App\Models\Customer;
 use App\Models\DeliveryNote;
 use App\Models\Quotation;
@@ -72,14 +73,60 @@ class DeliveryNoteToSalesInvoiceTest extends TestCase
         $this->assertDatabaseCount('sales_invoices', 0);
     }
 
-    private function createDeliveryNote(string $status): DeliveryNote
+    public function test_converting_delivery_notes_for_two_companies_uses_separate_product_variants(): void
     {
-        $companyId = $this->createCompanyId();
+        $user = User::factory()->create();
+
+        $companyOneId = $this->createCompanyId();
+        $companyTwo = Company::query()->create(['name_ar' => 'شركة أخرى لفاتورة سند التسليم', 'is_active' => true]);
+
+        $deliveryNoteOne = $this->createDeliveryNote('delivered', $companyOneId, 'DN-COMPANY-ONE');
+        $deliveryNoteOne->items()->create([
+            'description' => 'بند الشركة الأولى',
+            'quantity' => 1,
+            'unit_price' => 100,
+            'line_total' => 100,
+        ]);
+
+        $deliveryNoteTwo = $this->createDeliveryNote('delivered', $companyTwo->id, 'DN-COMPANY-TWO');
+        $deliveryNoteTwo->items()->create([
+            'description' => 'بند الشركة الثانية',
+            'quantity' => 1,
+            'unit_price' => 200,
+            'line_total' => 200,
+        ]);
+
+        $this->actingAs($user)->post('/delivery-notes/' . $deliveryNoteOne->id . '/convert-to-sales-invoice');
+        $this->actingAs($user)->post('/delivery-notes/' . $deliveryNoteTwo->id . '/convert-to-sales-invoice');
+
+        $invoiceOne = SalesInvoice::query()->where('delivery_note_id', $deliveryNoteOne->id)->firstOrFail();
+        $invoiceTwo = SalesInvoice::query()->where('delivery_note_id', $deliveryNoteTwo->id)->firstOrFail();
+
+        $itemOne = $invoiceOne->items()->firstOrFail();
+        $itemTwo = $invoiceTwo->items()->firstOrFail();
+
+        $this->assertNotSame($itemOne->product_id, $itemTwo->product_id);
+        $this->assertNotSame($itemOne->product_variant_id, $itemTwo->product_variant_id);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $itemOne->product_id,
+            'company_id' => $companyOneId,
+        ]);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $itemTwo->product_id,
+            'company_id' => $companyTwo->id,
+        ]);
+    }
+
+    private function createDeliveryNote(string $status, ?int $companyId = null, string $prefix = 'DN'): DeliveryNote
+    {
+        $companyId ??= $this->createCompanyId();
 
         Branch::create([
             'company_id' => $companyId,
             'name' => 'فرع اختبار الفاتورة',
-            'code' => 'INV-BRANCH',
+            'code' => $prefix . '-BRANCH',
             'type' => 'main',
             'city' => 'الرياض',
             'address' => 'الرياض',
@@ -89,15 +136,15 @@ class DeliveryNoteToSalesInvoiceTest extends TestCase
 
         $customer = Customer::create([
             'company_id' => $companyId,
-            'name' => 'عميل فاتورة سند التسليم',
-            'phone' => '0509090909',
-            'email' => 'delivery-note-invoice@example.com',
+            'name' => 'عميل فاتورة سند التسليم ' . $prefix,
+            'phone' => '05090909' . random_int(10, 99),
+            'email' => 'delivery-note-invoice-' . uniqid() . '@example.com',
             'address' => 'الرياض',
             'is_active' => true,
         ]);
 
         $quotation = Quotation::create([
-            'quotation_number' => 'QT-000001',
+            'quotation_number' => $prefix . '-QT-000001',
             'customer_id' => $customer->id,
             'quotation_date' => now()->toDateString(),
             'valid_until' => now()->addDays(7)->toDateString(),
@@ -107,7 +154,7 @@ class DeliveryNoteToSalesInvoiceTest extends TestCase
         ]);
 
         $salesOrder = SalesOrder::create([
-            'sales_order_number' => 'SO-000001',
+            'sales_order_number' => $prefix . '-SO-000001',
             'quotation_id' => $quotation->id,
             'customer_id' => $customer->id,
             'sales_order_date' => now()->toDateString(),
@@ -117,7 +164,7 @@ class DeliveryNoteToSalesInvoiceTest extends TestCase
         ]);
 
         return DeliveryNote::create([
-            'delivery_note_number' => 'DN-000001',
+            'delivery_note_number' => $prefix . '-000001',
             'sales_order_id' => $salesOrder->id,
             'customer_id' => $customer->id,
             'delivery_note_date' => now()->toDateString(),

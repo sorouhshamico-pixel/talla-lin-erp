@@ -628,10 +628,18 @@ class ReportSavedViewController extends Controller
             ->values()
             ->all();
 
-        $deletedCount = ReportSavedView::query()
+        $savedViewService = app(ReportSavedViewService::class);
+
+        $idsToDelete = ReportSavedView::query()
             ->where('user_id', $request->user()->id)
             ->whereIn('id', $selectedIds)
-            ->delete();
+            ->pluck('id');
+
+        foreach ($idsToDelete as $id) {
+            $savedViewService->delete($request->user(), (int) $id);
+        }
+
+        $deletedCount = $idsToDelete->count();
 
         return redirect()
             ->route('reports.saved-views.index', $this->managementReturnQuery($request))
@@ -645,11 +653,15 @@ class ReportSavedViewController extends Controller
             );
     }
 
-    public function destroyAll(Request $request): RedirectResponse
+    public function destroyAll(Request $request, ReportSavedViewService $savedViewService): RedirectResponse
     {
-        ReportSavedView::query()
+        $ids = ReportSavedView::query()
             ->where('user_id', $request->user()->id)
-            ->delete();
+            ->pluck('id');
+
+        foreach ($ids as $id) {
+            $savedViewService->delete($request->user(), (int) $id);
+        }
 
         return redirect()
             ->route('reports.saved-views.index')
@@ -868,6 +880,8 @@ class ReportSavedViewController extends Controller
             'customer_id' => 'العميل',
             'supplier_id' => 'المورد',
             'branch_id' => 'الفرع',
+            'date_from' => 'من تاريخ',
+            'date_to' => 'إلى تاريخ',
             'as_of_date' => 'حتى تاريخ',
             'aging_bucket' => 'شريحة العمر',
             'payment_status' => 'حالة الدفع',

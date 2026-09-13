@@ -203,6 +203,39 @@ class ReportSavedViewPhase82BSharingActivityLifecycleIntegrationTest
         );
     }
 
+    public function test_bulk_destroy_via_http_records_activity_before_cascade(): void
+    {
+        [$owner, $savedView, $recipients] =
+            $this->sharedFixture(1);
+
+        $recipient = $recipients[0];
+        $savedViewId = $savedView->id;
+
+        $this->actingAs($owner)
+            ->delete(route('reports.saved-views.bulk-destroy'), [
+                'saved_view_ids' => [$savedViewId],
+            ])
+            ->assertRedirect(route('reports.saved-views.index'));
+
+        $this->assertDatabaseMissing(
+            'report_saved_views',
+            ['id' => $savedViewId]
+        );
+
+        $activity = ReportSavedViewShareActivity::query()
+            ->where('action', 'source_deleted')
+            ->sole();
+
+        $this->assertSame(
+            $recipient->id,
+            $activity->recipient_user_id
+        );
+        $this->assertSame(
+            'Lifecycle Shared View',
+            $activity->source_name_snapshot
+        );
+    }
+
     public function test_delete_for_report_records_each_shared_source(): void
     {
         $owner = User::factory()->create();
