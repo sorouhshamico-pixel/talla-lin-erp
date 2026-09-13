@@ -368,6 +368,34 @@ class CustomerSupplierFollowUpCompletionTest extends TestCase
         $this->assertNull($fresh->follow_up_completed_at);
     }
 
+    public function test_follow_up_cannot_be_rescheduled_to_a_past_date(): void
+    {
+        $this->signIn();
+
+        $supplier = $this->createSupplier();
+
+        $contactLog = PartyContactLog::query()->create([
+            'supplier_id' => $supplier->id,
+            'contact_type' => 'email',
+            'summary' => 'متابعة لا يجب تأجيلها لتاريخ ماضٍ.',
+            'contacted_at' => now()->subDays(2)->toDateString(),
+            'follow_up_at' => now()->subDay()->toDateString(),
+        ]);
+
+        $pastDate = now()->subDays(3)->toDateString();
+
+        $response = $this->from(route('party-follow-ups.index'))
+            ->post(route('party-follow-ups.reschedule', $contactLog), [
+                'follow_up_at' => $pastDate,
+                'follow_up_result' => 'محاولة تأجيل لتاريخ ماضٍ.',
+            ]);
+
+        $response->assertSessionHasErrors('follow_up_at');
+
+        $fresh = $contactLog->fresh();
+        $this->assertSame(now()->subDay()->toDateString(), $fresh->follow_up_at->format('Y-m-d'));
+    }
+
     public function test_completed_follow_up_can_be_rescheduled_and_reopened(): void
     {
         $this->signIn();

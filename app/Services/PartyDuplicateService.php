@@ -37,7 +37,15 @@ class PartyDuplicateService
 
     public function totalDuplicateGroups(): int
     {
-        return collect($this->allGroups())
+        return $this->totalGroupsIn($this->allGroups());
+    }
+
+    /**
+     * @param  array<string, Collection>  $groups  a result previously returned by allGroups()
+     */
+    public function totalGroupsIn(array $groups): int
+    {
+        return collect($groups)
             ->flatten(1)
             ->count();
     }

@@ -107,7 +107,7 @@ class PartyFollowUpController extends Controller
     public function reschedule(Request $request, PartyContactLog $contactLog)
     {
         $validated = $request->validate([
-            'follow_up_at' => ['required', 'date'],
+            'follow_up_at' => ['required', 'date', 'after:today'],
             'follow_up_result' => ['nullable', 'string', 'max:2000'],
         ]);
 

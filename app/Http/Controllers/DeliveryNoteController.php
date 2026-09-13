@@ -34,15 +34,20 @@ class DeliveryNoteController extends Controller
 
     public function print(DeliveryNote $deliveryNote)
     {
-        $deliveryNote->load(['customer', 'salesOrder', 'items', 'salesInvoice']);
+        $this->loadDeliveryNoteRelations($deliveryNote);
 
         return view('delivery-notes.print', compact('deliveryNote'));
     }
 
     public function show(DeliveryNote $deliveryNote)
     {
-        $deliveryNote->load(['customer', 'salesOrder', 'items', 'salesInvoice']);
+        $this->loadDeliveryNoteRelations($deliveryNote);
 
         return view('delivery-notes.show', compact('deliveryNote'));
+    }
+
+    private function loadDeliveryNoteRelations(DeliveryNote $deliveryNote): void
+    {
+        $deliveryNote->load(['customer', 'salesOrder', 'items', 'salesInvoice']);
     }
 }

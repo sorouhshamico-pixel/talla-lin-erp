@@ -12,7 +12,7 @@ class PartyDuplicateController extends Controller
 
         return view('party-duplicates.index', [
             'groups' => $groups,
-            'totalGroups' => collect($groups)->flatten(1)->count(),
+            'totalGroups' => $service->totalGroupsIn($groups),
             'totalRecords' => collect($groups)
                 ->flatten(1)
                 ->sum(function (array $group) {
