@@ -233,7 +233,7 @@ class CustomerSupplierCsvTemplateTest extends TestCase
         $this->assertStringContainsString('suppliers-template.csv', $contentDisposition);
 
         $response->assertSee('اسم المورد');
-        $response->assertSee('مسؤول التواصل');
+        $response->assertSee('الرقم الضريبي');
         $response->assertSee('الحالة');
     }
 

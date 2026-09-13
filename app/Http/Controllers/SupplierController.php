@@ -105,27 +105,17 @@ class SupplierController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'contact_person' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],
-            'vat_number' => ['nullable', 'string', 'max:50'],
             'tax_number' => ['nullable', 'string', 'max:50'],
-            'commercial_registration' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:1000'],
             'city' => ['nullable', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('suppliers');
-        $data = array_intersect_key($validated, array_flip($columns));
+        $validated['is_active'] = $request->boolean('is_active');
 
-        if (in_array('is_active', $columns, true)) {
-            $data['is_active'] = $request->boolean('is_active');
-        }
-
-        $supplier->update($data);
+        $supplier->update($validated);
 
         return redirect()
             ->route('suppliers.index')
@@ -193,16 +183,11 @@ class SupplierController extends Controller
         $preferredColumns = [
             'id',
             'name',
-            'contact_name',
-            'contact_person',
             'phone',
             'email',
             'city',
             'tax_number',
-            'vat_number',
-            'commercial_registration',
             'address',
-            'notes',
             'is_active',
             'created_at',
         ];
@@ -210,16 +195,11 @@ class SupplierController extends Controller
         $headers = [
             'id' => 'ID',
             'name' => 'اسم المورد',
-            'contact_name' => 'مسؤول التواصل',
-            'contact_person' => 'مسؤول التواصل',
             'phone' => 'الهاتف',
             'email' => 'البريد الإلكتروني',
             'city' => 'المدينة',
             'tax_number' => 'الرقم الضريبي',
-            'vat_number' => 'الرقم الضريبي',
-            'commercial_registration' => 'السجل التجاري',
             'address' => 'العنوان',
-            'notes' => 'ملاحظات',
             'is_active' => 'الحالة',
             'created_at' => 'تاريخ الإضافة',
         ];
@@ -236,16 +216,11 @@ class SupplierController extends Controller
         if ($search !== '') {
             $searchableColumns = array_values(array_filter([
                 'name',
-                'contact_name',
-                'contact_person',
                 'phone',
                 'email',
                 'city',
                 'tax_number',
-                'vat_number',
-                'commercial_registration',
                 'address',
-                'notes',
             ], fn ($column) => in_array($column, $availableColumns, true)));
 
             if ($searchableColumns !== []) {
@@ -310,14 +285,11 @@ class SupplierController extends Controller
     {
         $headers = [
             'اسم المورد',
-            'مسؤول التواصل',
             'الهاتف',
             'البريد الإلكتروني',
             'المدينة',
             'الرقم الضريبي',
-            'السجل التجاري',
             'العنوان',
-            'ملاحظات',
             'الحالة',
         ];
 
@@ -382,29 +354,19 @@ class SupplierController extends Controller
             return $header;
         }, $headers);
 
-        $contactColumn = in_array('contact_name', $availableColumns, true) ? 'contact_name' : 'contact_person';
-
         $map = [
             'اسم المورد' => 'name',
             'name' => 'name',
-            'مسؤول التواصل' => $contactColumn,
-            'contact_name' => 'contact_name',
-            'contact_person' => 'contact_person',
             'الهاتف' => 'phone',
             'phone' => 'phone',
             'البريد الإلكتروني' => 'email',
             'email' => 'email',
             'المدينة' => 'city',
             'city' => 'city',
-            'الرقم الضريبي' => in_array('tax_number', $availableColumns, true) ? 'tax_number' : 'vat_number',
+            'الرقم الضريبي' => 'tax_number',
             'tax_number' => 'tax_number',
-            'vat_number' => 'vat_number',
-            'السجل التجاري' => 'commercial_registration',
-            'commercial_registration' => 'commercial_registration',
             'العنوان' => 'address',
             'address' => 'address',
-            'ملاحظات' => 'notes',
-            'notes' => 'notes',
             'الحالة' => 'is_active',
             'is_active' => 'is_active',
         ];
@@ -446,24 +408,6 @@ class SupplierController extends Controller
 
             if (in_array('company_id', $availableColumns, true) && $companyId) {
                 $data['company_id'] = $companyId;
-            }
-
-            if (in_array('branch_id', $availableColumns, true)) {
-                $branchId = $request->user()?->current_branch_id;
-
-                if (! $branchId && \Illuminate\Support\Facades\Schema::hasTable('branches')) {
-                    $branchQuery = \Illuminate\Support\Facades\DB::table('branches');
-
-                    if (isset($data['company_id']) && in_array('company_id', \Illuminate\Support\Facades\Schema::getColumnListing('branches'), true)) {
-                        $branchQuery->where('company_id', $data['company_id']);
-                    }
-
-                    $branchId = $branchQuery->value('id');
-                }
-
-                if ($branchId) {
-                    $data['branch_id'] = $branchId;
-                }
             }
 
             $lookup = null;

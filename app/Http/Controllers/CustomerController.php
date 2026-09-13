@@ -215,10 +215,7 @@ class CustomerController extends Controller
             'email',
             'city',
             'tax_number',
-            'vat_number',
-            'commercial_registration',
             'address',
-            'notes',
             'is_active',
             'created_at',
         ];
@@ -230,10 +227,7 @@ class CustomerController extends Controller
             'email' => 'البريد الإلكتروني',
             'city' => 'المدينة',
             'tax_number' => 'الرقم الضريبي',
-            'vat_number' => 'الرقم الضريبي',
-            'commercial_registration' => 'السجل التجاري',
             'address' => 'العنوان',
-            'notes' => 'ملاحظات',
             'is_active' => 'الحالة',
             'created_at' => 'تاريخ الإضافة',
         ];
@@ -254,10 +248,7 @@ class CustomerController extends Controller
                 'email',
                 'city',
                 'tax_number',
-                'vat_number',
-                'commercial_registration',
                 'address',
-                'notes',
             ], fn ($column) => in_array($column, $availableColumns, true)));
 
             if ($searchableColumns !== []) {
@@ -326,9 +317,7 @@ class CustomerController extends Controller
             'البريد الإلكتروني',
             'المدينة',
             'الرقم الضريبي',
-            'السجل التجاري',
             'العنوان',
-            'ملاحظات',
             'الحالة',
         ];
 
@@ -402,15 +391,10 @@ class CustomerController extends Controller
             'email' => 'email',
             'المدينة' => 'city',
             'city' => 'city',
-            'الرقم الضريبي' => in_array('tax_number', $availableColumns, true) ? 'tax_number' : 'vat_number',
+            'الرقم الضريبي' => 'tax_number',
             'tax_number' => 'tax_number',
-            'vat_number' => 'vat_number',
-            'السجل التجاري' => 'commercial_registration',
-            'commercial_registration' => 'commercial_registration',
             'العنوان' => 'address',
             'address' => 'address',
-            'ملاحظات' => 'notes',
-            'notes' => 'notes',
             'الحالة' => 'is_active',
             'is_active' => 'is_active',
         ];
@@ -452,24 +436,6 @@ class CustomerController extends Controller
 
             if (in_array('company_id', $availableColumns, true) && $companyId) {
                 $data['company_id'] = $companyId;
-            }
-
-            if (in_array('branch_id', $availableColumns, true)) {
-                $branchId = $request->user()?->current_branch_id;
-
-                if (! $branchId && \Illuminate\Support\Facades\Schema::hasTable('branches')) {
-                    $branchQuery = \Illuminate\Support\Facades\DB::table('branches');
-
-                    if (isset($data['company_id']) && in_array('company_id', \Illuminate\Support\Facades\Schema::getColumnListing('branches'), true)) {
-                        $branchQuery->where('company_id', $data['company_id']);
-                    }
-
-                    $branchId = $branchQuery->value('id');
-                }
-
-                if ($branchId) {
-                    $data['branch_id'] = $branchId;
-                }
             }
 
             $lookup = null;
