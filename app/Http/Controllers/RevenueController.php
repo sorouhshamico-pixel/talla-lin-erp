@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use App\Models\Company;
 use App\Models\Revenue;
 use App\Models\RevenueCategory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -158,22 +159,37 @@ class RevenueController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $company = Company::query()->firstOrFail();
+        $branch = Branch::query()->findOrFail($validated['branch_id']);
+        $category = RevenueCategory::query()->findOrFail($validated['revenue_category_id']);
 
-        Revenue::query()->create([
-            'company_id' => $company->id,
-            'branch_id' => $validated['branch_id'],
-            'revenue_category_id' => $validated['revenue_category_id'],
-            'code' => $this->nextRevenueCode(),
-            'revenue_date' => $validated['revenue_date'],
-            'description' => $validated['description'],
-            'amount' => $validated['amount'],
-            'tax_amount' => $validated['tax_amount'] ?? 0,
-            'collection_method' => $validated['collection_method'],
-            'is_collected' => $validated['collection_status'] === 'collected',
-            'reference_number' => $validated['reference_number'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $companyValidationResponse = $this->validateCategoryAndBranchCompany($category, $branch);
+
+        if ($companyValidationResponse) {
+            return $companyValidationResponse;
+        }
+
+        try {
+            DB::transaction(function () use ($branch, $category, $validated): void {
+                Revenue::query()->create([
+                    'company_id' => $branch->company_id,
+                    'branch_id' => $branch->id,
+                    'revenue_category_id' => $category->id,
+                    'code' => $this->nextRevenueCode(),
+                    'revenue_date' => $validated['revenue_date'],
+                    'description' => $validated['description'],
+                    'amount' => $validated['amount'],
+                    'tax_amount' => $validated['tax_amount'] ?? 0,
+                    'collection_method' => $validated['collection_method'],
+                    'is_collected' => $validated['collection_status'] === 'collected',
+                    'reference_number' => $validated['reference_number'] ?? null,
+                    'notes' => $validated['notes'] ?? null,
+                ]);
+            });
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withErrors(['code' => 'حدث تعارض أثناء توليد رقم الإيراد، الرجاء إعادة المحاولة.'])
+                ->withInput();
+        }
 
         return redirect()
             ->route('revenues.index')
@@ -183,7 +199,10 @@ class RevenueController extends Controller
     public function edit(Revenue $revenue): View
     {
         $branches = Branch::query()
-            ->where('is_active', true)
+            ->where(function ($query) use ($revenue): void {
+                $query->where('is_active', true)
+                    ->orWhere('id', $revenue->branch_id);
+            })
             ->orderByDesc('is_main')
             ->orderBy('id')
             ->get();
@@ -220,9 +239,18 @@ class RevenueController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
+        $branch = Branch::query()->findOrFail($validated['branch_id']);
+        $category = RevenueCategory::query()->findOrFail($validated['revenue_category_id']);
+
+        $companyValidationResponse = $this->validateCategoryAndBranchCompany($category, $branch);
+
+        if ($companyValidationResponse) {
+            return $companyValidationResponse;
+        }
+
         $revenue->update([
-            'branch_id' => $validated['branch_id'],
-            'revenue_category_id' => $validated['revenue_category_id'],
+            'branch_id' => $branch->id,
+            'revenue_category_id' => $category->id,
             'revenue_date' => $validated['revenue_date'],
             'description' => $validated['description'],
             'amount' => $validated['amount'],
@@ -366,9 +394,20 @@ class RevenueController extends Controller
 
     private function nextRevenueCode(): string
     {
-        $nextId = ((int) Revenue::query()->max('id')) + 1;
+        $nextId = ((int) Revenue::query()->lockForUpdate()->max('id')) + 1;
 
         return 'REV-' . Str::padLeft((string) $nextId, 5, '0');
+    }
+
+    private function validateCategoryAndBranchCompany(RevenueCategory $category, Branch $branch): ?RedirectResponse
+    {
+        if ($category->company_id !== $branch->company_id) {
+            return back()
+                ->withErrors(['revenue_category_id' => 'تصنيف الإيراد لا يتبع نفس شركة الفرع.'])
+                ->withInput();
+        }
+
+        return null;
     }
 
     public function exportUncollectedCsv()

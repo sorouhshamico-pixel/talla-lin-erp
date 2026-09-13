@@ -99,4 +99,46 @@ class RevenueManagementTest extends TestCase
         $indexResponse->assertSee('محصل');
         $indexResponse->assertSee('7,500.00 ريال');
     }
+
+    public function test_revenue_creation_is_rejected_when_category_belongs_to_another_company(): void
+    {
+        $this->seed();
+
+        $user = User::query()->firstOrFail();
+        $company = Company::query()->firstOrFail();
+
+        $branch = Branch::query()
+            ->where('company_id', $company->id)
+            ->orderBy('id')
+            ->firstOrFail();
+
+        $otherCompany = Company::query()->create([
+            'name_ar' => 'شركة أخرى',
+            'is_active' => true,
+        ]);
+
+        $otherCompanyCategory = RevenueCategory::query()->create([
+            'company_id' => $otherCompany->id,
+            'name' => 'تصنيف شركة أخرى',
+            'slug' => 'other-company-category',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('revenues.store'), [
+            'branch_id' => $branch->id,
+            'revenue_category_id' => $otherCompanyCategory->id,
+            'revenue_date' => '2026-06-27',
+            'description' => 'إيراد بتصنيف شركة أخرى',
+            'amount' => 1000,
+            'tax_amount' => 0,
+            'collection_method' => 'cash',
+            'collection_status' => 'collected',
+        ]);
+
+        $response->assertSessionHasErrors('revenue_category_id');
+
+        $this->assertDatabaseMissing('revenues', [
+            'description' => 'إيراد بتصنيف شركة أخرى',
+        ]);
+    }
 }

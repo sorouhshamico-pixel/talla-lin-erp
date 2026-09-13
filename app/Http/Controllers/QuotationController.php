@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Quotation;
+use App\Models\SalesOrder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class QuotationController extends Controller
@@ -40,7 +43,6 @@ class QuotationController extends Controller
         ]);
 
         $quotationData = [
-            'quotation_number' => $this->generateQuotationNumber(),
             'customer_id' => $validated['customer_id'],
             'quotation_date' => $validated['quotation_date'],
             'status' => 'draft',
@@ -61,7 +63,17 @@ class QuotationController extends Controller
             $quotationData['created_by'] = $request->user()?->id;
         }
 
-        $quotation = Quotation::create($quotationData);
+        try {
+            $quotation = DB::transaction(function () use ($quotationData): Quotation {
+                $quotationData['quotation_number'] = $this->generateQuotationNumber();
+
+                return Quotation::create($quotationData);
+            });
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withErrors(['quotation_number' => 'حدث تعارض أثناء توليد رقم عرض السعر، الرجاء إعادة المحاولة.'])
+                ->withInput();
+        }
 
         return redirect()
             ->route('quotations.show', $quotation)
@@ -74,6 +86,12 @@ class QuotationController extends Controller
         $validated = $request->validate([
             'status' => ['required', 'in:draft,sent,accepted,rejected,expired'],
         ]);
+
+        if (SalesOrder::query()->where('quotation_id', $quotation->id)->exists()) {
+            return redirect()
+                ->route('quotations.show', $quotation)
+                ->withErrors(['status' => 'لا يمكن تغيير حالة عرض سعر تم تحويله بالفعل إلى أمر بيع.']);
+        }
 
         $quotation->update([
             'status' => $validated['status'],
@@ -101,6 +119,7 @@ class QuotationController extends Controller
     {
         $lastNumber = Quotation::query()
             ->whereNotNull('quotation_number')
+            ->lockForUpdate()
             ->orderByDesc('id')
             ->value('quotation_number');
 

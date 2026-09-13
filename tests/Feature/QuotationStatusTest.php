@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Customer;
 use App\Models\Quotation;
+use App\Models\SalesOrder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +82,54 @@ class QuotationStatusTest extends TestCase
         $this->assertDatabaseHas('quotations', [
             'id' => $quotation->id,
             'status' => 'draft',
+        ]);
+    }
+
+    public function test_status_cannot_be_changed_after_quotation_is_converted_to_sales_order(): void
+    {
+        $user = User::factory()->create();
+
+        $customer = Customer::create([
+            'company_id' => $this->createCompanyId(),
+            'name' => 'عميل عرض سعر محوّل',
+            'phone' => '0588888888',
+            'email' => 'quotation-converted-status@example.com',
+            'address' => 'الرياض',
+            'is_active' => true,
+        ]);
+
+        $quotation = Quotation::create([
+            'quotation_number' => 'QT-000001',
+            'customer_id' => $customer->id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(7)->toDateString(),
+            'status' => 'accepted',
+            'total_amount' => 0,
+            'notes' => 'اختبار منع تغيير الحالة بعد التحويل',
+        ]);
+
+        SalesOrder::create([
+            'sales_order_number' => 'SO-000001',
+            'quotation_id' => $quotation->id,
+            'customer_id' => $customer->id,
+            'sales_order_date' => now()->toDateString(),
+            'status' => 'draft',
+            'total_amount' => 0,
+            'notes' => null,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from('/quotations/' . $quotation->id)
+            ->patch('/quotations/' . $quotation->id . '/status', [
+                'status' => 'rejected',
+            ]);
+
+        $response->assertRedirect('/quotations/' . $quotation->id);
+        $response->assertSessionHasErrors('status');
+
+        $this->assertDatabaseHas('quotations', [
+            'id' => $quotation->id,
+            'status' => 'accepted',
         ]);
     }
 

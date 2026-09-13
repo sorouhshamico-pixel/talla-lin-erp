@@ -7,8 +7,10 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -345,24 +347,32 @@ class ExpenseController extends Controller
 
         $attachmentData = $this->storeAttachment($request);
 
-        Expense::query()->create([
-            'company_id' => $branch->company_id,
-            'branch_id' => $branch->id,
-            'expense_category_id' => $category->id,
-            'supplier_id' => $data['supplier_id'] ?? null,
-            'user_id' => $request->user()?->id,
-            'code' => $this->generateNextExpenseCode((int) $branch->company_id),
-            'description' => $data['description'],
-            'amount' => (float) $data['amount'],
-            'tax_amount' => (float) ($data['tax_amount'] ?? 0),
-            'payment_method' => $data['payment_method'],
-            'expense_date' => $data['expense_date'],
-            'reference_number' => $data['reference_number'] ?? null,
-            'notes' => $data['notes'] ?? null,
-            'attachment_path' => $attachmentData['attachment_path'],
-            'attachment_original_name' => $attachmentData['attachment_original_name'],
-            'is_paid' => $this->paymentStatusValue($request),
-        ]);
+        try {
+            DB::transaction(function () use ($branch, $category, $data, $attachmentData, $request): void {
+                Expense::query()->create([
+                    'company_id' => $branch->company_id,
+                    'branch_id' => $branch->id,
+                    'expense_category_id' => $category->id,
+                    'supplier_id' => $data['supplier_id'] ?? null,
+                    'user_id' => $request->user()?->id,
+                    'code' => $this->generateNextExpenseCode((int) $branch->company_id),
+                    'description' => $data['description'],
+                    'amount' => (float) $data['amount'],
+                    'tax_amount' => (float) ($data['tax_amount'] ?? 0),
+                    'payment_method' => $data['payment_method'],
+                    'expense_date' => $data['expense_date'],
+                    'reference_number' => $data['reference_number'] ?? null,
+                    'notes' => $data['notes'] ?? null,
+                    'attachment_path' => $attachmentData['attachment_path'],
+                    'attachment_original_name' => $attachmentData['attachment_original_name'],
+                    'is_paid' => $this->paymentStatusValue($request),
+                ]);
+            });
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withErrors(['code' => 'حدث تعارض أثناء توليد رقم المصروف، الرجاء إعادة المحاولة.'])
+                ->withInput();
+        }
 
         return redirect()
             ->route('expenses.index')
@@ -372,7 +382,10 @@ class ExpenseController extends Controller
     public function edit(Expense $expense): View
     {
         $branches = Branch::query()
-            ->where('is_active', true)
+            ->where(function ($query) use ($expense): void {
+                $query->where('is_active', true)
+                    ->orWhere('id', $expense->branch_id);
+            })
             ->orderByDesc('is_main')
             ->orderBy('id')
             ->get();
@@ -734,6 +747,7 @@ class ExpenseController extends Controller
         $codes = Expense::query()
             ->where('company_id', $companyId)
             ->where('code', 'like', self::EXPENSE_CODE_PREFIX . '%')
+            ->lockForUpdate()
             ->pluck('code');
 
         $lastNumber = 0;
