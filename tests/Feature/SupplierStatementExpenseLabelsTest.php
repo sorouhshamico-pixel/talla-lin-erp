@@ -14,7 +14,7 @@ class SupplierStatementExpenseLabelsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_supplier_statement_page_displays_expense_source_labels(): void
+    public function test_supplier_statement_page_displays_purchase_invoice_source_labels(): void
     {
         $companyId = $this->createCompanyId();
         $branchId = $this->createBranchId($companyId);
@@ -28,9 +28,9 @@ class SupplierStatementExpenseLabelsTest extends TestCase
         $response->assertOk();
         $response->assertSee('كشف حساب المورد');
         $response->assertSee('مصدر كشف الحساب');
-        $response->assertSee('المصروفات المرتبطة بالمورد');
-        $response->assertSee('المدين يمثل قيمة المصروفات المستحقة للمورد');
-        $response->assertSee('الدائن يمثل أي مبالغ مسددة أو مخصومة عند توفرها في النظام');
+        $response->assertSee('فواتير الشراء ودفعات فواتير الشراء');
+        $response->assertSee('المدين يمثل قيمة فواتير الشراء من المورد');
+        $response->assertSee('الدائن يمثل الدفعات المسجلة للمورد');
         $response->assertSee('data-testid="supplier-statement-expense-source"', false);
     }
 

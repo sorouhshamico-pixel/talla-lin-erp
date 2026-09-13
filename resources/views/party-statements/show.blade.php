@@ -64,10 +64,17 @@
         @if(($partyType ?? null) === 'supplier')
             <div class="card" data-testid="supplier-statement-expense-source" style="margin-top: 16px;">
                 <strong>مصدر كشف الحساب:</strong>
-                المصروفات المرتبطة بالمورد.
-                <div class="muted" style="margin-top: 8px;">
-                    المدين يمثل قيمة المصروفات المستحقة للمورد، والدائن يمثل أي مبالغ مسددة أو مخصومة عند توفرها في النظام.
-                </div>
+                @if(($statement['source_table'] ?? null) === 'purchase_invoices')
+                    فواتير الشراء ودفعات فواتير الشراء.
+                    <div class="muted" style="margin-top: 8px;">
+                        المدين يمثل قيمة فواتير الشراء من المورد، والدائن يمثل الدفعات المسجلة للمورد.
+                    </div>
+                @else
+                    المصروفات المرتبطة بالمورد.
+                    <div class="muted" style="margin-top: 8px;">
+                        المدين يمثل قيمة المصروفات المستحقة للمورد، والدائن يمثل أي مبالغ مسددة أو مخصومة عند توفرها في النظام.
+                    </div>
+                @endif
             </div>
         @endif
 

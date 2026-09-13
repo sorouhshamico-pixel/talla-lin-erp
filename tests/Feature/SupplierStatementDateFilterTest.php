@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
-use App\Models\ExpenseCategory;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,36 +16,26 @@ class SupplierStatementDateFilterTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_supplier_statement_page_filters_expenses_by_date_range(): void
+    public function test_supplier_statement_page_filters_purchase_invoices_by_date_range(): void
     {
-        $this->assertTrue(Schema::hasColumn('expenses', 'supplier_id'));
+        $this->assertTrue(Schema::hasTable('purchase_invoices'));
 
         $companyId = $this->createCompanyId();
         $branch = $this->createBranch($companyId);
-        $category = $this->createExpenseCategory($companyId);
+        $warehouse = $this->createWarehouse($companyId, $branch->id);
         $supplier = $this->createSupplier($companyId, $branch->id);
         $user = $this->createUser($companyId, $branch->id);
 
-        $this->insertExpense($companyId, $branch->id, $category->id, $supplier->id, [
-            'code' => 'EXP-SUP-FILTER-IN',
-            'description' => 'مصروف مورد داخل فترة الفلتر',
+        $this->insertPurchaseInvoice($companyId, $branch->id, $warehouse->id, $supplier->id, [
+            'invoice_number' => 'PINV-SUP-FILTER-IN',
             'amount' => 800,
-            'tax_amount' => 0,
-            'is_paid' => false,
-            'payment_method' => 'bank_transfer',
-            'expense_date' => '2026-07-10',
-            'reference_number' => 'SUP-FILTER-IN',
+            'invoice_date' => '2026-07-10',
         ]);
 
-        $this->insertExpense($companyId, $branch->id, $category->id, $supplier->id, [
-            'code' => 'EXP-SUP-FILTER-OUT',
-            'description' => 'مصروف مورد خارج فترة الفلتر',
+        $this->insertPurchaseInvoice($companyId, $branch->id, $warehouse->id, $supplier->id, [
+            'invoice_number' => 'PINV-SUP-FILTER-OUT',
             'amount' => 1200,
-            'tax_amount' => 0,
-            'is_paid' => false,
-            'payment_method' => 'bank_transfer',
-            'expense_date' => '2026-08-10',
-            'reference_number' => 'SUP-FILTER-OUT',
+            'invoice_date' => '2026-08-10',
         ]);
 
         $response = $this->actingAs($user)
@@ -57,42 +47,32 @@ class SupplierStatementDateFilterTest extends TestCase
 
         $response->assertOk();
 
-        $response->assertSee('مصروف مورد داخل فترة الفلتر');
-        $response->assertDontSee('مصروف مورد خارج فترة الفلتر');
+        $response->assertSee('فاتورة شراء رقم PINV-SUP-FILTER-IN');
+        $response->assertDontSee('فاتورة شراء رقم PINV-SUP-FILTER-OUT');
         $response->assertSee('800.00');
         $response->assertDontSee('1,200.00');
     }
 
-    public function test_supplier_statement_csv_filters_expenses_by_date_range(): void
+    public function test_supplier_statement_csv_filters_purchase_invoices_by_date_range(): void
     {
-        $this->assertTrue(Schema::hasColumn('expenses', 'supplier_id'));
+        $this->assertTrue(Schema::hasTable('purchase_invoices'));
 
         $companyId = $this->createCompanyId();
         $branch = $this->createBranch($companyId);
-        $category = $this->createExpenseCategory($companyId);
+        $warehouse = $this->createWarehouse($companyId, $branch->id);
         $supplier = $this->createSupplier($companyId, $branch->id);
         $user = $this->createUser($companyId, $branch->id);
 
-        $this->insertExpense($companyId, $branch->id, $category->id, $supplier->id, [
-            'code' => 'EXP-SUP-CSV-FILTER-IN',
-            'description' => 'مصروف مورد CSV داخل فترة الفلتر',
+        $this->insertPurchaseInvoice($companyId, $branch->id, $warehouse->id, $supplier->id, [
+            'invoice_number' => 'PINV-SUP-CSV-FILTER-IN',
             'amount' => 900,
-            'tax_amount' => 0,
-            'is_paid' => false,
-            'payment_method' => 'bank_transfer',
-            'expense_date' => '2026-07-15',
-            'reference_number' => 'SUP-CSV-FILTER-IN',
+            'invoice_date' => '2026-07-15',
         ]);
 
-        $this->insertExpense($companyId, $branch->id, $category->id, $supplier->id, [
-            'code' => 'EXP-SUP-CSV-FILTER-OUT',
-            'description' => 'مصروف مورد CSV خارج فترة الفلتر',
+        $this->insertPurchaseInvoice($companyId, $branch->id, $warehouse->id, $supplier->id, [
+            'invoice_number' => 'PINV-SUP-CSV-FILTER-OUT',
             'amount' => 1300,
-            'tax_amount' => 0,
-            'is_paid' => false,
-            'payment_method' => 'bank_transfer',
-            'expense_date' => '2026-08-15',
-            'reference_number' => 'SUP-CSV-FILTER-OUT',
+            'invoice_date' => '2026-08-15',
         ]);
 
         $response = $this->actingAs($user)
@@ -104,10 +84,10 @@ class SupplierStatementDateFilterTest extends TestCase
 
         $response->assertOk();
 
-        $response->assertSee('مصروف مورد CSV داخل فترة الفلتر', false);
-        $response->assertDontSee('مصروف مورد CSV خارج فترة الفلتر', false);
+        $response->assertSee('فاتورة شراء رقم PINV-SUP-CSV-FILTER-IN', false);
+        $response->assertDontSee('فاتورة شراء رقم PINV-SUP-CSV-FILTER-OUT', false);
         $response->assertSee('"summary","total_debit","","","900.00","",""', false);
-        $response->assertSee('"summary","balance","","","","","-900.00"', false);
+        $response->assertSee('"summary","balance","","","","","900.00"', false);
     }
 
     private function createUser(?int $companyId, ?int $branchId): User
@@ -227,18 +207,24 @@ class SupplierStatementDateFilterTest extends TestCase
         return Branch::unguarded(fn () => Branch::query()->create($data));
     }
 
-    private function createExpenseCategory(?int $companyId): ExpenseCategory
+    private function createWarehouse(?int $companyId, int $branchId): Warehouse
     {
-        $columns = Schema::getColumnListing('expense_categories');
+        $columns = Schema::getColumnListing('warehouses');
 
         $data = [
-            'name' => 'تصنيف فلتر كشف حساب المورد',
-            'slug' => 'supplier-statement-date-filter-category',
+            'name' => 'مستودع اختبار فلتر كشف حساب المورد',
+            'code' => 'SUP-STMT-DATE-WH',
+            'city' => 'الرياض',
+            'address' => 'الرياض',
             'is_active' => true,
         ];
 
         if ($companyId && in_array('company_id', $columns, true)) {
             $data['company_id'] = $companyId;
+        }
+
+        if (in_array('branch_id', $columns, true)) {
+            $data['branch_id'] = $branchId;
         }
 
         if (in_array('created_at', $columns, true)) {
@@ -249,10 +235,10 @@ class SupplierStatementDateFilterTest extends TestCase
             $data['updated_at'] = now();
         }
 
-        $data = $this->fillRequiredColumns('expense_categories', $data);
+        $data = $this->fillRequiredColumns('warehouses', $data);
         $data = array_intersect_key($data, array_flip($columns));
 
-        return ExpenseCategory::unguarded(fn () => ExpenseCategory::query()->create($data));
+        return Warehouse::unguarded(fn () => Warehouse::query()->create($data));
     }
 
     private function createSupplier(?int $companyId, ?int $branchId): Supplier
@@ -289,35 +275,37 @@ class SupplierStatementDateFilterTest extends TestCase
         return Supplier::unguarded(fn () => Supplier::query()->create($data));
     }
 
-    private function insertExpense(?int $companyId, int $branchId, int $categoryId, int $supplierId, array $overrides): void
+    private function insertPurchaseInvoice(?int $companyId, int $branchId, int $warehouseId, int $supplierId, array $overrides): void
     {
-        $columns = Schema::getColumnListing('expenses');
+        $columns = Schema::getColumnListing('purchase_invoices');
 
         $data = [
             'company_id' => $companyId,
             'branch_id' => $branchId,
-            'expense_category_id' => $categoryId,
+            'warehouse_id' => $warehouseId,
             'supplier_id' => $supplierId,
             'user_id' => DB::table('users')->value('id'),
-            'code' => $overrides['code'],
-            'description' => $overrides['description'],
-            'amount' => $overrides['amount'],
-            'tax_amount' => $overrides['tax_amount'],
-            'payment_method' => $overrides['payment_method'],
-            'expense_date' => $overrides['expense_date'],
-            'reference_number' => $overrides['reference_number'],
+            'invoice_number' => $overrides['invoice_number'],
+            'status' => 'received',
+            'payment_status' => 'unpaid',
+            'currency' => 'SAR',
+            'subtotal' => $overrides['amount'],
+            'discount_total' => 0,
+            'tax_total' => 0,
+            'grand_total' => $overrides['amount'],
+            'paid_amount' => 0,
+            'remaining_amount' => $overrides['amount'],
+            'invoice_date' => $overrides['invoice_date'],
+            'due_at' => null,
             'notes' => null,
-            'is_paid' => $overrides['is_paid'],
-            'attachment_path' => null,
-            'attachment_original_name' => null,
             'created_at' => now(),
             'updated_at' => now(),
         ];
 
-        $data = $this->fillRequiredColumns('expenses', $data);
+        $data = $this->fillRequiredColumns('purchase_invoices', $data);
         $data = array_intersect_key($data, array_flip($columns));
 
-        DB::table('expenses')->insert($data);
+        DB::table('purchase_invoices')->insert($data);
     }
 
     private function fillRequiredColumns(string $table, array $data): array
@@ -345,7 +333,7 @@ class SupplierStatementDateFilterTest extends TestCase
             $data[$column->name] = match (true) {
                 str_contains($columnName, 'company_id') => $this->createCompanyId(),
                 str_contains($columnName, 'branch_id') => 1,
-                str_contains($columnName, 'expense_category_id') => 1,
+                str_contains($columnName, 'warehouse_id') => 1,
                 str_contains($columnName, 'supplier_id') => 1,
                 str_contains($columnName, 'user_id') => 1,
                 str_contains($columnName, 'email') => $table . '-required@example.com',

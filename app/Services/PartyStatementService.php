@@ -27,6 +27,10 @@ class PartyStatementService
 
     public function supplierStatement(int $supplierId, ?string $from = null, ?string $to = null): array
     {
+        if (Schema::hasTable('purchase_invoices') && Schema::hasTable('purchase_invoice_payments')) {
+            return $this->buildSupplierPurchaseInvoiceStatement($supplierId, $from, $to);
+        }
+
         return $this->buildStatement(
             table: 'expenses',
             foreignKey: 'supplier_id',
@@ -172,6 +176,139 @@ class PartyStatementService
         ];
     }
 
+
+    private function buildSupplierPurchaseInvoiceStatement(int $supplierId, ?string $from, ?string $to): array
+    {
+        $invoiceColumns = Schema::getColumnListing('purchase_invoices');
+        $paymentColumns = Schema::getColumnListing('purchase_invoice_payments');
+
+        foreach (['id', 'supplier_id', 'invoice_number', 'grand_total'] as $requiredColumn) {
+            if (! in_array($requiredColumn, $invoiceColumns, true)) {
+                return [
+                    'rows' => collect(),
+                    'total_debit' => 0.0,
+                    'total_credit' => 0.0,
+                    'balance' => 0.0,
+                    'count' => 0,
+                    'has_data_source' => false,
+                    'source_table' => null,
+                ];
+            }
+        }
+
+        foreach (['id', 'purchase_invoice_id', 'amount'] as $requiredColumn) {
+            if (! in_array($requiredColumn, $paymentColumns, true)) {
+                return [
+                    'rows' => collect(),
+                    'total_debit' => 0.0,
+                    'total_credit' => 0.0,
+                    'balance' => 0.0,
+                    'count' => 0,
+                    'has_data_source' => false,
+                    'source_table' => null,
+                ];
+            }
+        }
+
+        $invoiceDateColumn = $this->firstExistingColumn($invoiceColumns, ['invoice_date', 'issued_at', 'created_at']);
+        $paymentDateColumn = in_array('paid_at', $paymentColumns, true) ? 'paid_at' : 'created_at';
+
+        $invoicesQuery = DB::table('purchase_invoices')
+            ->where('supplier_id', $supplierId);
+
+        if ($from) {
+            $invoicesQuery->whereDate($invoiceDateColumn, '>=', $from);
+        }
+
+        if ($to) {
+            $invoicesQuery->whereDate($invoiceDateColumn, '<=', $to);
+        }
+
+        $invoiceRows = $invoicesQuery
+            ->get()
+            ->map(function ($invoice) use ($invoiceDateColumn) {
+                $amount = (float) ($invoice->grand_total ?? 0);
+
+                return [
+                    'date' => (string) ($invoice->{$invoiceDateColumn} ?? '-'),
+                    'sort_date' => (string) ($invoice->{$invoiceDateColumn} ?? ''),
+                    'sort_id' => (int) $invoice->id,
+                    'type' => 'فاتورة شراء',
+                    'description' => 'فاتورة شراء رقم ' . ($invoice->invoice_number ?? $invoice->id),
+                    'status' => (string) ($invoice->payment_status ?? $invoice->status ?? '-'),
+                    'debit' => $amount,
+                    'credit' => 0.0,
+                    'balance' => 0.0,
+                ];
+            });
+
+        $paymentsQuery = DB::table('purchase_invoice_payments')
+            ->join('purchase_invoices', 'purchase_invoice_payments.purchase_invoice_id', '=', 'purchase_invoices.id')
+            ->where('purchase_invoices.supplier_id', $supplierId)
+            ->select([
+                'purchase_invoice_payments.*',
+                'purchase_invoices.invoice_number',
+            ]);
+
+        if ($from) {
+            $paymentsQuery->whereDate('purchase_invoice_payments.' . $paymentDateColumn, '>=', $from);
+        }
+
+        if ($to) {
+            $paymentsQuery->whereDate('purchase_invoice_payments.' . $paymentDateColumn, '<=', $to);
+        }
+
+        $paymentRows = $paymentsQuery
+            ->get()
+            ->map(function ($payment) use ($paymentDateColumn) {
+                $amount = (float) ($payment->amount ?? 0);
+                $reference = $payment->reference_number ? ' — مرجع ' . $payment->reference_number : '';
+
+                return [
+                    'date' => (string) ($payment->{$paymentDateColumn} ?? '-'),
+                    'sort_date' => (string) ($payment->{$paymentDateColumn} ?? ''),
+                    'sort_id' => (int) $payment->id,
+                    'type' => 'دفعة',
+                    'description' => 'دفعة على فاتورة رقم ' . ($payment->invoice_number ?? '-') . $reference,
+                    'status' => (string) ($payment->method ?? '-'),
+                    'debit' => 0.0,
+                    'credit' => $amount,
+                    'balance' => 0.0,
+                ];
+            });
+
+        $runningBalance = 0.0;
+
+        $rows = $invoiceRows
+            ->merge($paymentRows)
+            ->sortBy([
+                ['sort_date', 'asc'],
+                ['sort_id', 'asc'],
+            ])
+            ->values()
+            ->map(function (array $row) use (&$runningBalance) {
+                $runningBalance = round($runningBalance + (float) $row['debit'] - (float) $row['credit'], 2);
+
+                $row['balance'] = $runningBalance;
+
+                unset($row['sort_date'], $row['sort_id']);
+
+                return $row;
+            });
+
+        $totalDebit = (float) $rows->sum('debit');
+        $totalCredit = (float) $rows->sum('credit');
+
+        return [
+            'rows' => $rows,
+            'total_debit' => $totalDebit,
+            'total_credit' => $totalCredit,
+            'balance' => round($totalDebit - $totalCredit, 2),
+            'count' => $rows->count(),
+            'has_data_source' => true,
+            'source_table' => 'purchase_invoices',
+        ];
+    }
 
     private function buildStatement(
         string $table,
