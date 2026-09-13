@@ -49,6 +49,39 @@ class RevenueCategoryManagementTest extends TestCase
         $indexResponse->assertSee('مفعل');
     }
 
+    public function test_new_revenue_category_is_attached_to_users_own_company_not_an_arbitrary_one(): void
+    {
+        $this->seed();
+
+        // Create a second company that comes before the user's real company
+        // when ordered by id, so any "first company in the table" fallback
+        // would pick the wrong one.
+        $otherCompany = Company::query()->create([
+            'name_ar' => 'شركة أخرى لتصنيفات الإيرادات',
+            'is_active' => true,
+        ]);
+
+        $user = User::query()->firstOrFail();
+        $company = Company::query()->where('id', '!=', $otherCompany->id)->firstOrFail();
+
+        $response = $this->actingAs($user)->post(route('revenue-categories.store'), [
+            'name' => 'تصنيف شركة المستخدم',
+            'slug' => 'user-own-company-revenue-category',
+        ]);
+
+        $response->assertRedirect(route('revenue-categories.index'));
+
+        $this->assertDatabaseHas('revenue_categories', [
+            'slug' => 'user-own-company-revenue-category',
+            'company_id' => $company->id,
+        ]);
+
+        $this->assertDatabaseMissing('revenue_categories', [
+            'slug' => 'user-own-company-revenue-category',
+            'company_id' => $otherCompany->id,
+        ]);
+    }
+
     public function test_revenue_category_slug_must_be_unique_per_company(): void
     {
         $this->seed();

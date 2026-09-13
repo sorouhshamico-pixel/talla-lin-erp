@@ -39,7 +39,19 @@ class ExpenseCategoryController extends Controller
 
         $slug = $this->normalizeSlug($validated['slug'] ?: $validated['name']);
 
-        if ($this->slugExists($slug)) {
+        $companyId = null;
+
+        if (Schema::hasColumn('expense_categories', 'company_id')) {
+            $companyId = $this->resolveCompanyId($request);
+
+            if (! $companyId) {
+                return back()
+                    ->withErrors(['company_id' => 'لم يتم تحديد الشركة المرتبطة بالتصنيف.'])
+                    ->withInput();
+            }
+        }
+
+        if ($this->slugExists($slug, companyId: $companyId)) {
             return back()
                 ->withErrors(['slug' => 'الـ slug مستخدم من قبل.'])
                 ->withInput();
@@ -52,15 +64,7 @@ class ExpenseCategoryController extends Controller
             'is_active' => true,
         ];
 
-        if (Schema::hasColumn('expense_categories', 'company_id')) {
-            $companyId = $this->resolveCompanyId($request);
-
-            if (! $companyId) {
-                return back()
-                    ->withErrors(['company_id' => 'لم يتم تحديد الشركة المرتبطة بالتصنيف.'])
-                    ->withInput();
-            }
-
+        if ($companyId) {
             $payload['company_id'] = $companyId;
         }
 
@@ -88,7 +92,11 @@ class ExpenseCategoryController extends Controller
 
         $slug = $this->normalizeSlug($validated['slug'] ?: $validated['name']);
 
-        if ($this->slugExists($slug, $expenseCategory->id)) {
+        $companyId = Schema::hasColumn('expense_categories', 'company_id')
+            ? ($request->filled('company_id') ? (int) $request->input('company_id') : $expenseCategory->company_id)
+            : null;
+
+        if ($this->slugExists($slug, $expenseCategory->id, $companyId)) {
             return back()
                 ->withErrors(['slug' => 'الـ slug مستخدم من قبل.'])
                 ->withInput();
@@ -101,8 +109,8 @@ class ExpenseCategoryController extends Controller
             'is_active' => $request->boolean('is_active'),
         ];
 
-        if (Schema::hasColumn('expense_categories', 'company_id') && $request->filled('company_id')) {
-            $payload['company_id'] = (int) $request->input('company_id');
+        if ($companyId !== null) {
+            $payload['company_id'] = $companyId;
         }
 
         $expenseCategory->update($payload);
@@ -153,12 +161,16 @@ class ExpenseCategoryController extends Controller
             );
     }
 
-    private function slugExists(string $slug, ?int $ignoreId = null): bool
+    private function slugExists(string $slug, ?int $ignoreId = null, ?int $companyId = null): bool
     {
         $query = ExpenseCategory::query()->where('slug', $slug);
 
         if ($ignoreId) {
             $query->whereKeyNot($ignoreId);
+        }
+
+        if ($companyId !== null && Schema::hasColumn('expense_categories', 'company_id')) {
+            $query->where('company_id', $companyId);
         }
 
         return $query->exists();
@@ -172,8 +184,8 @@ class ExpenseCategoryController extends Controller
 
         $user = $request->user();
 
-        if ($user && $user->getAttribute('company_id')) {
-            return (int) $user->getAttribute('company_id');
+        if ($user && $user->companyId()) {
+            return (int) $user->companyId();
         }
 
         if (Schema::hasTable('companies')) {

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartyTag;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PartyTagController extends Controller
@@ -42,10 +44,19 @@ class PartyTagController extends Controller
             'description' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $validated['slug'] = $this->uniqueSlug($validated['name'], $validated['applies_to']);
         $validated['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
 
-        PartyTag::query()->create($validated);
+        try {
+            DB::transaction(function () use ($validated): void {
+                $validated['slug'] = $this->uniqueSlug($validated['name'], $validated['applies_to']);
+
+                PartyTag::query()->create($validated);
+            });
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withErrors(['name' => 'حدث تعارض أثناء إنشاء التصنيف، الرجاء إعادة المحاولة.'])
+                ->withInput();
+        }
 
         return redirect()
             ->route('party-tags.index')
@@ -93,6 +104,7 @@ class PartyTagController extends Controller
             PartyTag::query()
                 ->where('slug', $slug)
                 ->where('applies_to', $appliesTo)
+                ->lockForUpdate()
                 ->exists()
         ) {
             $slug = $baseSlug . '-' . $counter;

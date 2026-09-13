@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
 use App\Models\RevenueCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +25,13 @@ class RevenueCategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $company = Company::query()->firstOrFail();
+        $companyId = $request->user()?->companyId();
+
+        if (! $companyId) {
+            return back()
+                ->withErrors(['name' => 'لا يمكن تحديد شركة حسابك. تأكد من تعيين فرع حالي لحسابك.'])
+                ->withInput();
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -36,10 +41,10 @@ class RevenueCategoryController extends Controller
 
         $slug = $this->normalizeSlug($validated['slug'] ?? $validated['name']);
 
-        $this->ensureSlugIsUnique($company->id, $slug);
+        $this->ensureSlugIsUnique($companyId, $slug);
 
         RevenueCategory::query()->create([
-            'company_id' => $company->id,
+            'company_id' => $companyId,
             'name' => $validated['name'],
             'slug' => $slug,
             'description' => $validated['description'] ?? null,

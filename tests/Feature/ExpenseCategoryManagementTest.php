@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\User;
@@ -90,6 +91,73 @@ class ExpenseCategoryManagementTest extends TestCase
 
         $response->assertRedirect('/expense-categories/create');
         $response->assertSessionHasErrors('slug');
+    }
+
+    public function test_new_expense_category_is_attached_to_users_own_company_not_an_arbitrary_one(): void
+    {
+        $this->seed();
+
+        // Create a second company that comes before the admin's real company
+        // when ordered by id, so any "first company in the table" fallback
+        // would pick the wrong one.
+        $otherCompany = Company::query()->create([
+            'name_ar' => 'شركة أخرى',
+            'is_active' => true,
+        ]);
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+        $branch = Branch::query()->where('code', 'MAIN')->firstOrFail();
+
+        $this->assertNotSame($otherCompany->id, $branch->company_id);
+
+        $response = $this->actingAs($admin)->post('/expense-categories', [
+            'name' => 'تصنيف شركة المستخدم',
+            'slug' => 'user-own-company-category',
+        ]);
+
+        $response->assertRedirect('/expense-categories');
+
+        $this->assertDatabaseHas('expense_categories', [
+            'slug' => 'user-own-company-category',
+            'company_id' => $branch->company_id,
+        ]);
+
+        $this->assertDatabaseMissing('expense_categories', [
+            'slug' => 'user-own-company-category',
+            'company_id' => $otherCompany->id,
+        ]);
+    }
+
+    public function test_expense_category_slug_can_repeat_across_different_companies(): void
+    {
+        $this->seed();
+
+        $otherCompany = Company::query()->create([
+            'name_ar' => 'شركة أخرى لاختبار السلاج',
+            'is_active' => true,
+        ]);
+
+        ExpenseCategory::query()->create([
+            'company_id' => $otherCompany->id,
+            'name' => 'تصنيف الشركة الأخرى',
+            'slug' => 'shared-slug-across-companies',
+            'is_active' => true,
+        ]);
+
+        $admin = User::query()->where('email', 'admin@tallalin.local')->firstOrFail();
+
+        $response = $this->actingAs($admin)->post('/expense-categories', [
+            'name' => 'تصنيف شركتي',
+            'slug' => 'shared-slug-across-companies',
+        ]);
+
+        $response->assertRedirect('/expense-categories');
+        $response->assertSessionDoesntHaveErrors('slug');
+
+        $this->assertDatabaseHas('expense_categories', [
+            'slug' => 'shared-slug-across-companies',
+            'name' => 'تصنيف شركتي',
+        ]);
     }
 
     public function test_owner_can_view_expense_category_edit_page(): void
