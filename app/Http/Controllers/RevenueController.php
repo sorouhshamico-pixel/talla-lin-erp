@@ -351,6 +351,36 @@ class RevenueController extends Controller
         return null;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    private function preloadNameMap(string $table): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable($table)) {
+            return [];
+        }
+
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing($table);
+        $candidateColumns = array_values(array_intersect(['name', 'title', 'description', 'code'], $columns));
+
+        if ($candidateColumns === []) {
+            return [];
+        }
+
+        return \Illuminate\Support\Facades\DB::table($table)
+            ->get(array_merge(['id'], $candidateColumns))
+            ->mapWithKeys(function ($record) use ($candidateColumns) {
+                foreach ($candidateColumns as $column) {
+                    if (($record->{$column} ?? null) !== null && $record->{$column} !== '') {
+                        return [$record->id => (string) $record->{$column}];
+                    }
+                }
+
+                return [$record->id => (string) $record->id];
+            })
+            ->all();
+    }
+
     public function exportUncollectedCsv()
     {
         $revenue = new \App\Models\Revenue();
@@ -664,24 +694,15 @@ class RevenueController extends Controller
                 }
             }
 
-            $lookupName = static function (?int $id, string $table): string {
-                if ($id === null || ! \Illuminate\Support\Facades\Schema::hasTable($table)) {
+            $branchNames = $this->preloadNameMap('branches');
+            $categoryNames = $this->preloadNameMap('revenue_categories');
+
+            $lookupName = static function (?int $id, array $map): string {
+                if ($id === null) {
                     return '';
                 }
 
-                $record = \Illuminate\Support\Facades\DB::table($table)->where('id', $id)->first();
-
-                if (! $record) {
-                    return '';
-                }
-
-                foreach (['name', 'title', 'description', 'code'] as $column) {
-                    if (property_exists($record, $column) && $record->{$column} !== null && $record->{$column} !== '') {
-                        return (string) $record->{$column};
-                    }
-                }
-
-                return (string) $id;
+                return $map[$id] ?? '';
             };
 
             $formatDate = static function ($value): string {
@@ -722,6 +743,8 @@ class RevenueController extends Controller
                 ->chunk(200, function ($revenues) use (
                     $output,
                     $lookupName,
+                    $branchNames,
+                    $categoryNames,
                     $formatDate,
                     $collectionMethodLabel,
                     $collectionStatusLabel,
@@ -732,8 +755,8 @@ class RevenueController extends Controller
                             $revenue->code ?? '',
                             $formatDate($revenue->revenue_date ?? $revenue->date ?? $revenue->created_at ?? null),
                             $revenue->description ?? '',
-                            $lookupName(isset($revenue->branch_id) ? (int) $revenue->branch_id : null, 'branches'),
-                            $lookupName(isset($revenue->revenue_category_id) ? (int) $revenue->revenue_category_id : null, 'revenue_categories'),
+                            $lookupName(isset($revenue->branch_id) ? (int) $revenue->branch_id : null, $branchNames),
+                            $lookupName(isset($revenue->revenue_category_id) ? (int) $revenue->revenue_category_id : null, $categoryNames),
                             $collectionMethodLabel($revenue->collection_method ?? ''),
                             $collectionStatusLabel($revenue->is_collected ?? false),
                             $revenue->amount ?? '',

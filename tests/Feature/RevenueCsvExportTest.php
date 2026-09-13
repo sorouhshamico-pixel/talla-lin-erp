@@ -131,6 +131,72 @@ class RevenueCsvExportTest extends TestCase
         $this->assertStringNotContainsString('CSV hidden active revenue', $csv);
     }
 
+    public function test_revenue_csv_export_resolves_correct_branch_and_category_names_per_row(): void
+    {
+        $this->seed();
+
+        $company = Company::query()->firstOrFail();
+        $user = User::query()->firstOrFail();
+
+        $branches = Branch::query()
+            ->where('company_id', $company->id)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $this->assertGreaterThanOrEqual(2, $branches->count(), 'Need at least two branches for this test.');
+
+        [$branchOne, $branchTwo] = $branches;
+
+        $categoryOne = RevenueCategory::query()->create([
+            'company_id' => $company->id,
+            'name' => 'تصنيف الصف الأول',
+            'slug' => 'csv-row-one-category',
+            'is_active' => true,
+        ]);
+
+        $categoryTwo = RevenueCategory::query()->create([
+            'company_id' => $company->id,
+            'name' => 'تصنيف الصف الثاني',
+            'slug' => 'csv-row-two-category',
+            'is_active' => true,
+        ]);
+
+        $this->createRevenue($company, $branchOne, $categoryOne, 'CSV row one revenue', 1000, 'cash', true, null);
+        $this->createRevenue($company, $branchTwo, $categoryTwo, 'CSV row two revenue', 2000, 'cash', true, null);
+
+        $response = $this->actingAs($user)->get(route('revenues.export'));
+
+        $response->assertOk();
+
+        $csv = $response->streamedContent();
+        $lines = array_filter(explode("\n", $csv));
+
+        $rowOneLine = null;
+        $rowTwoLine = null;
+
+        foreach ($lines as $line) {
+            if (str_contains($line, 'CSV row one revenue')) {
+                $rowOneLine = $line;
+            }
+
+            if (str_contains($line, 'CSV row two revenue')) {
+                $rowTwoLine = $line;
+            }
+        }
+
+        $this->assertNotNull($rowOneLine);
+        $this->assertNotNull($rowTwoLine);
+
+        $this->assertStringContainsString($branchOne->name, $rowOneLine);
+        $this->assertStringContainsString('تصنيف الصف الأول', $rowOneLine);
+        $this->assertStringNotContainsString('تصنيف الصف الثاني', $rowOneLine);
+
+        $this->assertStringContainsString($branchTwo->name, $rowTwoLine);
+        $this->assertStringContainsString('تصنيف الصف الثاني', $rowTwoLine);
+        $this->assertStringNotContainsString('تصنيف الصف الأول', $rowTwoLine);
+    }
+
     private function createRevenue(
         Company $company,
         Branch $branch,
