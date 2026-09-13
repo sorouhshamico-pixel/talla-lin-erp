@@ -43,7 +43,7 @@ class ExpenseEditDeleteTest extends TestCase
 
     public function test_owner_can_update_expense(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Update Branch', 'BR-EDT-101');
@@ -96,7 +96,7 @@ class ExpenseEditDeleteTest extends TestCase
 
     public function test_expense_update_rejects_inactive_category(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Reject Branch', 'BR-EDT-201');
@@ -140,7 +140,7 @@ class ExpenseEditDeleteTest extends TestCase
 
     public function test_owner_can_delete_expense(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Delete Branch', 'BR-EDT-301');
@@ -160,6 +160,46 @@ class ExpenseEditDeleteTest extends TestCase
 
         $this->assertDatabaseMissing('expenses', [
             'id' => $expense->id,
+        ]);
+    }
+
+    public function test_non_owner_cannot_update_or_delete_expense(): void
+    {
+        $user = User::factory()->create(['role' => 'viewer']);
+
+        $companyId = $this->companyId();
+        $branch = $this->branch($companyId, 'Main Non-Owner Branch', 'BR-EDT-401');
+
+        $category = ExpenseCategory::query()->create($this->expenseCategoryData($companyId, [
+            'name' => 'Non-Owner Expense Category',
+            'slug' => 'non-owner-expense-category',
+        ]));
+
+        $expense = $this->expense($companyId, $branch->id, $category->id, [
+            'description' => 'Expense protected from non-owner',
+            'amount' => 100,
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('expenses.update', $expense), [
+                'branch_id' => $branch->id,
+                'expense_category_id' => $category->id,
+                'description' => 'Should not update',
+                'amount' => 999,
+                'tax_amount' => 0,
+                'payment_method' => 'cash',
+                'expense_date' => now()->toDateString(),
+            ])
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->delete(route('expenses.destroy', $expense))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('expenses', [
+            'id' => $expense->id,
+            'description' => 'Expense protected from non-owner',
+            'amount' => 100,
         ]);
     }
 

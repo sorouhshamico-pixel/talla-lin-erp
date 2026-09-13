@@ -67,7 +67,7 @@ class ExpenseAttachmentTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Attachment Update Branch', 'BR-ATT-101');
@@ -158,7 +158,7 @@ class ExpenseAttachmentTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Attachment Delete Branch', 'BR-ATT-301');

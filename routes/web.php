@@ -9,6 +9,7 @@ use App\Support\Reports\ReportSavedViewDiagnosticSnapshotExporter;
 use App\Support\Reports\ReportSavedViewDiagnosticsWebLinks;
 use App\Support\Reports\ReportSavedViewRegistryDiagnosticReport;
 use App\Http\Middleware\EnsurePartyPermission;
+use App\Http\Middleware\EnsureRole;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BranchController;
@@ -190,9 +191,9 @@ Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->n
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
-    Route::patch('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
-    Route::delete('/expenses/{expense}/attachment', [ExpenseController::class, 'destroyAttachment'])->name('expenses.attachment.destroy');
-    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    Route::patch('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update')->middleware(EnsureRole::class . ':owner');
+    Route::delete('/expenses/{expense}/attachment', [ExpenseController::class, 'destroyAttachment'])->name('expenses.attachment.destroy')->middleware(EnsureRole::class . ':owner');
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware(EnsureRole::class . ':owner');
 
     Route::post('/reports/saved-views', [ReportController::class, 'storeSavedView'])->name('reports.index.saved-views.store');
     Route::delete('/reports/saved-views/bulk-destroy', [\App\Http\Controllers\ReportSavedViewController::class, 'bulkDestroy'])->name('reports.saved-views.bulk-destroy');

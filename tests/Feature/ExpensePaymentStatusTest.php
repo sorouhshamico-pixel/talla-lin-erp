@@ -53,7 +53,7 @@ class ExpensePaymentStatusTest extends TestCase
 
     public function test_owner_can_update_expense_payment_status(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Payment Update Branch', 'BR-PAY-101');

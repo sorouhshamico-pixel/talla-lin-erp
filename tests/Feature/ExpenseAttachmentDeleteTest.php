@@ -21,7 +21,7 @@ class ExpenseAttachmentDeleteTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Attachment Remove Branch', 'BR-ADR-001');
@@ -97,7 +97,7 @@ class ExpenseAttachmentDeleteTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'owner']);
 
         $companyId = $this->companyId();
         $branch = $this->branch($companyId, 'Main Missing Attachment Branch', 'BR-ADR-201');
