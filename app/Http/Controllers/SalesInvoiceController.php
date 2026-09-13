@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\SalesInvoice;
 use App\Services\InventoryStockService;
 use App\Services\SalesInvoiceService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,42 +18,7 @@ class SalesInvoiceController extends Controller
 {
     public function index(Request $request): View
     {
-        $invoicesQuery = SalesInvoice::query()
-            ->with(['customer', 'branch', 'user']);
-
-        if ($request->filled('customer_id')) {
-            $invoicesQuery->where('customer_id', $request->input('customer_id'));
-        }
-
-        if ($request->input('collection_status') === 'outstanding') {
-            $invoicesQuery->where('remaining_amount', '>', 0);
-        }
-
-        if ($request->input('collection_status') === 'overdue') {
-            $invoicesQuery
-                ->where('remaining_amount', '>', 0)
-                ->whereDate('due_at', '<', now()->toDateString());
-        }
-
-        if ($request->filled('payment_status')) {
-            $invoicesQuery->where('payment_status', $request->input('payment_status'));
-        }
-
-        if ($request->filled('issued_from')) {
-            $invoicesQuery->whereDate('issued_at', '>=', $request->input('issued_from'));
-        }
-
-        if ($request->filled('issued_to')) {
-            $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
-        }
-
-        if ($request->filled('due_from')) {
-            $invoicesQuery->whereDate('due_at', '>=', $request->input('due_from'));
-        }
-
-        if ($request->filled('due_to')) {
-            $invoicesQuery->whereDate('due_at', '<=', $request->input('due_to'));
-        }
+        $invoicesQuery = $this->filteredInvoicesQuery($request);
 
         $salesInvoiceSummary = [
             'count' => (clone $invoicesQuery)->count(),
@@ -89,42 +55,7 @@ class SalesInvoiceController extends Controller
 
     public function export(Request $request)
     {
-        $invoicesQuery = SalesInvoice::query()
-            ->with(['customer', 'branch', 'user']);
-
-        if ($request->filled('customer_id')) {
-            $invoicesQuery->where('customer_id', $request->input('customer_id'));
-        }
-
-        if ($request->input('collection_status') === 'outstanding') {
-            $invoicesQuery->where('remaining_amount', '>', 0);
-        }
-
-        if ($request->input('collection_status') === 'overdue') {
-            $invoicesQuery
-                ->where('remaining_amount', '>', 0)
-                ->whereDate('due_at', '<', now()->toDateString());
-        }
-
-        if ($request->filled('payment_status')) {
-            $invoicesQuery->where('payment_status', $request->input('payment_status'));
-        }
-
-        if ($request->filled('issued_from')) {
-            $invoicesQuery->whereDate('issued_at', '>=', $request->input('issued_from'));
-        }
-
-        if ($request->filled('issued_to')) {
-            $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
-        }
-
-        if ($request->filled('due_from')) {
-            $invoicesQuery->whereDate('due_at', '>=', $request->input('due_from'));
-        }
-
-        if ($request->filled('due_to')) {
-            $invoicesQuery->whereDate('due_at', '<=', $request->input('due_to'));
-        }
+        $invoicesQuery = $this->filteredInvoicesQuery($request);
 
         $invoices = $invoicesQuery
             ->latest('issued_at')
@@ -412,5 +343,47 @@ class SalesInvoiceController extends Controller
         return redirect()
             ->route('sales-invoices.show', $salesInvoice)
             ->with('success', 'تم تسجيل الدفعة بنجاح.');
+    }
+
+    private function filteredInvoicesQuery(Request $request): Builder
+    {
+        $invoicesQuery = SalesInvoice::query()
+            ->with(['customer', 'branch', 'user']);
+
+        if ($request->filled('customer_id')) {
+            $invoicesQuery->where('customer_id', $request->input('customer_id'));
+        }
+
+        if ($request->input('collection_status') === 'outstanding') {
+            $invoicesQuery->where('remaining_amount', '>', 0);
+        }
+
+        if ($request->input('collection_status') === 'overdue') {
+            $invoicesQuery
+                ->where('remaining_amount', '>', 0)
+                ->whereDate('due_at', '<', now()->toDateString());
+        }
+
+        if ($request->filled('payment_status')) {
+            $invoicesQuery->where('payment_status', $request->input('payment_status'));
+        }
+
+        if ($request->filled('issued_from')) {
+            $invoicesQuery->whereDate('issued_at', '>=', $request->input('issued_from'));
+        }
+
+        if ($request->filled('issued_to')) {
+            $invoicesQuery->whereDate('issued_at', '<=', $request->input('issued_to'));
+        }
+
+        if ($request->filled('due_from')) {
+            $invoicesQuery->whereDate('due_at', '>=', $request->input('due_from'));
+        }
+
+        if ($request->filled('due_to')) {
+            $invoicesQuery->whereDate('due_at', '<=', $request->input('due_to'));
+        }
+
+        return $invoicesQuery;
     }
 }
